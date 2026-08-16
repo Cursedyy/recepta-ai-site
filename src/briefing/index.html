@@ -1,0 +1,1259 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Briefing — Recepta AI | Teste grátis de 7 dias</title>
+    <meta
+      name="description"
+      content="Formulário de configuração da sua secretária virtual com IA."
+    />
+    <meta name="robots" content="noindex" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/img/favicon-32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="512x512"
+      href="/img/favicon-512.png"
+    />
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&display=swap"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #fafafd;
+        --surface: #ffffff;
+        --ink: #100d22;
+        --muted: #302e47;
+        --line: #e7e5f2;
+        --accent: #26205c;
+        --accent-ink: #ffffff;
+        --accent-soft: #f3f2f5;
+        --accent-2: #afa8eb;
+        --header-bg: #151749;
+        --err: #dc2626;
+        --radius: 14px;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: var(--bg);
+        color: var(--ink);
+        font-family:
+          "Manrope",
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          Helvetica,
+          Arial,
+          sans-serif;
+        font-weight: 400;
+        font-size: 15.5px;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+      a {
+        color: inherit;
+      }
+
+      /* topbar - igual a landing */
+      header.top {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: var(--header-bg);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      }
+      .topbar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 14px 20px;
+        max-width: 760px;
+        margin: 0 auto;
+      }
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 700;
+        font-size: 16.5px;
+        letter-spacing: -0.02em;
+        color: #fff;
+        text-decoration: none;
+      }
+      .logo svg {
+        width: 28px;
+        height: 28px;
+        flex-shrink: 0;
+        display: block;
+      }
+      .logo span {
+        color: var(--accent-2);
+      }
+
+      .wrap {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 32px 18px 120px;
+      }
+      header.intro {
+        margin-bottom: 22px;
+      }
+      .badge {
+        display: inline-block;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--accent);
+        background: var(--accent-soft);
+        border: 1px solid rgba(38, 32, 92, 0.18);
+        padding: 6px 12px;
+        border-radius: 99px;
+        margin-bottom: 14px;
+      }
+      h1 {
+        font-size: clamp(26px, 5vw, 36px);
+        font-weight: 700;
+        line-height: 1.15;
+        letter-spacing: -0.02em;
+      }
+      h1 em {
+        font-style: normal;
+        color: var(--accent);
+      }
+      .sub {
+        color: var(--muted);
+        font-size: 16px;
+        margin-top: 12px;
+        max-width: 56ch;
+      }
+      .meta {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 16px;
+      }
+      .pill {
+        font-size: 12px;
+        color: var(--muted);
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 99px;
+        padding: 5px 11px;
+      }
+
+      /* trilha de passos + progresso, sticky abaixo da topbar */
+      .prog {
+        position: sticky;
+        top: 57px;
+        z-index: 15;
+        background: rgba(250, 250, 253, 0.92);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--line);
+        margin: 0 -18px 24px;
+        padding: 14px 18px 11px;
+      }
+      .steps-rail {
+        position: relative;
+        display: flex;
+        justify-content: space-between;
+        gap: 2px;
+        margin-bottom: 10px;
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+      .steps-rail::-webkit-scrollbar {
+        display: none;
+      }
+      .steps-rail::before {
+        content: "";
+        position: absolute;
+        left: 14px;
+        right: 14px;
+        top: 14px;
+        height: 2px;
+        background: var(--line);
+        z-index: 0;
+      }
+      .step-dot {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+        background: none;
+        border: 0;
+        cursor: pointer;
+        flex: 1;
+        min-width: 38px;
+        font: inherit;
+        padding: 2px;
+      }
+      .step-dot .dot-n {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--surface);
+        border: 2px solid var(--line);
+        color: var(--muted);
+        display: grid;
+        place-items: center;
+        font-size: 12px;
+        font-weight: 700;
+        transition: 0.15s;
+      }
+      .step-dot .dot-l {
+        font-size: 10px;
+        color: var(--muted);
+        text-align: center;
+        max-width: 74px;
+        line-height: 1.2;
+        display: none;
+      }
+      .step-dot.active .dot-n {
+        border-color: var(--accent);
+        background: var(--accent);
+        color: #fff;
+      }
+      .step-dot.active .dot-l {
+        color: var(--ink);
+        font-weight: 600;
+      }
+      .step-dot.done .dot-n {
+        border-color: var(--accent);
+        background: var(--accent-soft);
+        color: var(--accent);
+      }
+      .step-dot:disabled {
+        cursor: not-allowed;
+        opacity: 0.45;
+      }
+      @media (min-width: 640px) {
+        .step-dot .dot-l {
+          display: block;
+        }
+      }
+      .step-label {
+        font-size: 12.5px;
+        font-weight: 600;
+        color: var(--ink);
+        margin-bottom: 8px;
+      }
+      .bar {
+        height: 4px;
+        background: var(--line);
+        border-radius: 9px;
+        overflow: hidden;
+      }
+      .bar span {
+        display: block;
+        height: 100%;
+        width: 0;
+        background: linear-gradient(90deg, var(--accent-2), var(--accent));
+        transition: width 0.3s;
+      }
+      .plabel {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 7px;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      section {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 22px;
+        margin-bottom: 16px;
+        box-shadow:
+          0 1px 2px rgba(16, 13, 34, 0.04),
+          0 10px 24px -20px rgba(16, 13, 34, 0.35);
+      }
+      #form > section {
+        display: none;
+      }
+      #form > section.active {
+        display: block;
+        animation: stepIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
+      }
+      @keyframes stepIn {
+        from {
+          opacity: 0;
+          transform: translateX(16px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+      fieldset {
+        border: 0;
+      }
+      .sh {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        margin-bottom: 6px;
+      }
+      .num {
+        flex: 0 0 26px;
+        height: 26px;
+        border-radius: 8px;
+        background: var(--accent);
+        color: #fff;
+        display: grid;
+        place-items: center;
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .sh h2 {
+        font-size: 17px;
+        font-weight: 600;
+        letter-spacing: -0.02em;
+      }
+      .sd {
+        color: var(--muted);
+        font-size: 13px;
+        margin: 0 0 18px 38px;
+      }
+      .f {
+        margin-bottom: 17px;
+      }
+      label.l {
+        display: block;
+        font-size: 13.5px;
+        font-weight: 500;
+        margin-bottom: 6px;
+      }
+      .req {
+        color: var(--accent);
+        margin-left: 3px;
+      }
+      .help {
+        font-size: 12.5px;
+        color: var(--muted);
+        margin-bottom: 7px;
+      }
+      input,
+      textarea,
+      select {
+        width: 100%;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        color: var(--ink);
+        border-radius: 10px;
+        padding: 11px 13px;
+        font: inherit;
+        font-size: 14.5px;
+        outline: none;
+        transition:
+          border-color 0.15s,
+          box-shadow 0.15s;
+      }
+      textarea {
+        min-height: 96px;
+        resize: vertical;
+        line-height: 1.5;
+      }
+      input:focus,
+      textarea:focus,
+      select:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(38, 32, 92, 0.12);
+      }
+      input::placeholder,
+      textarea::placeholder {
+        color: #a19dc4;
+      }
+      select {
+        appearance: none;
+        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path d='M2 4l4 4 4-4' stroke='%23a19dc4' stroke-width='1.6' fill='none' stroke-linecap='round'/></svg>");
+        background-repeat: no-repeat;
+        background-position: right 13px center;
+      }
+      .opts {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .opt {
+        position: relative;
+      }
+      .opt input {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      .opt span {
+        display: block;
+        border: 1px solid var(--line);
+        background: var(--surface);
+        padding: 8px 13px;
+        border-radius: 9px;
+        font-size: 13.5px;
+        cursor: pointer;
+        transition: 0.15s;
+        user-select: none;
+      }
+      .opt input:checked + span {
+        border-color: var(--accent);
+        background: var(--accent-soft);
+        color: var(--accent);
+      }
+      .opt input:focus-visible + span {
+        box-shadow: 0 0 0 3px rgba(38, 32, 92, 0.18);
+      }
+      .inv {
+        border-color: var(--err) !important;
+      }
+      .note {
+        background: var(--accent-soft);
+        border: 1px solid rgba(38, 32, 92, 0.18);
+        border-radius: 10px;
+        padding: 12px 14px;
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 18px;
+      }
+      .note b {
+        color: var(--ink);
+      }
+      footer {
+        margin-top: 26px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .stepnav {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      button {
+        background: var(--accent);
+        color: var(--accent-ink);
+        border: 0;
+        border-radius: 12px;
+        padding: 16px 36px;
+        font: inherit;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: 0.15s;
+        box-shadow: 0 1px 2px rgba(16, 13, 34, 0.08);
+      }
+      button:hover {
+        filter: brightness(1.08);
+        box-shadow: 0 10px 24px -12px rgba(38, 32, 92, 0.5);
+      }
+      button:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+      #btn {
+        min-width: 220px;
+        padding: 16px 48px;
+        font-size: 16px;
+      }
+      #prevBtn {
+        background: var(--surface);
+        color: var(--ink);
+        border: 1px solid var(--line);
+        box-shadow: none;
+        padding: 16px 20px;
+      }
+      #prevBtn:hover {
+        filter: none;
+        background: var(--accent-soft);
+        box-shadow: none;
+      }
+      .fnote {
+        text-align: center;
+        color: var(--muted);
+        font-size: 12.5px;
+        margin-top: 13px;
+      }
+      .msg {
+        display: none;
+        border-radius: 10px;
+        padding: 13px 15px;
+        font-size: 14px;
+        margin-top: 14px;
+      }
+      .msg.err {
+        display: block;
+        background: rgba(220, 38, 38, 0.07);
+        border: 1px solid rgba(220, 38, 38, 0.25);
+        color: #991b1b;
+      }
+      @media (max-width: 520px) {
+        section {
+          padding: 18px 15px;
+        }
+        .wrap {
+          padding: 24px 14px 90px;
+        }
+        .prog {
+          margin: 0 -14px 24px;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #form > section.active {
+          animation: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="top">
+      <div class="topbar">
+        <a class="logo" href="/">
+          <svg viewBox="0 0 100 100" aria-hidden="true">
+            <g transform="translate(0 50)">
+              <path
+                d="M 34 -34 C -1.7 -15.9, -1.7 15.9, 34 34 C 69.7 15.9, 69.7 -15.9, 34 -34 Z"
+                fill="currentColor"
+                fill-opacity="0.6"
+              />
+              <path
+                d="M 66 -34 C 30.3 -15.9, 30.3 15.9, 66 34 C 101.7 15.9, 101.7 -15.9, 66 -34 Z"
+                fill="currentColor"
+              />
+            </g>
+          </svg>
+          Recepta <span>AI</span>
+        </a>
+      </div>
+    </header>
+    <div class="wrap">
+      <header class="intro">
+        <span class="badge">Teste grátis · 7 dias</span>
+        <h1>Briefing da sua <em>secretária virtual</em></h1>
+        <p class="sub">
+          Preencha o essencial agora pra sua Recepta AI já começar a atender — o
+          resto dá pra completar depois. Leva de 5 a 8 minutos.
+        </p>
+        <div class="meta">
+          <span class="pill">~6 min</span
+          ><span class="pill">Salva automático no navegador</span
+          ><span class="pill">Enviado direto pra equipe</span>
+        </div>
+      </header>
+      <div class="prog">
+        <div class="steps-rail" id="stepsRail"></div>
+        <div class="step-label" id="stepLabel"></div>
+        <div class="bar"><span id="bar"></span></div>
+        <div class="plabel">
+          <span id="pcount">0 de 0 obrigatórios</span><span id="ppct">0%</span>
+        </div>
+      </div>
+      <div class="note">
+        <b>Importante:</b> não cole dados de pacientes reais (nome, CPF,
+        resultado de exame). Se for enviar exemplos de conversa, troque os nomes
+        por “Paciente 1”, “Paciente 2”.
+      </div>
+      <form id="form" novalidate></form>
+      <footer>
+        <div class="stepnav">
+          <button id="prevBtn" type="button">Voltar</button>
+          <button id="btn" type="button">Continuar</button>
+        </div>
+        <div class="msg" id="err"></div>
+        <p class="fnote">
+          Ao enviar, você autoriza o uso destas informações apenas para
+          configurar seu atendimento.
+        </p>
+      </footer>
+    </div>
+    <script>
+      const S = [
+        {
+          t: "Identificação",
+          d: "Quem é a clínica e quem responde por ela.",
+          f: [
+            {
+              i: "clinica",
+              l: "Nome da clínica",
+              r: 1,
+              p: "Ex: Clínica Imagem Diagnóstica",
+            },
+            { i: "responsavel", l: "Nome do responsável pelo teste", r: 1 },
+            {
+              i: "cargo",
+              l: "Cargo do responsável",
+              p: "Ex: proprietária, gerente, coordenadora",
+            },
+            {
+              i: "whats_resp",
+              l: "WhatsApp do responsável (com DDD)",
+              r: 1,
+              ty: "tel",
+              p: "53 99999-9999",
+              h: "Pra falar com você durante o teste.",
+            },
+            {
+              i: "cnpj",
+              l: "CNPJ da clínica",
+              r: 1,
+              p: "00.000.000/0000-00",
+              h: "Usamos só pra travar teste grátis repetido no mesmo CNPJ.",
+            },
+            { i: "email", l: "E-mail", ty: "email" },
+            { i: "cidade", l: "Cidade / UF", r: 1, p: "Pelotas / RS" },
+            {
+              i: "endereco",
+              l: "Endereço completo da clínica",
+              r: 1,
+              ty: "ta",
+              h: "A IA vai passar isso pro paciente. Inclua ponto de referência.",
+            },
+            {
+              i: "links",
+              l: "Site e Instagram",
+              ty: "ta",
+              p: "site.com.br\n@instagram",
+            },
+          ],
+        },
+        {
+          t: "O número de WhatsApp",
+          d: "Essa parte define se a automação funciona ou trava. Responda com atenção.",
+          f: [
+            {
+              i: "numero",
+              l: "Número que a Recepta vai atender (com DDD)",
+              r: 1,
+              ty: "tel",
+              p: "53 3333-3333",
+            },
+            {
+              i: "tipo_conta",
+              l: "Esse número usa qual app hoje?",
+              r: 1,
+              ty: "radio",
+              o: [
+                "WhatsApp comum",
+                "WhatsApp Business",
+                "API Oficial da Meta",
+                "Número novo, ainda sem conta",
+                "Não sei",
+              ],
+              h: "API Oficial e Business com respostas automáticas exigem ajuste antes de ligar a IA.",
+            },
+            {
+              i: "automaticas",
+              l: "Tem mensagem automática ativa nesse número?",
+              r: 1,
+              ty: "radio",
+              o: [
+                "Sim, saudação",
+                "Sim, ausência",
+                "Sim, as duas",
+                "Sim, menu com opções numeradas",
+                "Não tem",
+              ],
+              h: "Menus automáticos confundem a IA e precisam ser desligados durante o teste.",
+            },
+            {
+              i: "quem_usa",
+              l: "Quem mais usa esse número hoje?",
+              r: 1,
+              ty: "radio",
+              o: [
+                "Só a recepção",
+                "Recepção + secretárias",
+                "Vários setores",
+                "Uso pessoal também",
+                "Ninguém, número novo",
+              ],
+            },
+            {
+              i: "volume",
+              l: "Quantas mensagens de pacientes chegam por dia (média)?",
+              r: 1,
+              ty: "select",
+              o: ["Até 10", "10 a 30", "30 a 60", "60 a 120", "Mais de 120"],
+            },
+            {
+              i: "pico",
+              l: "Em quais horários e dias chega mais mensagem?",
+              p: "Ex: segunda de manhã e final da tarde",
+            },
+            {
+              i: "celular_fixo",
+              l: "Esse número é celular ou fixo?",
+              r: 1,
+              ty: "radio",
+              o: ["Celular", "Fixo com WhatsApp", "Não sei"],
+              h: "Fixo com 8 dígitos exige configuração diferente.",
+            },
+          ],
+        },
+        {
+          t: "Serviços e valores",
+          d: "O que a clínica faz e o que a IA pode falar sobre preço.",
+          f: [
+            {
+              i: "servicos",
+              l: "Todos os exames / consultas / procedimentos oferecidos",
+              r: 1,
+              ty: "ta",
+              h: "Um por linha, com o nome que o paciente usa (não só o nome técnico).",
+              p: "Ultrassonografia abdominal\nRaio-X de tórax\nMamografia",
+            },
+            { i: "mais_pedidos", l: "Os 5 mais procurados", r: 1, ty: "ta" },
+            {
+              i: "nao_faz",
+              l: "O que vocês NÃO fazem mas o paciente vive pedindo",
+              ty: "ta",
+              h: "A IA precisa saber recusar sem parecer despreparada.",
+            },
+            {
+              i: "convenios",
+              l: "Convênios aceitos",
+              r: 1,
+              ty: "ta",
+              p: "Unimed\nIpê Saúde\nBradesco Saúde",
+            },
+            {
+              i: "particular",
+              l: "Atende particular?",
+              r: 1,
+              ty: "radio",
+              o: ["Sim", "Não", "Só alguns exames"],
+            },
+            {
+              i: "pode_preco",
+              l: "A IA pode informar preço no WhatsApp?",
+              r: 1,
+              ty: "radio",
+              o: [
+                "Sim, de tudo",
+                "Sim, só dos principais",
+                "Não, só passa pra recepção",
+              ],
+            },
+            {
+              i: "tabela",
+              l: "Tabela de preços que a IA pode falar",
+              ty: "ta",
+              h: "Só o que ela pode dizer. Ex: Ultrassom abdominal — R$ 180 (particular).",
+            },
+            {
+              i: "pagamento",
+              l: "Formas de pagamento e parcelamento",
+              r: 1,
+              ty: "ta",
+              p: "Pix, dinheiro, débito, crédito em até 3x sem juros",
+            },
+          ],
+        },
+        {
+          t: "Agendamento",
+          d: "Como o paciente sai da conversa com horário marcado.",
+          f: [
+            {
+              i: "como_agenda",
+              l: "Como vocês agendam hoje?",
+              r: 1,
+              ty: "radio",
+              o: [
+                "Agenda de papel",
+                "Planilha",
+                "Google Agenda",
+                "Sistema/software próprio",
+                "Só pelo WhatsApp mesmo",
+              ],
+            },
+            {
+              i: "sistema_nome",
+              l: "Se usa sistema, qual o nome?",
+              p: "Ex: iClinic, Feegow, Amplimed",
+            },
+            {
+              i: "papel_ia",
+              l: "O que a IA deve fazer no agendamento?",
+              r: 1,
+              ty: "radio",
+              o: [
+                "Confirmar o horário sozinha",
+                "Coletar os dados e passar pra recepção confirmar",
+                "Só tirar dúvidas, sem agendar",
+              ],
+              h: "No teste de 7 dias o mais seguro costuma ser coletar e passar pra recepção.",
+            },
+            {
+              i: "dados_obrig",
+              l: "Quais dados a IA deve coletar antes de encaminhar?",
+              r: 1,
+              ty: "check",
+              o: [
+                "Nome completo",
+                "Data de nascimento",
+                "CPF",
+                "Convênio e número da carteirinha",
+                "Qual exame/consulta",
+                "Tem pedido médico?",
+                "Preferência de dia e turno",
+                "Primeira vez na clínica?",
+              ],
+            },
+            {
+              i: "horarios",
+              l: "Horários disponíveis para agendamento, por dia da semana",
+              r: 1,
+              ty: "ta",
+              p: "Seg a sex: 8h às 12h e 13h30 às 18h\nSáb: 8h às 12h\nDom: fechado",
+            },
+            {
+              i: "duracao",
+              l: "Duração média de cada atendimento",
+              p: "Ex: ultrassom 20 min, consulta 30 min",
+            },
+            {
+              i: "antecedencia",
+              l: "Antecedência mínima e máxima para marcar",
+              p: "Ex: mínimo 1 dia útil, agenda aberta por 60 dias",
+            },
+            {
+              i: "remarcacao",
+              l: "Regras de remarcação, cancelamento e falta",
+              r: 1,
+              ty: "ta",
+              p: "Cancelar com 24h de antecedência. Falta sem aviso não bloqueia nova marcação.",
+            },
+            {
+              i: "fila",
+              l: "Existe fila de espera ou encaixe?",
+              ty: "radio",
+              o: ["Sim", "Não"],
+            },
+          ],
+        },
+        {
+          t: "Funcionamento e localização",
+          d: "",
+          f: [
+            {
+              i: "horario_func",
+              l: "Horário de funcionamento da clínica",
+              r: 1,
+              ty: "ta",
+              p: "Seg a sex 8h-18h, sáb 8h-12h",
+            },
+            {
+              i: "fechamentos",
+              l: "Feriados, recessos ou férias já marcados",
+              ty: "ta",
+            },
+            {
+              i: "como_chegar",
+              l: "Referência de como chegar e estacionamento",
+              ty: "ta",
+              p: "Em frente ao supermercado X, estacionamento gratuito no local",
+            },
+            {
+              i: "acessibilidade",
+              l: "Acessibilidade (rampa, elevador)",
+              ty: "radio",
+              o: ["Totalmente acessível", "Parcialmente", "Não acessível"],
+            },
+          ],
+        },
+        {
+          t: "Limites e escalonamento",
+          d: "Quando a IA deve parar e chamar um humano. Opcional — dá pra completar depois.",
+          f: [
+            {
+              i: "nunca",
+              l: "O que a IA NUNCA pode fazer",
+              ty: "check",
+              o: [
+                "Dar orientação médica ou diagnóstico",
+                "Informar resultado de exame",
+                "Interpretar laudo",
+                "Prometer prazo de resultado",
+                "Negociar desconto",
+                "Confirmar convênio sem checar",
+                "Falar de outra unidade/filial",
+              ],
+            },
+            {
+              i: "nunca_extra",
+              l: "Outras proibições específicas da clínica",
+              ty: "ta",
+            },
+            {
+              i: "situacoes_humano",
+              l: "Alguma situação que a IA deve sempre passar pra um humano?",
+              ty: "ta",
+              h: "Ex: paciente irritado, pedido de reembolso, urgência ou emergência médica, fora do horário de atendimento — o que ela não deve tentar resolver sozinha.",
+              p: "Ex: reclamação vai direto pra recepção. Fora do horário, ela avisa que retornam no próximo dia útil. Emergência médica: orienta a procurar pronto-socorro.",
+            },
+          ],
+        },
+        {
+          t: "Base de conhecimento real",
+          d: "É daqui que sai a diferença entre uma IA genérica e uma que parece da sua equipe. Opcional — dá pra completar depois.",
+          f: [
+            {
+              i: "faq",
+              l: "As 10 perguntas mais frequentes, com a resposta que vocês dão hoje",
+              ty: "ta",
+              h: "Pergunta e resposta, uma embaixo da outra. É o campo mais importante do briefing.",
+              p: "P: Vocês atendem Unimed?\nR: Sim, atendemos Unimed para todos os exames de imagem.\n\nP: Precisa de pedido médico?\nR: Para exames sim, para consulta não.",
+            },
+            {
+              i: "contexto_extra",
+              l: "Algo mais que a IA deveria saber sobre a clínica? (diferenciais, promoções, objeções comuns)",
+              ty: "ta",
+              p: "Ex: o que faz o paciente escolher vocês, promoções ativas, o que costuma fazer alguém desistir de marcar e como vocês contornam.",
+            },
+          ],
+        },
+        {
+          t: "O teste de 7 dias",
+          d: "",
+          f: [
+            {
+              i: "aceite",
+              l: "Confirmação",
+              r: 1,
+              ty: "check",
+              o: [
+                "Autorizo o uso destas informações para configurar meu atendimento durante o teste",
+                "Vou desligar as respostas automáticas do número durante o teste",
+              ],
+            },
+          ],
+        },
+      ];
+      const F = document.getElementById("form"),
+        K = "briefing_recepta_v1";
+      let saved = {};
+      try {
+        saved = JSON.parse(localStorage.getItem(K) || "{}");
+      } catch (e) {}
+      const esc = (s) =>
+        String(s).replace(
+          /[&<>"]/g,
+          (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c],
+        );
+      S.forEach((s, si) => {
+        let h =
+          '<section><div class="sh"><div class="num">' +
+          (si + 1) +
+          "</div><h2>" +
+          esc(s.t) +
+          "</h2></div>";
+        if (s.d) h += '<p class="sd">' + esc(s.d) + "</p>";
+        s.f.forEach((f) => {
+          const v = saved[f.i] || "";
+          const grp = f.ty === "radio" || f.ty === "check";
+          const wrap = grp ? "fieldset" : "div",
+            ltag = grp ? "legend" : "label",
+            forAttr = grp ? "" : ' for="' + f.i + '"';
+          h +=
+            "<" +
+            wrap +
+            ' class="f" data-id="' +
+            f.i +
+            '"><' +
+            ltag +
+            ' class="l"' +
+            forAttr +
+            ">" +
+            esc(f.l) +
+            (f.r ? '<span class="req">*</span>' : "") +
+            "</" +
+            ltag +
+            ">";
+          if (f.h) h += '<p class="help">' + esc(f.h) + "</p>";
+          if (f.ty === "ta")
+            h +=
+              '<textarea id="' +
+              f.i +
+              '" placeholder="' +
+              esc(f.p || "") +
+              '">' +
+              esc(v) +
+              "</textarea>";
+          else if (f.ty === "select") {
+            h +=
+              '<select id="' +
+              f.i +
+              '"><option value="">Selecione…</option>' +
+              f.o
+                .map(
+                  (o) =>
+                    "<option" +
+                    (v === o ? " selected" : "") +
+                    ">" +
+                    esc(o) +
+                    "</option>",
+                )
+                .join("") +
+              "</select>";
+          } else if (grp) {
+            const arr = Array.isArray(v) ? v : v ? [v] : [];
+            h +=
+              '<div class="opts" id="' +
+              f.i +
+              '" data-multi="' +
+              (f.ty === "check" ? 1 : 0) +
+              '">' +
+              f.o
+                .map(
+                  (o, oi) =>
+                    '<label class="opt"><input type="' +
+                    (f.ty === "check" ? "checkbox" : "radio") +
+                    '" name="' +
+                    f.i +
+                    '" value="' +
+                    esc(o) +
+                    '"' +
+                    (arr.indexOf(o) > -1 ? " checked" : "") +
+                    "><span>" +
+                    esc(o) +
+                    "</span></label>",
+                )
+                .join("") +
+              "</div>";
+          } else {
+            const ac =
+              f.ty === "email"
+                ? ' autocomplete="email"'
+                : f.ty === "tel"
+                  ? ' autocomplete="tel"'
+                  : "";
+            h +=
+              '<input type="' +
+              (f.ty || "text") +
+              '" id="' +
+              f.i +
+              '"' +
+              ac +
+              ' placeholder="' +
+              esc(f.p || "") +
+              '" value="' +
+              esc(v) +
+              '">';
+          }
+          h += "</" + wrap + ">";
+        });
+        F.insertAdjacentHTML("beforeend", h + "</section>");
+      });
+      const ALL = S.flatMap((s) => s.f),
+        REQ = ALL.filter((f) => f.r);
+      function val(f) {
+        if (f.ty === "radio" || f.ty === "check") {
+          const c = [
+            ...document.querySelectorAll('input[name="' + f.i + '"]:checked'),
+          ].map((e) => e.value);
+          return f.ty === "check" ? c : c[0] || "";
+        }
+        const e = document.getElementById(f.i);
+        return e ? e.value.trim() : "";
+      }
+      function filled(f) {
+        const v = val(f);
+        return Array.isArray(v) ? v.length > 0 : !!v;
+      }
+      function data() {
+        const o = {};
+        ALL.forEach((f) => (o[f.i] = val(f)));
+        return o;
+      }
+      function prog() {
+        const n = REQ.filter(filled).length,
+          p = Math.round((n / REQ.length) * 100);
+        document.getElementById("bar").style.width = p + "%";
+        document.getElementById("pcount").textContent =
+          n + " de " + REQ.length + " campos obrigatórios";
+        document.getElementById("ppct").textContent = p + "%";
+      }
+      let t;
+      F.addEventListener("input", () => {
+        prog();
+        clearTimeout(t);
+        t = setTimeout(
+          () => localStorage.setItem(K, JSON.stringify(data())),
+          400,
+        );
+      });
+      F.addEventListener("change", () => {
+        prog();
+        localStorage.setItem(K, JSON.stringify(data()));
+      });
+
+      /* --- wizard horizontal: 1 secao (passo) visivel por vez --- */
+      const panels = [...F.children];
+      const totalSteps = S.length;
+      let step = 0,
+        maxVisited = 0;
+      const rail = document.getElementById("stepsRail"),
+        stepLabel = document.getElementById("stepLabel");
+      const prevBtn = document.getElementById("prevBtn");
+      const semMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+      const btn = document.getElementById("btn"),
+        errBox = document.getElementById("err");
+
+      function stepReq(i) {
+        return S[i].f.filter((f) => f.r);
+      }
+      function validateStep(i) {
+        return stepReq(i).filter((f) => !filled(f));
+      }
+      function firstIncompleteStep() {
+        for (let i = 0; i < S.length; i++) {
+          if (validateStep(i).length) return i;
+        }
+        return S.length - 1;
+      }
+      function renderRail() {
+        rail.innerHTML = S.map((s, i) => {
+          const cls = i === step ? "active" : i < step ? "done" : "";
+          const locked = i > maxVisited;
+          return (
+            '<button type="button" class="step-dot ' +
+            cls +
+            '" data-step="' +
+            i +
+            '"' +
+            (locked ? " disabled" : "") +
+            '><span class="dot-n">' +
+            (i + 1) +
+            '</span><span class="dot-l">' +
+            esc(s.t) +
+            "</span></button>"
+          );
+        }).join("");
+      }
+      function showStep(i) {
+        panels.forEach((el, idx) => el.classList.toggle("active", idx === i));
+        step = i;
+        if (i > maxVisited) maxVisited = i;
+        prevBtn.style.display = i === 0 ? "none" : "";
+        btn.textContent =
+          i === totalSteps - 1
+            ? "Enviar briefing e liberar meu teste"
+            : "Continuar";
+        stepLabel.textContent =
+          "Passo " + (i + 1) + " de " + totalSteps + " — " + S[i].t;
+        renderRail();
+        errBox.className = "msg";
+        prog();
+        const top =
+          document.querySelector(".prog").getBoundingClientRect().bottom +
+          window.scrollY -
+          16;
+        if (window.scrollY > top)
+          window.scrollTo({ top, behavior: semMotion ? "auto" : "smooth" });
+      }
+      rail.addEventListener("click", (e) => {
+        const b = e.target.closest(".step-dot");
+        if (!b || b.disabled) return;
+        showStep(+b.dataset.step);
+      });
+      prevBtn.addEventListener("click", () => {
+        if (step > 0) showStep(step - 1);
+      });
+
+      btn.addEventListener("click", async () => {
+        document
+          .querySelectorAll(".inv")
+          .forEach((e) => e.classList.remove("inv"));
+        const missStep = validateStep(step);
+        if (missStep.length) {
+          missStep.forEach((f) => {
+            const e = document.getElementById(f.i);
+            if (e) e.classList.add("inv");
+          });
+          errBox.className = "msg err";
+          errBox.textContent =
+            "Faltam " +
+            missStep.length +
+            " campo(s) obrigatório(s) neste passo. O primeiro é: " +
+            missStep[0].l;
+          const el = document.querySelector(
+            '[data-id="' + missStep[0].i + '"]',
+          );
+          if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+          return;
+        }
+        if (step < totalSteps - 1) {
+          showStep(step + 1);
+          return;
+        }
+        const missAll = REQ.filter((f) => !filled(f));
+        if (missAll.length) {
+          const idx = S.findIndex((s) => s.f.includes(missAll[0]));
+          showStep(idx);
+          errBox.className = "msg err";
+          errBox.textContent =
+            "Faltam campos obrigatórios em outro passo. O primeiro é: " +
+            missAll[0].l;
+          const el = document.querySelector('[data-id="' + missAll[0].i + '"]');
+          if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+          return;
+        }
+        errBox.className = "msg";
+        btn.disabled = true;
+        btn.textContent = "Enviando…";
+        const payload = {
+          enviadoEm: new Date().toISOString(),
+          campos: S.map((s) => ({
+            secao: s.t,
+            itens: s.f.map((f) => ({ label: f.l, valor: val(f) })),
+          })),
+          bruto: data(),
+        };
+        try {
+          const r = await fetch("/api/submit", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+          if (!r.ok) throw new Error(await r.text());
+          const j = await r.json();
+          localStorage.removeItem(K);
+          window.location.href = "/t/" + j.token;
+        } catch (e) {
+          btn.disabled = false;
+          btn.textContent = "Enviar briefing e liberar meu teste";
+          errBox.className = "msg err";
+          errBox.textContent =
+            "Não conseguimos enviar agora. Seus dados estão salvos neste navegador — tente de novo em instantes.";
+        }
+      });
+      showStep(firstIncompleteStep());
+    </script>
+  </body>
+</html>

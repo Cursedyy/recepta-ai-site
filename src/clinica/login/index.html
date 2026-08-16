@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Login da clínica · Recepta AI</title>
+    <meta name="robots" content="noindex,nofollow" />
+    <style>
+      :root {
+        --bg: #fafafd;
+        --surface: #ffffff;
+        --ink: #100d22;
+        --muted: #302e47;
+        --line: #e7e5f2;
+        --accent: #26205c;
+        --accent-ink: #ffffff;
+        --radius: 14px;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: var(--bg);
+        color: var(--ink);
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+          Arial, sans-serif;
+        font-size: 15px;
+        line-height: 1.5;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+      button,
+      input {
+        font: inherit;
+      }
+      form {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 32px 28px;
+        max-width: 340px;
+        width: 100%;
+        box-shadow: 0 20px 50px -30px rgba(20, 30, 27, 0.35);
+      }
+      h1 {
+        font-size: 19px;
+        margin-bottom: 6px;
+      }
+      p.sub {
+        color: var(--muted);
+        font-size: 13.5px;
+        margin-bottom: 18px;
+      }
+      input {
+        width: 100%;
+        padding: 11px 13px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        margin-bottom: 12px;
+      }
+      input:focus {
+        outline: 2px solid var(--accent);
+        outline-offset: 1px;
+      }
+      button {
+        width: 100%;
+        padding: 11px;
+        border: none;
+        border-radius: 10px;
+        background: var(--accent);
+        color: #fff;
+        font-weight: 600;
+        cursor: pointer;
+        transition: filter 0.12s;
+      }
+      button:hover {
+        filter: brightness(1.08);
+      }
+      button:disabled {
+        opacity: 0.6;
+        cursor: default;
+      }
+      .erro {
+        color: #b3261e;
+        font-size: 13px;
+        margin-bottom: 10px;
+        min-height: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <form id="form-login" novalidate>
+      <h1>Painel da clínica</h1>
+      <p class="sub">Entre com o e-mail e senha da sua clínica.</p>
+      <div class="erro" id="login-erro"></div>
+      <input
+        type="email"
+        id="email"
+        placeholder="E-mail"
+        autocomplete="username"
+        required
+      />
+      <input
+        type="password"
+        id="senha"
+        placeholder="Senha"
+        autocomplete="current-password"
+        required
+      />
+      <button type="submit" id="btn-entrar">Entrar</button>
+    </form>
+    <script>
+      var elForm = document.getElementById("form-login");
+      var elErro = document.getElementById("login-erro");
+      var elBtn = document.getElementById("btn-entrar");
+
+      elForm.addEventListener("submit", function (ev) {
+        ev.preventDefault();
+        elErro.textContent = "";
+
+        var email = document.getElementById("email").value.trim();
+        var senha = document.getElementById("senha").value;
+
+        if (!email || !senha) {
+          elErro.textContent = "Preenche e-mail e senha.";
+          return;
+        }
+
+        elBtn.disabled = true;
+        elBtn.textContent = "Entrando…";
+
+        fetch("/api/clinica/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: email, senha: senha }),
+        })
+          .then(function (r) {
+            return r.json().then(function (j) {
+              return { ok: r.ok, corpo: j };
+            });
+          })
+          .then(function (res) {
+            if (!res.ok) {
+              elErro.textContent = "E-mail ou senha incorretos.";
+              elBtn.disabled = false;
+              elBtn.textContent = "Entrar";
+              return;
+            }
+            window.location.href = "/clinica/painel";
+          })
+          .catch(function () {
+            elErro.textContent = "Falha de conexão. Tenta de novo.";
+            elBtn.disabled = false;
+            elBtn.textContent = "Entrar";
+          });
+      });
+    </script>
+  </body>
+</html>

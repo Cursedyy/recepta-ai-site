@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /t/
+Disallow: /briefing
+Disallow: /painel
+
+Sitemap: https://recepta.com.br/sitemap.xml

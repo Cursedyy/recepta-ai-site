@@ -1,0 +1,2064 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <script>
+      document.documentElement.classList.add("js");
+    </script>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Secretária virtual com IA para clínicas | Recepta AI</title>
+    <meta
+      name="description"
+      content="Recepta AI é a secretária virtual com IA que atende o WhatsApp da sua clínica 24h: tira dúvidas de preço e preparo, agenda e remarca consultas. Teste grátis por 7 dias, sem cartão."
+    />
+    <link rel="canonical" href="https://recepta.com.br/" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/img/favicon-32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="512x512"
+      href="/img/favicon-512.png"
+    />
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png" />
+    <meta name="robots" content="index,follow" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Recepta AI" />
+    <meta
+      property="og:title"
+      content="Secretária virtual com IA para clínicas | Recepta AI"
+    />
+    <meta
+      property="og:description"
+      content="Atende o WhatsApp da sua clínica 24h: tira dúvidas de preço e preparo, agenda e remarca consultas. Teste grátis por 7 dias, sem cartão."
+    />
+    <meta property="og:url" content="https://recepta.com.br/" />
+    <meta property="og:locale" content="pt_BR" />
+    <meta name="twitter:card" content="summary" />
+    <meta
+      name="twitter:title"
+      content="Secretária virtual com IA para clínicas | Recepta AI"
+    />
+    <meta
+      name="twitter:description"
+      content="Atende o WhatsApp da sua clínica 24h, tira dúvidas e agenda consultas sozinha. Teste grátis por 7 dias."
+    />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Recepta AI",
+        "url": "https://recepta.com.br/",
+        "description": "Secretária virtual com IA que atende o WhatsApp de clínicas e consultórios."
+      }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&display=swap"
+    />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&display=swap"
+    />
+    <style>
+      :root {
+        --header-h: 65px;
+        --bg: #fafafd;
+        --surface: #ffffff;
+        --ink: #100d22;
+        --muted: #302e47;
+        --line: #e7e5f2;
+        --accent: #26205c;
+        --accent-ink: #ffffff;
+        --accent-soft: #f3f2f5;
+        --accent-2: #afa8eb;
+        --header-bg: #151749;
+        --radius: 14px;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        -webkit-text-size-adjust: 100%;
+        scroll-padding-top: 84px;
+      }
+      body {
+        background: var(--bg);
+        color: var(--ink);
+        font-family:
+          "Manrope",
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          Helvetica,
+          Arial,
+          sans-serif;
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+      }
+      a {
+        color: inherit;
+      }
+      img {
+        max-width: 100%;
+        display: block;
+      }
+      .container {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding-inline: 20px;
+      }
+      section {
+        padding: 64px 0;
+      }
+      h1,
+      h2,
+      h3 {
+        line-height: 1.15;
+        letter-spacing: -0.02em;
+        font-weight: 700;
+      }
+      h3 {
+        font-weight: 600;
+      }
+      h2 {
+        font-size: clamp(26px, 4.4vw, 38px);
+        margin-bottom: 12px;
+      }
+      .eyebrow {
+        display: inline-block;
+        font-size: 12.5px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin-bottom: 10px;
+      }
+      .lede {
+        color: var(--muted);
+        font-size: 16.5px;
+        max-width: 56ch;
+      }
+
+      /* alternancia de fundo entre secoes - marca transicao sem linha */
+      .surface-bleed {
+        background: var(--surface);
+      }
+      .surface {
+        background: var(--surface);
+      }
+
+      /* header */
+      header.top {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        background: var(--header-bg);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      }
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 20px;
+        max-width: 1080px;
+        margin: 0 auto;
+      }
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 700;
+        font-size: 17px;
+        letter-spacing: -0.02em;
+        color: #fff;
+      }
+      .logo svg {
+        width: 32px;
+        height: 32px;
+        flex-shrink: 0;
+        display: block;
+      }
+      .logo span {
+        color: var(--accent-2);
+      }
+      .topbar .btn-primary {
+        background: #fff;
+        color: var(--accent);
+      }
+      .topbar .btn-primary:hover {
+        background: var(--accent-soft);
+        filter: none;
+      }
+
+      /* buttons */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border-radius: 11px;
+        padding: 14px 22px;
+        font-weight: 600;
+        font-size: 15.5px;
+        text-decoration: none;
+        border: 1px solid transparent;
+        cursor: pointer;
+        transition:
+          transform 0.12s,
+          filter 0.12s,
+          box-shadow 0.12s;
+      }
+      .btn-primary {
+        background: var(--accent);
+        color: var(--accent-ink);
+        box-shadow: 0 1px 2px rgba(16, 13, 34, 0.08);
+      }
+      .btn-primary:hover {
+        filter: brightness(1.08);
+        box-shadow: 0 10px 24px -12px rgba(38, 32, 92, 0.5);
+      }
+      .btn-secondary {
+        background: transparent;
+        color: var(--ink);
+        border-color: var(--line);
+      }
+      .btn-secondary:hover {
+        background: var(--surface);
+      }
+      .btn-sm {
+        padding: 9px 16px;
+        font-size: 14px;
+        border-radius: 9px;
+      }
+      .btn:active {
+        transform: scale(0.98);
+      }
+
+      /* hero */
+      .hero {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        min-height: calc(100vh - var(--header-h));
+        min-height: calc(100dvh - var(--header-h));
+        background:
+          radial-gradient(
+            1100px 900px at 25% 35%,
+            rgba(168, 148, 255, 0.55),
+            rgba(168, 148, 235, 0.22) 40%,
+            transparent 68%
+          ),
+          var(--header-bg);
+        padding: 48px 0 0;
+        overflow: hidden;
+      }
+      .hero-inner {
+        position: relative;
+        z-index: 1;
+        margin-top: auto;
+        margin-bottom: auto;
+      }
+      .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        border-radius: 99px;
+        padding: 3px 3px 3px 12px;
+        margin-bottom: 20px;
+      }
+      .hero-badge-brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding-block: 5px;
+        color: #fff;
+        font-weight: 700;
+        font-size: clamp(12px, 3vw, 13.5px);
+        letter-spacing: -0.01em;
+        white-space: nowrap;
+      }
+      .hero-badge-icon {
+        width: 15px;
+        height: 15px;
+        flex-shrink: 0;
+      }
+      .hero-slide {
+        position: relative;
+        width: 115px;
+        height: 30px;
+        border-radius: 99px;
+        overflow: hidden;
+        background: rgba(21, 23, 73, 0.55);
+        flex-shrink: 0;
+      }
+      .hero-slide-reveal {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        padding-left: 14px;
+        font-size: 10.5px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.85);
+        white-space: nowrap;
+        pointer-events: none;
+      }
+      .hero-slide-handle {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        background: #fff;
+        color: var(--accent);
+        font-family: inherit;
+        font-weight: 600;
+        font-size: clamp(10.5px, 2.6vw, 12.5px);
+        padding: 0 11px;
+        border-radius: 99px;
+        border: 1px solid rgba(38, 32, 92, 0.12);
+        white-space: nowrap;
+        cursor: grab;
+        touch-action: pan-y;
+        user-select: none;
+        -webkit-user-select: none;
+      }
+      .hero-slide-handle:active {
+        cursor: grabbing;
+      }
+      .hero-slide-chevron {
+        width: 13px;
+        height: 13px;
+        flex-shrink: 0;
+      }
+      @media (prefers-reduced-motion: no-preference) {
+        .hero-slide-chevron {
+          animation: chevronHint 1.6s ease-in-out infinite;
+        }
+      }
+      @keyframes chevronHint {
+        0%,
+        100% {
+          transform: translateX(0);
+          opacity: 0.7;
+        }
+        50% {
+          transform: translateX(4px);
+          opacity: 1;
+        }
+      }
+      .hero h1 {
+        font-size: clamp(26px, 5vw, 40px);
+        max-width: 100%;
+        margin-bottom: 20px;
+        color: #fff;
+        line-height: 1.08;
+        letter-spacing: -0.025em;
+      }
+      .hero h1 .hl {
+        color: var(--accent-2);
+      }
+      .hero .lede {
+        font-size: 24px;
+        line-height: 1.7;
+        margin-bottom: 32px;
+        color: rgba(255, 255, 255, 0.82);
+      }
+      .hero-ctas {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      .hero .btn-primary {
+        background: #fff;
+        color: var(--accent);
+        font-size: 19px;
+        padding: 14px 28px;
+      }
+      @media (max-width: 420px) {
+        .hero .btn-primary {
+          font-size: 16px;
+          padding: 12px 20px;
+        }
+      }
+      .hero .btn-primary:hover {
+        background: var(--accent-soft);
+        filter: none;
+        box-shadow: 0 10px 24px -12px rgba(0, 0, 0, 0.4);
+      }
+      .hero-note {
+        margin-top: 14px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .hero .hero-note {
+        margin-top: 16px;
+        color: rgba(255, 255, 255, 0.7);
+      }
+
+      /* faixa de confianca abaixo do hero - full-bleed, fundo proprio */
+      .hero-trust-band {
+        position: relative;
+        background: linear-gradient(to bottom, transparent, #0f1033 64px);
+        padding: 36px 0 64px;
+      }
+      .trust-anchor {
+        text-align: center;
+        font-size: 12.5px;
+        color: rgba(255, 255, 255, 0.5);
+        margin-bottom: 14px;
+      }
+      .hero-trust {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+      }
+      .trust-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 8px 14px;
+        border-radius: 99px;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        background: rgba(255, 255, 255, 0.06);
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 12.5px;
+        white-space: nowrap;
+      }
+      .trust-icon {
+        width: 14px;
+        height: 14px;
+        flex-shrink: 0;
+      }
+      @media (max-width: 380px) {
+        .trust-pill {
+          padding: 6px 11px;
+        }
+      }
+
+      /* whatsapp demo */
+      .demo-stage {
+        position: relative;
+      }
+      .demo-panel {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 18px;
+        right: 18px;
+        background: linear-gradient(
+          180deg,
+          rgba(175, 168, 235, 0.24),
+          rgba(175, 168, 235, 0.08)
+        );
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 30px;
+        z-index: 0;
+      }
+      @media (min-width: 1200px) {
+        .demo-panel {
+          left: 15%;
+          right: 15%;
+        }
+      }
+      .demo-body {
+        position: relative;
+        z-index: 1;
+        padding: 18px 0;
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+      }
+      .bub {
+        width: fit-content;
+        max-width: 260px;
+        padding: 7px 12px;
+        border-radius: 20px;
+        font-size: 13.5px;
+        line-height: 1.45;
+        box-shadow: 0 8px 20px -8px rgba(21, 23, 73, 0.35);
+      }
+      .bub .tm {
+        display: block;
+        font-size: 9px;
+        color: var(--muted);
+        margin-top: 2px;
+        text-align: right;
+      }
+      .bub.in {
+        background: #fff;
+      }
+      .bub.out {
+        background: #d6cff2;
+      }
+
+      /* msg: envolve bolha + etiqueta de quem fala */
+      .msg {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        max-width: 76%;
+      }
+      .msg .bub {
+        min-width: 0;
+      }
+      .msg-in {
+        align-self: flex-start;
+        flex-direction: row;
+      }
+      .msg-out {
+        align-self: flex-end;
+        flex-direction: row-reverse;
+      }
+      .msg-tag {
+        flex: 0 0 auto;
+        margin-top: 2px;
+        padding: 2px 8px;
+        border-radius: 99px;
+        font-size: 11px;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+      .msg-in .msg-tag {
+        background: #fff;
+        color: var(--accent);
+      }
+      .msg-out .msg-tag {
+        background: var(--header-bg);
+        color: #fff;
+      }
+      @media (max-width: 380px) {
+        .msg {
+          max-width: 88%;
+          flex-direction: column;
+          gap: 3px;
+        }
+        .msg-in {
+          align-items: flex-start;
+        }
+        .msg-out {
+          align-items: flex-end;
+        }
+      }
+
+      /* pain */
+      .pain-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 14px;
+        margin-top: 24px;
+      }
+      .pain-card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-left: 3px solid var(--accent);
+        border-radius: 12px;
+        padding: 18px 20px;
+        box-shadow:
+          0 1px 2px rgba(16, 13, 34, 0.04),
+          0 10px 24px -20px rgba(16, 13, 34, 0.35);
+        transition:
+          transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+          box-shadow 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .pain-card p {
+        font-size: 14.5px;
+        color: var(--ink);
+      }
+
+      /* how it works */
+      .steps-label {
+        margin-top: 32px;
+        font-weight: 600;
+        font-size: 14.5px;
+        color: var(--ink);
+      }
+      .steps {
+        position: relative;
+        margin-top: 16px;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+      .steps-track {
+        position: absolute;
+        left: 20px;
+        top: 20px;
+        bottom: 20px;
+        width: 2px;
+        background: var(--line);
+        z-index: 0;
+      }
+      .step {
+        display: flex;
+        gap: 16px;
+      }
+      .step-n {
+        position: relative;
+        z-index: 1;
+        flex: 0 0 40px;
+        height: 40px;
+        border-radius: 11px;
+        background: var(--accent);
+        color: #fff;
+        display: grid;
+        place-items: center;
+      }
+      .step-num {
+        position: absolute;
+        right: -4px;
+        bottom: -4px;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: var(--surface);
+        color: var(--accent);
+        border: 1px solid var(--line);
+        font-size: 9px;
+        font-weight: 700;
+        display: grid;
+        place-items: center;
+        line-height: 1;
+      }
+      .step h3 {
+        font-size: 16.5px;
+        margin-bottom: 5px;
+      }
+      .step p {
+        color: var(--muted);
+        font-size: 14.5px;
+      }
+      .how-note {
+        margin-top: 32px;
+        border-top: 1px solid var(--line);
+        padding-top: 18px;
+        font-size: 14px;
+        color: var(--muted);
+      }
+      .how-note b {
+        color: var(--ink);
+      }
+
+      /* ajustes de espacamento da secao "como funciona" */
+      .como-funciona {
+        padding-top: 32px;
+      }
+      .como-funciona .lede {
+        max-width: 640px;
+      }
+
+      /* features */
+      .feat-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 14px;
+        margin-top: 28px;
+      }
+      .feat-card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow:
+          0 1px 2px rgba(16, 13, 34, 0.04),
+          0 10px 24px -20px rgba(16, 13, 34, 0.35);
+        transition:
+          transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+          box-shadow 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .feat-panel {
+        background: var(--accent-soft);
+        border-radius: 20px;
+        padding: 28px;
+      }
+      .feat-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: var(--accent);
+        color: #fff;
+        display: grid;
+        place-items: center;
+        margin-bottom: 12px;
+      }
+      .feat-card h3 {
+        font-size: 15.5px;
+        margin-bottom: 6px;
+      }
+      .feat-card p {
+        color: var(--muted);
+        font-size: 13.5px;
+      }
+
+      /* profiles */
+      .profile-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 14px;
+        margin-top: 28px;
+      }
+      .profile-card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 24px 22px;
+        box-shadow:
+          0 1px 2px rgba(16, 13, 34, 0.04),
+          0 10px 24px -20px rgba(16, 13, 34, 0.35);
+        transition:
+          transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+          box-shadow 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .profile-head {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+      .profile-icon {
+        flex: 0 0 32px;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--accent);
+        color: #fff;
+        display: grid;
+        place-items: center;
+      }
+      .profile-tag {
+        display: inline-block;
+        font-size: 11.5px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--accent);
+        background: var(--accent-soft);
+        padding: 4px 10px;
+        border-radius: 99px;
+      }
+      .profile-card h3 {
+        font-size: 16.5px;
+        margin-bottom: 6px;
+      }
+      .profile-card p {
+        color: var(--muted);
+        font-size: 13.5px;
+      }
+
+      /* price */
+      .pricing-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 32px;
+        margin-top: 8px;
+        align-items: center;
+      }
+      .pricing-intro .lede {
+        max-width: 44ch;
+      }
+      .pricing-card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow:
+          0 1px 2px rgba(16, 13, 34, 0.04),
+          0 30px 60px -34px rgba(16, 13, 34, 0.3);
+      }
+      .pricing-card-bar {
+        height: 6px;
+        background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      }
+      .pricing-card-body {
+        padding: 32px 28px 28px;
+      }
+      .pricing-price {
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+      }
+      .pricing-price .amount {
+        font-size: 40px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: var(--ink);
+      }
+      .pricing-price .period {
+        color: var(--muted);
+        font-size: 15px;
+      }
+      .pricing-price-note {
+        color: var(--muted);
+        font-size: 13px;
+        margin-top: 4px;
+      }
+      .pricing-alt {
+        color: var(--muted);
+        font-size: 14px;
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px solid var(--line);
+      }
+      .pricing-alt b {
+        color: var(--ink);
+      }
+      .pricing-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-size: 12.5px;
+        font-weight: 600;
+        padding: 6px 12px;
+        border-radius: 99px;
+        margin-top: 18px;
+      }
+      .pricing-list {
+        list-style: none;
+        margin-top: 22px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .pricing-list li {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        font-size: 14.5px;
+        color: var(--ink);
+      }
+      .pricing-list svg {
+        flex: 0 0 18px;
+        color: var(--accent);
+        margin-top: 2px;
+      }
+      .pricing-card .btn-primary {
+        width: 100%;
+        justify-content: center;
+        margin-top: 26px;
+      }
+      @media (min-width: 720px) {
+        .pricing-grid {
+          grid-template-columns: 0.85fr 1.15fr;
+          gap: 48px;
+        }
+      }
+
+      /* faq */
+      .faq details {
+        border-bottom: 1px solid var(--line);
+        padding: 16px 0;
+      }
+      .faq summary {
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 15.5px;
+        list-style: none;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+      }
+      .faq summary::-webkit-details-marker {
+        display: none;
+      }
+      .faq summary::after {
+        content: "+";
+        font-size: 20px;
+        color: var(--accent);
+        flex: 0 0 auto;
+        display: inline-block;
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .faq details[open] summary::after {
+        transform: rotate(45deg);
+      }
+      .faq p {
+        color: var(--muted);
+        font-size: 14.5px;
+        margin-top: 10px;
+        max-width: 64ch;
+      }
+
+      /* final cta (com founder note fundida) - fecho escuro da pagina, espelha o header */
+      .final-cta {
+        text-align: center;
+        background: var(--ink);
+        color: #fff;
+      }
+      .final-cta h2 {
+        max-width: 22ch;
+        margin: 0 auto 14px;
+        color: #fff;
+      }
+      .final-cta .lede {
+        margin: 0 auto 26px;
+        color: #c9c6e0;
+      }
+      .final-cta .btn-primary {
+        background: #fff;
+        color: var(--ink);
+      }
+      .final-cta .founder-line {
+        max-width: 48ch;
+        margin: 22px auto 0;
+        color: #a19dc4;
+        font-size: 13.5px;
+      }
+
+      footer {
+        border-top: 1px solid var(--line);
+        padding: 32px 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .foot-row {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+      }
+      .foot-links {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      .foot-links a {
+        text-decoration: none;
+        color: var(--muted);
+      }
+      .foot-links a:hover {
+        color: var(--ink);
+      }
+
+      @media (min-width: 720px) {
+        section {
+          padding: 88px 0;
+        }
+        .hero {
+          padding: 104px 0 0;
+        }
+        .hero-trust-band {
+          padding-bottom: 88px;
+        }
+        .hero-inner.container {
+          max-width: 1140px;
+        }
+        .hero-inner {
+          display: grid;
+          grid-template-columns: 1.05fr 0.95fr;
+          column-gap: 28px;
+          row-gap: 0;
+          align-items: start;
+        }
+        .hero-copy {
+          grid-column: 1;
+        }
+        .demo-stage {
+          grid-column: 2;
+        }
+        .pain-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+        .steps {
+          grid-template-columns: repeat(3, 1fr);
+        }
+        .steps-track {
+          display: none;
+        }
+        .feat-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+        .profile-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+        .price-card {
+          padding: 56px 60px;
+        }
+        .foot-row {
+          flex-direction: row;
+          justify-content: space-between;
+          align-items: center;
+        }
+      }
+
+      /* motion: reveal ao rolar (Jakub) - hero fica visivel na hora, so o resto entra */
+      .js .reveal {
+        opacity: 0;
+        transform: translateY(10px);
+        filter: blur(4px);
+      }
+      .reveal {
+        transition:
+          opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+          transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+          filter 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .reveal.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+      }
+      .js .hero + .reveal {
+        transform: none;
+      }
+
+      /* motion: bolhas do whatsapp entram em sequencia (Jhey, so aqui) */
+      .js .demo-body .msg {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      .demo-stage.is-visible .msg {
+        animation: bubIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+      }
+      .demo-stage.is-visible .msg:nth-child(1) {
+        animation-delay: 0.05s;
+      }
+      .demo-stage.is-visible .msg:nth-child(2) {
+        animation-delay: 0.13s;
+      }
+      .demo-stage.is-visible .msg:nth-child(3) {
+        animation-delay: 0.21s;
+      }
+      .demo-stage.is-visible .msg:nth-child(4) {
+        animation-delay: 0.29s;
+      }
+      .demo-stage.is-visible .msg:nth-child(5) {
+        animation-delay: 0.37s;
+      }
+      .demo-stage.is-visible .msg:nth-child(6) {
+        animation-delay: 0.45s;
+      }
+      @keyframes bubIn {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* motion: resposta do faq entra com fade sutil ao abrir */
+      .faq details[open] summary ~ p {
+        animation: faqIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+      }
+      @keyframes faqIn {
+        from {
+          opacity: 0;
+          transform: translateY(-4px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* hover dos cards - leve elevacao + sombra (Jakub: shadow > border puro) */
+      .pain-card:hover,
+      .feat-card:hover,
+      .profile-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 24px -16px rgba(16, 13, 34, 0.18);
+      }
+
+      /* foco visivel pra navegacao por teclado */
+      .btn:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+      }
+      .topbar .btn-primary:focus-visible,
+      .final-cta .btn-primary:focus-visible {
+        outline-color: #fff;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .reveal,
+        .js .reveal,
+        .js .demo-body .msg,
+        .demo-stage.is-visible .msg,
+        .faq details[open] summary ~ p,
+        .faq summary::after {
+          animation: none !important;
+          transition: none !important;
+          opacity: 1 !important;
+          transform: none !important;
+          filter: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="top">
+      <div class="topbar">
+        <div class="logo">
+          <svg viewBox="0 0 100 100" aria-hidden="true">
+            <g transform="translate(0 50)">
+              <path
+                d="M 34 -34 C -1.7 -15.9, -1.7 15.9, 34 34 C 69.7 15.9, 69.7 -15.9, 34 -34 Z"
+                fill="currentColor"
+                fill-opacity="0.6"
+              />
+              <path
+                d="M 66 -34 C 30.3 -15.9, 30.3 15.9, 66 34 C 101.7 15.9, 101.7 -15.9, 66 -34 Z"
+                fill="currentColor"
+              />
+            </g>
+          </svg>
+          Recepta <span>AI</span>
+        </div>
+        <button type="button" class="btn btn-primary btn-sm" title="Em breve">
+          Começar agora
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-inner container">
+          <div class="hero-copy">
+            <div class="hero-badge">
+              <span class="hero-badge-brand">
+                <svg
+                  class="hero-badge-icon"
+                  viewBox="0 0 100 100"
+                  aria-hidden="true"
+                >
+                  <g transform="translate(0 50)">
+                    <path
+                      d="M 34 -34 C -1.7 -15.9, -1.7 15.9, 34 34 C 69.7 15.9, 69.7 -15.9, 34 -34 Z"
+                      fill="currentColor"
+                      fill-opacity="0.6"
+                    />
+                    <path
+                      d="M 66 -34 C 30.3 -15.9, 30.3 15.9, 66 34 C 101.7 15.9, 101.7 -15.9, 66 -34 Z"
+                      fill="currentColor"
+                    />
+                  </g>
+                </svg>
+                Recepta AI
+              </span>
+              <div class="hero-slide" aria-hidden="true">
+                <span class="hero-slide-reveal">sem cartão</span>
+                <div class="hero-slide-handle">
+                  7 dias grátis
+                  <svg
+                    class="hero-slide-chevron"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <polyline points="9 6 15 12 9 18" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <h1>
+              Toda mensagem de WhatsApp respondida na hora,
+              <span class="hl">sem contratar</span> mais ninguém.
+            </h1>
+            <p class="lede">
+              Secretária virtual com IA treinada pra sua clínica, atendendo pelo
+              WhatsApp, 24 horas por dia.
+            </p>
+            <div class="hero-ctas">
+              <button type="button" class="btn btn-primary" title="Em breve">
+                Começar agora, grátis por 7 dias
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="12 5 19 12 12 19" />
+                </svg>
+              </button>
+            </div>
+            <p class="hero-note">
+              Teste de 7 dias grátis, sem cartão de crédito e sem fidelidade.
+              Cancela quando quiser.
+            </p>
+          </div>
+          <div class="demo-stage" aria-hidden="true">
+            <div class="demo-panel"></div>
+            <div class="demo-body">
+              <div class="msg msg-in">
+                <span class="msg-tag">Paciente</span>
+                <div class="bub in">
+                  Oi, bom dia! Quanto custa o ultrassom abdominal?<span
+                    class="tm"
+                    >08:12</span
+                  >
+                </div>
+              </div>
+              <div class="msg msg-out">
+                <span class="msg-tag">Recepta AI</span>
+                <div class="bub out">
+                  Bom dia! Fica R$ 180 particular, com jejum de 8h antes do
+                  exame. Quer que eu já veja um horário pra você?<span
+                    class="tm"
+                    >08:12</span
+                  >
+                </div>
+              </div>
+              <div class="msg msg-in">
+                <span class="msg-tag">Paciente</span>
+                <div class="bub in">
+                  Quero, pode ser essa semana<span class="tm">08:13</span>
+                </div>
+              </div>
+              <div class="msg msg-out">
+                <span class="msg-tag">Recepta AI</span>
+                <div class="bub out">
+                  Tenho quinta às 14h30 ou sexta às 9h. Qual fica melhor?<span
+                    class="tm"
+                    >08:13</span
+                  >
+                </div>
+              </div>
+              <div class="msg msg-in">
+                <span class="msg-tag">Paciente</span>
+                <div class="bub in">
+                  Quinta às 14h30<span class="tm">08:14</span>
+                </div>
+              </div>
+              <div class="msg msg-out">
+                <span class="msg-tag">Recepta AI</span>
+                <div class="bub out">
+                  Perfeito! Agendado: ultrassom abdominal, quinta 14h30. Te
+                  mando um lembrete um dia antes 😊<span class="tm">08:14</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="hero-trust-band">
+          <div class="container">
+            <p class="trust-anchor">Sem fricção pra começar</p>
+            <div class="hero-trust">
+              <span class="trust-pill">
+                <svg
+                  class="trust-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                Não precisa trocar de número
+              </span>
+              <span class="trust-pill">
+                <svg
+                  class="trust-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                Funciona com WhatsApp comum
+              </span>
+              <span class="trust-pill">
+                <svg
+                  class="trust-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                Sem taxa de setup
+              </span>
+              <span class="trust-pill">
+                <svg
+                  class="trust-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <rect x="5" y="11" width="14" height="10" rx="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+                Segue a LGPD
+              </span>
+              <span class="trust-pill">
+                <svg
+                  class="trust-icon"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+                Sem reunião de implantação
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="reveal surface-bleed como-funciona">
+        <div class="container">
+          <span class="eyebrow">Como funciona</span>
+          <h2>Da mensagem perdida ao atendimento automático</h2>
+          <p class="lede">
+            Isso é o que acontece hoje sem a Recepta — e como ela resolve, em 3
+            passos.
+          </p>
+          <div class="pain-grid">
+            <div class="pain-card">
+              <p>Mensagem que chega às 22h só é respondida no dia seguinte.</p>
+            </div>
+            <div class="pain-card">
+              <p>
+                Recepção tenta atender telefone, WhatsApp e balcão ao mesmo
+                tempo — e não dá conta de nada direito.
+              </p>
+            </div>
+            <div class="pain-card">
+              <p>Paciente espera resposta e marca consulta na concorrência.</p>
+            </div>
+          </div>
+          <p class="steps-label">Como ela entra no ar, em 3 passos:</p>
+          <div class="steps">
+            <div class="steps-track" aria-hidden="true"></div>
+            <div class="step">
+              <div class="step-n">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.75"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
+                  />
+                  <path d="M14 2v6h6" />
+                  <path d="M9 13h6" />
+                  <path d="M9 17h6" />
+                </svg>
+                <span class="step-num">1</span>
+              </div>
+              <div>
+                <h3>Você preenche um formulário sobre a clínica</h3>
+                <p>Serviços, preços, convênios e horários de atendimento.</p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-n">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.75"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <line x1="4" y1="6" x2="20" y2="6" />
+                  <circle cx="14" cy="6" r="2" />
+                  <line x1="4" y1="12" x2="20" y2="12" />
+                  <circle cx="8" cy="12" r="2" />
+                  <line x1="4" y1="18" x2="20" y2="18" />
+                  <circle cx="16" cy="18" r="2" />
+                </svg>
+                <span class="step-num">2</span>
+              </div>
+              <div>
+                <h3>A Recepta é configurada automaticamente</h3>
+                <p>
+                  As respostas saem do que você preencheu — sem reunião de
+                  alinhamento.
+                </p>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-n">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.75"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"
+                  />
+                </svg>
+                <span class="step-num">3</span>
+              </div>
+              <div>
+                <h3>Você conecta o WhatsApp e ela começa a atender</h3>
+                <p>Sem trocar de número, sem treinar equipe.</p>
+              </div>
+            </div>
+          </div>
+          <p class="how-note">
+            <b>Sem reunião. Sem treinamento de equipe.</b> Você preenche, ela
+            entra no ar.
+          </p>
+        </div>
+      </section>
+
+      <section class="container reveal">
+        <span class="eyebrow">O que ela faz</span>
+        <h2>O atendimento que a recepção não consegue dar sozinha</h2>
+        <div class="feat-panel">
+          <div class="feat-grid">
+            <div class="feat-card">
+              <div class="feat-icon">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.75"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M12 7v5l3 3" />
+                </svg>
+              </div>
+              <h3>Nenhuma mensagem de paciente dorme sem resposta</h3>
+              <p>
+                Ela atende de madrugada, fim de semana e feriado, sem ninguém de
+                plantão.
+              </p>
+            </div>
+            <div class="feat-card">
+              <div class="feat-icon">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.75"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M12.59 2.59 20 10a2 2 0 0 1 0 2.83l-6.17 6.17a2 2 0 0 1-2.83 0L3.59 11.59A2 2 0 0 1 3 10.17V4a2 2 0 0 1 2-2h6.17a2 2 0 0 1 1.42.59Z"
+                  />
+                  <circle cx="7.5" cy="7.5" r="1.5" />
+                </svg>
+              </div>
+              <h3>Paciente nunca fica esperando o preço do exame</h3>
+              <p>
+                As respostas saem certas, com a tabela que a clínica autorizou.
+              </p>
+            </div>
+            <div class="feat-card">
+              <div class="feat-icon">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.75"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <rect x="3" y="4" width="18" height="18" rx="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                  <path d="m9 16 2 2 4-4" />
+                </svg>
+              </div>
+              <h3>Consulta marcada sem passar pela recepção</h3>
+              <p>
+                Ela agenda e remarca direto na conversa, sem o paciente precisar
+                ligar.
+              </p>
+            </div>
+            <div class="feat-card">
+              <div class="feat-icon">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.75"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
+                  <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                </svg>
+              </div>
+              <h3>Menos falta, menos vaga perdida</h3>
+              <p>Lembrete automático reduz desmarcação em cima da hora.</p>
+            </div>
+            <div class="feat-card">
+              <div class="feat-icon">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.75"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" />
+                </svg>
+              </div>
+              <h3>Nenhum caso sensível fica na mão da IA</h3>
+              <p>
+                Reclamação, urgência ou qualquer coisa fora do script vai direto
+                pra equipe.
+              </p>
+            </div>
+            <div class="feat-card">
+              <div class="feat-icon">
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.75"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <rect x="5" y="3" width="14" height="18" rx="2" />
+                  <path d="M9 3v2h6V3" />
+                  <line x1="9" y1="11" x2="15" y2="11" />
+                  <line x1="9" y1="15" x2="15" y2="15" />
+                </svg>
+              </div>
+              <h3>Você sempre sabe o que foi combinado</h3>
+              <p>
+                Toda conversa fica registrada pra clínica consultar quando
+                precisar.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="reveal surface-bleed">
+        <div class="container">
+          <span class="eyebrow">Serve pra que tipo de clínica</span>
+          <h2>Feita pro jeito que sua clínica atende hoje</h2>
+          <div class="profile-grid">
+            <div class="profile-card">
+              <div class="profile-head">
+                <div class="profile-icon">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.75"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <circle cx="12" cy="8" r="4" />
+                    <path d="M4 21c0-4 4-7 8-7s8 3 8 7" />
+                  </svg>
+                </div>
+                <span class="profile-tag">Consultório solo</span>
+              </div>
+              <h3>
+                Você atende sem ficar refém do celular entre uma consulta e
+                outra
+              </h3>
+              <p>
+                Ideal pra quem atende sozinho e não tem ninguém pra segurar o
+                WhatsApp enquanto está com paciente na sala.
+              </p>
+            </div>
+            <div class="profile-card">
+              <div class="profile-head">
+                <div class="profile-icon">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.75"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <circle cx="8.5" cy="8" r="3.5" />
+                    <path d="M2 21c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6" />
+                    <circle cx="17" cy="9" r="2.8" />
+                    <path
+                      d="M14.8 15.3c.5-.2 1.1-.3 1.7-.3 3 0 5.5 2.3 5.5 6"
+                    />
+                  </svg>
+                </div>
+                <span class="profile-tag">Clínica com recepção</span>
+              </div>
+              <h3>
+                Sua recepção larga o WhatsApp e foca em quem já está na sala
+              </h3>
+              <p>
+                Ideal pra recepção que tenta dar conta de telefone, balcão e
+                WhatsApp ao mesmo tempo — e não sobra pra nenhum dos três.
+              </p>
+            </div>
+            <div class="profile-card">
+              <div class="profile-head">
+                <div class="profile-icon">
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.75"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <rect x="5" y="3" width="14" height="18" rx="2" />
+                    <path d="M9 3v2h6V3" />
+                    <path d="M8 13h2l1.5-3 2 6 1.5-3H18" />
+                  </svg>
+                </div>
+                <span class="profile-tag">Clínica de exames</span>
+              </div>
+              <h3>
+                A mesma dúvida de preço e preparo não passa mais pela sua equipe
+              </h3>
+              <p>
+                Ideal pra clínica com alto volume de pergunta repetida sobre
+                valor, jejum e documentos antes do exame.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="reveal">
+        <div class="container">
+          <div class="pricing-grid">
+            <div class="pricing-intro">
+              <span class="eyebrow">Preço</span>
+              <h2>Pague por mês ou no ano</h2>
+              <p class="lede">
+                Sem contrato de fidelidade. Cancela quando quiser, sem multa.
+              </p>
+            </div>
+            <div class="pricing-card">
+              <div class="pricing-card-bar" aria-hidden="true"></div>
+              <div class="pricing-card-body">
+                <div class="pricing-price">
+                  <span class="amount">R$ 347</span>
+                  <span class="period">/mês</span>
+                </div>
+                <p class="pricing-price-note">
+                  no plano anual — equivalente a R$ 4.164 à vista no ano
+                </p>
+                <p class="pricing-alt">
+                  ou <b>R$ 497/mês</b> no plano mensal, sem compromisso anual
+                </p>
+                <span class="pricing-badge">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  Cancela quando quiser
+                </span>
+                <ul class="pricing-list">
+                  <li>
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    Atendimento pelo WhatsApp 24h
+                  </li>
+                  <li>
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    IA treinada com os dados da sua clínica
+                  </li>
+                  <li>
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    Não precisa trocar de número
+                  </li>
+                  <li>
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    Funciona com o WhatsApp que a clínica já usa
+                  </li>
+                  <li>
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    Teste de 7 dias grátis, sem cartão de crédito
+                  </li>
+                  <li>
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    Sem taxa de setup
+                  </li>
+                </ul>
+                <button type="button" class="btn btn-primary" title="Em breve">
+                  Começar agora, grátis por 7 dias
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="reveal surface">
+        <div class="container">
+          <span class="eyebrow">Dúvidas</span>
+          <h2>Perguntas frequentes</h2>
+          <div class="faq">
+            <details>
+              <summary>Precisa trocar meu número?</summary>
+              <p>
+                Não. A Recepta atende pelo número de WhatsApp que a clínica já
+                usa hoje.
+              </p>
+            </details>
+            <details>
+              <summary>Ela substitui minha secretária?</summary>
+              <p>
+                Não substitui. Ela assume o atendimento pelo WhatsApp — tira
+                dúvida, agenda e passa pra recepção quando o caso precisa de uma
+                pessoa.
+              </p>
+            </details>
+            <details>
+              <summary>E se ela responder errado pro paciente?</summary>
+              <p>
+                Ela só responde com as informações que a própria clínica
+                cadastrou — preço, preparo, horário. Fora disso, ou em qualquer
+                dúvida que fuja do que foi configurado, ela não inventa
+                resposta: passa direto pra um humano da equipe.
+              </p>
+            </details>
+            <details>
+              <summary>E a LGPD?</summary>
+              <p>
+                Os dados dos pacientes são usados só para o atendimento da
+                própria clínica, seguindo a LGPD.
+              </p>
+            </details>
+            <details>
+              <summary>O que acontece quando acaba o teste?</summary>
+              <p>
+                Você já viu a Recepta funcionando na prática. O plano é
+                apresentado nesse momento, sem compromisso durante os 7 dias.
+              </p>
+            </details>
+          </div>
+        </div>
+      </section>
+
+      <section class="reveal final-cta">
+        <div class="container">
+          <h2>Sua secretária pode estar no ar ainda hoje.</h2>
+          <p class="lede">
+            Sem call de implantação. Sem taxa de setup. Sem cartão de crédito —
+            cancela quando quiser.
+          </p>
+          <button type="button" class="btn btn-primary" title="Em breve">
+            Começar agora, grátis por 7 dias
+          </button>
+          <p class="founder-line">
+            A configuração inicial é feita junto com você, entendendo como sua
+            clínica atende hoje — pra IA responder certo desde o primeiro dia.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="container foot-row">
+        <div>© <span id="y"></span> Recepta AI</div>
+        <div class="foot-links">
+          <a href="/termos">Termos de uso</a>
+          <a href="/privacidade">Política de privacidade</a>
+        </div>
+      </div>
+    </footer>
+    <script>
+      document.getElementById("y").textContent = new Date().getFullYear();
+
+      (function () {
+        var alvos = document.querySelectorAll(".reveal, .demo-stage");
+        var semMotion = window.matchMedia(
+          "(prefers-reduced-motion: reduce)",
+        ).matches;
+        if (semMotion || !("IntersectionObserver" in window)) {
+          alvos.forEach(function (el) {
+            el.classList.add("is-visible");
+          });
+          return;
+        }
+        var observer = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("is-visible");
+                observer.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.12 },
+        );
+        alvos.forEach(function (el) {
+          observer.observe(el);
+        });
+      })();
+
+      (function () {
+        var track = document.querySelector(".hero-slide");
+        var handle = document.querySelector(".hero-slide-handle");
+        if (!track || !handle) return;
+
+        var reduceMotion = window.matchMedia(
+          "(prefers-reduced-motion: reduce)",
+        ).matches;
+
+        if (reduceMotion) {
+          return;
+        }
+
+        var maxX = 0;
+        var currentX = 0;
+        var dragging = false;
+        var decided = false;
+        var horizontalDrag = false;
+        var pointerId = null;
+        var originClientX = 0;
+        var originClientY = 0;
+        var originHandleX = 0;
+
+        var handleWidth = handle.offsetWidth;
+        var maxTravel = 79;
+        track.style.width = handleWidth + "px";
+
+        function setPosition(x, animate) {
+          x = Math.max(0, Math.min(maxX, x));
+          currentX = x;
+          var easing = animate
+            ? "0.4s cubic-bezier(0.34, 1.56, 0.64, 1)"
+            : "none";
+          handle.style.transition = animate ? "transform " + easing : "none";
+          handle.style.transform = "translateX(" + x + "px)";
+          track.style.transition = animate ? "width " + easing : "none";
+          track.style.width = handleWidth + x + "px";
+        }
+
+        function onPointerDown(e) {
+          if (e.pointerType === "mouse" && e.button !== 0) return;
+          pointerId = e.pointerId;
+          originClientX = e.clientX;
+          originClientY = e.clientY;
+          originHandleX = currentX;
+          decided = false;
+          horizontalDrag = false;
+          dragging = true;
+          maxX = maxTravel;
+        }
+
+        function onPointerMove(e) {
+          if (!dragging || e.pointerId !== pointerId) return;
+          var dx = e.clientX - originClientX;
+          var dy = e.clientY - originClientY;
+
+          if (!decided) {
+            if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
+            decided = true;
+            horizontalDrag = Math.abs(dx) > Math.abs(dy);
+            if (horizontalDrag) {
+              try {
+                handle.setPointerCapture(pointerId);
+              } catch (err) {}
+            } else {
+              dragging = false;
+              return;
+            }
+          }
+
+          if (!horizontalDrag) return;
+          e.preventDefault();
+          setPosition(originHandleX + dx, false);
+        }
+
+        function onPointerUp(e) {
+          if (!dragging || e.pointerId !== pointerId) return;
+          dragging = false;
+          if (!horizontalDrag) return;
+          try {
+            if (handle.hasPointerCapture(pointerId)) {
+              handle.releasePointerCapture(pointerId);
+            }
+          } catch (err) {}
+          setPosition(0, true);
+        }
+
+        function onPointerCancel() {
+          dragging = false;
+          if (horizontalDrag) setPosition(0, true);
+        }
+
+        handle.addEventListener("pointerdown", onPointerDown);
+        handle.addEventListener("pointermove", onPointerMove);
+        handle.addEventListener("pointerup", onPointerUp);
+        handle.addEventListener("pointercancel", onPointerCancel);
+
+        window.addEventListener("resize", function () {
+          handleWidth = handle.offsetWidth;
+          maxX = maxTravel;
+          setPosition(Math.min(currentX, maxX), false);
+        });
+      })();
+    </script>
+  </body>
+</html>
