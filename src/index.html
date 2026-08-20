@@ -61,21 +61,22 @@
     <link
       rel="preload"
       as="style"
-      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
     />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
     />
     <style>
       :root {
-        --header-h: 65px;
+        --header-h: 68px;
         --bg: #fafafd;
         --surface: #ffffff;
         --ink: #100d22;
         --muted: #302e47;
         --line: #e7e5f2;
         --accent: #26205c;
+        --accent-rgb: 38, 32, 92;
         --accent-ink: #ffffff;
         --accent-soft: #f3f2f5;
         --accent-2: #afa8eb;
@@ -95,7 +96,7 @@
         background: var(--bg);
         color: var(--ink);
         font-family:
-          "Manrope",
+          "Poppins",
           -apple-system,
           BlinkMacSystemFont,
           "Segoe UI",
@@ -179,15 +180,15 @@
       .logo {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 9px;
         font-weight: 700;
-        font-size: 17px;
+        font-size: 20px;
         letter-spacing: -0.02em;
         color: #fff;
       }
       .logo svg {
-        width: 32px;
-        height: 32px;
+        width: 36px;
+        height: 36px;
         flex-shrink: 0;
         display: block;
       }
@@ -201,6 +202,21 @@
       .topbar .btn-primary:hover {
         background: var(--accent-soft);
         filter: none;
+      }
+      @media (max-width: 480px) {
+        .topbar .btn-primary {
+          padding: 10px 16px;
+          font-size: 13.5px;
+          white-space: nowrap;
+        }
+        .logo {
+          font-size: 17px;
+          gap: 7px;
+        }
+        .logo svg {
+          width: 30px;
+          height: 30px;
+        }
       }
 
       /* buttons */
@@ -524,10 +540,20 @@
       .msg-in {
         align-self: flex-start;
         flex-direction: row;
+        margin-left: -14px;
       }
       .msg-out {
         align-self: flex-end;
         flex-direction: row-reverse;
+        margin-right: -14px;
+      }
+      @media (min-width: 1200px) {
+        .msg-in {
+          margin-left: -34px;
+        }
+        .msg-out {
+          margin-right: -34px;
+        }
       }
       .msg-tag {
         flex: 0 0 auto;
@@ -554,9 +580,11 @@
         }
         .msg-in {
           align-items: flex-start;
+          margin-left: -6px;
         }
         .msg-out {
           align-items: flex-end;
+          margin-right: -6px;
         }
       }
 
@@ -583,6 +611,50 @@
       .pain-card p {
         font-size: 14.5px;
         color: var(--ink);
+      }
+
+      /* stat: métrica de conversão (mercado B2B, fonte externa) */
+      .stat-block {
+        margin-top: 20px;
+        padding: 28px 30px;
+        background: var(--accent-soft);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .stat-number {
+        font-size: clamp(44px, 9vw, 64px);
+        font-weight: 800;
+        line-height: 1;
+        color: var(--accent);
+        letter-spacing: -0.02em;
+      }
+      .stat-text {
+        font-size: 15.5px;
+        font-weight: 600;
+        color: var(--ink);
+        max-width: 46ch;
+      }
+      .stat-source {
+        font-size: 12px;
+        color: var(--muted);
+        opacity: 0.75;
+      }
+      @media (min-width: 720px) {
+        .stat-block {
+          flex-direction: row;
+          align-items: center;
+          gap: 32px;
+          padding: 32px 36px;
+        }
+        .stat-copy {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
       }
 
       /* how it works */
@@ -1089,6 +1161,322 @@
         outline-color: #fff;
       }
 
+      /* duvidas: scrollytelling um item por vez (inspirado na umbler) */
+      /* base = fallback seguro: lista estatica, sem pin, sem crossfade */
+      .duvidas .lede {
+        margin-bottom: 44px;
+      }
+      .obj-scroller {
+        position: relative;
+      }
+      .obj-pin {
+        position: relative;
+      }
+      .obj-rail {
+        display: none;
+      }
+      .obj-list {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 56px;
+      }
+      .obj-item {
+        position: relative;
+        display: flex;
+        flex-direction: column-reverse;
+        gap: 24px;
+      }
+      .obj-num {
+        position: absolute;
+        top: -58px;
+        left: -6px;
+        font-size: clamp(90px, 11vw, 168px);
+        font-weight: 800;
+        color: var(--accent);
+        opacity: 0.1;
+        line-height: 1;
+        pointer-events: none;
+        z-index: 0;
+        white-space: nowrap;
+      }
+      .obj-copy {
+        position: relative;
+        z-index: 1;
+        max-width: 46ch;
+      }
+      .obj-copy h3 {
+        position: relative;
+        z-index: 1;
+        font-size: clamp(30px, 4vw, 46px);
+        line-height: 1.12;
+        margin-bottom: 28px;
+      }
+      .obj-copy p {
+        position: relative;
+        z-index: 1;
+        color: var(--muted);
+        font-size: clamp(16px, 1.85vw, 18.5px);
+        line-height: 1.6;
+      }
+      .obj-visual {
+        position: relative;
+        z-index: 1;
+      }
+      .obj-demo {
+        max-width: 420px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 28px;
+        box-shadow:
+          0 1px 2px rgba(16, 13, 34, 0.04),
+          0 10px 24px -20px rgba(16, 13, 34, 0.35);
+      }
+      /* ui-pill: seletor de tom (item 01), escalonado sobre painel gradiente */
+      .ui-pill-row {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        padding: 22px;
+        border-radius: 16px;
+        background: linear-gradient(
+          135deg,
+          rgba(175, 168, 235, 0.2),
+          rgba(175, 168, 235, 0.05)
+        );
+      }
+      .ui-pill {
+        display: inline-flex;
+        align-items: center;
+        align-self: flex-start;
+        gap: 8px;
+        padding: 11px 20px;
+        border-radius: 99px;
+        font-weight: 600;
+        font-size: 14.5px;
+        background: var(--surface);
+        color: var(--ink);
+        border: 1px solid var(--line);
+        box-shadow: 0 6px 16px -10px rgba(16, 13, 34, 0.25);
+      }
+      .ui-pill:nth-child(2) {
+        margin-left: 28px;
+      }
+      .ui-pill:nth-child(3) {
+        margin-left: 56px;
+      }
+      .ui-pill.is-active {
+        background: var(--accent);
+        color: var(--accent-ink);
+        border-color: transparent;
+        box-shadow: 0 10px 24px -12px rgba(38, 32, 92, 0.55);
+      }
+      /* ui-slots: checagem de agenda (item 02) */
+      .ui-slots {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .ui-slot {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 13px 16px;
+        border-radius: 12px;
+        border: 1px solid var(--line);
+        font-size: 14.5px;
+        font-weight: 600;
+      }
+      .ui-slot.is-busy {
+        background: var(--bg);
+        color: var(--muted);
+      }
+      .ui-slot.is-busy .ui-slot-time {
+        text-decoration: line-through;
+      }
+      .ui-slot.is-free {
+        background: var(--accent-soft);
+        border-color: transparent;
+        color: var(--ink);
+      }
+      .ui-slot-tag {
+        flex: 0 0 auto;
+        font-size: 11.5px;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 99px;
+      }
+      .ui-slot.is-busy .ui-slot-tag {
+        background: var(--line);
+        color: var(--muted);
+      }
+      .ui-slot.is-free .ui-slot-tag {
+        background: var(--accent);
+        color: var(--accent-ink);
+      }
+      /* ui-status: indicador de pausa (item 03) */
+      .ui-status {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        padding: 16px 18px;
+        border-radius: 12px;
+        background: var(--accent-soft);
+      }
+      .ui-status-dot {
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        background: var(--accent);
+        flex-shrink: 0;
+        box-shadow: 0 0 0 5px rgba(var(--accent-rgb), 0.15);
+      }
+      .ui-status-text {
+        font-size: 14.5px;
+        font-weight: 600;
+        color: var(--ink);
+      }
+      /* ui-lock: cadeado + checklist (item 04) */
+      .ui-lock {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .ui-lock-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: var(--accent);
+        color: #fff;
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+      }
+      .ui-checklist {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .ui-checklist li {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-size: 14.5px;
+        font-weight: 600;
+        color: var(--ink);
+      }
+      .ui-checklist svg {
+        flex-shrink: 0;
+        color: var(--accent);
+      }
+
+      /* motion: pin sticky + troca real de item conforme rola (so quando animacao e permitida) */
+      @media (prefers-reduced-motion: no-preference) {
+        .obj-scroller {
+          height: 400vh;
+          height: 400dvh;
+        }
+        .obj-pin {
+          position: sticky;
+          top: var(--header-h);
+          height: calc(100vh - var(--header-h));
+          height: calc(100dvh - var(--header-h));
+          display: flex;
+          align-items: center;
+          overflow: hidden;
+        }
+        .obj-list {
+          display: grid;
+          position: relative;
+          width: 100%;
+          gap: 0;
+        }
+        .obj-item {
+          grid-column: 1;
+          grid-row: 1;
+          opacity: 0;
+          transform: translateY(18px);
+          transition:
+            opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+            transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+          pointer-events: none;
+        }
+        .obj-item.is-prev {
+          transform: translateY(-18px);
+        }
+        .obj-item.is-active {
+          opacity: 1;
+          transform: translateY(0);
+          pointer-events: auto;
+        }
+      }
+
+      @media (prefers-reduced-motion: no-preference) and (min-width: 760px) {
+        /* trilho fica NO MEIO: [visual] - [linha] - [numero+titulo+texto], como na umbler */
+        .obj-rail {
+          display: block;
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -50%);
+          height: 280px;
+          width: 5px;
+          background: var(--accent);
+          border-radius: 3px;
+          z-index: 2;
+        }
+        .obj-dot {
+          position: absolute;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          background: var(--surface);
+          border: 2px solid var(--accent);
+          transition:
+            background 0.25s,
+            transform 0.25s;
+        }
+        .obj-dot[data-i="0"] {
+          top: 0%;
+        }
+        .obj-dot[data-i="1"] {
+          top: 33.33%;
+        }
+        .obj-dot[data-i="2"] {
+          top: 66.66%;
+        }
+        .obj-dot[data-i="3"] {
+          top: 100%;
+        }
+        .obj-rail[data-active="0"] .obj-dot[data-i="0"],
+        .obj-rail[data-active="1"] .obj-dot[data-i="1"],
+        .obj-rail[data-active="2"] .obj-dot[data-i="2"],
+        .obj-rail[data-active="3"] .obj-dot[data-i="3"] {
+          background: var(--accent);
+          transform: translate(-50%, -50%) scale(1.35);
+        }
+        .obj-list {
+          position: relative;
+        }
+        .obj-item {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+          column-gap: 80px;
+          align-items: center;
+        }
+        .obj-visual {
+          grid-column: 1;
+        }
+        .obj-copy {
+          grid-column: 2;
+        }
+      }
+
       @media (prefers-reduced-motion: reduce) {
         .reveal,
         .js .reveal,
@@ -1124,7 +1512,7 @@
           </svg>
           Recepta <span>AI</span>
         </div>
-        <button type="button" class="btn btn-primary btn-sm" title="Em breve">
+        <button type="button" class="btn btn-primary" title="Em breve">
           Começar agora
         </button>
       </div>
@@ -1364,6 +1752,16 @@
             </div>
             <div class="pain-card">
               <p>Paciente espera resposta e marca consulta na concorrência.</p>
+            </div>
+          </div>
+          <div class="stat-block">
+            <div class="stat-number">78%</div>
+            <div class="stat-copy">
+              <p class="stat-text">
+                dos leads fecham negócio com a primeira empresa que responde —
+                não necessariamente a que oferece o melhor preço ou serviço.
+              </p>
+              <p class="stat-source">Fonte: HubSpot</p>
             </div>
           </div>
           <p class="steps-label">Como ela entra no ar, em 3 passos:</p>
@@ -1701,6 +2099,166 @@
                 Ideal pra clínica com alto volume de pergunta repetida sobre
                 valor, jejum e documentos antes do exame.
               </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="reveal duvidas" id="duvidas">
+        <div class="container">
+          <span class="eyebrow">Antes de ativar</span>
+          <h2>As dúvidas que toda clínica tem antes de testar</h2>
+          <p class="lede">
+            Sem enrolação — é assim que a Recepta se comporta em cada uma dessas
+            situações.
+          </p>
+        </div>
+
+        <div class="obj-scroller">
+          <div class="obj-pin">
+            <div class="container">
+              <div class="obj-rail" aria-hidden="true" data-active="0">
+                <span class="obj-dot" data-i="0"></span>
+                <span class="obj-dot" data-i="1"></span>
+                <span class="obj-dot" data-i="2"></span>
+                <span class="obj-dot" data-i="3"></span>
+              </div>
+              <ol class="obj-list">
+                <li class="obj-item is-active" data-i="0">
+                  <div class="obj-visual">
+                    <div class="obj-demo" aria-hidden="true">
+                      <div class="ui-pill-row">
+                        <span class="ui-pill is-active">😊 Tom natural</span>
+                        <span class="ui-pill">🤵 Formal</span>
+                        <span class="ui-pill">😛 Descontraído</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="obj-copy">
+                    <span class="obj-num" aria-hidden="true">01</span>
+                    <h3>Vai parecer um robô falando comigo?</h3>
+                    <p>
+                      Não. A Recepta escreve como pessoa: mensagens curtas, no
+                      ritmo de WhatsApp, sem menu numerado. Se perguntarem se é
+                      robô, ela admite — sem enrolar, sem drama.
+                    </p>
+                  </div>
+                </li>
+                <li class="obj-item" data-i="1">
+                  <div class="obj-visual">
+                    <div class="obj-demo" aria-hidden="true">
+                      <div class="ui-slots">
+                        <div class="ui-slot is-busy">
+                          <span class="ui-slot-time">Qui · 14h00</span>
+                          <span class="ui-slot-tag">Ocupado</span>
+                        </div>
+                        <div class="ui-slot is-free">
+                          <span class="ui-slot-time">Sex · 09h00</span>
+                          <span class="ui-slot-tag">Livre</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="obj-copy">
+                    <span class="obj-num" aria-hidden="true">02</span>
+                    <h3>E se ela marcar a consulta errada?</h3>
+                    <p>
+                      Ela confere sua agenda de verdade antes de confirmar
+                      qualquer coisa. Se o horário já estiver ocupado, ela avisa
+                      e pede outra data — nunca inventa um "agendado" que não
+                      aconteceu.
+                    </p>
+                  </div>
+                </li>
+                <li class="obj-item" data-i="2">
+                  <div class="obj-visual">
+                    <div class="obj-demo" aria-hidden="true">
+                      <div class="ui-status">
+                        <span class="ui-status-dot"></span>
+                        <span class="ui-status-text"
+                          >IA pausada — você está respondendo</span
+                        >
+                      </div>
+                    </div>
+                  </div>
+                  <div class="obj-copy">
+                    <span class="obj-num" aria-hidden="true">03</span>
+                    <h3>Posso assumir a conversa quando eu quiser?</h3>
+                    <p>
+                      Sim. Se você responder pelo WhatsApp normalmente, a
+                      Recepta percebe e para de responder sozinha por um tempo —
+                      sem precisar desligar nada.
+                    </p>
+                  </div>
+                </li>
+                <li class="obj-item" data-i="3">
+                  <div class="obj-visual">
+                    <div class="obj-demo" aria-hidden="true">
+                      <div class="ui-lock">
+                        <div class="ui-lock-icon">
+                          <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            aria-hidden="true"
+                          >
+                            <rect x="4" y="11" width="16" height="10" rx="2" />
+                            <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+                          </svg>
+                        </div>
+                        <ul class="ui-checklist">
+                          <li>
+                            <svg
+                              width="18"
+                              height="18"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              aria-hidden="true"
+                            >
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            Dados no Brasil
+                          </li>
+                          <li>
+                            <svg
+                              width="18"
+                              height="18"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              stroke-width="2"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              aria-hidden="true"
+                            >
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            Sem compartilhar com terceiros
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="obj-copy">
+                    <span class="obj-num" aria-hidden="true">04</span>
+                    <h3>Meus dados e os dos pacientes estão seguros?</h3>
+                    <p>
+                      Sim, seguimos a LGPD. Os dados ficam no seu ambiente, não
+                      são compartilhados com terceiros nem usados pra treinar
+                      modelo de terceiro.
+                    </p>
+                  </div>
+                </li>
+              </ol>
             </div>
           </div>
         </div>
@@ -2058,6 +2616,56 @@
           maxX = maxTravel;
           setPosition(Math.min(currentX, maxX), false);
         });
+      })();
+
+      (function () {
+        var scroller = document.querySelector(".obj-scroller");
+        var rail = document.querySelector(".obj-rail");
+        var items = document.querySelectorAll(".obj-item");
+        if (!scroller || !items.length) return;
+
+        var reduceMotion = window.matchMedia(
+          "(prefers-reduced-motion: reduce)",
+        ).matches;
+        if (reduceMotion) return;
+
+        var count = items.length;
+        var current = -1;
+        var ticking = false;
+
+        function setActive(i) {
+          if (i === current) return;
+          current = i;
+          if (rail) rail.dataset.active = i;
+          items.forEach(function (el) {
+            var idx = Number(el.dataset.i);
+            el.classList.remove("is-active", "is-prev");
+            if (idx === i) el.classList.add("is-active");
+            else if (idx < i) el.classList.add("is-prev");
+          });
+        }
+
+        function update() {
+          ticking = false;
+          var rect = scroller.getBoundingClientRect();
+          var viewportH = window.innerHeight;
+          var scrollable = rect.height - viewportH;
+          var progress = scrollable > 0 ? -rect.top / scrollable : 0;
+          progress = Math.max(0, Math.min(1, progress));
+          var idx = Math.min(count - 1, Math.floor(progress * count));
+          setActive(idx);
+        }
+
+        function onScroll() {
+          if (ticking) return;
+          ticking = true;
+          window.requestAnimationFrame(update);
+        }
+
+        setActive(0);
+        update();
+        window.addEventListener("scroll", onScroll, { passive: true });
+        window.addEventListener("resize", onScroll);
       })();
     </script>
   </body>
