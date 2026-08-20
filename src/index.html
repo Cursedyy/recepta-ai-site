@@ -1228,13 +1228,20 @@
         max-width: 380px;
         min-height: 260px;
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
+        gap: 14px;
         opacity: 0.35;
         transform: translateY(14px) scale(0.97);
         transition:
           opacity 0.5s ease,
           transform 0.5s ease;
+      }
+      .duvidas .pause-hint {
+        font-size: 12.5px;
+        color: var(--muted);
+        text-align: center;
       }
       .duvidas .item.active .visual-inner {
         opacity: 1;
@@ -1724,8 +1731,8 @@
           <span class="eyebrow">Como funciona</span>
           <h2>Da mensagem perdida ao atendimento automático</h2>
           <p class="lede">
-            Isso é o que acontece hoje sem a Recepta — e como ela resolve, em 3
-            passos.
+            Isso é o que acontece hoje sem a Recepta. Veja como ela resolve, em
+            3 passos.
           </p>
           <div class="pain-grid">
             <div class="pain-card">
@@ -1734,7 +1741,7 @@
             <div class="pain-card">
               <p>
                 Recepção tenta atender telefone, WhatsApp e balcão ao mesmo
-                tempo — e não dá conta de nada direito.
+                tempo e não dá conta de nada direito.
               </p>
             </div>
             <div class="pain-card">
@@ -1745,7 +1752,7 @@
             <div class="stat-number">78%</div>
             <div class="stat-copy">
               <p class="stat-text">
-                dos leads fecham negócio com a primeira empresa que responde —
+                dos leads fecham negócio com a primeira empresa que responde,
                 não necessariamente a que oferece o melhor preço ou serviço.
               </p>
               <p class="stat-source">Fonte: HubSpot</p>
@@ -1806,8 +1813,9 @@
               <div>
                 <h3>A Recepta é configurada automaticamente</h3>
                 <p>
-                  As respostas saem do que você preencheu — sem reunião de
-                  alinhamento.
+                  As respostas já saem do que você preencheu no formulário, sem
+                  reunião de alinhamento. Depois, dá pra ajustar tudo direto
+                  pelo painel de conversas.
                 </p>
               </div>
             </div>
@@ -2055,7 +2063,7 @@
               </h3>
               <p>
                 Ideal pra recepção que tenta dar conta de telefone, balcão e
-                WhatsApp ao mesmo tempo — e não sobra pra nenhum dos três.
+                WhatsApp ao mesmo tempo e não sobra pra nenhum dos três.
               </p>
             </div>
             <div class="profile-card">
@@ -2124,7 +2132,7 @@
                 <p>
                   Não. A Recepta escreve como pessoa: mensagens curtas, no ritmo
                   de WhatsApp, sem menu numerado. Se perguntarem se é robô, ela
-                  admite — sem enrolar, sem drama.
+                  admite, sem enrolar e sem drama.
                 </p>
               </div>
             </div>
@@ -2152,7 +2160,7 @@
                 <p>
                   Ela confere sua agenda de verdade antes de confirmar qualquer
                   coisa. Se o horário já estiver ocupado, ela avisa e pede outra
-                  data — nunca inventa um "agendado" que não aconteceu.
+                  data. Nunca inventa um "agendado" que não aconteceu.
                 </p>
               </div>
             </div>
@@ -2169,14 +2177,18 @@
                       <span>Você está respondendo</span>
                     </div>
                   </div>
+                  <p class="pause-hint">
+                    Volta sozinha após 10 min sem resposta manual
+                  </p>
                 </div>
               </div>
               <div class="text">
                 <h3>Posso assumir a conversa quando eu quiser?</h3>
                 <p>
-                  Sim. Se você responder pelo WhatsApp normalmente, a Recepta
-                  percebe e para de responder sozinha por um tempo — sem
-                  precisar desligar nada.
+                  Sim. Assim que você manda uma mensagem manual pelo WhatsApp
+                  naquela conversa, a Recepta pausa sozinha e deixa você
+                  responder. Ela só volta a atender depois de 10 minutos sem
+                  nenhuma resposta manual sua, sem precisar desligar nada.
                 </p>
               </div>
             </div>
@@ -2252,7 +2264,7 @@
                   <span class="period">/mês</span>
                 </div>
                 <p class="pricing-price-note">
-                  no plano anual — equivalente a R$ 4.164 à vista no ano
+                  no plano anual, equivalente a R$ 4.164 à vista no ano
                 </p>
                 <p class="pricing-alt">
                   ou <b>R$ 497/mês</b> no plano mensal, sem compromisso anual
@@ -2305,6 +2317,22 @@
                       <polyline points="20 6 9 17 4 12" />
                     </svg>
                     IA treinada com os dados da sua clínica
+                  </li>
+                  <li>
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      aria-hidden="true"
+                    >
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    Painel de conversas com controle total da automação
                   </li>
                   <li>
                     <svg
@@ -2395,7 +2423,7 @@
             <details>
               <summary>Ela substitui minha secretária?</summary>
               <p>
-                Não substitui. Ela assume o atendimento pelo WhatsApp — tira
+                Não substitui. Ela assume o atendimento pelo WhatsApp: tira
                 dúvida, agenda e passa pra recepção quando o caso precisa de uma
                 pessoa.
               </p>
@@ -2404,9 +2432,18 @@
               <summary>E se ela responder errado pro paciente?</summary>
               <p>
                 Ela só responde com as informações que a própria clínica
-                cadastrou — preço, preparo, horário. Fora disso, ou em qualquer
+                cadastrou: preço, preparo, horário. Fora disso, ou em qualquer
                 dúvida que fuja do que foi configurado, ela não inventa
                 resposta: passa direto pra um humano da equipe.
+              </p>
+            </details>
+            <details>
+              <summary>Dá pra mudar o que ela responde?</summary>
+              <p>
+                Sim. Quem usa a Recepta tem acesso a um painel de conversas,
+                onde acompanha tudo o que foi respondido e ajusta a automação a
+                qualquer momento, incluindo como ela deve responder aos
+                pacientes.
               </p>
             </details>
             <details>
@@ -2431,15 +2468,15 @@
         <div class="container">
           <h2>Sua secretária pode estar no ar ainda hoje.</h2>
           <p class="lede">
-            Sem call de implantação. Sem taxa de setup. Sem cartão de crédito —
-            cancela quando quiser.
+            Sem call de implantação. Sem taxa de setup. Sem cartão de crédito.
+            Cancela quando quiser.
           </p>
           <button type="button" class="btn btn-primary" title="Em breve">
             Começar agora, grátis por 7 dias
           </button>
           <p class="founder-line">
             A configuração inicial é feita junto com você, entendendo como sua
-            clínica atende hoje — pra IA responder certo desde o primeiro dia.
+            clínica atende hoje, pra IA responder certo desde o primeiro dia.
           </p>
         </div>
       </section>
