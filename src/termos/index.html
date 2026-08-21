@@ -21,10 +21,12 @@
     <style>
       :root {
         --bg: #fafafd;
+        --surface: #ffffff;
         --ink: #100d22;
         --muted: #302e47;
         --line: #e7e5f2;
         --accent: #26205c;
+        --radius: 12px;
       }
       * {
         box-sizing: border-box;
@@ -41,7 +43,7 @@
         line-height: 1.65;
       }
       .wrap {
-        max-width: 640px;
+        max-width: 720px;
         margin: 0 auto;
         padding: 56px 20px 80px;
       }
@@ -52,42 +54,386 @@
         font-size: 26px;
         margin-bottom: 6px;
       }
+      .updated {
+        color: var(--muted);
+        font-size: 13.5px;
+        margin-bottom: 20px;
+      }
       .note {
         color: var(--muted);
         font-size: 13.5px;
         margin-bottom: 28px;
         border: 1px solid var(--line);
-        background: #fff;
+        background: var(--surface);
         border-radius: 10px;
         padding: 12px 14px;
       }
+      .toc {
+        border: 1px solid var(--line);
+        background: var(--surface);
+        border-radius: var(--radius);
+        padding: 18px 20px;
+        margin-bottom: 32px;
+      }
+      .toc p {
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: var(--ink);
+      }
+      .toc ol {
+        padding-left: 20px;
+        color: var(--muted);
+        font-size: 14.5px;
+      }
+      .toc li {
+        margin-bottom: 4px;
+      }
+      section {
+        margin-bottom: 30px;
+      }
+      h2 {
+        font-size: 18px;
+        margin-bottom: 10px;
+        scroll-margin-top: 20px;
+      }
       p {
         color: var(--muted);
-        margin-bottom: 14px;
+        margin-bottom: 12px;
+      }
+      ul {
+        color: var(--muted);
+        padding-left: 20px;
+        margin-bottom: 12px;
+      }
+      li {
+        margin-bottom: 6px;
+      }
+      strong {
+        color: var(--ink);
       }
       .back {
         display: inline-block;
-        margin-top: 24px;
+        margin-top: 12px;
         font-size: 14px;
+      }
+      hr {
+        border: none;
+        border-top: 1px solid var(--line);
+        margin: 32px 0;
       }
     </style>
   </head>
   <body>
     <div class="wrap">
       <h1>Termos de uso</h1>
+      <p class="updated">Última atualização: 18/08/2026</p>
       <p class="note">
-        Documento em elaboração. A versão final será publicada antes do
-        lançamento comercial da Recepta AI.
+        Documento em elaboração, publicado nesta versão ampliada para revisão. A
+        versão final — validada por assessoria jurídica — será publicada antes
+        do lançamento comercial da Recepta AI.
       </p>
-      <p>
-        Estes termos vão descrever as condições de uso da Recepta AI, incluindo
-        o funcionamento do teste gratuito de 7 dias, responsabilidades da
-        clínica contratante e limites do atendimento automatizado.
-      </p>
-      <p>
-        Dúvidas sobre este documento podem ser tratadas diretamente com a equipe
-        durante o período de teste.
-      </p>
+
+      <nav class="toc" aria-label="Sumário">
+        <p>Sumário</p>
+        <ol>
+          <li><a href="#objeto">1. Objeto e aceitação</a></li>
+          <li><a href="#quem-somos">2. Quem presta o serviço</a></li>
+          <li><a href="#cadastro">3. Cadastro e elegibilidade</a></li>
+          <li><a href="#teste">4. Teste gratuito de 7 dias</a></li>
+          <li><a href="#planos">5. Planos, preços e pagamento</a></li>
+          <li>
+            <a href="#responsabilidades"
+              >6. Responsabilidades da clínica contratante</a
+            >
+          </li>
+          <li>
+            <a href="#limites">7. Natureza e limites do atendimento por IA</a>
+          </li>
+          <li><a href="#dados">8. Dados pessoais e privacidade</a></li>
+          <li><a href="#propriedade">9. Propriedade intelectual</a></li>
+          <li><a href="#disponibilidade">10. Disponibilidade do serviço</a></li>
+          <li><a href="#suspensao">11. Suspensão e encerramento</a></li>
+          <li>
+            <a href="#garantias"
+              >12. Garantias e limitação de responsabilidade</a
+            >
+          </li>
+          <li><a href="#alteracoes">13. Alterações destes termos</a></li>
+          <li><a href="#lei">14. Lei aplicável e foro</a></li>
+          <li><a href="#contato">15. Contato</a></li>
+        </ol>
+      </nav>
+
+      <section id="objeto">
+        <h2>1. Objeto e aceitação</h2>
+        <p>
+          Estes Termos de Uso regulam a contratação e utilização da Recepta AI,
+          uma secretária virtual com inteligência artificial que atende o
+          WhatsApp de clínicas e consultórios, disponibilizada como Software as
+          a Service (SaaS) pela Recepta AI ("nós").
+        </p>
+        <p>
+          Ao criar uma conta, iniciar o teste gratuito ou utilizar o serviço de
+          qualquer forma, a clínica contratante ("Cliente", "você") declara que
+          leu, compreendeu e concorda integralmente com estes termos e com a
+          <a href="/privacidade">Política de Privacidade</a>. Caso não concorde,
+          não deve utilizar o serviço.
+        </p>
+      </section>
+
+      <section id="quem-somos">
+        <h2>2. Quem presta o serviço</h2>
+        <p>
+          A Recepta AI é a única prestadora do serviço descrito nestes termos,
+          sem intermediários. O serviço é destinado exclusivamente a pessoas
+          jurídicas que operam clínicas, consultórios ou serviços de saúde e
+          afins — não é um produto para consumidor final (pessoa física atendida
+          pela IA).
+        </p>
+      </section>
+
+      <section id="cadastro">
+        <h2>3. Cadastro e elegibilidade</h2>
+        <p>Para contratar a Recepta AI, o Cliente deve:</p>
+        <ul>
+          <li>
+            Ser pessoa jurídica regularmente constituída, identificada por CNPJ
+            válido;
+          </li>
+          <li>
+            Fornecer informações verdadeiras, completas e atualizadas no
+            briefing de onboarding (nome da clínica, horários, preços,
+            convênios, número de WhatsApp e demais dados operacionais);
+          </li>
+          <li>
+            Ser representado por pessoa com poderes para contratar em nome da
+            clínica;
+          </li>
+          <li>
+            Manter essas informações atualizadas durante toda a vigência do
+            contrato, já que são usadas pela IA para responder pacientes.
+          </li>
+        </ul>
+        <p>
+          O uso de um mesmo CNPJ para abrir múltiplos períodos de teste gratuito
+          não é permitido.
+        </p>
+      </section>
+
+      <section id="teste">
+        <h2>4. Teste gratuito de 7 dias</h2>
+        <ul>
+          <li>
+            O teste tem duração de 7 (sete) dias corridos a partir da ativação
+            da instância no WhatsApp da clínica;
+          </li>
+          <li>Não é exigido cartão de crédito para iniciar o teste;</li>
+          <li>
+            Durante o teste, o Cliente tem acesso às funcionalidades descritas
+            na página de preços vigente no momento da contratação;
+          </li>
+          <li>
+            O Cliente pode cancelar a qualquer momento durante o teste, sem
+            cobrança e sem multa;
+          </li>
+          <li>
+            Ao final do período, a proposta comercial (planos mensal ou anual) é
+            apresentada; a continuidade do serviço depende de contratação
+            expressa de um plano pago — não há conversão automática e cobrança
+            sem aviso.
+          </li>
+        </ul>
+      </section>
+
+      <section id="planos">
+        <h2>5. Planos, preços e pagamento</h2>
+        <p>
+          Os planos disponíveis, valores e condições de pagamento (mensal ou
+          anual) são os informados na página de preços do site no momento da
+          contratação. Alterações de preço não afetam contratos já em vigor até
+          o próximo ciclo de renovação, sendo o Cliente avisado com antecedência
+          mínima de 30 dias de qualquer reajuste.
+        </p>
+        <p>
+          Não há taxa de setup nem multa por cancelamento no plano mensal,
+          conforme informado na página de preços. Planos anuais pagos à vista
+          seguem a política de reembolso proporcional descrita no momento da
+          contratação, quando aplicável.
+        </p>
+      </section>
+
+      <section id="responsabilidades">
+        <h2>6. Responsabilidades da clínica contratante</h2>
+        <p>O Cliente é responsável por:</p>
+        <ul>
+          <li>
+            Fornecer e manter atualizadas as informações que a IA utiliza para
+            atender pacientes (preços, horários, convênios, roteiro de
+            atendimento);
+          </li>
+          <li>
+            Revisar periodicamente as respostas configuradas e o histórico de
+            atendimento, já que a IA responde com base apenas no que foi
+            informado pela própria clínica;
+          </li>
+          <li>
+            Obter, quando aplicável, o consentimento ou base legal adequada dos
+            seus pacientes para o tratamento de dados pessoais realizado através
+            do atendimento via WhatsApp, atuando o Cliente como controlador
+            desses dados nos termos da LGPD — ver
+            <a href="/privacidade#papeis"
+              >seção de papéis na Política de Privacidade</a
+            >;
+          </li>
+          <li>
+            Não utilizar o serviço para finalidades ilícitas, envio de mensagens
+            não solicitadas em massa (spam) ou qualquer uso que viole direitos
+            de terceiros ou legislação aplicável, incluindo o Código de Defesa
+            do Consumidor e o Marco Civil da Internet (Lei nº 12.965/2014);
+          </li>
+          <li>
+            Supervisionar o atendimento automatizado e assumir a conversa
+            manualmente sempre que a situação exigir avaliação humana,
+            especialmente em casos de urgência médica.
+          </li>
+        </ul>
+      </section>
+
+      <section id="limites">
+        <h2>7. Natureza e limites do atendimento por IA</h2>
+        <p>
+          A Recepta AI é uma ferramenta de
+          <strong>atendimento administrativo automatizado</strong> — tira
+          dúvidas de preço, preparo e horário, agenda e remarca consultas com
+          base nas informações cadastradas pela clínica. A Recepta AI:
+        </p>
+        <ul>
+          <li>
+            Não presta diagnóstico, aconselhamento médico, triagem clínica ou
+            qualquer serviço de saúde;
+          </li>
+          <li>
+            Não substitui a avaliação de um profissional de saúde habilitado;
+          </li>
+          <li>
+            Responde apenas com informações previamente configuradas pela
+            clínica, encaminhando para atendimento humano os casos que fogem do
+            escopo configurado;
+          </li>
+          <li>
+            Pode conter falhas típicas de sistemas automatizados de linguagem
+            natural; o Cliente deve supervisionar o atendimento e corrigir
+            eventuais imprecisões junto à equipe da Recepta AI.
+          </li>
+        </ul>
+        <p>
+          O Cliente é responsável por garantir que o uso da IA respeite as
+          normas éticas e regulatórias aplicáveis à sua categoria profissional
+          (ex.: resoluções de conselhos de classe sobre publicidade e
+          atendimento a pacientes).
+        </p>
+      </section>
+
+      <section id="dados">
+        <h2>8. Dados pessoais e privacidade</h2>
+        <p>
+          O tratamento de dados pessoais realizado pela Recepta AI — tanto os
+          dados do responsável da clínica coletados no briefing quanto os dados
+          de pacientes coletados durante o atendimento via WhatsApp — segue a
+          <a href="/privacidade">Política de Privacidade</a>, elaborada em
+          conformidade com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018
+          — LGPD), parte integrante destes Termos.
+        </p>
+      </section>
+
+      <section id="propriedade">
+        <h2>9. Propriedade intelectual</h2>
+        <p>
+          O software, a marca "Recepta AI", o site e todo o conteúdo associado
+          são de propriedade da Recepta AI, protegidos pela Lei de Direitos
+          Autorais (Lei nº 9.610/1998) e legislação de propriedade industrial
+          aplicável. A contratação do serviço concede ao Cliente uma licença de
+          uso não exclusiva, intransferível e limitada à vigência do contrato —
+          não há transferência de titularidade do software.
+        </p>
+        <p>
+          As informações inseridas pelo Cliente (preços, horários, roteiro,
+          dados da clínica) permanecem de titularidade do Cliente.
+        </p>
+      </section>
+
+      <section id="disponibilidade">
+        <h2>10. Disponibilidade do serviço</h2>
+        <p>
+          A Recepta AI depende de serviços de terceiros (incluindo a plataforma
+          WhatsApp e provedores de infraestrutura e de inteligência artificial)
+          para funcionar. Envidamos esforços comercialmente razoáveis para
+          manter o serviço disponível, mas não garantimos disponibilidade
+          ininterrupta. Interrupções programadas para manutenção serão, sempre
+          que possível, comunicadas com antecedência.
+        </p>
+      </section>
+
+      <section id="suspensao">
+        <h2>11. Suspensão e encerramento</h2>
+        <p>
+          Podemos suspender ou encerrar o acesso do Cliente em caso de uso que
+          viole estes termos, a legislação aplicável, ou represente risco de
+          segurança para a plataforma ou para terceiros, mediante aviso prévio
+          sempre que a urgência da situação permitir.
+        </p>
+        <p>
+          O Cliente pode cancelar o serviço a qualquer momento, conforme as
+          condições de cada plano descritas na página de preços. Após o
+          cancelamento, os dados são tratados conforme os prazos de retenção
+          descritos na <a href="/privacidade">Política de Privacidade</a>.
+        </p>
+      </section>
+
+      <section id="garantias">
+        <h2>12. Garantias e limitação de responsabilidade</h2>
+        <p>
+          O serviço é fornecido "como está", com as funcionalidades descritas no
+          site no momento da contratação. Nos limites permitidos pela legislação
+          brasileira, incluindo o Código de Defesa do Consumidor (Lei nº
+          8.078/1990) quando aplicável à relação entre as partes, não
+          respondemos por danos indiretos decorrentes de uso indevido da
+          ferramenta, falhas de conectividade de terceiros (WhatsApp, internet)
+          ou decisões tomadas pela clínica com base em informações que ela mesma
+          configurou incorretamente.
+        </p>
+      </section>
+
+      <section id="alteracoes">
+        <h2>13. Alterações destes termos</h2>
+        <p>
+          Podemos atualizar estes termos para refletir mudanças no serviço ou na
+          legislação. Alterações relevantes serão comunicadas ao Cliente por
+          e-mail ou pelo próprio canal de atendimento com antecedência razoável
+          antes de entrarem em vigor. O uso continuado do serviço após a
+          vigência das alterações implica concordância com os novos termos.
+        </p>
+      </section>
+
+      <section id="lei">
+        <h2>14. Lei aplicável e foro</h2>
+        <p>
+          Estes termos são regidos pelas leis da República Federativa do Brasil.
+          Fica eleito o foro do domicílio do Cliente para dirimir eventuais
+          controvérsias, ressalvadas as regras de competência do Código de
+          Defesa do Consumidor quando aplicáveis.
+        </p>
+      </section>
+
+      <section id="contato">
+        <h2>15. Contato</h2>
+        <p>
+          Dúvidas sobre estes termos podem ser tratadas diretamente com a equipe
+          da Recepta AI durante o período de teste.
+        </p>
+      </section>
+
+      <hr />
       <a class="back" href="/">← Voltar para a página inicial</a>
     </div>
   </body>

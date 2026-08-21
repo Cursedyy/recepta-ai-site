@@ -21,10 +21,12 @@
     <style>
       :root {
         --bg: #fafafd;
+        --surface: #ffffff;
         --ink: #100d22;
         --muted: #302e47;
         --line: #e7e5f2;
         --accent: #26205c;
+        --radius: 12px;
       }
       * {
         box-sizing: border-box;
@@ -41,7 +43,7 @@
         line-height: 1.65;
       }
       .wrap {
-        max-width: 640px;
+        max-width: 720px;
         margin: 0 auto;
         padding: 56px 20px 80px;
       }
@@ -52,43 +54,388 @@
         font-size: 26px;
         margin-bottom: 6px;
       }
+      .updated {
+        color: var(--muted);
+        font-size: 13.5px;
+        margin-bottom: 20px;
+      }
       .note {
         color: var(--muted);
         font-size: 13.5px;
         margin-bottom: 28px;
         border: 1px solid var(--line);
-        background: #fff;
+        background: var(--surface);
         border-radius: 10px;
         padding: 12px 14px;
       }
+      .toc {
+        border: 1px solid var(--line);
+        background: var(--surface);
+        border-radius: var(--radius);
+        padding: 18px 20px;
+        margin-bottom: 32px;
+      }
+      .toc p {
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: var(--ink);
+      }
+      .toc ol {
+        padding-left: 20px;
+        color: var(--muted);
+        font-size: 14.5px;
+      }
+      .toc li {
+        margin-bottom: 4px;
+      }
+      section {
+        margin-bottom: 30px;
+      }
+      h2 {
+        font-size: 18px;
+        margin-bottom: 10px;
+        scroll-margin-top: 20px;
+      }
       p {
         color: var(--muted);
+        margin-bottom: 12px;
+      }
+      ul {
+        color: var(--muted);
+        padding-left: 20px;
+        margin-bottom: 12px;
+      }
+      li {
+        margin-bottom: 6px;
+      }
+      strong {
+        color: var(--ink);
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
         margin-bottom: 14px;
+        font-size: 14px;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 8px 10px;
+        border: 1px solid var(--line);
+        vertical-align: top;
+      }
+      th {
+        background: var(--surface);
+        color: var(--ink);
+        font-size: 13px;
+      }
+      td {
+        color: var(--muted);
       }
       .back {
         display: inline-block;
-        margin-top: 24px;
+        margin-top: 12px;
         font-size: 14px;
+      }
+      hr {
+        border: none;
+        border-top: 1px solid var(--line);
+        margin: 32px 0;
       }
     </style>
   </head>
   <body>
     <div class="wrap">
       <h1>Política de privacidade</h1>
+      <p class="updated">Última atualização: 18/08/2026</p>
       <p class="note">
-        Documento em elaboração. A versão final será publicada antes do
-        lançamento comercial da Recepta AI.
+        Documento em elaboração, publicado nesta versão ampliada para revisão. A
+        versão final — validada por assessoria jurídica especializada em LGPD —
+        será publicada antes do lançamento comercial da Recepta AI.
       </p>
-      <p>
-        Esta política vai descrever quais dados são coletados no briefing e no
-        atendimento via WhatsApp, como são usados para configurar e operar a
-        secretária virtual da clínica, e como tratamos informações de pacientes
-        em conformidade com a LGPD.
-      </p>
-      <p>
-        Nenhum dado é usado para finalidade diferente de configurar e operar o
-        atendimento da própria clínica contratante.
-      </p>
+
+      <nav class="toc" aria-label="Sumário">
+        <p>Sumário</p>
+        <ol>
+          <li><a href="#controlador">1. Quem trata os dados</a></li>
+          <li><a href="#papeis">2. Papéis: controlador e operador</a></li>
+          <li><a href="#dados-coletados">3. Quais dados coletamos</a></li>
+          <li><a href="#base-legal">4. Base legal e finalidade</a></li>
+          <li>
+            <a href="#compartilhamento">5. Compartilhamento com terceiros</a>
+          </li>
+          <li><a href="#armazenamento">6. Armazenamento e localização</a></li>
+          <li><a href="#retencao">7. Prazo de retenção</a></li>
+          <li><a href="#seguranca">8. Segurança da informação</a></li>
+          <li>
+            <a href="#direitos">9. Direitos do titular (art. 18 LGPD)</a>
+          </li>
+          <li><a href="#cookies">10. Cookies no site</a></li>
+          <li><a href="#criancas">11. Dados de crianças e adolescentes</a></li>
+          <li><a href="#alteracoes">12. Alterações desta política</a></li>
+          <li><a href="#contato">13. Contato e encarregado (DPO)</a></li>
+        </ol>
+      </nav>
+
+      <section id="controlador">
+        <h2>1. Quem trata os dados</h2>
+        <p>
+          Esta política descreve como a Recepta AI ("nós") trata dados pessoais
+          no contexto do serviço de secretária virtual com inteligência
+          artificial oferecido a clínicas e consultórios, em conformidade com a
+          Lei Geral de Proteção de Dados (Lei nº 13.709/2018 — LGPD).
+        </p>
+      </section>
+
+      <section id="papeis">
+        <h2>2. Papéis: controlador e operador</h2>
+        <p>
+          A LGPD distingue dois papéis, e é importante que a clínica contratante
+          entenda qual deles ocupa:
+        </p>
+        <ul>
+          <li>
+            <strong>Dados do responsável da clínica</strong> (quem preenche o
+            briefing de onboarding — nome, e-mail, telefone, CNPJ): aqui a
+            Recepta AI é <strong>controladora</strong>, decidindo como e para
+            quê esses dados são usados (operar a conta e prestar o serviço
+            contratado).
+          </li>
+          <li>
+            <strong>Dados dos pacientes da clínica</strong> (nome, telefone,
+            mensagens trocadas no WhatsApp, horários de consulta): aqui a
+            <strong>clínica contratante é a controladora</strong> — é ela quem
+            decide atender pacientes por WhatsApp e quem tem a relação direta
+            com o titular dos dados. A Recepta AI atua como
+            <strong>operadora</strong>, tratando esses dados exclusivamente para
+            executar o atendimento automatizado configurado pela própria
+            clínica, nos termos do art. 39 da LGPD.
+          </li>
+        </ul>
+        <p>
+          Isso significa que cabe à clínica garantir, perante seus pacientes, a
+          base legal adequada para o atendimento via WhatsApp (em geral,
+          execução de procedimentos preliminares ou de contrato de prestação de
+          serviço de saúde, nos termos do art. 7º da LGPD).
+        </p>
+      </section>
+
+      <section id="dados-coletados">
+        <h2>3. Quais dados coletamos</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Origem</th>
+              <th>Dados</th>
+              <th>Finalidade</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Briefing de onboarding</td>
+              <td>
+                Nome da clínica, CNPJ, nome do responsável, e-mail, telefone,
+                horários, preços, convênios, roteiro de atendimento
+              </td>
+              <td>
+                Criar e configurar a instância da Recepta AI para a clínica
+              </td>
+            </tr>
+            <tr>
+              <td>Atendimento via WhatsApp</td>
+              <td>
+                Número de telefone do paciente, nome (quando informado),
+                conteúdo das mensagens trocadas, horários de consulta agendados
+              </td>
+              <td>
+                Responder dúvidas, agendar e remarcar consultas em nome da
+                clínica contratante
+              </td>
+            </tr>
+            <tr>
+              <td>Uso do site</td>
+              <td>Dados de navegação básicos (ver seção de cookies)</td>
+              <td>Medir funcionamento do site e formulário de briefing</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          Não coletamos dados sensíveis de saúde (como diagnósticos ou
+          prontuários) — o atendimento é administrativo (agendamento e dúvidas
+          de preço/preparo), não clínico.
+        </p>
+      </section>
+
+      <section id="base-legal">
+        <h2>4. Base legal e finalidade</h2>
+        <p>Tratamos dados pessoais com base em:</p>
+        <ul>
+          <li>
+            <strong>Execução de contrato</strong> (art. 7º, V): dados do
+            responsável da clínica, para prestar o serviço contratado;
+          </li>
+          <li>
+            <strong
+              >Execução de contrato ou procedimentos preliminares a pedido do
+              titular</strong
+            >
+            (art. 7º, V): dados de pacientes, quando iniciam contato para
+            agendar ou tirar dúvidas;
+          </li>
+          <li>
+            <strong>Legítimo interesse</strong> (art. 7º, IX), em hipóteses
+            limitadas e sempre com avaliação de proporcionalidade — por exemplo,
+            prevenção a fraude e abuso da plataforma.
+          </li>
+        </ul>
+        <p>
+          Nenhum dado é utilizado para finalidade diferente de configurar e
+          operar o atendimento da própria clínica contratante. Não usamos dados
+          de pacientes para treinar modelos de terceiros nem para qualquer
+          finalidade de marketing direto a pacientes.
+        </p>
+      </section>
+
+      <section id="compartilhamento">
+        <h2>5. Compartilhamento com terceiros</h2>
+        <p>
+          Não vendemos nem compartilhamos dados pessoais com terceiros para
+          finalidades comerciais próprias. Compartilhamos dados apenas com
+          operadores estritamente necessários para o funcionamento do serviço,
+          sob obrigações contratuais de confidencialidade e segurança:
+        </p>
+        <ul>
+          <li>
+            Provedor de conexão com o WhatsApp (API de mensageria) — necessário
+            para enviar e receber as mensagens do atendimento;
+          </li>
+          <li>
+            Provedor de infraestrutura de nuvem e banco de dados — armazenamento
+            da instância da clínica;
+          </li>
+          <li>
+            Provedor de inteligência artificial usado para gerar as respostas do
+            atendimento, sob contrato que veda o uso dos dados para treinar
+            modelos próprios do provedor.
+          </li>
+        </ul>
+        <p>
+          Poderemos divulgar dados quando exigido por lei, ordem judicial ou
+          requisição de autoridade competente.
+        </p>
+      </section>
+
+      <section id="armazenamento">
+        <h2>6. Armazenamento e localização</h2>
+        <p>
+          Os dados são armazenados em servidores localizados no Brasil. Caso
+          algum processamento envolva transferência internacional de dados, ela
+          seguirá as garantias exigidas pelo Capítulo V da LGPD (art. 33 e
+          seguintes).
+        </p>
+      </section>
+
+      <section id="retencao">
+        <h2>7. Prazo de retenção</h2>
+        <p>
+          Mantemos os dados enquanto durar o contrato com a clínica e pelo prazo
+          adicional necessário para cumprir obrigações legais, regulatórias ou
+          para exercício regular de direitos em processo judicial,
+          administrativo ou arbitral (art. 16 da LGPD). Após o encerramento do
+          contrato e decorridos esses prazos, os dados são eliminados ou
+          anonimizados, ressalvadas as hipóteses legais de conservação.
+        </p>
+      </section>
+
+      <section id="seguranca">
+        <h2>8. Segurança da informação</h2>
+        <p>
+          Adotamos medidas técnicas e administrativas aptas a proteger os dados
+          pessoais de acessos não autorizados e de situações acidentais ou
+          ilícitas de destruição, perda, alteração, comunicação ou difusão (art.
+          46 da LGPD), incluindo controle de acesso, criptografia em trânsito e
+          boas práticas de desenvolvimento seguro. Nenhum sistema é 100% imune a
+          incidentes; caso ocorra um incidente de segurança que possa acarretar
+          risco relevante aos titulares, notificaremos a Autoridade Nacional de
+          Proteção de Dados (ANPD) e os titulares afetados, nos termos do art.
+          48 da LGPD.
+        </p>
+      </section>
+
+      <section id="direitos">
+        <h2>9. Direitos do titular (art. 18 LGPD)</h2>
+        <p>Todo titular de dados pessoais tem direito a solicitar:</p>
+        <ul>
+          <li>Confirmação da existência de tratamento;</li>
+          <li>Acesso aos dados;</li>
+          <li>Correção de dados incompletos, inexatos ou desatualizados;</li>
+          <li>
+            Anonimização, bloqueio ou eliminação de dados desnecessários,
+            excessivos ou tratados em desconformidade com a LGPD;
+          </li>
+          <li>Portabilidade dos dados a outro fornecedor de serviço;</li>
+          <li>Eliminação dos dados tratados com base no consentimento;</li>
+          <li>
+            Informação sobre entidades públicas e privadas com as quais os dados
+            foram compartilhados;
+          </li>
+          <li>
+            Informação sobre a possibilidade de não fornecer consentimento e as
+            consequências da negativa;
+          </li>
+          <li>
+            Revogação do consentimento, quando essa for a base legal aplicável.
+          </li>
+        </ul>
+        <p>
+          Pacientes que desejam exercer esses direitos sobre seus próprios dados
+          devem, preferencialmente, contatar diretamente a clínica onde são
+          atendidos (controladora desses dados). A Recepta AI também encaminha
+          qualquer solicitação recebida diretamente à clínica responsável.
+        </p>
+      </section>
+
+      <section id="cookies">
+        <h2>10. Cookies no site</h2>
+        <p>
+          O site institucional da Recepta AI utiliza apenas cookies essenciais
+          ao funcionamento básico do site. Não utilizamos cookies de analytics,
+          rastreamento ou publicidade de terceiros.
+        </p>
+      </section>
+
+      <section id="criancas">
+        <h2>11. Dados de crianças e adolescentes</h2>
+        <p>
+          O atendimento da Recepta AI é direcionado ao responsável ou ao próprio
+          paciente maior de idade que entra em contato com a clínica. Caso dados
+          de crianças e adolescentes sejam tratados no contexto do atendimento
+          (por exemplo, agendamento feito por um responsável em nome de um
+          menor), o tratamento observa o art. 14 da LGPD, sendo realizado no
+          melhor interesse do titular e sob responsabilidade do responsável
+          legal que iniciou o contato.
+        </p>
+      </section>
+
+      <section id="alteracoes">
+        <h2>12. Alterações desta política</h2>
+        <p>
+          Podemos atualizar esta política para refletir mudanças no serviço ou
+          na legislação aplicável. Alterações relevantes serão comunicadas às
+          clínicas contratantes com antecedência razoável antes de entrarem em
+          vigor.
+        </p>
+      </section>
+
+      <section id="contato">
+        <h2>13. Contato e encarregado (DPO)</h2>
+        <p>
+          Solicitações relacionadas a dados pessoais podem ser tratadas
+          diretamente com a equipe da Recepta AI durante o período de teste.
+        </p>
+      </section>
+
+      <hr />
       <a class="back" href="/">← Voltar para a página inicial</a>
     </div>
   </body>
