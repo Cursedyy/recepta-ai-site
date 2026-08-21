@@ -67,6 +67,11 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap"
     />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
       :root {
         --header-h: 68px;
@@ -1726,378 +1731,313 @@
         </div>
       </section>
 
-      <section class="reveal surface-bleed como-funciona">
-        <div class="container">
-          <span class="eyebrow">Como funciona</span>
-          <h2>Da mensagem perdida ao atendimento automático</h2>
-          <p class="lede">
-            Isso é o que acontece hoje sem a Recepta. Veja como ela resolve, em
-            3 passos.
-          </p>
-          <div class="pain-grid">
-            <div class="pain-card">
-              <p>Mensagem que chega às 22h só é respondida no dia seguinte.</p>
-            </div>
-            <div class="pain-card">
-              <p>
-                Recepção tenta atender telefone, WhatsApp e balcão ao mesmo
-                tempo e não dá conta de nada direito.
-              </p>
-            </div>
-            <div class="pain-card">
-              <p>Paciente espera resposta e marca consulta na concorrência.</p>
-            </div>
-          </div>
-          <div class="stat-block">
-            <div class="stat-number">78%</div>
-            <div class="stat-copy">
-              <p class="stat-text">
-                dos leads fecham negócio com a primeira empresa que responde,
-                não necessariamente a que oferece o melhor preço ou serviço.
-              </p>
-              <p class="stat-source">Fonte: HubSpot</p>
-            </div>
-          </div>
-          <p class="steps-label">Como ela entra no ar, em 3 passos:</p>
-          <div class="steps">
-            <div class="steps-track" aria-hidden="true"></div>
-            <div class="step">
-              <div class="step-n">
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.75"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"
-                  />
-                  <path d="M14 2v6h6" />
-                  <path d="M9 13h6" />
-                  <path d="M9 17h6" />
-                </svg>
-                <span class="step-num">1</span>
-              </div>
-              <div>
-                <h3>Você preenche um formulário sobre a clínica</h3>
-                <p>Serviços, preços, convênios e horários de atendimento.</p>
-              </div>
-            </div>
-            <div class="step">
-              <div class="step-n">
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.75"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
-                >
-                  <line x1="4" y1="6" x2="20" y2="6" />
-                  <circle cx="14" cy="6" r="2" />
-                  <line x1="4" y1="12" x2="20" y2="12" />
-                  <circle cx="8" cy="12" r="2" />
-                  <line x1="4" y1="18" x2="20" y2="18" />
-                  <circle cx="16" cy="18" r="2" />
-                </svg>
-                <span class="step-num">2</span>
-              </div>
-              <div>
-                <h3>A Recepta é configurada automaticamente</h3>
-                <p>
-                  As respostas já saem do que você preencheu no formulário, sem
-                  reunião de alinhamento. Depois, dá pra ajustar tudo direto
-                  pelo painel de conversas.
-                </p>
-              </div>
-            </div>
-            <div class="step">
-              <div class="step-n">
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.75"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"
-                  />
-                </svg>
-                <span class="step-num">3</span>
-              </div>
-              <div>
-                <h3>Você conecta o WhatsApp e ela começa a atender</h3>
-                <p>Sem trocar de número, sem treinar equipe.</p>
-              </div>
-            </div>
-          </div>
-          <p class="how-note">
-            <b>Sem reunião. Sem treinamento de equipe.</b> Você preenche, ela
-            entra no ar.
-          </p>
-        </div>
-      </section>
+<div
+  style="font-family: &quot;Plus Jakarta Sans&quot;, sans-serif"
+  class="bg-white text-slate-800"
+>
+  <!-- SEÇÃO 1: COMO FUNCIONA + COMPARATIVO + ESTATÍSTICA -->
+  <section class="max-w-5xl mx-auto px-6 py-20 border-b border-slate-100">
+    <div class="text-center mb-12">
+      <span
+        class="text-xs font-mono tracking-widest text-[#B8901C] uppercase bg-[#FAF5E8] px-3 py-1 rounded border border-[#E8D7A5]/50"
+      >
+        // COMO FUNCIONA
+      </span>
+      <h2
+        class="text-3xl md:text-4xl font-extrabold tracking-tight text-[#0A0E17] mt-4"
+      >
+        Da mensagem perdida ao atendimento automático
+      </h2>
+      <p class="text-slate-500 text-sm mt-3 max-w-xl mx-auto">
+        Veja como a Recepta assume a demanda da sua recepção em 3 passos e sem
+        interromper sua rotina.
+      </p>
+    </div>
 
-      <section class="container reveal">
-        <span class="eyebrow">O que ela faz</span>
-        <h2>O atendimento que a recepção não consegue dar sozinha</h2>
-        <div class="feat-panel">
-          <div class="feat-grid">
-            <div class="feat-card">
-              <div class="feat-icon">
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.75"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
-                >
-                  <circle cx="12" cy="12" r="9" />
-                  <path d="M12 7v5l3 3" />
-                </svg>
-              </div>
-              <h3>Nenhuma mensagem de paciente dorme sem resposta</h3>
-              <p>
-                Ela atende de madrugada, fim de semana e feriado, sem ninguém de
-                plantão.
-              </p>
-            </div>
-            <div class="feat-card">
-              <div class="feat-icon">
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.75"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
-                >
-                  <path
-                    d="M12.59 2.59 20 10a2 2 0 0 1 0 2.83l-6.17 6.17a2 2 0 0 1-2.83 0L3.59 11.59A2 2 0 0 1 3 10.17V4a2 2 0 0 1 2-2h6.17a2 2 0 0 1 1.42.59Z"
-                  />
-                  <circle cx="7.5" cy="7.5" r="1.5" />
-                </svg>
-              </div>
-              <h3>Paciente nunca fica esperando o preço do exame</h3>
-              <p>
-                As respostas saem certas, com a tabela que a clínica autorizou.
-              </p>
-            </div>
-            <div class="feat-card">
-              <div class="feat-icon">
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.75"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
-                >
-                  <rect x="3" y="4" width="18" height="18" rx="2" />
-                  <line x1="16" y1="2" x2="16" y2="6" />
-                  <line x1="8" y1="2" x2="8" y2="6" />
-                  <line x1="3" y1="10" x2="21" y2="10" />
-                  <path d="m9 16 2 2 4-4" />
-                </svg>
-              </div>
-              <h3>Consulta marcada sem passar pela recepção</h3>
-              <p>
-                Ela agenda e remarca direto na conversa, sem o paciente precisar
-                ligar.
-              </p>
-            </div>
-            <div class="feat-card">
-              <div class="feat-icon">
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.75"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
-                >
-                  <path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9" />
-                  <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                </svg>
-              </div>
-              <h3>Menos falta, menos vaga perdida</h3>
-              <p>Lembrete automático reduz desmarcação em cima da hora.</p>
-            </div>
-            <div class="feat-card">
-              <div class="feat-icon">
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.75"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
-                >
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" />
-                </svg>
-              </div>
-              <h3>Nenhum caso sensível fica na mão da IA</h3>
-              <p>
-                Reclamação, urgência ou qualquer coisa fora do script vai direto
-                pra equipe.
-              </p>
-            </div>
-            <div class="feat-card">
-              <div class="feat-icon">
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.75"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  aria-hidden="true"
-                >
-                  <rect x="5" y="3" width="14" height="18" rx="2" />
-                  <path d="M9 3v2h6V3" />
-                  <line x1="9" y1="11" x2="15" y2="11" />
-                  <line x1="9" y1="15" x2="15" y2="15" />
-                </svg>
-              </div>
-              <h3>Você sempre sabe o que foi combinado</h3>
-              <p>
-                Toda conversa fica registrada pra clínica consultar quando
-                precisar.
-              </p>
-            </div>
-          </div>
+    <!-- Tabela Comparativa (White Clean + Dark Navy Text + Gold Accent) -->
+    <div
+      class="bg-white border border-slate-200/80 rounded-xl overflow-hidden shadow-sm mb-10"
+    >
+      <div
+        class="grid grid-cols-2 bg-[#0A0E17] px-6 py-3.5 text-xs font-mono uppercase tracking-wider"
+      >
+        <span class="text-slate-400">Sem a Recepta</span>
+        <span class="text-[#D4AF37] font-bold">Com a Recepta AI</span>
+      </div>
+      <div class="divide-y divide-slate-100 text-xs md:text-sm">
+        <div class="grid grid-cols-2 px-6 py-4 items-center bg-slate-50/50">
+          <span class="text-slate-500"
+            >Mensagem das 22h só é respondida no dia seguinte.</span
+          >
+          <span class="text-[#0A0E17] font-semibold flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-[#B8901C]"></span>
+            Resposta imediata e agendamento 24/7.
+          </span>
         </div>
-      </section>
+        <div class="grid grid-cols-2 px-6 py-4 items-center">
+          <span class="text-slate-500"
+            >Recepção atenta ao balcão e perde chamadas no WhatsApp.</span
+          >
+          <span class="text-[#0A0E17] font-semibold flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-[#B8901C]"></span>
+            Triagem e confirmação totalmente automatizadas.
+          </span>
+        </div>
+        <div class="grid grid-cols-2 px-6 py-4 items-center bg-slate-50/50">
+          <span class="text-slate-500"
+            >Paciente espera a resposta e marca na concorrência.</span
+          >
+          <span class="text-[#0A0E17] font-semibold flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-[#B8901C]"></span>
+            Conversão do lead no exato momento da dúvida.
+          </span>
+        </div>
+      </div>
+    </div>
 
-      <section class="reveal surface-bleed">
-        <div class="container">
-          <span class="eyebrow">Serve pra que tipo de clínica</span>
-          <h2>Feita pro jeito que sua clínica atende hoje</h2>
-          <div class="profile-grid">
-            <div class="profile-card">
-              <div class="profile-head">
-                <div class="profile-icon">
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.75"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    aria-hidden="true"
-                  >
-                    <circle cx="12" cy="8" r="4" />
-                    <path d="M4 21c0-4 4-7 8-7s8 3 8 7" />
-                  </svg>
-                </div>
-                <span class="profile-tag">Consultório solo</span>
-              </div>
-              <h3>
-                Você atende sem ficar refém do celular entre uma consulta e
-                outra
-              </h3>
-              <p>
-                Ideal pra quem atende sozinho e não tem ninguém pra segurar o
-                WhatsApp enquanto está com paciente na sala.
-              </p>
-            </div>
-            <div class="profile-card">
-              <div class="profile-head">
-                <div class="profile-icon">
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.75"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    aria-hidden="true"
-                  >
-                    <circle cx="8.5" cy="8" r="3.5" />
-                    <path d="M2 21c0-3.5 3-6 6.5-6s6.5 2.5 6.5 6" />
-                    <circle cx="17" cy="9" r="2.8" />
-                    <path
-                      d="M14.8 15.3c.5-.2 1.1-.3 1.7-.3 3 0 5.5 2.3 5.5 6"
-                    />
-                  </svg>
-                </div>
-                <span class="profile-tag">Clínica com recepção</span>
-              </div>
-              <h3>
-                Sua recepção larga o WhatsApp e foca em quem já está na sala
-              </h3>
-              <p>
-                Ideal pra recepção que tenta dar conta de telefone, balcão e
-                WhatsApp ao mesmo tempo e não sobra pra nenhum dos três.
-              </p>
-            </div>
-            <div class="profile-card">
-              <div class="profile-head">
-                <div class="profile-icon">
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.75"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    aria-hidden="true"
-                  >
-                    <rect x="5" y="3" width="14" height="18" rx="2" />
-                    <path d="M9 3v2h6V3" />
-                    <path d="M8 13h2l1.5-3 2 6 1.5-3H18" />
-                  </svg>
-                </div>
-                <span class="profile-tag">Clínica de exames</span>
-              </div>
-              <h3>
-                A mesma dúvida de preço e preparo não passa mais pela sua equipe
-              </h3>
-              <p>
-                Ideal pra clínica com alto volume de pergunta repetida sobre
-                valor, jejum e documentos antes do exame.
-              </p>
-            </div>
+    <!-- Card de Estatística com Fundo Azul Marinho para Contraste -->
+    <div
+      class="p-8 bg-[#0A0E17] text-white rounded-xl shadow-lg flex flex-col md:flex-row items-center justify-between gap-6 mb-12 border border-slate-800"
+    >
+      <div class="flex items-center gap-6">
+        <span
+          class="text-5xl md:text-6xl font-black text-[#D4AF37] tracking-tight"
+          >78%</span
+        >
+        <div>
+          <p
+            class="text-sm md:text-base font-medium text-slate-100 leading-snug"
+          >
+            dos pacientes agendam com a
+            <span
+              class="underline decoration-[#D4AF37] font-semibold text-white"
+              >primeira clínica que responde</span
+            >.
+          </p>
+          <span class="text-xs text-slate-400 font-mono block mt-1"
+            >Fonte: HubSpot Research</span
+          >
+        </div>
+      </div>
+      <button
+        class="shrink-0 bg-[#D4AF37] hover:bg-[#c39f2e] text-[#0A0E17] font-bold text-xs px-6 py-3.5 rounded transition shadow-sm"
+      >
+        Garantir Atendimento Imediato
+      </button>
+    </div>
+
+    <!-- Onboarding em 3 passos -->
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="p-6 bg-slate-50/80 border border-slate-200/60 rounded-xl">
+        <span class="text-xs font-mono font-bold text-[#B8901C] block mb-2"
+          >01 / ETAPA</span
+        >
+        <h3 class="font-bold text-base text-[#0A0E17] mb-2">
+          Preencha os dados da clínica
+        </h3>
+        <p class="text-xs text-slate-600 leading-relaxed">
+          Informe horários, valores de consulta, convênios aceitos e regras da
+          recepção.
+        </p>
+      </div>
+
+      <div class="p-6 bg-slate-50/80 border border-slate-200/60 rounded-xl">
+        <span class="text-xs font-mono font-bold text-[#B8901C] block mb-2"
+          >02 / ETAPA</span
+        >
+        <h3 class="font-bold text-base text-[#0A0E17] mb-2">
+          A Recepta é configurada
+        </h3>
+        <p class="text-xs text-slate-600 leading-relaxed">
+          Sem reuniões cansativas. As respostas e regras do assistente são
+          calibradas para a sua rotina.
+        </p>
+      </div>
+
+      <div class="p-6 bg-slate-50/80 border border-slate-200/60 rounded-xl">
+        <span class="text-xs font-mono font-bold text-[#B8901C] block mb-2"
+          >03 / ETAPA</span
+        >
+        <h3 class="font-bold text-base text-[#0A0E17] mb-2">
+          Conecte o WhatsApp
+        </h3>
+        <p class="text-xs text-slate-600 leading-relaxed">
+          Escaneie o QR Code no mesmo número atual, sem precisar alterar sua
+          chave do WhatsApp.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SEÇÃO 2: O QUE ELA FAZ + UI MOCKUP -->
+  <section class="max-w-5xl mx-auto px-6 py-20 border-b border-slate-100">
+    <div class="mb-12">
+      <span
+        class="text-xs font-mono tracking-widest text-[#B8901C] uppercase bg-[#FAF5E8] px-3 py-1 rounded border border-[#E8D7A5]/50"
+      >
+        // FUNCIONALIDADES
+      </span>
+      <h2 class="text-3xl font-extrabold tracking-tight text-[#0A0E17] mt-4">
+        O atendimento que sua recepção precisa
+      </h2>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-10 items-center">
+      <!-- Lista Estruturada de Recursos -->
+      <div class="space-y-6">
+        <div class="border-l-2 border-[#B8901C] pl-4 py-1">
+          <h3 class="font-bold text-base text-[#0A0E17]">
+            Atendimento 24 horas ininterrupto
+          </h3>
+          <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+            Nenhuma mensagem fica sem resposta na madrugada, fins de semana ou
+            feriados.
+          </p>
+        </div>
+
+        <div class="border-l-2 border-slate-200 pl-4 py-1">
+          <h3 class="font-bold text-base text-slate-700">
+            Agendamento direto na conversa
+          </h3>
+          <p class="text-xs text-slate-500 mt-1 leading-relaxed">
+            A IA consulta os horários livres e confirma a consulta sem
+            intervenção humana.
+          </p>
+        </div>
+
+        <div class="border-l-2 border-slate-200 pl-4 py-1">
+          <h3 class="font-bold text-base text-slate-700">
+            Transbordo para Casos Sensíveis
+          </h3>
+          <p class="text-xs text-slate-500 mt-1 leading-relaxed">
+            Urgências, dúvidas clínicas ou reclamações passam direto para o
+            atendimento presencial.
+          </p>
+        </div>
+      </div>
+
+      <!-- Preview de Interface (WhatsApp Realista sobre Fundo Claro) -->
+      <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-sm">
+        <div
+          class="flex items-center justify-between pb-3 border-b border-slate-200 mb-4"
+        >
+          <div class="flex items-center gap-2">
+            <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+            <span class="text-xs font-mono text-slate-700 font-semibold"
+              >Recepta AI • Atendimento Ativo</span
+            >
+          </div>
+          <span class="text-[10px] font-mono text-slate-400"
+            >WhatsApp Business</span
+          >
+        </div>
+
+        <div class="space-y-3 text-xs">
+          <div
+            class="bg-white text-slate-800 p-3 rounded-r-lg rounded-tl-lg max-w-[85%] border border-slate-200/80 shadow-2xs"
+          >
+            Boa noite! Quanto custa a consulta e qual o endereço da clínica?
+            <span class="block text-[9px] text-slate-400 text-right mt-1"
+              >21:42</span
+            >
+          </div>
+
+          <div
+            class="bg-[#0A0E17] text-slate-100 p-3 rounded-l-lg rounded-tr-lg max-w-[85%] ml-auto shadow-2xs border border-slate-800"
+          >
+            Olá! A consulta é R$ 250. Ficamos na Av. Principal, 1000. Temos
+            disponibilidade para amanhã às 10h. Deseja agendar?
+            <span class="block text-[9px] text-[#D4AF37] text-right mt-1"
+              >21:42</span
+            >
+          </div>
+
+          <div
+            class="bg-white text-slate-800 p-3 rounded-r-lg rounded-tl-lg max-w-[85%] border border-slate-200/80 shadow-2xs"
+          >
+            Perfeito, pode marcar para as 10h por favor!
+            <span class="block text-[9px] text-slate-400 text-right mt-1"
+              >21:43</span
+            >
           </div>
         </div>
-      </section>
+      </div>
+    </div>
+  </section>
+
+  <!-- SEÇÃO 3: SEGMENTAÇÃO -->
+  <section class="max-w-5xl mx-auto px-6 py-20">
+    <div class="text-center mb-12">
+      <span
+        class="text-xs font-mono tracking-widest text-[#B8901C] uppercase bg-[#FAF5E8] px-3 py-1 rounded border border-[#E8D7A5]/50"
+      >
+        // ADAPTAÇÃO
+      </span>
+      <h2 class="text-3xl font-extrabold tracking-tight text-[#0A0E17] mt-4">
+        Feita para a estrutura da sua clínica
+      </h2>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-6">
+      <div
+        class="p-6 bg-slate-50/80 border border-slate-200/80 rounded-xl hover:border-[#B8901C]/60 transition"
+      >
+        <span
+          class="text-[10px] font-mono text-[#B8901C] uppercase tracking-widest block mb-2 font-bold"
+          >01 / CONSULTÓRIO SOLO</span
+        >
+        <h3 class="font-bold text-base text-[#0A0E17] mb-2">
+          Atendimento sem distrações
+        </h3>
+        <p class="text-xs text-slate-600 leading-relaxed">
+          Ideal para médicos que atendem sozinhos e não podem responder
+          mensagens durante as consultas.
+        </p>
+      </div>
+
+      <div
+        class="p-6 bg-slate-50/80 border border-slate-200/80 rounded-xl hover:border-[#B8901C]/60 transition"
+      >
+        <span
+          class="text-[10px] font-mono text-[#B8901C] uppercase tracking-widest block mb-2 font-bold"
+          >02 / COM RECEPÇÃO</span
+        >
+        <h3 class="font-bold text-base text-[#0A0E17] mb-2">
+          Foco no presencial
+        </h3>
+        <p class="text-xs text-slate-600 leading-relaxed">
+          A recepção acolhe os pacientes na clínica enquanto a IA gerencia o
+          fluxo contínuo do WhatsApp.
+        </p>
+      </div>
+
+      <div
+        class="p-6 bg-slate-50/80 border border-slate-200/80 rounded-xl hover:border-[#B8901C]/60 transition"
+      >
+        <span
+          class="text-[10px] font-mono text-[#B8901C] uppercase tracking-widest block mb-2 font-bold"
+          >03 / CENTRO DE EXAMES</span
+        >
+        <h3 class="font-bold text-base text-[#0A0E17] mb-2">
+          Respostas Rápidas
+        </h3>
+        <p class="text-xs text-slate-600 leading-relaxed">
+          Envio automático de informações sobre preparo de exames, tempo de
+          jejum e orçamentos.
+        </p>
+      </div>
+    </div>
+
+    <!-- CTA Final -->
+    <div class="mt-12 text-center">
+      <button
+        class="bg-[#0A0E17] hover:bg-slate-800 text-[#D4AF37] border border-[#D4AF37]/30 font-bold text-xs px-8 py-4 rounded transition shadow-md"
+      >
+        Conhecer o Plano Ideal para minha Clínica
+      </button>
+    </div>
+  </section>
+</div>
 
       <section class="reveal duvidas" id="duvidas">
         <div class="container">
