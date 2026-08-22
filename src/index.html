@@ -594,254 +594,6 @@
         }
       }
 
-      /* pain */
-      .pain-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 14px;
-        margin-top: 24px;
-      }
-      .pain-card {
-        background: var(--surface);
-        border: 1px solid var(--line);
-        border-left: 3px solid var(--accent);
-        border-radius: 12px;
-        padding: 18px 20px;
-        box-shadow:
-          0 1px 2px rgba(16, 13, 34, 0.04),
-          0 10px 24px -20px rgba(16, 13, 34, 0.35);
-        transition:
-          transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
-          box-shadow 0.18s cubic-bezier(0.16, 1, 0.3, 1);
-      }
-      .pain-card p {
-        font-size: 14.5px;
-        color: var(--ink);
-      }
-
-      /* stat: métrica de conversão (mercado B2B, fonte externa) */
-      .stat-block {
-        margin-top: 20px;
-        padding: 28px 30px;
-        background: var(--accent-soft);
-        border: 1px solid var(--line);
-        border-radius: var(--radius);
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-      }
-      .stat-number {
-        font-size: clamp(44px, 9vw, 64px);
-        font-weight: 800;
-        line-height: 1;
-        color: var(--accent);
-        letter-spacing: -0.02em;
-      }
-      .stat-text {
-        font-size: 15.5px;
-        font-weight: 600;
-        color: var(--ink);
-        max-width: 46ch;
-      }
-      .stat-source {
-        font-size: 12px;
-        color: var(--muted);
-        opacity: 0.75;
-      }
-      @media (min-width: 720px) {
-        .stat-block {
-          flex-direction: row;
-          align-items: center;
-          gap: 32px;
-          padding: 32px 36px;
-        }
-        .stat-copy {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-        }
-      }
-
-      /* how it works */
-      .steps-label {
-        margin-top: 32px;
-        font-weight: 600;
-        font-size: 14.5px;
-        color: var(--ink);
-      }
-      .steps {
-        position: relative;
-        margin-top: 16px;
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 24px;
-      }
-      .steps-track {
-        position: absolute;
-        left: 20px;
-        top: 20px;
-        bottom: 20px;
-        width: 2px;
-        background: var(--line);
-        z-index: 0;
-      }
-      .step {
-        display: flex;
-        gap: 16px;
-      }
-      .step-n {
-        position: relative;
-        z-index: 1;
-        flex: 0 0 40px;
-        height: 40px;
-        border-radius: 11px;
-        background: var(--accent);
-        color: #fff;
-        display: grid;
-        place-items: center;
-      }
-      .step-num {
-        position: absolute;
-        right: -4px;
-        bottom: -4px;
-        width: 16px;
-        height: 16px;
-        border-radius: 50%;
-        background: var(--surface);
-        color: var(--accent);
-        border: 1px solid var(--line);
-        font-size: 9px;
-        font-weight: 700;
-        display: grid;
-        place-items: center;
-        line-height: 1;
-      }
-      .step h3 {
-        font-size: 16.5px;
-        margin-bottom: 5px;
-      }
-      .step p {
-        color: var(--muted);
-        font-size: 14.5px;
-      }
-      .how-note {
-        margin-top: 32px;
-        border-top: 1px solid var(--line);
-        padding-top: 18px;
-        font-size: 14px;
-        color: var(--muted);
-      }
-      .how-note b {
-        color: var(--ink);
-      }
-
-      /* ajustes de espacamento da secao "como funciona" */
-      .como-funciona {
-        padding-top: 32px;
-      }
-      .como-funciona .lede {
-        max-width: 640px;
-      }
-
-      /* features */
-      .feat-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 14px;
-        margin-top: 28px;
-      }
-      .feat-card {
-        background: var(--surface);
-        border: 1px solid var(--line);
-        border-radius: 12px;
-        padding: 20px;
-        box-shadow:
-          0 1px 2px rgba(16, 13, 34, 0.04),
-          0 10px 24px -20px rgba(16, 13, 34, 0.35);
-        transition:
-          transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
-          box-shadow 0.18s cubic-bezier(0.16, 1, 0.3, 1);
-      }
-      .feat-panel {
-        background: var(--accent-soft);
-        border-radius: 20px;
-        padding: 28px;
-      }
-      .feat-icon {
-        width: 36px;
-        height: 36px;
-        border-radius: 10px;
-        background: var(--accent);
-        color: #fff;
-        display: grid;
-        place-items: center;
-        margin-bottom: 12px;
-      }
-      .feat-card h3 {
-        font-size: 15.5px;
-        margin-bottom: 6px;
-      }
-      .feat-card p {
-        color: var(--muted);
-        font-size: 13.5px;
-      }
-
-      /* profiles */
-      .profile-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 14px;
-        margin-top: 28px;
-      }
-      .profile-card {
-        background: var(--surface);
-        border: 1px solid var(--line);
-        border-radius: 12px;
-        padding: 24px 22px;
-        box-shadow:
-          0 1px 2px rgba(16, 13, 34, 0.04),
-          0 10px 24px -20px rgba(16, 13, 34, 0.35);
-        transition:
-          transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
-          box-shadow 0.18s cubic-bezier(0.16, 1, 0.3, 1);
-      }
-      .profile-head {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-bottom: 12px;
-      }
-      .profile-icon {
-        flex: 0 0 32px;
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        background: var(--accent);
-        color: #fff;
-        display: grid;
-        place-items: center;
-      }
-      .profile-tag {
-        display: inline-block;
-        font-size: 11.5px;
-        font-weight: 600;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
-        color: var(--accent);
-        background: var(--accent-soft);
-        padding: 4px 10px;
-        border-radius: 99px;
-      }
-      .profile-card h3 {
-        font-size: 16.5px;
-        margin-bottom: 6px;
-      }
-      .profile-card p {
-        color: var(--muted);
-        font-size: 13.5px;
-      }
-
       /* price */
       .pricing-grid {
         display: grid;
@@ -1055,24 +807,6 @@
         .demo-stage {
           grid-column: 2;
         }
-        .pain-grid {
-          grid-template-columns: repeat(3, 1fr);
-        }
-        .steps {
-          grid-template-columns: repeat(3, 1fr);
-        }
-        .steps-track {
-          display: none;
-        }
-        .feat-grid {
-          grid-template-columns: repeat(3, 1fr);
-        }
-        .profile-grid {
-          grid-template-columns: repeat(3, 1fr);
-        }
-        .price-card {
-          padding: 56px 60px;
-        }
         .foot-row {
           flex-direction: row;
           justify-content: space-between;
@@ -1147,14 +881,6 @@
           opacity: 1;
           transform: translateY(0);
         }
-      }
-
-      /* hover dos cards - leve elevacao + sombra (Jakub: shadow > border puro) */
-      .pain-card:hover,
-      .feat-card:hover,
-      .profile-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 12px 24px -16px rgba(16, 13, 34, 0.18);
       }
 
       /* foco visivel pra navegacao por teclado */
@@ -1731,106 +1457,103 @@
         </div>
       </section>
 
-      <div
-        style="font-family: &quot;Plus Jakarta Sans&quot;, sans-serif"
-        class="bg-white text-slate-800"
-      >
+      <div class="surface">
         <!-- SEÇÃO 1: COMO FUNCIONA + COMPARATIVO + ESTATÍSTICA -->
-        <section class="max-w-5xl mx-auto px-6 py-20 border-b border-slate-100">
+        <section
+          class="max-w-5xl mx-auto px-6 py-20 border-b border-[var(--line)]"
+        >
           <div class="text-center mb-12">
             <span
-              class="text-xs font-mono tracking-widest text-[#B8901C] uppercase bg-[#FAF5E8] px-3 py-1 rounded border border-[#E8D7A5]/50"
+              class="text-xs font-mono tracking-widest text-[var(--accent)] uppercase bg-[var(--accent-soft)] px-3 py-1 rounded-full border border-[var(--line)]"
             >
               // COMO FUNCIONA
             </span>
-            <h2
-              class="text-3xl md:text-4xl font-extrabold tracking-tight text-[#0A0E17] mt-4"
-            >
-              Da mensagem perdida ao atendimento automático
-            </h2>
-            <p class="text-slate-500 text-sm mt-3 max-w-xl mx-auto">
+            <h2 class="mt-4">Da mensagem perdida ao atendimento automático</h2>
+            <p class="text-[var(--muted)] text-sm mt-3 max-w-xl mx-auto">
               Veja como a Recepta assume a demanda da sua recepção em 3 passos e
               sem interromper sua rotina.
             </p>
           </div>
 
-          <!-- Tabela Comparativa (White Clean + Dark Navy Text + Gold Accent) -->
+          <!-- Tabela Comparativa -->
           <div
-            class="bg-white border border-slate-200/80 rounded-xl overflow-hidden shadow-sm mb-10"
+            class="bg-[var(--surface)] border border-[var(--line)] rounded-xl overflow-hidden shadow-sm mb-10"
           >
             <div
-              class="grid grid-cols-2 bg-[#0A0E17] px-6 py-3.5 text-xs font-mono uppercase tracking-wider"
+              class="grid grid-cols-2 bg-[var(--header-bg)] px-6 py-3.5 text-xs font-mono uppercase tracking-wider"
             >
-              <span class="text-slate-400">Sem a Recepta</span>
-              <span class="text-[#D4AF37] font-bold">Com a Recepta AI</span>
-            </div>
-            <div class="divide-y divide-slate-100 text-xs md:text-sm">
-              <div
-                class="grid grid-cols-2 px-6 py-4 items-center bg-slate-50/50"
+              <span class="text-white/50">Sem a Recepta</span>
+              <span class="text-[var(--accent-2)] font-bold"
+                >Com a Recepta AI</span
               >
-                <span class="text-slate-500"
+            </div>
+            <div class="divide-y divide-[var(--line)] text-xs md:text-sm">
+              <div
+                class="grid grid-cols-2 px-6 py-4 items-center bg-[var(--bg)]"
+              >
+                <span class="text-[var(--muted)]"
                   >Mensagem das 22h só é respondida no dia seguinte.</span
                 >
                 <span
-                  class="text-[#0A0E17] font-semibold flex items-center gap-2"
+                  class="text-[var(--ink)] font-semibold flex items-center gap-2"
                 >
-                  <span class="w-2 h-2 rounded-full bg-[#B8901C]"></span>
+                  <span class="w-2 h-2 rounded-full bg-[var(--accent)]"></span>
                   Resposta imediata e agendamento 24/7.
                 </span>
               </div>
               <div class="grid grid-cols-2 px-6 py-4 items-center">
-                <span class="text-slate-500"
+                <span class="text-[var(--muted)]"
                   >Recepção atenta ao balcão e perde chamadas no WhatsApp.</span
                 >
                 <span
-                  class="text-[#0A0E17] font-semibold flex items-center gap-2"
+                  class="text-[var(--ink)] font-semibold flex items-center gap-2"
                 >
-                  <span class="w-2 h-2 rounded-full bg-[#B8901C]"></span>
+                  <span class="w-2 h-2 rounded-full bg-[var(--accent)]"></span>
                   Triagem e confirmação totalmente automatizadas.
                 </span>
               </div>
               <div
-                class="grid grid-cols-2 px-6 py-4 items-center bg-slate-50/50"
+                class="grid grid-cols-2 px-6 py-4 items-center bg-[var(--bg)]"
               >
-                <span class="text-slate-500"
+                <span class="text-[var(--muted)]"
                   >Paciente espera a resposta e marca na concorrência.</span
                 >
                 <span
-                  class="text-[#0A0E17] font-semibold flex items-center gap-2"
+                  class="text-[var(--ink)] font-semibold flex items-center gap-2"
                 >
-                  <span class="w-2 h-2 rounded-full bg-[#B8901C]"></span>
+                  <span class="w-2 h-2 rounded-full bg-[var(--accent)]"></span>
                   Conversão do lead no exato momento da dúvida.
                 </span>
               </div>
             </div>
           </div>
 
-          <!-- Card de Estatística com Fundo Azul Marinho para Contraste -->
+          <!-- Card de Estatística -->
           <div
-            class="p-8 bg-[#0A0E17] text-white rounded-xl shadow-lg flex flex-col md:flex-row items-center justify-between gap-6 mb-12 border border-slate-800"
+            class="p-8 bg-[var(--header-bg)] text-white rounded-2xl shadow-lg flex flex-col md:flex-row items-center justify-between gap-6 mb-12 border border-white/10"
           >
             <div class="flex items-center gap-6">
               <span
-                class="text-5xl md:text-6xl font-black text-[#D4AF37] tracking-tight"
+                class="text-5xl md:text-6xl font-black text-[var(--accent-2)] tracking-tight"
                 >78%</span
               >
               <div>
                 <p
-                  class="text-sm md:text-base font-medium text-slate-100 leading-snug"
+                  class="text-sm md:text-base font-medium text-white/90 leading-snug"
                 >
                   dos pacientes agendam com a
                   <span
-                    class="underline decoration-[#D4AF37] font-semibold text-white"
+                    class="underline decoration-[var(--accent-2)] font-semibold text-white"
                     >primeira clínica que responde</span
                   >.
                 </p>
-                <span class="text-xs text-slate-400 font-mono block mt-1"
+                <span class="text-xs text-white/50 font-mono block mt-1"
                   >Fonte: HubSpot Research</span
                 >
               </div>
             </div>
             <button
-              class="shrink-0 bg-[#D4AF37] hover:bg-[#c39f2e] text-[#0A0E17] font-bold text-xs px-6 py-3.5 rounded transition shadow-sm"
+              class="shrink-0 bg-white hover:bg-[var(--accent-soft)] text-[var(--accent)] font-bold text-xs px-6 py-3.5 rounded-lg transition shadow-sm"
             >
               Garantir Atendimento Imediato
             </button>
@@ -1839,48 +1562,48 @@
           <!-- Onboarding em 3 passos -->
           <div class="grid md:grid-cols-3 gap-6">
             <div
-              class="p-6 bg-slate-50/80 border border-slate-200/60 rounded-xl"
+              class="p-6 bg-[var(--surface)] border border-[var(--line)] rounded-xl"
             >
               <span
-                class="text-xs font-mono font-bold text-[#B8901C] block mb-2"
+                class="text-xs font-mono font-bold text-[var(--accent)] block mb-2"
                 >01 / ETAPA</span
               >
-              <h3 class="font-bold text-base text-[#0A0E17] mb-2">
+              <h3 class="font-bold text-base text-[var(--ink)] mb-2">
                 Preencha os dados da clínica
               </h3>
-              <p class="text-xs text-slate-600 leading-relaxed">
+              <p class="text-xs text-[var(--muted)] leading-relaxed">
                 Informe horários, valores de consulta, convênios aceitos e
                 regras da recepção.
               </p>
             </div>
 
             <div
-              class="p-6 bg-slate-50/80 border border-slate-200/60 rounded-xl"
+              class="p-6 bg-[var(--surface)] border border-[var(--line)] rounded-xl"
             >
               <span
-                class="text-xs font-mono font-bold text-[#B8901C] block mb-2"
+                class="text-xs font-mono font-bold text-[var(--accent)] block mb-2"
                 >02 / ETAPA</span
               >
-              <h3 class="font-bold text-base text-[#0A0E17] mb-2">
+              <h3 class="font-bold text-base text-[var(--ink)] mb-2">
                 A Recepta é configurada
               </h3>
-              <p class="text-xs text-slate-600 leading-relaxed">
+              <p class="text-xs text-[var(--muted)] leading-relaxed">
                 Sem reuniões cansativas. As respostas e regras do assistente são
                 calibradas para a sua rotina.
               </p>
             </div>
 
             <div
-              class="p-6 bg-slate-50/80 border border-slate-200/60 rounded-xl"
+              class="p-6 bg-[var(--surface)] border border-[var(--line)] rounded-xl"
             >
               <span
-                class="text-xs font-mono font-bold text-[#B8901C] block mb-2"
+                class="text-xs font-mono font-bold text-[var(--accent)] block mb-2"
                 >03 / ETAPA</span
               >
-              <h3 class="font-bold text-base text-[#0A0E17] mb-2">
+              <h3 class="font-bold text-base text-[var(--ink)] mb-2">
                 Conecte o WhatsApp
               </h3>
-              <p class="text-xs text-slate-600 leading-relaxed">
+              <p class="text-xs text-[var(--muted)] leading-relaxed">
                 Escaneie o QR Code no mesmo número atual, sem precisar alterar
                 sua chave do WhatsApp.
               </p>
@@ -1889,98 +1612,100 @@
         </section>
 
         <!-- SEÇÃO 2: O QUE ELA FAZ + UI MOCKUP -->
-        <section class="max-w-5xl mx-auto px-6 py-20 border-b border-slate-100">
+        <section
+          class="max-w-5xl mx-auto px-6 py-20 border-b border-[var(--line)]"
+        >
           <div class="mb-12">
             <span
-              class="text-xs font-mono tracking-widest text-[#B8901C] uppercase bg-[#FAF5E8] px-3 py-1 rounded border border-[#E8D7A5]/50"
+              class="text-xs font-mono tracking-widest text-[var(--accent)] uppercase bg-[var(--accent-soft)] px-3 py-1 rounded-full border border-[var(--line)]"
             >
               // FUNCIONALIDADES
             </span>
-            <h2
-              class="text-3xl font-extrabold tracking-tight text-[#0A0E17] mt-4"
-            >
-              O atendimento que sua recepção precisa
-            </h2>
+            <h2 class="mt-4">O atendimento que sua recepção precisa</h2>
           </div>
 
           <div class="grid md:grid-cols-2 gap-10 items-center">
             <!-- Lista Estruturada de Recursos -->
             <div class="space-y-6">
-              <div class="border-l-2 border-[#B8901C] pl-4 py-1">
-                <h3 class="font-bold text-base text-[#0A0E17]">
+              <div class="border-l-2 border-[var(--accent)] pl-4 py-1">
+                <h3 class="font-bold text-base text-[var(--ink)]">
                   Atendimento 24 horas ininterrupto
                 </h3>
-                <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+                <p class="text-xs text-[var(--muted)] mt-1 leading-relaxed">
                   Nenhuma mensagem fica sem resposta na madrugada, fins de
                   semana ou feriados.
                 </p>
               </div>
 
-              <div class="border-l-2 border-slate-200 pl-4 py-1">
-                <h3 class="font-bold text-base text-slate-700">
+              <div class="border-l-2 border-[var(--line)] pl-4 py-1">
+                <h3 class="font-bold text-base text-[var(--ink)]">
                   Paciente marca e cancela consulta sem ligar
                 </h3>
-                <p class="text-xs text-slate-500 mt-1 leading-relaxed">
+                <p class="text-xs text-[var(--muted)] mt-1 leading-relaxed">
                   Direto na conversa do WhatsApp: escolhe o horário, remarca ou
                   cancela quando não pode ir, sem precisar falar com a recepção.
                 </p>
               </div>
 
-              <div class="border-l-2 border-slate-200 pl-4 py-1">
-                <h3 class="font-bold text-base text-slate-700">
+              <div class="border-l-2 border-[var(--line)] pl-4 py-1">
+                <h3 class="font-bold text-base text-[var(--ink)]">
                   Sabe quando chamar um humano
                 </h3>
-                <p class="text-xs text-slate-500 mt-1 leading-relaxed">
+                <p class="text-xs text-[var(--muted)] mt-1 leading-relaxed">
                   Emergência, dúvida clínica ou reclamação vai direto pra sua
                   equipe, sem a IA tentar resolver sozinha.
                 </p>
               </div>
             </div>
 
-            <!-- Preview de Interface (WhatsApp Realista sobre Fundo Claro) -->
+            <!-- Preview de Interface -->
             <div
-              class="bg-slate-50 border border-slate-200 rounded-xl p-5 shadow-sm"
+              class="bg-[var(--accent-soft)] border border-[var(--line)] rounded-xl p-5 shadow-sm"
             >
               <div
-                class="flex items-center justify-between pb-3 border-b border-slate-200 mb-4"
+                class="flex items-center justify-between pb-3 border-b border-[var(--line)] mb-4"
               >
                 <div class="flex items-center gap-2">
-                  <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
-                  <span class="text-xs font-mono text-slate-700 font-semibold"
+                  <div class="w-2 h-2 rounded-full bg-[#1e8e4a]"></div>
+                  <span
+                    class="text-xs font-mono text-[var(--ink)] font-semibold"
                     >Recepta AI • Atendimento Ativo</span
                   >
                 </div>
-                <span class="text-[10px] font-mono text-slate-400"
+                <span class="text-[10px] font-mono text-[var(--muted)]"
                   >WhatsApp Business</span
                 >
               </div>
 
               <div class="space-y-3 text-xs">
                 <div
-                  class="bg-white text-slate-800 p-3 rounded-r-lg rounded-tl-lg max-w-[85%] border border-slate-200/80 shadow-2xs"
+                  class="bg-white text-[var(--ink)] p-3 rounded-r-lg rounded-tl-lg max-w-[85%] border border-[var(--line)] shadow-2xs"
                 >
                   Boa noite! Quanto custa a consulta e qual o endereço da
                   clínica?
-                  <span class="block text-[9px] text-slate-400 text-right mt-1"
+                  <span
+                    class="block text-[9px] text-[var(--muted)] text-right mt-1"
                     >21:42</span
                   >
                 </div>
 
                 <div
-                  class="bg-[#0A0E17] text-slate-100 p-3 rounded-l-lg rounded-tr-lg max-w-[85%] ml-auto shadow-2xs border border-slate-800"
+                  class="bg-[#d6cff2] text-[var(--ink)] p-3 rounded-l-lg rounded-tr-lg max-w-[85%] ml-auto shadow-2xs"
                 >
                   Olá! A consulta é R$ 250. Ficamos na Av. Principal, 1000.
                   Temos disponibilidade para amanhã às 10h. Deseja agendar?
-                  <span class="block text-[9px] text-[#D4AF37] text-right mt-1"
+                  <span
+                    class="block text-[9px] text-[var(--muted)] text-right mt-1"
                     >21:42</span
                   >
                 </div>
 
                 <div
-                  class="bg-white text-slate-800 p-3 rounded-r-lg rounded-tl-lg max-w-[85%] border border-slate-200/80 shadow-2xs"
+                  class="bg-white text-[var(--ink)] p-3 rounded-r-lg rounded-tl-lg max-w-[85%] border border-[var(--line)] shadow-2xs"
                 >
                   Perfeito, pode marcar para as 10h por favor!
-                  <span class="block text-[9px] text-slate-400 text-right mt-1"
+                  <span
+                    class="block text-[9px] text-[var(--muted)] text-right mt-1"
                     >21:43</span
                   >
                 </div>
@@ -1993,61 +1718,57 @@
         <section class="max-w-5xl mx-auto px-6 py-20">
           <div class="text-center mb-12">
             <span
-              class="text-xs font-mono tracking-widest text-[#B8901C] uppercase bg-[#FAF5E8] px-3 py-1 rounded border border-[#E8D7A5]/50"
+              class="text-xs font-mono tracking-widest text-[var(--accent)] uppercase bg-[var(--accent-soft)] px-3 py-1 rounded-full border border-[var(--line)]"
             >
               // ADAPTAÇÃO
             </span>
-            <h2
-              class="text-3xl font-extrabold tracking-tight text-[#0A0E17] mt-4"
-            >
-              Feita para a estrutura da sua clínica
-            </h2>
+            <h2 class="mt-4">Feita para a estrutura da sua clínica</h2>
           </div>
 
           <div class="grid md:grid-cols-3 gap-6">
             <div
-              class="p-6 bg-slate-50/80 border border-slate-200/80 rounded-xl hover:border-[#B8901C]/60 transition"
+              class="p-6 bg-[var(--surface)] border border-[var(--line)] rounded-xl hover:border-[var(--accent)] transition"
             >
               <span
-                class="text-[10px] font-mono text-[#B8901C] uppercase tracking-widest block mb-2 font-bold"
+                class="text-[10px] font-mono text-[var(--accent)] uppercase tracking-widest block mb-2 font-bold"
                 >01 / CONSULTÓRIO SOLO</span
               >
-              <h3 class="font-bold text-base text-[#0A0E17] mb-2">
+              <h3 class="font-bold text-base text-[var(--ink)] mb-2">
                 Atendimento sem distrações
               </h3>
-              <p class="text-xs text-slate-600 leading-relaxed">
+              <p class="text-xs text-[var(--muted)] leading-relaxed">
                 Ideal para médicos que atendem sozinhos e não podem responder
                 mensagens durante as consultas.
               </p>
             </div>
 
             <div
-              class="p-6 bg-slate-50/80 border border-slate-200/80 rounded-xl hover:border-[#B8901C]/60 transition"
+              class="p-6 bg-[var(--surface)] border border-[var(--line)] rounded-xl hover:border-[var(--accent)] transition"
             >
               <span
-                class="text-[10px] font-mono text-[#B8901C] uppercase tracking-widest block mb-2 font-bold"
+                class="text-[10px] font-mono text-[var(--accent)] uppercase tracking-widest block mb-2 font-bold"
                 >02 / COM RECEPÇÃO</span
               >
-              <h3 class="font-bold text-base text-[#0A0E17] mb-2">
+              <h3 class="font-bold text-base text-[var(--ink)] mb-2">
                 Foco no presencial
               </h3>
-              <p class="text-xs text-slate-600 leading-relaxed">
+              <p class="text-xs text-[var(--muted)] leading-relaxed">
                 A recepção acolhe os pacientes na clínica enquanto a IA gerencia
                 o fluxo contínuo do WhatsApp.
               </p>
             </div>
 
             <div
-              class="p-6 bg-slate-50/80 border border-slate-200/80 rounded-xl hover:border-[#B8901C]/60 transition"
+              class="p-6 bg-[var(--surface)] border border-[var(--line)] rounded-xl hover:border-[var(--accent)] transition"
             >
               <span
-                class="text-[10px] font-mono text-[#B8901C] uppercase tracking-widest block mb-2 font-bold"
+                class="text-[10px] font-mono text-[var(--accent)] uppercase tracking-widest block mb-2 font-bold"
                 >03 / CENTRO DE EXAMES</span
               >
-              <h3 class="font-bold text-base text-[#0A0E17] mb-2">
+              <h3 class="font-bold text-base text-[var(--ink)] mb-2">
                 Respostas Rápidas
               </h3>
-              <p class="text-xs text-slate-600 leading-relaxed">
+              <p class="text-xs text-[var(--muted)] leading-relaxed">
                 Envio automático de informações sobre preparo de exames, tempo
                 de jejum e orçamentos.
               </p>
@@ -2057,7 +1778,7 @@
           <!-- CTA Final -->
           <div class="mt-12 text-center">
             <button
-              class="bg-[#0A0E17] hover:bg-slate-800 text-[#D4AF37] border border-[#D4AF37]/30 font-bold text-xs px-8 py-4 rounded transition shadow-md"
+              class="bg-[var(--accent)] hover:brightness-110 text-white font-bold text-xs px-8 py-4 rounded-lg transition shadow-md"
             >
               Conhecer o Plano Ideal para minha Clínica
             </button>
