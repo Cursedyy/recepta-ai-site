@@ -867,28 +867,95 @@
       }
 
       footer {
-        border-top: 1px solid var(--line);
-        padding: 32px 0;
-        color: var(--muted);
-        font-size: 13px;
+        background: linear-gradient(
+          90deg,
+          var(--header-bg) 0%,
+          #241f63 58%,
+          #332a80 100%
+        );
+        color: #c9c6e0;
+        font-size: 14px;
       }
-      .foot-row {
+      .foot-grid {
+        display: grid;
+        gap: 36px;
+        padding: 56px 0 40px;
+      }
+      .foot-brand .logo {
+        margin-bottom: 14px;
+      }
+      .foot-tagline {
+        max-width: 34ch;
+        margin: 0;
+        color: #a19dc4;
+        font-size: 13.5px;
+        line-height: 1.6;
+      }
+      .foot-col h3 {
+        margin: 0 0 12px;
+        color: #fff;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .foot-col a {
+        display: block;
+        padding: 5px 0;
+        color: #c9c6e0;
+        text-decoration: none;
+        transition: color 0.15s;
+      }
+      .foot-col a:hover,
+      .foot-legal a:hover,
+      .foot-top:hover {
+        color: #fff;
+      }
+      .foot-col a:hover {
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+      .foot-col a:focus-visible,
+      .foot-legal a:focus-visible,
+      .foot-top:focus-visible {
+        outline: 2px solid #fff;
+        outline-offset: 3px;
+        border-radius: 4px;
+      }
+      .foot-mail {
+        word-break: break-word;
+      }
+      .foot-bottom {
         display: flex;
         flex-direction: column;
-        gap: 10px;
-        align-items: flex-start;
+        gap: 14px;
+        padding: 22px 0 28px;
+        border-top: 1px solid rgba(255, 255, 255, 0.14);
+        color: #a19dc4;
+        font-size: 13px;
       }
-      .foot-links {
+      .foot-bottom p {
+        margin: 0;
+      }
+      .foot-legal {
         display: flex;
-        gap: 16px;
+        gap: 18px;
         flex-wrap: wrap;
       }
-      .foot-links a {
-        text-decoration: none;
-        color: var(--muted);
+      .foot-legal a {
+        color: #c9c6e0;
+        text-decoration: underline;
+        text-underline-offset: 3px;
+        text-decoration-color: rgba(255, 255, 255, 0.38);
+        transition: color 0.15s;
       }
-      .foot-links a:hover {
-        color: var(--ink);
+      .foot-top {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #c9c6e0;
+        text-decoration: none;
+        transition: color 0.15s;
       }
 
       @media (min-width: 720px) {
@@ -917,10 +984,15 @@
         .demo-stage {
           grid-column: 2;
         }
-        .foot-row {
+        .foot-grid {
+          grid-template-columns: 1.6fr 1fr 1fr 1.3fr;
+          gap: 40px;
+          padding: 64px 0 44px;
+        }
+        .foot-bottom {
           flex-direction: row;
-          justify-content: space-between;
           align-items: center;
+          justify-content: space-between;
         }
       }
 
@@ -2339,12 +2411,56 @@
     </main>
 
     <footer>
-      <div class="container foot-row">
-        <div>© <span id="y"></span> Recepta AI</div>
-        <div class="foot-links">
+      <div class="container foot-grid">
+        <div class="foot-brand">
+          <div class="logo">
+            <svg viewBox="0 0 100 100" aria-hidden="true">
+              <g transform="translate(0 50)">
+                <path
+                  d="M 34 -34 C -1.7 -15.9, -1.7 15.9, 34 34 C 69.7 15.9, 69.7 -15.9, 34 -34 Z"
+                  fill="currentColor"
+                  fill-opacity="0.6"
+                />
+                <path
+                  d="M 66 -34 C 30.3 -15.9, 30.3 15.9, 66 34 C 101.7 15.9, 101.7 -15.9, 66 -34 Z"
+                  fill="currentColor"
+                />
+              </g>
+            </svg>
+            Recepta <span>AI</span>
+          </div>
+          <p class="foot-tagline">
+            Secretária virtual com IA que atende o WhatsApp da sua clínica 24h:
+            responde dúvidas, agenda e remarca consultas.
+          </p>
+        </div>
+        <nav class="foot-col" aria-label="Produto">
+          <h3>Produto</h3>
+          <a href="#como-funciona">Como funciona</a>
+          <a href="#recursos">O que ela faz</a>
+          <a href="#clinica">Para sua clínica</a>
+          <a href="#planos">Planos</a>
+        </nav>
+        <nav class="foot-col" aria-label="Clínica">
+          <h3>Clínica</h3>
+          <a href="/clinica/login">Entrar</a>
+          <a href="/briefing">Começar grátis</a>
+          <a href="#faq">Dúvidas</a>
+        </nav>
+        <div class="foot-col">
+          <h3>Contato</h3>
+          <a class="foot-mail" href="mailto:contato@receptaai.com.br"
+            >contato@receptaai.com.br</a
+          >
+        </div>
+      </div>
+      <div class="container foot-bottom">
+        <p>© <span id="y">2026</span> Recepta AI · CNPJ 68.213.601/0001-16</p>
+        <div class="foot-legal">
           <a href="/termos">Termos de uso</a>
           <a href="/privacidade">Política de privacidade</a>
         </div>
+        <a class="foot-top" href="#top">Voltar ao topo ↑</a>
       </div>
     </footer>
     <script>
