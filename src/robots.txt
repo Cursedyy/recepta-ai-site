@@ -5,4 +5,4 @@ Disallow: /t/
 Disallow: /briefing
 Disallow: /painel
 
-Sitemap: https://recepta.com.br/sitemap.xml
+Sitemap: https://www.receptaai.com.br/sitemap.xml
