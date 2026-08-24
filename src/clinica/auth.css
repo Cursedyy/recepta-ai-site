@@ -93,21 +93,13 @@ body {
   align-items: center;
   width: 30px;
   height: 30px;
+  color: #ffffff;
 }
 
-.auth-mark i {
+.auth-mark svg {
   display: block;
-  width: 16px;
-  height: 22px;
-  border-radius: 50% 50% 50% 8%;
-  transform: rotate(45deg);
-  background: #ffffff;
-}
-
-.auth-mark i + i {
-  margin-left: -7px;
-  transform: rotate(-135deg);
-  background: rgba(255, 255, 255, 0.62);
+  width: 100%;
+  height: 100%;
 }
 
 .auth-pitch {
@@ -190,11 +182,8 @@ body {
   color: var(--auth-accent);
 }
 
-.auth-mobile-brand .auth-mark i {
-  background: var(--auth-accent);
-}
-.auth-mobile-brand .auth-mark i + i {
-  background: rgba(38, 32, 92, 0.48);
+.auth-mobile-brand .auth-mark {
+  color: var(--auth-accent);
 }
 .auth-mobile-brand b {
   color: #756bd0;
