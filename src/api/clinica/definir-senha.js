@@ -30,7 +30,7 @@ export default async function handler(req, res) {
 
   const { data: convite, error: erroConvite } = await admin
     .from("convites_clinica")
-    .select("id,clinica_id,expira_em,usado_em")
+    .select("id,clinica_id,tipo,expira_em,usado_em")
     .eq("token", token)
     .maybeSingle();
 
@@ -39,6 +39,32 @@ export default async function handler(req, res) {
   if (convite.usado_em) return res.status(410).json({ erro: "convite_usado" });
   if (new Date(convite.expira_em) < new Date())
     return res.status(410).json({ erro: "convite_expirado" });
+
+  if (convite.tipo === "reset") {
+    const { data: perfilExistente } = await admin
+      .from("perfis")
+      .select("id")
+      .eq("clinica_id", convite.clinica_id)
+      .eq("papel", "clinica")
+      .maybeSingle();
+
+    if (!perfilExistente)
+      return res.status(404).json({ erro: "usuario_nao_encontrado" });
+
+    const { error: erroUpdate } = await admin.auth.admin.updateUserById(
+      perfilExistente.id,
+      { password: senha },
+    );
+    if (erroUpdate)
+      return res.status(500).json({ erro: "falha_redefinir_senha" });
+
+    await admin
+      .from("convites_clinica")
+      .update({ usado_em: new Date().toISOString() })
+      .eq("id", convite.id);
+
+    return res.status(200).json({ ok: true });
+  }
 
   const { data: clinicaRow } = await admin
     .from("clinicas")

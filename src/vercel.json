@@ -1,9 +1,14 @@
 {
   "rewrites": [
     { "source": "/t/:token", "destination": "/t/index.html" },
+    { "source": "/clinica/login", "destination": "/clinica/login/index.html" },
     {
       "source": "/clinica/definir-senha/:token",
       "destination": "/clinica/definir-senha/index.html"
+    },
+    {
+      "source": "/clinica/esqueci-senha",
+      "destination": "/clinica/esqueci-senha/index.html"
     },
     { "source": "/clinica/painel", "destination": "/api/clinica/painel-view" }
   ]

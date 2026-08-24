@@ -33,7 +33,7 @@ function jsonParaScript(obj) {
     .replace(/&/g, "\\u0026");
 }
 
-function paginaPainel(nomeClinica, config) {
+function paginaPainel(nomeClinica, config, tempoPausaAtual, assinatura) {
   return `<!doctype html>
 <html lang="pt-BR">
 <head>
@@ -169,6 +169,30 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--accent);outline-
     <button type="button" class="btn-salvar" id="btn-salvar">Salvar alterações</button>
     <span class="status" id="status-salvar"></span>
   </div>
+
+  <section class="bloco">
+    <h2>Tempo de pausa da IA</h2>
+    <p class="desc">Quantos minutos a Recepta fica em silêncio depois que alguém da clínica responde manualmente no WhatsApp.</p>
+    <div class="linha">
+      <input type="number" id="tempo-pausa" min="1" max="120" step="1" value="${tempoPausaAtual}" style="max-width:110px" />
+      <span>minutos</span>
+    </div>
+    <div class="rodape-salvar" style="position:static;padding:14px 0 0">
+      <button type="button" class="btn-salvar" id="btn-salvar-pausa">Salvar</button>
+      <span class="status" id="status-pausa"></span>
+    </div>
+  </section>
+
+  <section class="bloco">
+    <h2>Assinatura</h2>
+    <p class="desc" id="assinatura-status">Carregando…</p>
+    <div id="assinatura-acao"></div>
+  </section>
+
+  <section class="bloco">
+    <h2>Métricas</h2>
+    <div id="metricas-corpo" class="vazio">Carregando…</div>
+  </section>
 </main>
 <script>
 var CONFIG = ${jsonParaScript(config)};
@@ -396,6 +420,108 @@ document.getElementById('btn-sair').addEventListener('click', function(){
     window.location.href = '/clinica/login';
   });
 });
+
+// --- tempo de pausa ---
+document.getElementById('btn-salvar-pausa').addEventListener('click', function(){
+  var elStatus = document.getElementById('status-pausa');
+  var input = document.getElementById('tempo-pausa');
+  var valor = parseInt(input.value, 10);
+  elStatus.textContent = '';
+  elStatus.className = 'status';
+  if (!Number.isInteger(valor) || valor < 1 || valor > 120) {
+    elStatus.textContent = 'Informe um número entre 1 e 120.';
+    elStatus.className = 'status erro';
+    return;
+  }
+  fetch('/api/clinica/painel-acoes', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ acao: 'tempo_pausa', tempo_pausa_minutos: valor })
+  })
+    .then(function(r){ return r.json().then(function(j){ return { ok: r.ok, corpo: j }; }); })
+    .then(function(res){
+      if (!res.ok) {
+        elStatus.textContent = 'Não foi possível salvar.';
+        elStatus.className = 'status erro';
+        return;
+      }
+      elStatus.textContent = 'Salvo!';
+      elStatus.className = 'status ok';
+    })
+    .catch(function(){
+      elStatus.textContent = 'Falha de conexão.';
+      elStatus.className = 'status erro';
+    });
+});
+
+// --- assinatura ---
+var ASSINATURA = ${jsonParaScript(assinatura)};
+(function(){
+  var elStatus = document.getElementById('assinatura-status');
+  var elAcao = document.getElementById('assinatura-acao');
+  var statusLabel = ASSINATURA.status === 'ativo'
+    ? 'Assinatura ativa'
+    : (ASSINATURA.status === 'trial' ? 'Em período de teste' : (ASSINATURA.status || 'Status desconhecido'));
+  var partes = [statusLabel];
+  if (ASSINATURA.plano) partes.push('Plano: ' + (ASSINATURA.plano === 'anual' ? 'Anual' : 'Mensal'));
+  if (ASSINATURA.trial_fim) {
+    var dt = new Date(ASSINATURA.trial_fim);
+    partes.push('Trial até ' + dt.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }));
+  }
+  elStatus.textContent = partes.join(' · ');
+
+  if (ASSINATURA.tem_stripe) {
+    var btn = el('button', { type: 'button', class: 'btn-add', text: 'Gerenciar assinatura' });
+    btn.addEventListener('click', function(){
+      btn.disabled = true;
+      btn.textContent = 'Abrindo…';
+      fetch('/api/clinica/painel-acoes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ acao: 'portal_sessao' })
+      })
+        .then(function(r){ return r.json().then(function(j){ return { ok: r.ok, corpo: j }; }); })
+        .then(function(res){
+          if (!res.ok || !res.corpo.url) {
+            btn.disabled = false;
+            btn.textContent = 'Gerenciar assinatura';
+            elStatus.textContent = elStatus.textContent + ' — falha ao abrir o portal.';
+            return;
+          }
+          window.location.href = res.corpo.url;
+        })
+        .catch(function(){
+          btn.disabled = false;
+          btn.textContent = 'Gerenciar assinatura';
+        });
+    });
+    elAcao.appendChild(btn);
+  }
+})();
+
+// --- metricas ---
+fetch('/api/clinica/painel-acoes?acao=metricas')
+  .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, corpo: j }; }); })
+  .then(function (res) {
+    var elCorpo = document.getElementById('metricas-corpo');
+    if (!res.ok || !res.corpo || !res.corpo.ok) {
+      elCorpo.textContent = 'Não foi possível carregar as métricas.';
+      return;
+    }
+    elCorpo.className = '';
+    elCorpo.innerHTML = '';
+    elCorpo.appendChild(el('div', { class: 'linha' }, [
+      el('b', { text: 'Conversas: ' }),
+      document.createTextNode(String(res.corpo.total_conversas))
+    ]));
+    elCorpo.appendChild(el('div', { class: 'linha' }, [
+      el('b', { text: 'Escalonamentos: ' }),
+      document.createTextNode(String(res.corpo.total_escalonamentos))
+    ]));
+  })
+  .catch(function () {
+    document.getElementById('metricas-corpo').textContent = 'Falha de conexão ao carregar métricas.';
+  });
 </script>
 </body>
 </html>`;
@@ -442,7 +568,9 @@ export default async function handler(req, res) {
 
   const { data: clinicaRow } = await admin
     .from("clinicas")
-    .select("clinica,config_editavel")
+    .select(
+      "clinica,config_editavel,tempo_pausa_minutos,status,trial_fim,plano,stripe_customer_id",
+    )
     .eq("id", perfil.clinica_id)
     .maybeSingle();
 
@@ -463,6 +591,20 @@ export default async function handler(req, res) {
         : padrao.mensagem_identidade,
   };
 
+  const tempoPausaAtual =
+    typeof clinicaRow?.tempo_pausa_minutos === "number"
+      ? clinicaRow.tempo_pausa_minutos
+      : 10;
+
+  const assinatura = {
+    status: clinicaRow?.status || null,
+    trial_fim: clinicaRow?.trial_fim || null,
+    plano: clinicaRow?.plano || null,
+    tem_stripe: !!clinicaRow?.stripe_customer_id,
+  };
+
   res.setHeader("Content-Type", "text/html; charset=utf-8");
-  return res.status(200).send(paginaPainel(nomeClinica, config));
+  return res
+    .status(200)
+    .send(paginaPainel(nomeClinica, config, tempoPausaAtual, assinatura));
 }

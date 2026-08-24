@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Login da clínica · Recepta AI</title>
+    <title>Esqueci minha senha · Recepta AI</title>
     <meta name="robots" content="noindex,nofollow" />
     <link
       rel="icon"
@@ -52,7 +52,8 @@
       input {
         font: inherit;
       }
-      form {
+      form,
+      .sucesso {
         background: var(--surface);
         border: 1px solid var(--line);
         border-radius: var(--radius);
@@ -105,13 +106,30 @@
         margin-bottom: 10px;
         min-height: 16px;
       }
+      .voltar {
+        display: block;
+        text-align: center;
+        margin-top: 14px;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .sucesso {
+        display: none;
+        text-align: center;
+      }
+      .sucesso p {
+        color: var(--muted);
+        font-size: 14px;
+      }
     </style>
   </head>
   <body>
-    <form id="form-login" novalidate>
-      <h1>Painel da clínica</h1>
-      <p class="sub">Entre com o e-mail e senha da sua clínica.</p>
-      <div class="erro" id="login-erro"></div>
+    <form id="form-esqueci">
+      <h1>Esqueci minha senha</h1>
+      <p class="sub">
+        Digite o e-mail da sua clínica pra receber o link de redefinição.
+      </p>
+      <div class="erro" id="erro"></div>
       <input
         type="email"
         id="email"
@@ -119,69 +137,48 @@
         autocomplete="username"
         required
       />
-      <input
-        type="password"
-        id="senha"
-        placeholder="Senha"
-        autocomplete="current-password"
-        required
-      />
-      <button type="submit" id="btn-entrar">Entrar</button>
-      <a
-        href="/clinica/esqueci-senha"
-        style="
-          display: block;
-          text-align: center;
-          margin-top: 14px;
-          font-size: 13px;
-          color: var(--muted);
-        "
-        >Esqueci minha senha</a
-      >
+      <button type="submit" id="btn-enviar">Enviar link</button>
+      <a class="voltar" href="/clinica/login">Voltar pro login</a>
     </form>
+    <div class="sucesso" id="sucesso">
+      <p>
+        Se esse e-mail tiver uma conta, enviamos um link de redefinição de
+        senha. Confira sua caixa de entrada (e o spam).
+      </p>
+      <a class="voltar" href="/clinica/login">Voltar pro login</a>
+    </div>
     <script>
-      var elForm = document.getElementById("form-login");
-      var elErro = document.getElementById("login-erro");
-      var elBtn = document.getElementById("btn-entrar");
+      var elForm = document.getElementById("form-esqueci");
+      var elErro = document.getElementById("erro");
+      var elBtn = document.getElementById("btn-enviar");
+      var elSucesso = document.getElementById("sucesso");
 
       elForm.addEventListener("submit", function (ev) {
         ev.preventDefault();
         elErro.textContent = "";
 
         var email = document.getElementById("email").value.trim();
-        var senha = document.getElementById("senha").value;
-
-        if (!email || !senha) {
-          elErro.textContent = "Preenche e-mail e senha.";
+        if (!email) {
+          elErro.textContent = "Preenche o e-mail.";
           return;
         }
 
         elBtn.disabled = true;
-        elBtn.textContent = "Entrando…";
+        elBtn.textContent = "Enviando…";
 
-        fetch("/api/clinica/login", {
+        fetch("/api/clinica/esqueci-senha", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email: email, senha: senha }),
+          body: JSON.stringify({ email: email }),
         })
-          .then(function (r) {
-            return r.json().then(function (j) {
-              return { ok: r.ok, corpo: j };
-            });
-          })
-          .then(function (res) {
-            if (!res.ok) {
-              elErro.textContent = "Senha ou email incorretos.";
-              elBtn.disabled = false;
-              elBtn.textContent = "Entrar";
-              return;
-            }
-            window.location.href = "/clinica/painel";
+          .then(function () {
+            elForm.style.display = "none";
+            elSucesso.style.display = "block";
           })
           .catch(function () {
             elErro.textContent = "Falha de conexão. Tenta de novo.";
             elBtn.disabled = false;
-            elBtn.textContent = "Entrar";
+            elBtn.textContent = "Enviar link";
           });
       });
     </script>
