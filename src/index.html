@@ -514,6 +514,21 @@
         margin-bottom: 32px;
         color: rgba(255, 255, 255, 0.82);
       }
+      .hero .btn-ghost {
+        background: rgba(255, 255, 255, 0.14);
+        color: #fff;
+        border-color: rgba(255, 255, 255, 0.45);
+        font-size: 16px;
+        padding: 14px 22px;
+        backdrop-filter: blur(4px);
+      }
+      .hero .btn-ghost:hover {
+        background: rgba(255, 255, 255, 0.24);
+      }
+      .hero .btn-ghost:focus-visible {
+        outline: 2px solid #fff;
+        outline-offset: 2px;
+      }
       .hero-ctas {
         display: flex;
         flex-wrap: wrap;
@@ -1398,6 +1413,544 @@
           filter: none !important;
         }
       }
+
+      /* ===== faixa de garantias do produto ===== */
+      .guarantee-band {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1px;
+        background: var(--line);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        overflow: hidden;
+        margin-top: 28px;
+      }
+      .guarantee-band .gb {
+        background: var(--surface);
+        padding: 22px 18px;
+        text-align: center;
+      }
+      .guarantee-band .gb-n {
+        display: block;
+        font-size: clamp(24px, 3.6vw, 34px);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        color: var(--accent);
+        line-height: 1.05;
+      }
+      .guarantee-band .gb-l {
+        display: block;
+        margin-top: 6px;
+        font-size: 13px;
+        color: var(--muted);
+        line-height: 1.35;
+      }
+      @media (max-width: 760px) {
+        .guarantee-band {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      /* ===== comparativo de custo ===== */
+      .compare {
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        overflow: hidden;
+        background: var(--surface);
+        margin-top: 26px;
+      }
+      .compare-head,
+      .compare-row {
+        display: grid;
+        grid-template-columns: 1.3fr 1fr 1fr;
+        align-items: center;
+      }
+      .compare-head {
+        background: var(--header-bg);
+        color: #fff;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+      .compare-head > div,
+      .compare-row > div {
+        padding: 14px 16px;
+      }
+      .compare-head .ch-win {
+        color: var(--accent-2);
+      }
+      .compare-row {
+        border-top: 1px solid var(--line);
+        font-size: 14.5px;
+      }
+      .compare-row .cr-label {
+        color: var(--muted);
+        font-weight: 500;
+      }
+      .compare-row .cr-old {
+        color: var(--muted);
+      }
+      .compare-row .cr-new {
+        color: var(--ink);
+        font-weight: 600;
+        background: var(--accent-soft);
+      }
+      .compare-row.is-total {
+        border-top: 2px solid var(--accent);
+        font-size: 16px;
+      }
+      .compare-row.is-total .cr-new,
+      .compare-row.is-total .cr-old {
+        font-weight: 800;
+      }
+      .compare-note {
+        font-size: 12.5px;
+        color: var(--muted);
+        margin-top: 10px;
+        line-height: 1.5;
+      }
+      @media (max-width: 700px) {
+        .compare-head,
+        .compare-row {
+          grid-template-columns: 1fr;
+        }
+        .compare-head > div,
+        .compare-row > div {
+          padding: 9px 14px;
+        }
+        .compare-head > div:not(:first-child) {
+          display: none;
+        }
+        .compare-row .cr-label {
+          font-weight: 700;
+          color: var(--ink);
+          padding-top: 14px;
+        }
+        .compare-row .cr-old::before {
+          content: "Secretária: ";
+          color: var(--muted);
+          font-weight: 600;
+        }
+        .compare-row .cr-new::before {
+          content: "Recepta: ";
+          font-weight: 700;
+        }
+      }
+
+      /* ===== ponto de equilibrio ===== */
+      .breakeven {
+        margin-top: 26px;
+        padding: 26px;
+        border-radius: var(--radius);
+        background: var(--header-bg);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        gap: 22px;
+        flex-wrap: wrap;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .breakeven .be-n {
+        font-size: clamp(38px, 6vw, 56px);
+        font-weight: 900;
+        color: var(--accent-2);
+        letter-spacing: -0.04em;
+        line-height: 1;
+      }
+      .breakeven .be-t {
+        flex: 1;
+        min-width: 240px;
+        font-size: 15.5px;
+        line-height: 1.5;
+        color: rgba(255, 255, 255, 0.92);
+      }
+      .breakeven .be-t strong {
+        color: #fff;
+      }
+      .breakeven .be-sub {
+        display: block;
+        margin-top: 6px;
+        font-size: 12.5px;
+        color: rgba(255, 255, 255, 0.55);
+      }
+
+      /* ===== calculadora ===== */
+      .calc {
+        margin-top: 26px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--surface);
+        padding: 24px;
+      }
+      .calc h3 {
+        font-size: 18px;
+        margin-bottom: 4px;
+      }
+      .calc .calc-lede {
+        font-size: 14px;
+        color: var(--muted);
+        margin-bottom: 20px;
+      }
+      .calc-fields {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+      }
+      @media (max-width: 700px) {
+        .calc-fields {
+          grid-template-columns: 1fr;
+        }
+      }
+      .calc-field label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--ink);
+        margin-bottom: 7px;
+      }
+      .calc-field input {
+        width: 100%;
+        padding: 11px 13px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        font: inherit;
+        font-size: 15px;
+        color: var(--ink);
+        background: var(--bg);
+      }
+      .calc-field input:focus {
+        outline: 2px solid var(--accent);
+        outline-offset: 1px;
+        background: var(--surface);
+      }
+      .calc-out {
+        margin-top: 22px;
+        padding: 20px;
+        border-radius: 12px;
+        background: var(--accent-soft);
+        border: 1px solid var(--line);
+      }
+      .calc-out .co-line {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 12px;
+        font-size: 14.5px;
+        color: var(--muted);
+        padding: 5px 0;
+      }
+      .calc-out .co-line strong {
+        color: var(--ink);
+        font-weight: 700;
+        font-size: 16px;
+      }
+      .calc-out .co-line.co-hero {
+        border-top: 1px solid var(--line);
+        margin-top: 8px;
+        padding-top: 13px;
+      }
+      .calc-out .co-line.co-hero strong {
+        font-size: clamp(22px, 3.4vw, 28px);
+        font-weight: 900;
+        color: var(--accent);
+        letter-spacing: -0.02em;
+      }
+      .calc-note {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 12px;
+        line-height: 1.5;
+      }
+
+      /* ===== preview do painel ===== */
+      .painel-shot {
+        margin-top: 28px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        overflow: hidden;
+        background: var(--surface);
+        box-shadow: 0 24px 60px -30px rgba(16, 13, 34, 0.4);
+      }
+      .ps-chrome {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 11px 14px;
+        background: var(--header-bg);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      .ps-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.25);
+      }
+      .ps-title {
+        margin-left: 6px;
+        font-size: 12.5px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.85);
+      }
+      .ps-live {
+        margin-left: auto;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11.5px;
+        font-weight: 600;
+        color: #7ee2a8;
+      }
+      .ps-live::before {
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #7ee2a8;
+      }
+      .ps-body {
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        min-height: 340px;
+      }
+      .ps-list {
+        border-right: 1px solid var(--line);
+        background: var(--bg);
+        padding: 10px;
+      }
+      .ps-group {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+        padding: 8px 10px 6px;
+      }
+      .ps-conv {
+        padding: 10px 11px;
+        border-radius: 10px;
+        margin-bottom: 4px;
+      }
+      .ps-conv.is-active {
+        background: var(--surface);
+        border: 1px solid var(--line);
+      }
+      .ps-conv-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 8px;
+      }
+      .ps-conv-tel {
+        font-size: 13.5px;
+        font-weight: 600;
+        color: var(--ink);
+      }
+      .ps-conv-time {
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .ps-conv-prev {
+        font-size: 12.5px;
+        color: var(--muted);
+        margin-top: 3px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .ps-thread {
+        padding: 16px 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        background: var(--surface);
+      }
+      .ps-daysep {
+        text-align: center;
+        font-size: 11px;
+        color: var(--muted);
+        margin-bottom: 2px;
+      }
+      .ps-bub {
+        max-width: 78%;
+        padding: 9px 12px;
+        border-radius: 12px;
+        font-size: 13.5px;
+        line-height: 1.45;
+      }
+      .ps-bub.in {
+        align-self: flex-start;
+        background: var(--ghost);
+        color: var(--ink);
+        border-bottom-left-radius: 4px;
+      }
+      .ps-bub.out {
+        align-self: flex-end;
+        background: var(--accent);
+        color: #fff;
+        border-bottom-right-radius: 4px;
+      }
+      .ps-bub .ps-tm {
+        display: block;
+        font-size: 10.5px;
+        opacity: 0.65;
+        margin-top: 3px;
+      }
+      .ps-foot {
+        border-top: 1px solid var(--line);
+        padding: 11px 18px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        font-size: 12.5px;
+        color: var(--muted);
+        background: var(--bg);
+      }
+      .ps-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: var(--accent-soft);
+        border: 1px solid var(--line);
+        font-weight: 600;
+        color: var(--accent);
+        font-size: 11.5px;
+      }
+      @media (max-width: 760px) {
+        .ps-body {
+          grid-template-columns: 1fr;
+        }
+        .ps-list {
+          display: none;
+        }
+      }
+      .painel-points {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        margin-top: 24px;
+      }
+      @media (max-width: 760px) {
+        .painel-points {
+          grid-template-columns: 1fr;
+        }
+      }
+      .painel-points .pp {
+        padding: 16px 18px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--surface);
+      }
+      .painel-points .pp h3 {
+        font-size: 15px;
+        margin-bottom: 5px;
+      }
+      .painel-points .pp p {
+        font-size: 13.5px;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      /* ===== especialidades ===== */
+      .spec-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 22px;
+      }
+      .spec-chips span {
+        padding: 7px 14px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: var(--surface);
+        font-size: 13.5px;
+        font-weight: 500;
+        color: var(--muted);
+      }
+      .spec-chips span.is-more {
+        background: var(--accent-soft);
+        color: var(--accent);
+        font-weight: 600;
+      }
+
+      /* ===== garantia ===== */
+      .guarantee-box {
+        margin-top: 24px;
+        display: flex;
+        gap: 16px;
+        align-items: flex-start;
+        padding: 20px 22px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--surface);
+      }
+      .guarantee-box svg {
+        flex-shrink: 0;
+        color: var(--accent);
+        margin-top: 2px;
+      }
+      .guarantee-box h3 {
+        font-size: 16px;
+        margin-bottom: 5px;
+      }
+      .guarantee-box p {
+        font-size: 14px;
+        color: var(--muted);
+        line-height: 1.55;
+      }
+
+      /* ===== quem somos ===== */
+      .about-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 34px;
+        align-items: start;
+        margin-top: 26px;
+      }
+      @media (max-width: 800px) {
+        .about-grid {
+          grid-template-columns: 1fr;
+          gap: 24px;
+        }
+      }
+      .about-grid p {
+        color: var(--muted);
+        font-size: 15.5px;
+        line-height: 1.65;
+        margin-bottom: 14px;
+      }
+      .about-facts {
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--surface);
+        overflow: hidden;
+      }
+      .about-facts .af {
+        display: flex;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 13px 18px;
+        border-bottom: 1px solid var(--line);
+        font-size: 14px;
+      }
+      .about-facts .af:last-child {
+        border-bottom: 0;
+      }
+      .about-facts .af dt {
+        color: var(--muted);
+        font-weight: 500;
+      }
+      .about-facts .af dd {
+        color: var(--ink);
+        font-weight: 600;
+        text-align: right;
+      }
+      .about-facts .af dd a {
+        color: var(--accent);
+      }
     </style>
     <link rel="stylesheet" href="/page-transition.css" />
     <script src="/page-transition.js"></script>
@@ -1442,7 +1995,9 @@
               <div class="nav-dropdown">
                 <a href="#como-funciona">Como funciona</a>
                 <a href="#recursos">O que ela faz</a>
+                <a href="#painel">O painel</a>
                 <a href="#clinica">Para sua clínica</a>
+                <a href="#custo">Quanto custa</a>
               </div>
             </details>
             <a class="nav-link" href="#planos">Planos</a>
@@ -1545,6 +2100,9 @@
                   <line x1="5" y1="12" x2="19" y2="12" />
                   <polyline points="12 5 19 12 12 19" />
                 </svg>
+              </a>
+              <a href="#painel" class="btn btn-ghost">
+                Ver a Recepta funcionando
               </a>
             </div>
             <p class="hero-note">
@@ -1951,6 +2509,111 @@
         </section>
 
         <!-- SEÇÃO 3: SEGMENTAÇÃO -->
+      <section class="reveal surface" id="painel">
+        <div class="container">
+          <span class="eyebrow">O painel</span>
+          <h2>Você vê cada conversa. E muda o que quiser.</h2>
+          <p class="lede">
+            A Recepta não é uma caixa preta. Todo atendimento aparece no seu
+            painel em tempo real, e as regras que ela segue ficam abertas pra
+            você editar quando a clínica mudar.
+          </p>
+
+          <div class="painel-shot" aria-hidden="true">
+            <div class="ps-chrome">
+              <span class="ps-dot"></span>
+              <span class="ps-dot"></span>
+              <span class="ps-dot"></span>
+              <span class="ps-title">Painel Recepta AI</span>
+              <span class="ps-live">ao vivo</span>
+            </div>
+            <div class="ps-body">
+              <div class="ps-list">
+                <div class="ps-group">Sua clínica · 3 conversas</div>
+                <div class="ps-conv is-active">
+                  <div class="ps-conv-top">
+                    <span class="ps-conv-tel">(53) 9 8••••-4471</span>
+                    <span class="ps-conv-time">agora</span>
+                  </div>
+                  <div class="ps-conv-prev">
+                    Perfeito! Agendado: quinta 14h30
+                  </div>
+                </div>
+                <div class="ps-conv">
+                  <div class="ps-conv-top">
+                    <span class="ps-conv-tel">(53) 9 9••••-1820</span>
+                    <span class="ps-conv-time">12 min</span>
+                  </div>
+                  <div class="ps-conv-prev">
+                    Bom dia, vocês atendem Unimed?
+                  </div>
+                </div>
+                <div class="ps-conv">
+                  <div class="ps-conv-top">
+                    <span class="ps-conv-tel">(53) 9 8••••-9032</span>
+                    <span class="ps-conv-time">1 h</span>
+                  </div>
+                  <div class="ps-conv-prev">
+                    Preciso remarcar minha consulta
+                  </div>
+                </div>
+              </div>
+              <div class="ps-thread">
+                <div class="ps-daysep">Hoje</div>
+                <div class="ps-bub in">
+                  Quanto custa o ultrassom abdominal?
+                  <span class="ps-tm">08:12</span>
+                </div>
+                <div class="ps-bub out">
+                  Bom dia! Fica R$ 180 particular, com jejum de 8h antes do
+                  exame. Quer que eu já veja um horário pra você?
+                  <span class="ps-tm">08:12</span>
+                </div>
+                <div class="ps-bub in">
+                  Quero, pode ser essa semana
+                  <span class="ps-tm">08:13</span>
+                </div>
+                <div class="ps-bub out">
+                  Tenho quinta às 14h30 ou sexta às 9h. Qual fica melhor?
+                  <span class="ps-tm">08:13</span>
+                </div>
+              </div>
+            </div>
+            <div class="ps-foot">
+              <span class="ps-badge">IA respondendo</span>
+              <span
+                >Mande uma mensagem manual nessa conversa e a Recepta pausa
+                sozinha.</span
+              >
+            </div>
+          </div>
+
+          <div class="painel-points">
+            <div class="pp">
+              <h3>Histórico completo</h3>
+              <p>
+                Toda conversa fica registrada, com horário e quem respondeu:
+                a IA ou alguém da sua equipe.
+              </p>
+            </div>
+            <div class="pp">
+              <h3>Preços, horários e convênios</h3>
+              <p>
+                Mudou o valor da consulta ou o convênio caiu? Você edita no
+                painel e a IA passa a responder o novo na hora.
+              </p>
+            </div>
+            <div class="pp">
+              <h3>O jeito dela falar</h3>
+              <p>
+                Ajuste como a Recepta se apresenta e o tom que ela usa com os
+                seus pacientes.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
         <section class="max-w-5xl mx-auto px-6 py-20" id="clinica">
           <div class="text-center mb-12">
             <span
@@ -1964,6 +2627,22 @@
               Recepta se adapta a qualquer especialidade e tamanho de clínica.
             </p>
           </div>
+            <div class="spec-chips" style="justify-content: center">
+              <span>Dermatologia</span>
+              <span>Odontologia</span>
+              <span>Ginecologia</span>
+              <span>Ortopedia</span>
+              <span>Oftalmologia</span>
+              <span>Pediatria</span>
+              <span>Psiquiatria</span>
+              <span>Fisioterapia</span>
+              <span>Nutrição</span>
+              <span>Cardiologia</span>
+              <span>Diagnóstico por imagem</span>
+              <span>Estética</span>
+              <span class="is-more">e qualquer outra</span>
+            </div>
+
 
           <div class="grid md:grid-cols-3 gap-6">
             <div
@@ -2086,9 +2765,12 @@
               <div class="text">
                 <h3>E se ela marcar a consulta errada?</h3>
                 <p>
-                  Ela confere sua agenda de verdade antes de confirmar qualquer
-                  coisa. Se o horário já estiver ocupado, ela avisa e pede outra
-                  data. Nunca inventa um "agendado" que não aconteceu.
+                  Você escolhe até onde ela vai. Dá pra deixar a Recepta só
+                  coletar os dados e passar pra recepção confirmar, que é o mais
+                  seguro pra começar, ou liberar pra ela fechar o horário
+                  sozinha quando a confiança já estiver lá. Nos dois modos ela
+                  segue as regras de agenda que a clínica cadastrou e nunca
+                  confirma nada fora delas.
                 </p>
               </div>
             </div>
@@ -2170,6 +2852,149 @@
             <div class="cta-wrap">
               <a href="/briefing" class="cta-btn">Comece agora</a>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="reveal" id="custo">
+        <div class="container">
+          <span class="eyebrow">Quanto custa</span>
+          <h2>Responder todo mundo custa caro. Ou custa R$ 347.</h2>
+          <p class="lede">
+            A Recepta não demite ninguém. Ela cobre o turno que hoje não tem
+            gente: a madrugada, o fim de semana, e a hora em que a recepção
+            está com um paciente na frente dela.
+          </p>
+
+          <div class="compare">
+            <div class="compare-head">
+              <div>Pra dar conta do WhatsApp</div>
+              <div>Contratando mais uma pessoa</div>
+              <div class="ch-win">Com a Recepta AI</div>
+            </div>
+            <div class="compare-row">
+              <div class="cr-label">Custo por mês</div>
+              <div class="cr-old">~R$ 2.700 (salário + encargos)</div>
+              <div class="cr-new">R$ 347</div>
+            </div>
+            <div class="compare-row">
+              <div class="cr-label">Horário coberto</div>
+              <div class="cr-old">8h por dia, em dia útil</div>
+              <div class="cr-new">24h, todo dia, incluindo feriado</div>
+            </div>
+            <div class="compare-row">
+              <div class="cr-label">Férias, folga e atestado</div>
+              <div class="cr-old">Precisa de alguém cobrindo</div>
+              <div class="cr-new">Não tira férias</div>
+            </div>
+            <div class="compare-row">
+              <div class="cr-label">Quando alguém sai</div>
+              <div class="cr-old">Contrata e treina de novo</div>
+              <div class="cr-new">A configuração continua salva</div>
+            </div>
+            <div class="compare-row">
+              <div class="cr-label">Conversas ao mesmo tempo</div>
+              <div class="cr-old">Uma de cada vez</div>
+              <div class="cr-new">Quantas chegarem</div>
+            </div>
+            <div class="compare-row">
+              <div class="cr-label">Pra encerrar</div>
+              <div class="cr-old">Aviso prévio e rescisão</div>
+              <div class="cr-new">Cancela quando quiser, sem multa</div>
+            </div>
+            <div class="compare-row is-total">
+              <div class="cr-label">No ano</div>
+              <div class="cr-old">~R$ 32.400</div>
+              <div class="cr-new">R$ 4.164</div>
+            </div>
+          </div>
+          <p class="compare-note">
+            Estimativa de custo de contratação: recepcionista com salário de
+            R$ 1.600 mais encargos de CLT (13º, férias, FGTS, INSS), que
+            costumam somar cerca de 70% do salário. O valor real varia por
+            região, piso da categoria e regime tributário da clínica.
+          </p>
+
+          <div class="breakeven">
+            <span class="be-n">2</span>
+            <p class="be-t">
+              <strong
+                >Duas consultas recuperadas no mês e o plano já se pagou.</strong
+              >
+              Considerando uma consulta particular de R$ 250, o plano anual sai
+              por menos do que uma consulta e meia.
+              <span class="be-sub"
+                >A partir da terceira, o resto é receita que hoje ia embora.</span
+              >
+            </p>
+          </div>
+
+          <div class="calc">
+            <h3>Quanto sua clínica deixa na mesa por mês?</h3>
+            <p class="calc-lede">
+              Ajuste os números pra realidade da sua recepção. A conta é feita
+              no seu navegador, nada é enviado pra gente.
+            </p>
+            <div class="calc-fields">
+              <div class="calc-field">
+                <label for="calcMsgs"
+                  >Mensagens sem resposta rápida por dia</label
+                >
+                <input
+                  id="calcMsgs"
+                  type="number"
+                  min="0"
+                  max="500"
+                  step="1"
+                  value="6"
+                  inputmode="numeric"
+                />
+              </div>
+              <div class="calc-field">
+                <label for="calcConv">Dessas, quantas % virariam consulta</label>
+                <input
+                  id="calcConv"
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="1"
+                  value="25"
+                  inputmode="numeric"
+                />
+              </div>
+              <div class="calc-field">
+                <label for="calcTicket">Valor médio da consulta (R$)</label>
+                <input
+                  id="calcTicket"
+                  type="number"
+                  min="0"
+                  max="100000"
+                  step="10"
+                  value="250"
+                  inputmode="numeric"
+                />
+              </div>
+            </div>
+            <div class="calc-out" aria-live="polite">
+              <div class="co-line">
+                <span>Mensagens sem resposta no mês</span>
+                <strong id="calcOutMsgs">180</strong>
+              </div>
+              <div class="co-line">
+                <span>Consultas que não aconteceram</span>
+                <strong id="calcOutCons">45</strong>
+              </div>
+              <div class="co-line co-hero">
+                <span>Receita em risco por mês</span>
+                <strong id="calcOutRs">R$ 11.250</strong>
+              </div>
+            </div>
+            <p class="calc-note">
+              Estimativa baseada nos números que você informou, considerando 30
+              dias no mês. Serve pra dimensionar a ordem de grandeza, não é
+              promessa de resultado. Para comparação: o plano anual da Recepta
+              custa R$ 347 por mês.
+            </p>
           </div>
         </div>
       </section>
@@ -2333,6 +3158,51 @@
               </div>
             </div>
           </div>
+
+          <div class="guarantee-band">
+            <div class="gb">
+              <span class="gb-n">24h</span>
+              <span class="gb-l">Atende todo dia, incluindo fim de semana e feriado</span>
+            </div>
+            <div class="gb">
+              <span class="gb-n">7 dias</span>
+              <span class="gb-l">De teste grátis, sem cartão de crédito</span>
+            </div>
+            <div class="gb">
+              <span class="gb-n">R$ 0</span>
+              <span class="gb-l">De taxa de setup ou implantação</span>
+            </div>
+            <div class="gb">
+              <span class="gb-n">0</span>
+              <span class="gb-l">Meses de fidelidade. Cancela quando quiser</span>
+            </div>
+          </div>
+
+          <div class="guarantee-box">
+            <svg
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              <path d="m9 12 2 2 4-4" />
+            </svg>
+            <div>
+              <h3>Se não servir, some tudo</h3>
+              <p>
+                Desistiu durante ou depois do teste? Você pede e a gente apaga
+                os dados da clínica e as conversas dos pacientes, sem pergunta e
+                sem processo de retenção. Não tem cartão cadastrado, então não
+                tem cobrança pra cancelar.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -2392,6 +3262,71 @@
         </div>
       </section>
 
+      <section class="reveal surface" id="sobre">
+        <div class="container">
+          <span class="eyebrow">Quem está por trás</span>
+          <h2>Você vai saber com quem está falando</h2>
+          <div class="about-grid">
+            <div>
+              <p>
+                A Recepta AI é uma empresa brasileira, com CNPJ aberto e
+                endereço de contato público. Não somos revenda de chatbot
+                genérico: o produto foi construído pra um problema específico,
+                que é o WhatsApp de clínica que ninguém consegue responder a
+                tempo.
+              </p>
+              <p>
+                A configuração inicial da sua clínica é feita junto com você,
+                não jogada num formulário e esquecida. A gente entende como sua
+                recepção trabalha hoje antes de deixar a IA falar com qualquer
+                paciente.
+              </p>
+              <p>
+                Dado de paciente é assunto sério. Os dados ficam no ambiente da
+                sua clínica, seguem a LGPD, não são compartilhados com terceiros
+                e não são usados pra treinar modelo de ninguém. Está tudo
+                escrito na
+                <a href="/privacidade">política de privacidade</a>, sem letra
+                miúda.
+              </p>
+            </div>
+            <dl class="about-facts">
+              <div class="af">
+                <dt>Empresa</dt>
+                <dd>Recepta AI</dd>
+              </div>
+              <div class="af">
+                <dt>CNPJ</dt>
+                <dd>68.213.601/0001-16</dd>
+              </div>
+              <div class="af">
+                <dt>Contato direto</dt>
+                <dd>
+                  <a href="mailto:contato@receptaai.com.br"
+                    >contato@receptaai.com.br</a
+                  >
+                </dd>
+              </div>
+              <div class="af">
+                <dt>Onde ficam os dados</dt>
+                <dd>Brasil, sob LGPD</dd>
+              </div>
+              <div class="af">
+                <dt>Compartilhamento</dt>
+                <dd>Nenhum, com ninguém</dd>
+              </div>
+              <div class="af">
+                <dt>Documentos</dt>
+                <dd>
+                  <a href="/termos">Termos</a> ·
+                  <a href="/privacidade">Privacidade</a>
+                </dd>
+              </div>
+            </dl>
+          </div>
+        </div>
+      </section>
+
       <section class="reveal final-cta">
         <div class="container">
           <h2>Sua secretária pode estar no ar ainda hoje.</h2>
@@ -2438,7 +3373,9 @@
           <h3>Produto</h3>
           <a href="#como-funciona">Como funciona</a>
           <a href="#recursos">O que ela faz</a>
+          <a href="#painel">O painel</a>
           <a href="#clinica">Para sua clínica</a>
+          <a href="#custo">Quanto custa</a>
           <a href="#planos">Planos</a>
         </nav>
         <nav class="foot-col" aria-label="Clínica">
@@ -2449,6 +3386,7 @@
         </nav>
         <div class="foot-col">
           <h3>Contato</h3>
+          <a href="#sobre">Quem somos</a>
           <a class="foot-mail" href="mailto:contato@receptaai.com.br"
             >contato@receptaai.com.br</a
           >
@@ -2465,6 +3403,54 @@
     </footer>
     <script>
       document.getElementById("y").textContent = new Date().getFullYear();
+
+      /* calculadora de receita em risco - roda 100% no cliente */
+      (function () {
+        var elMsgs = document.getElementById("calcMsgs");
+        var elConv = document.getElementById("calcConv");
+        var elTicket = document.getElementById("calcTicket");
+        var outMsgs = document.getElementById("calcOutMsgs");
+        var outCons = document.getElementById("calcOutCons");
+        var outRs = document.getElementById("calcOutRs");
+        if (!elMsgs || !elConv || !elTicket || !outMsgs || !outCons || !outRs) {
+          return;
+        }
+        var DIAS_MES = 30;
+        var brl = new Intl.NumberFormat("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+          maximumFractionDigits: 0,
+        });
+        var num = new Intl.NumberFormat("pt-BR");
+
+        function limpar(el, min, max) {
+          var v = parseFloat(String(el.value).replace(",", "."));
+          if (!isFinite(v) || v < min) v = min;
+          if (v > max) v = max;
+          return v;
+        }
+
+        function calcular() {
+          var msgsDia = limpar(elMsgs, 0, 500);
+          var taxa = limpar(elConv, 0, 100) / 100;
+          var ticket = limpar(elTicket, 0, 100000);
+          var msgsMes = Math.round(msgsDia * DIAS_MES);
+          var consultas = Math.round(msgsMes * taxa);
+          var receita = consultas * ticket;
+          outMsgs.textContent = num.format(msgsMes);
+          outCons.textContent = num.format(consultas);
+          outRs.textContent = brl.format(receita);
+        }
+
+        ["input", "change"].forEach(function (ev) {
+          elMsgs.addEventListener(ev, calcular);
+          elConv.addEventListener(ev, calcular);
+          elTicket.addEventListener(ev, calcular);
+        });
+        calcular();
+      })();
+
+
 
       (function () {
         var alvos = document.querySelectorAll(".reveal, .demo-stage");
