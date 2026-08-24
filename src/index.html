@@ -172,7 +172,12 @@
         position: sticky;
         top: 0;
         z-index: 20;
-        background: var(--header-bg);
+        background: linear-gradient(
+          90deg,
+          var(--header-bg) 0%,
+          #241f63 58%,
+          #332a80 100%
+        );
         border-bottom: 1px solid rgba(255, 255, 255, 0.12);
       }
       .topbar {
@@ -201,6 +206,92 @@
       .logo span {
         color: var(--accent-2);
       }
+      a.logo {
+        text-decoration: none;
+      }
+      .topbar-left {
+        display: flex;
+        align-items: center;
+        gap: 26px;
+        min-width: 0;
+      }
+      .topnav {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .nav-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 12px;
+        border-radius: 999px;
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 14.5px;
+        font-weight: 500;
+        text-decoration: none;
+        transition:
+          color 0.15s,
+          background 0.15s;
+      }
+      .nav-link:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.1);
+      }
+      .nav-link:focus-visible {
+        outline: 2px solid #fff;
+        outline-offset: 2px;
+      }
+      .nav-menu {
+        position: relative;
+      }
+      .nav-menu > summary {
+        list-style: none;
+        cursor: pointer;
+      }
+      .nav-menu > summary::-webkit-details-marker {
+        display: none;
+      }
+      .nav-menu .chev {
+        width: 14px;
+        height: 14px;
+        transition: transform 0.18s;
+      }
+      .nav-menu[open] .chev {
+        transform: rotate(180deg);
+      }
+      .nav-dropdown {
+        position: absolute;
+        top: calc(100% + 10px);
+        left: 0;
+        min-width: 220px;
+        display: flex;
+        flex-direction: column;
+        padding: 8px;
+        border-radius: 14px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        box-shadow: 0 18px 40px -18px rgba(16, 13, 34, 0.45);
+      }
+      .nav-dropdown a {
+        padding: 10px 12px;
+        border-radius: 10px;
+        color: var(--ink);
+        font-size: 14.5px;
+        font-weight: 500;
+        text-decoration: none;
+      }
+      .nav-dropdown a:hover {
+        background: var(--accent-soft);
+      }
+      .topbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .topbar .btn-sm {
+        border-radius: 999px;
+      }
       .topbar .btn-primary {
         background: #fff;
         color: var(--accent);
@@ -209,11 +300,30 @@
         background: var(--accent-soft);
         filter: none;
       }
+      .topbar .btn-login {
+        color: #fff;
+        border-color: rgba(255, 255, 255, 0.5);
+      }
+      .topbar .btn-login:hover {
+        background: rgba(255, 255, 255, 0.12);
+      }
+      @media (max-width: 900px) {
+        .topnav,
+        .nav-link-help {
+          display: none;
+        }
+      }
       @media (max-width: 480px) {
         .topbar .btn-primary {
           padding: 10px 16px;
           font-size: 13.5px;
           white-space: nowrap;
+        }
+        .topbar-actions {
+          gap: 6px;
+        }
+        .topbar .btn-login {
+          padding: 10px 12px;
         }
         .logo {
           font-size: 17px;
@@ -1223,25 +1333,76 @@
   <body>
     <header class="top">
       <div class="topbar">
-        <div class="logo">
-          <svg viewBox="0 0 100 100" aria-hidden="true">
-            <g transform="translate(0 50)">
-              <path
-                d="M 34 -34 C -1.7 -15.9, -1.7 15.9, 34 34 C 69.7 15.9, 69.7 -15.9, 34 -34 Z"
-                fill="currentColor"
-                fill-opacity="0.6"
-              />
-              <path
-                d="M 66 -34 C 30.3 -15.9, 30.3 15.9, 66 34 C 101.7 15.9, 101.7 -15.9, 66 -34 Z"
-                fill="currentColor"
-              />
-            </g>
-          </svg>
-          Recepta <span>AI</span>
+        <div class="topbar-left">
+          <a class="logo" href="/">
+            <svg viewBox="0 0 100 100" aria-hidden="true">
+              <g transform="translate(0 50)">
+                <path
+                  d="M 34 -34 C -1.7 -15.9, -1.7 15.9, 34 34 C 69.7 15.9, 69.7 -15.9, 34 -34 Z"
+                  fill="currentColor"
+                  fill-opacity="0.6"
+                />
+                <path
+                  d="M 66 -34 C 30.3 -15.9, 30.3 15.9, 66 34 C 101.7 15.9, 101.7 -15.9, 66 -34 Z"
+                  fill="currentColor"
+                />
+              </g>
+            </svg>
+            Recepta <span>AI</span>
+          </a>
+          <nav class="topnav" aria-label="Navegação principal">
+            <details class="nav-menu">
+              <summary class="nav-link">
+                Recursos
+                <svg
+                  class="chev"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
+              </summary>
+              <div class="nav-dropdown">
+                <a href="#como-funciona">Como funciona</a>
+                <a href="#recursos">O que ela faz</a>
+                <a href="#clinica">Para sua clínica</a>
+              </div>
+            </details>
+            <a class="nav-link" href="#planos">Planos</a>
+          </nav>
         </div>
-        <a href="/briefing" class="btn btn-primary"> Começar agora </a>
+        <div class="topbar-actions">
+          <a href="#faq" class="nav-link nav-link-help">Ajuda</a>
+          <a href="/clinica/login" class="btn btn-sm btn-login">Entrar</a>
+          <a href="/briefing" class="btn btn-primary btn-sm"
+            >Experimente grátis</a
+          >
+        </div>
       </div>
     </header>
+    <script>
+      document.addEventListener("click", function (event) {
+        var insideLink = event.target.closest(".nav-dropdown a");
+        document.querySelectorAll(".nav-menu[open]").forEach(function (menu) {
+          if (insideLink || !menu.contains(event.target)) {
+            menu.open = false;
+          }
+        });
+      });
+      document.addEventListener("keydown", function (event) {
+        if (event.key !== "Escape") {
+          return;
+        }
+        document.querySelectorAll(".nav-menu[open]").forEach(function (menu) {
+          menu.open = false;
+        });
+      });
+    </script>
 
     <main>
       <section class="hero">
@@ -1460,6 +1621,7 @@
       <div class="surface">
         <!-- SEÇÃO 1: COMO FUNCIONA + COMPARATIVO + ESTATÍSTICA -->
         <section
+          id="como-funciona"
           class="max-w-5xl mx-auto px-6 py-20 border-b border-[var(--line)]"
         >
           <div class="text-center mb-12">
@@ -1614,6 +1776,7 @@
 
         <!-- SEÇÃO 2: O QUE ELA FAZ + UI MOCKUP -->
         <section
+          id="recursos"
           class="max-w-5xl mx-auto px-6 py-20 border-b border-[var(--line)]"
         >
           <div class="mb-12">
@@ -1716,7 +1879,7 @@
         </section>
 
         <!-- SEÇÃO 3: SEGMENTAÇÃO -->
-        <section class="max-w-5xl mx-auto px-6 py-20">
+        <section class="max-w-5xl mx-auto px-6 py-20" id="clinica">
           <div class="text-center mb-12">
             <span
               class="text-xs font-mono tracking-widest text-[var(--accent)] uppercase bg-[var(--accent-soft)] px-3 py-1 rounded-full border border-[var(--line)]"
@@ -1939,7 +2102,7 @@
         </div>
       </section>
 
-      <section class="reveal">
+      <section class="reveal" id="planos">
         <div class="container">
           <div class="pricing-grid">
             <div class="pricing-intro">
