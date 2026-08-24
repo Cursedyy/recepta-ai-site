@@ -1,0 +1,23 @@
+@media (prefers-reduced-motion: no-preference) {
+  html.page-transition-ready body {
+    opacity: 0;
+    filter: blur(3px);
+    transform: translateY(10px);
+    transition:
+      opacity 220ms cubic-bezier(0.16, 1, 0.3, 1),
+      filter 220ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  html.page-transition-ready.page-transition-in body {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+
+  html.page-transition-ready.page-transition-out body {
+    opacity: 0;
+    filter: blur(2px);
+    transform: translateY(-6px);
+  }
+}

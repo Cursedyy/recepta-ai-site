@@ -122,31 +122,56 @@
         font-size: 14px;
       }
     </style>
+    <link rel="stylesheet" href="/clinica/auth.css" />
+    <link rel="stylesheet" href="/page-transition.css" />
+    <script src="/page-transition.js"></script>
   </head>
   <body>
-    <form id="form-esqueci">
-      <h1>Esqueci minha senha</h1>
-      <p class="sub">
-        Digite o e-mail da sua clínica pra receber o link de redefinição.
-      </p>
-      <div class="erro" id="erro"></div>
-      <input
-        type="email"
-        id="email"
-        placeholder="E-mail"
-        autocomplete="username"
-        required
-      />
-      <button type="submit" id="btn-enviar">Enviar link</button>
-      <a class="voltar" href="/clinica/login">Voltar pro login</a>
-    </form>
-    <div class="sucesso" id="sucesso">
-      <p>
-        Se esse e-mail tiver uma conta, enviamos um link de redefinição de
-        senha. Confira sua caixa de entrada (e o spam).
-      </p>
-      <a class="voltar" href="/clinica/login">Voltar pro login</a>
-    </div>
+    <main class="auth-shell">
+      <aside class="auth-aside" aria-label="Recepta AI">
+        <a class="auth-wordmark" href="/">
+          <span class="auth-mark" aria-hidden="true"><i></i><i></i></span>
+          Recepta <b>AI</b>
+        </a>
+        <div class="auth-pitch">
+          <span class="auth-kicker">Acesso seguro</span>
+          <h2>Vamos colocar você de volta no controle.</h2>
+          <p>Recupere o acesso ao painel da sua clínica em poucos passos.</p>
+        </div>
+        <span class="auth-trust">Seus dados permanecem protegidos</span>
+      </aside>
+      <section class="auth-content">
+        <div class="auth-form-wrap">
+          <a class="auth-wordmark auth-mobile-brand" href="/">
+            <span class="auth-mark" aria-hidden="true"><i></i><i></i></span>
+            Recepta <b>AI</b>
+          </a>
+          <form id="form-esqueci">
+            <h1>Esqueci minha senha</h1>
+            <p class="sub">
+              Digite o e-mail da sua clínica pra receber o link de redefinição.
+            </p>
+            <div class="erro" id="erro"></div>
+            <input
+              type="email"
+              id="email"
+              placeholder="E-mail"
+              autocomplete="username"
+              required
+            />
+            <button type="submit" id="btn-enviar">Enviar link</button>
+            <a class="voltar" href="/clinica/login">Voltar pro login</a>
+          </form>
+          <div class="sucesso" id="sucesso">
+            <p>
+              Se esse e-mail tiver uma conta, enviamos um link de redefinição de
+              senha. Confira sua caixa de entrada (e o spam).
+            </p>
+            <a class="voltar" href="/clinica/login">Voltar pro login</a>
+          </div>
+        </div>
+      </section>
+    </main>
     <script>
       var elForm = document.getElementById("form-esqueci");
       var elErro = document.getElementById("erro");
