@@ -41,6 +41,9 @@ function paginaPainel(nomeClinica, config, tempoPausaAtual, assinatura) {
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Painel da clínica · Recepta AI</title>
 <meta name="robots" content="noindex,nofollow">
+<link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32.png">
+<link rel="icon" type="image/png" sizes="512x512" href="/img/favicon-512.png">
+<link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
 <style>
 :root{
   --bg:#FAFAFD;--surface:#ffffff;--ink:#100D22;--muted:#302E47;--line:#E7E5F2;
