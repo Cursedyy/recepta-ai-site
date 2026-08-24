@@ -4,5 +4,6 @@ Disallow: /api/
 Disallow: /t/
 Disallow: /briefing
 Disallow: /painel
+Disallow: /clinica/
 
 Sitemap: https://www.receptaai.com.br/sitemap.xml
