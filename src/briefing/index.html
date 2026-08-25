@@ -616,6 +616,16 @@
         border-color: var(--err) !important;
         box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
       }
+      .field-err {
+        font-size: 12.5px;
+        color: var(--err);
+        margin-top: 5px;
+        display: none;
+        line-height: 1.4;
+      }
+      .field-err.show {
+        display: block;
+      }
 
       /* ── Note Banner ── */
       .note {
@@ -1206,6 +1216,39 @@
         }
         return !!v;
       }
+      /* Format validators per field */
+      const validators = {
+        clinica: (v) => v.length >= 3 || "Nome muito curto (mín. 3 caracteres)",
+        whats_resp: (v) => {
+          const d = v.replace(/\D/g, "");
+          return d.length >= 10 || "WhatsApp inválido (mín. 10 dígitos, ex: 53 99999-9999)";
+        },
+        numero: (v) => {
+          const d = v.replace(/\D/g, "");
+          return d.length >= 10 || "Número inválido (mín. 10 dígitos, ex: 53 3333-3333)";
+        },
+        cnpj: (v) => {
+          const d = v.replace(/\D/g, "");
+          if (d.length < 11) return "CNPJ/CPF inválido (mín. 11 dígitos)";
+          if (/^(\d)\1+$/.test(d)) return "CNPJ/CPF não pode ser todos os mesmos dígitos";
+          return true;
+        },
+        endereco: (v) => v.length >= 10 || "Endereço muito curto (mín. 10 caracteres)",
+        servicos: (v) => v.length >= 3 || "Informe pelo menos um serviço",
+        convenios: (v) => v.length >= 3 || "Informe pelo menos um convênio",
+        horario_func: (v) => v.length >= 5 || "Horário muito curto (ex: Seg a sex 8h-18h)",
+      };
+      function validateField(f) {
+        const v = val(f);
+        if (f.ty === "radio" || f.ty === "check") return filled(f);
+        if (!v) return "Campo obrigatório";
+        const check = validators[f.i];
+        if (check) {
+          const r = check(v);
+          if (r !== true) return r;
+        }
+        return true;
+      }
       function data() {
         const o = {};
         ALL.forEach((f) => (o[f.i] = val(f)));
@@ -1259,7 +1302,7 @@
         return S[i].f.filter((f) => f.r);
       }
       function validateStep(i) {
-        return stepReq(i).filter((f) => !filled(f));
+        return stepReq(i).filter((f) => validateField(f) !== true);
       }
       function firstIncompleteStep() {
         for (let i = 0; i < S.length; i++) {
@@ -1360,18 +1403,29 @@
         document
           .querySelectorAll(".inv")
           .forEach((e) => e.classList.remove("inv"));
+        document
+          .querySelectorAll(".field-err")
+          .forEach((e) => e.remove());
         const missStep = validateStep(step);
         if (missStep.length) {
           missStep.forEach((f) => {
             const e = document.getElementById(f.i);
-            if (e) e.classList.add("inv");
+            if (e) {
+              e.classList.add("inv");
+              const msg = validateField(f);
+              const errEl = document.createElement("p");
+              errEl.className = "field-err show";
+              errEl.textContent = typeof msg === "string" ? msg : "Campo obrigatório";
+              e.parentNode.insertBefore(errEl, e.nextSibling);
+            }
           });
           errBox.className = "msg err";
+          const errMsg = validateField(missStep[0]);
           errBox.textContent =
-            "Faltam " +
-            missStep.length +
-            " campo(s) obrigatório(s) neste passo. O primeiro é: " +
-            missStep[0].l;
+            missStep[0].l +
+            ": " +
+            (typeof errMsg === "string" ? errMsg : "Campo obrigatório") +
+            (missStep.length > 1 ? " (+" + (missStep.length - 1) + " outros)" : "");
           const el = document.querySelector(
             '[data-id="' + missStep[0].i + '"]',
           );
@@ -1382,14 +1436,17 @@
           showStep(step + 1);
           return;
         }
-        const missAll = REQ.filter((f) => !filled(f));
+        const missAll = REQ.filter((f) => validateField(f) !== true);
         if (missAll.length) {
           const idx = S.findIndex((s) => s.f.includes(missAll[0]));
           showStep(idx);
           errBox.className = "msg err";
+          const errMsg2 = validateField(missAll[0]);
           errBox.textContent =
-            "Faltam campos obrigatórios em outro passo. O primeiro é: " +
-            missAll[0].l;
+            missAll[0].l +
+            ": " +
+            (typeof errMsg2 === "string" ? errMsg2 : "Campo obrigatório") +
+            (missAll.length > 1 ? " (+" + (missAll.length - 1) + " outros)" : "");
           const el = document.querySelector('[data-id="' + missAll[0].i + '"]');
           if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
           return;
