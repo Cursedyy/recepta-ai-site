@@ -24,100 +24,64 @@
   transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.5s ease;
 }
 
-/* Card container */
-.loading-card {
+/* ── MorphingSquare — container animado ── */
+.loading-morph {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 48px 40px;
-  border-radius: 32px;
-  background: #1a1b2e;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  transform: scale(0.9);
-  opacity: 0;
-  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
+  gap: 12px;
 }
 
-.loading-overlay.visible .loading-card {
-  transform: scale(1);
-  opacity: 1;
-}
-
-/* Logo container */
-.loading-logo {
+.loading-morph-box {
   position: relative;
-  width: 112px;
-  height: 112px;
-  border-radius: 16px;
-  overflow: hidden;
+  width: 64px;
+  height: 64px;
+  background: oklch(0.24 0.09 275);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.1);
-  animation: logoPulse 1.8s ease-in-out infinite;
+  padding: 12px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25);
+  animation: morphRotate 2.5s ease-in-out infinite;
 }
 
-.loading-logo img {
+@keyframes morphRotate {
+  0%   { border-radius: 12%; transform: rotate(0deg); }
+  50%  { border-radius: 50%; transform: rotate(180deg); }
+  100% { border-radius: 12%; transform: rotate(360deg); }
+}
+
+/* ── ReceptaLogoSVG — petalas ── */
+.loading-morph-svg {
   width: 100%;
   height: 100%;
-  object-fit: contain;
-  padding: 8px;
 }
 
-@keyframes logoPulse {
-  0%, 100% { transform: scale(1); opacity: 0.8; }
-  50% { transform: scale(1.05); opacity: 1; }
-}
-
-/* Project name */
-.loading-name {
-  margin-top: 24px;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-size: 30px;
+/* ── Mensagem abaixo do logo ── */
+.loading-morph-msg {
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 16px;
   font-weight: 600;
-  color: #f8f9fc;
-  letter-spacing: -0.03em;
-  animation: namePulse 1.8s ease-in-out infinite;
+  letter-spacing: -0.02em;
+  color: oklch(0.24 0.09 275);
+  animation: msgPulse 1.8s ease-in-out infinite;
 }
 
-@keyframes namePulse {
+@keyframes msgPulse {
   0%, 100% { opacity: 0.5; }
   50% { opacity: 1; }
 }
 
-/* Loading dots */
-.loading-dots {
-  margin-top: 24px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.loading-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #818cf8;
-  animation: dotPulse 1s ease-in-out infinite;
-}
-
-.loading-dot:nth-child(2) { animation-delay: 0.2s; }
-.loading-dot:nth-child(3) { animation-delay: 0.4s; }
-
-@keyframes dotPulse {
-  0%, 100% { transform: scale(1); opacity: 0.3; }
-  50% { transform: scale(1.5); opacity: 1; }
-}
-
-/* Reduced motion */
+/* ── Reduced motion ── */
 @media (prefers-reduced-motion: reduce) {
-  .loading-logo,
-  .loading-name,
-  .loading-dot {
+  .loading-morph-box {
     animation: none;
+    border-radius: 12%;
+    transform: none;
   }
-  .loading-logo { opacity: 1; transform: scale(1); }
-  .loading-name { opacity: 1; }
-  .loading-dot { transform: scale(1); opacity: 0.6; }
+  .loading-morph-msg {
+    animation: none;
+    opacity: 1;
+  }
 }

@@ -1,21 +1,21 @@
 (function () {
   var root = document.documentElement;
 
-  /* ── Create loading overlay DOM ── */
+  /* ── Create loading overlay DOM (MorphingSquare) ── */
   var overlay = document.createElement("div");
   overlay.className = "loading-overlay";
   overlay.innerHTML =
-    '<div class="loading-card">' +
-      '<div class="loading-logo">' +
-        '<img src="/img/logo-mark-white.png" alt="Recepta AI">' +
-      "</div>" +
-      '<div class="loading-name">recepta</div>' +
-      '<div class="loading-dots">' +
-        '<span class="loading-dot"></span>' +
-        '<span class="loading-dot"></span>' +
-        '<span class="loading-dot"></span>' +
-      "</div>" +
-    "</div>";
+    '<div class="loading-morph">' +
+      '<div class="loading-morph-box">' +
+        '<svg class="loading-morph-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">' +
+          '<g transform="translate(0 50)">' +
+            '<path d="M 34 -34 C -1.7 -15.9, -1.7 15.9, 34 34 C 69.7 15.9, 69.7 -15.9, 34 -34 Z" fill="oklch(0.72 0.09 280)"/>' +
+            '<path d="M 66 -34 C 30.3 -15.9, 30.3 15.9, 66 34 C 101.7 15.9, 101.7 -15.9, 66 -34 Z" fill="oklch(0.95 0.015 280)"/>' +
+          '</g>' +
+        '</svg>' +
+      '</div>' +
+      '<div class="loading-morph-msg">recepta</div>' +
+    '</div>';
 
   /* ── Append overlay when body is ready ── */
   function appendOverlay() {
