@@ -33,13 +33,20 @@
   /* ── Page enter (on load) ── */
   function enterPage() {
     appendOverlay();
-    /* Hide loading overlay if visible */
+    /* Smoothly hide loading overlay */
     overlay.classList.remove("visible");
+    overlay.classList.add("fade-out");
 
-    window.requestAnimationFrame(function () {
+    /* Delay page content reveal slightly for smooth handoff */
+    window.setTimeout(function () {
       root.classList.add("page-transition-in");
       root.classList.remove("page-transition-out");
-    });
+    }, 100);
+
+    /* Remove overlay from DOM after fade completes */
+    window.setTimeout(function () {
+      overlay.classList.remove("fade-out");
+    }, 600);
   }
 
   if (document.readyState === "loading") {
@@ -80,14 +87,16 @@
 
     appendOverlay();
 
-    /* Show loading overlay */
-    overlay.classList.add("visible");
-
-    /* Fade out current page */
+    /* Fade out current page first */
     root.classList.remove("page-transition-in");
     root.classList.add("page-transition-out");
 
-    /* Navigate after loading screen is visible */
+    /* Show loading overlay after page starts fading */
+    window.setTimeout(function () {
+      overlay.classList.add("visible");
+    }, 150);
+
+    /* Navigate after loading screen has been visible */
     window.setTimeout(function () {
       window.location.assign(destination.href);
     }, 1200);
