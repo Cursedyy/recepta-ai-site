@@ -87,9 +87,9 @@
     root.classList.remove("page-transition-in");
     root.classList.add("page-transition-out");
 
-    /* Navigate after short delay */
+    /* Navigate after loading screen is visible */
     window.setTimeout(function () {
       window.location.assign(destination.href);
-    }, 300);
+    }, 1200);
   });
 })();
