@@ -701,8 +701,8 @@
     <script>
       const S = [
         {
-          t: "Identificação",
-          d: "Quem é a clínica e quem responde por ela.",
+          t: "Sua clínica",
+          d: "O mínimo pra sua secretária virtual entrar no ar. Leva menos de um minuto.",
           f: [
             {
               i: "clinica",
@@ -710,19 +710,21 @@
               r: 1,
               p: "Ex: Clínica Imagem Diagnóstica",
             },
-            { i: "responsavel", l: "Nome do responsável pelo teste", r: 1 },
-            {
-              i: "cargo",
-              l: "Cargo do responsável",
-              p: "Ex: proprietária, gerente, coordenadora",
-            },
             {
               i: "whats_resp",
-              l: "WhatsApp do responsável (com DDD)",
+              l: "Seu WhatsApp (com DDD)",
               r: 1,
               ty: "tel",
               p: "53 99999-9999",
-              h: "Pra falar com você durante o teste.",
+              h: "Pra falar com você durante o teste e pra IA te chamar quando precisar de um humano.",
+            },
+            {
+              i: "numero",
+              l: "Número que a Recepta vai atender (com DDD)",
+              r: 1,
+              ty: "tel",
+              p: "53 3333-3333",
+              h: "Pode ser o mesmo do campo acima.",
             },
             {
               i: "cnpj",
@@ -732,8 +734,6 @@
               p: "00.000.000/0000-00",
               h: "Usamos só pra travar teste grátis repetido no mesmo CNPJ.",
             },
-            { i: "email", l: "E-mail", ty: "email" },
-            { i: "cidade", l: "Cidade / UF", r: 1, p: "Pelotas / RS" },
             {
               i: "endereco",
               l: "Endereço completo da clínica",
@@ -742,311 +742,32 @@
               h: "A IA vai passar isso pro paciente. Inclua ponto de referência.",
             },
             {
-              i: "links",
-              l: "Site e Instagram",
-              ty: "ta",
-              p: "site.com.br\n@instagram",
-            },
-          ],
-        },
-        {
-          t: "O número de WhatsApp",
-          d: "Essa parte define se a automação funciona ou trava. Responda com atenção.",
-          f: [
-            {
-              i: "numero",
-              l: "Número que a Recepta vai atender (com DDD)",
-              r: 1,
-              ty: "tel",
-              p: "53 3333-3333",
-            },
-            {
-              i: "tipo_conta",
-              l: "Esse número usa qual app hoje?",
-              r: 1,
-              ty: "radio",
-              o: [
-                "WhatsApp comum",
-                "WhatsApp Business",
-                "API Oficial da Meta",
-                "Número novo, ainda sem conta",
-                "Não sei",
-              ],
-              h: "API Oficial e Business com respostas automáticas exigem ajuste antes de ligar a IA.",
-            },
-            {
-              i: "automaticas",
-              l: "Tem mensagem automática ativa nesse número?",
-              r: 1,
-              ty: "radio",
-              o: [
-                "Sim, saudação",
-                "Sim, ausência",
-                "Sim, as duas",
-                "Sim, menu com opções numeradas",
-                "Não tem",
-              ],
-              h: "Menus automáticos confundem a IA e precisam ser desligados durante o teste.",
-            },
-            {
-              i: "quem_usa",
-              l: "Quem mais usa esse número hoje?",
-              r: 1,
-              ty: "radio",
-              o: [
-                "Só a recepção",
-                "Recepção + secretárias",
-                "Vários setores",
-                "Uso pessoal também",
-                "Ninguém, número novo",
-              ],
-            },
-            {
-              i: "volume",
-              l: "Quantas mensagens de pacientes chegam por dia (média)?",
-              r: 1,
-              ty: "select",
-              o: ["Até 10", "10 a 30", "30 a 60", "60 a 120", "Mais de 120"],
-            },
-            {
-              i: "pico",
-              l: "Em quais horários e dias chega mais mensagem?",
-              p: "Ex: segunda de manhã e final da tarde",
-            },
-            {
-              i: "celular_fixo",
-              l: "Esse número é celular ou fixo?",
-              r: 1,
-              ty: "radio",
-              o: ["Celular", "Fixo com WhatsApp", "Não sei"],
-              h: "Fixo com 8 dígitos exige configuração diferente.",
-            },
-          ],
-        },
-        {
-          t: "Serviços e valores",
-          d: "O que a clínica faz e o que a IA pode falar sobre preço.",
-          f: [
-            {
               i: "servicos",
-              l: "Todos os exames / consultas / procedimentos oferecidos",
+              l: "Exames / consultas / procedimentos oferecidos",
               r: 1,
               ty: "ta",
-              h: "Um por linha, com o nome que o paciente usa (não só o nome técnico).",
               p: "Ultrassonografia abdominal\nRaio-X de tórax\nMamografia",
-            },
-            { i: "mais_pedidos", l: "Os 5 mais procurados", r: 1, ty: "ta" },
-            {
-              i: "nao_faz",
-              l: "O que vocês NÃO fazem mas o paciente vive pedindo",
-              ty: "ta",
-              h: "A IA precisa saber recusar sem parecer despreparada.",
+              h: "Um por linha, com o nome que o paciente usa. A IA só confirma o que estiver nesta lista.",
             },
             {
               i: "convenios",
               l: "Convênios aceitos",
               r: 1,
               ty: "ta",
-              p: "Unimed\nIpê Saúde\nBradesco Saúde",
+              p: "Unimed\nIpê Saúde\nParticular",
+              h: "Um por linha. Se atende particular, escreva \"Particular\" na lista.",
             },
-            {
-              i: "particular",
-              l: "Atende particular?",
-              r: 1,
-              ty: "radio",
-              o: ["Sim", "Não", "Só alguns exames"],
-            },
-            {
-              i: "pode_preco",
-              l: "A IA pode informar preço no WhatsApp?",
-              r: 1,
-              ty: "radio",
-              o: [
-                "Sim, de tudo",
-                "Sim, só dos principais",
-                "Não, só passa pra recepção",
-              ],
-            },
-            {
-              i: "tabela",
-              l: "Tabela de preços que a IA pode falar",
-              ty: "ta",
-              h: "Só o que ela pode dizer. Ex: Ultrassom abdominal — R$ 180 (particular).",
-            },
-            {
-              i: "pagamento",
-              l: "Formas de pagamento e parcelamento",
-              r: 1,
-              ty: "ta",
-              p: "Pix, dinheiro, débito, crédito em até 3x sem juros",
-            },
-          ],
-        },
-        {
-          t: "Agendamento",
-          d: "Como o paciente sai da conversa com horário marcado.",
-          f: [
-            {
-              i: "como_agenda",
-              l: "Como vocês agendam hoje?",
-              r: 1,
-              ty: "radio",
-              o: [
-                "Agenda de papel",
-                "Planilha",
-                "Google Agenda",
-                "Sistema/software próprio",
-                "Só pelo WhatsApp mesmo",
-              ],
-            },
-            {
-              i: "sistema_nome",
-              l: "Se usa sistema, qual o nome?",
-              p: "Ex: iClinic, Feegow, Amplimed",
-            },
-            {
-              i: "papel_ia",
-              l: "O que a IA deve fazer no agendamento?",
-              r: 1,
-              ty: "radio",
-              o: [
-                "Confirmar o horário sozinha",
-                "Coletar os dados e passar pra recepção confirmar",
-                "Só tirar dúvidas, sem agendar",
-              ],
-              h: "No teste de 7 dias o mais seguro costuma ser coletar e passar pra recepção.",
-            },
-            {
-              i: "dados_obrig",
-              l: "Quais dados a IA deve coletar antes de encaminhar?",
-              r: 1,
-              ty: "check",
-              o: [
-                "Nome completo",
-                "Data de nascimento",
-                "CPF",
-                "Convênio e número da carteirinha",
-                "Qual exame/consulta",
-                "Tem pedido médico?",
-                "Preferência de dia e turno",
-                "Primeira vez na clínica?",
-              ],
-            },
-            {
-              i: "horarios",
-              l: "Horários disponíveis para agendamento, por dia da semana",
-              r: 1,
-              ty: "ta",
-              p: "Seg a sex: 8h às 12h e 13h30 às 18h\nSáb: 8h às 12h\nDom: fechado",
-            },
-            {
-              i: "duracao",
-              l: "Duração média de cada atendimento",
-              p: "Ex: ultrassom 20 min, consulta 30 min",
-            },
-            {
-              i: "antecedencia",
-              l: "Antecedência mínima e máxima para marcar",
-              p: "Ex: mínimo 1 dia útil, agenda aberta por 60 dias",
-            },
-            {
-              i: "remarcacao",
-              l: "Regras de remarcação, cancelamento e falta",
-              r: 1,
-              ty: "ta",
-              p: "Cancelar com 24h de antecedência. Falta sem aviso não bloqueia nova marcação.",
-            },
-            {
-              i: "fila",
-              l: "Existe fila de espera ou encaixe?",
-              ty: "radio",
-              o: ["Sim", "Não"],
-            },
-          ],
-        },
-        {
-          t: "Funcionamento e localização",
-          d: "",
-          f: [
             {
               i: "horario_func",
-              l: "Horário de funcionamento da clínica",
+              l: "Horário de funcionamento",
               r: 1,
               ty: "ta",
               p: "Seg a sex 8h-18h, sáb 8h-12h",
             },
-            {
-              i: "fechamentos",
-              l: "Feriados, recessos ou férias já marcados",
-              ty: "ta",
-            },
-            {
-              i: "como_chegar",
-              l: "Referência de como chegar e estacionamento",
-              ty: "ta",
-              p: "Em frente ao supermercado X, estacionamento gratuito no local",
-            },
-            {
-              i: "acessibilidade",
-              l: "Acessibilidade (rampa, elevador)",
-              ty: "radio",
-              o: ["Totalmente acessível", "Parcialmente", "Não acessível"],
-            },
           ],
         },
         {
-          t: "Limites e escalonamento",
-          d: "Quando a IA deve parar e chamar um humano. Opcional — dá pra completar depois.",
-          f: [
-            {
-              i: "nunca",
-              l: "O que a IA NUNCA pode fazer",
-              ty: "check",
-              o: [
-                "Dar orientação médica ou diagnóstico",
-                "Informar resultado de exame",
-                "Interpretar laudo",
-                "Prometer prazo de resultado",
-                "Negociar desconto",
-                "Confirmar convênio sem checar",
-                "Falar de outra unidade/filial",
-              ],
-            },
-            {
-              i: "nunca_extra",
-              l: "Outras proibições específicas da clínica",
-              ty: "ta",
-            },
-            {
-              i: "situacoes_humano",
-              l: "Alguma situação que a IA deve sempre passar pra um humano?",
-              ty: "ta",
-              h: "Ex: paciente irritado, pedido de reembolso, urgência ou emergência médica, fora do horário de atendimento — o que ela não deve tentar resolver sozinha.",
-              p: "Ex: reclamação vai direto pra recepção. Fora do horário, ela avisa que retornam no próximo dia útil. Emergência médica: orienta a procurar pronto-socorro.",
-            },
-          ],
-        },
-        {
-          t: "Base de conhecimento real",
-          d: "É daqui que sai a diferença entre uma IA genérica e uma que parece da sua equipe. Opcional — dá pra completar depois.",
-          f: [
-            {
-              i: "faq",
-              l: "As 10 perguntas mais frequentes, com a resposta que vocês dão hoje",
-              ty: "ta",
-              h: "Pergunta e resposta, uma embaixo da outra. É o campo mais importante do briefing.",
-              p: "P: Vocês atendem Unimed?\nR: Sim, atendemos Unimed para todos os exames de imagem.\n\nP: Precisa de pedido médico?\nR: Para exames sim, para consulta não.",
-            },
-            {
-              i: "contexto_extra",
-              l: "Algo mais que a IA deveria saber sobre a clínica? (diferenciais, promoções, objeções comuns)",
-              ty: "ta",
-              p: "Ex: o que faz o paciente escolher vocês, promoções ativas, o que costuma fazer alguém desistir de marcar e como vocês contornam.",
-            },
-          ],
-        },
-        {
-          t: "O teste de 7 dias",
+          t: "Confirmação",
           d: "",
           f: [
             {
@@ -1193,7 +914,11 @@
       }
       function filled(f) {
         const v = val(f);
-        return Array.isArray(v) ? v.length > 0 : !!v;
+        if (Array.isArray(v)) {
+          if (f.i === "aceite" && f.ty === "check") return v.length === f.o.length;
+          return v.length > 0;
+        }
+        return !!v;
       }
       function data() {
         const o = {};

@@ -74,6 +74,17 @@ export default async function handler(req, res) {
         "X-Recepta-Webhook-Secret": webhookSecret,
       },
       body: JSON.stringify({
+        // O n8n le varios campos do briefing no TOPO do payload, nao dentro de
+        // `briefing`: o Onboarding exige `cnpj` (14 digitos) no node "Campos
+        // Obrigatorios OK?" e o node "Preparar linha" do workflow Briefing le
+        // whats_resp/email/cidade/numero/tipo_conta/automaticas/volume.
+        // Sem este spread o onboarding para em "Alerta: Campos Faltando" e a
+        // planilha grava colunas vazias. As chaves explicitas abaixo vencem.
+        ...(body?.bruto || {}),
+        // Normalizado pra digitos: o campo do briefing nao tem mascara e o
+        // placeholder sugere "00.000.000/0000-00", entao o valor cru chega com
+        // 18 caracteres e reprova no teste de 14 digitos do n8n.
+        cnpj: String(body?.bruto?.cnpj || "").replace(/\D/g, ""),
         token,
         clinica: body?.bruto?.clinica || "",
         responsavel: body?.bruto?.responsavel || "",
