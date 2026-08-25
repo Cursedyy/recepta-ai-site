@@ -16,10 +16,23 @@
         '<span class="loading-dot"></span>' +
       "</div>" +
     "</div>";
-  document.body.appendChild(overlay);
+
+  /* ── Append overlay when body is ready ── */
+  function appendOverlay() {
+    if (document.body && !document.body.contains(overlay)) {
+      document.body.appendChild(overlay);
+    }
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", appendOverlay, { once: true });
+  } else {
+    appendOverlay();
+  }
 
   /* ── Page enter (on load) ── */
   function enterPage() {
+    appendOverlay();
     /* Hide loading overlay if visible */
     overlay.classList.remove("visible");
 
@@ -64,6 +77,8 @@
     }
 
     event.preventDefault();
+
+    appendOverlay();
 
     /* Show loading overlay */
     overlay.classList.add("visible");
