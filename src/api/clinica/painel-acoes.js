@@ -91,9 +91,12 @@ async function acaoPortalSessao(admin, perfil) {
 
   const dados = await stripeRes.json();
   if (!stripeRes.ok) {
+    // Logar o erro interno mas NAO expor ao cliente (pode conter
+    // informacoes sensiveis do Stripe, como IDs internos ou razoes).
+    console.error("stripe_portal_erro", JSON.stringify(dados?.error));
     return {
       status: 502,
-      corpo: { erro: "falha_stripe", detalhe: dados?.error?.message || null },
+      corpo: { erro: "falha_stripe", detalhe: "Erro ao comunicar com o Stripe. Tente novamente." },
     };
   }
 

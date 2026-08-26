@@ -1,8 +1,22 @@
 import { createSupabaseServerClient } from "../_lib/supabase-server.js";
+import { rateLimit, getClientIp } from "../_lib/rate-limit.js";
+
+// 5 tentativas por IP a cada 5 minutos
+const MAX_TENTATIVAS = 5;
+const JANELA_MS = 5 * 60 * 1000;
 
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store, must-revalidate");
   if (req.method !== "POST") return res.status(405).json({ erro: "metodo" });
+
+  // Rate limiting por IP para prevenir brute force
+  const ip = getClientIp(req);
+  if (rateLimit("login:" + ip, MAX_TENTATIVAS, JANELA_MS)) {
+    return res.status(429).json({
+      erro: "muitas_tentativas",
+      mensagem: "Muitas tentativas. Tente novamente em 5 minutos.",
+    });
+  }
 
   let body;
   try {

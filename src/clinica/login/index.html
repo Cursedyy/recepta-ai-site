@@ -224,6 +224,16 @@
             });
           })
           .then(function (res) {
+            if (res.corpo && res.corpo.erro === "muitas_tentativas") {
+              elErro.textContent = res.corpo.mensagem || "Muitas tentativas. Aguarde.";
+              elBtn.disabled = true;
+              elBtn.textContent = "Bloqueado";
+              setTimeout(function () {
+                elBtn.disabled = false;
+                elBtn.textContent = "Entrar";
+              }, 300000);
+              return;
+            }
             if (!res.ok) {
               elErro.textContent = "Senha ou email incorretos.";
               elBtn.disabled = false;

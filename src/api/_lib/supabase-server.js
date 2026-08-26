@@ -53,7 +53,17 @@ export function createSupabaseServerClient(req, res) {
             : [existing]
           : [];
         const next = cookiesToSet.map(({ name, value, options }) =>
-          serializeCookie(name, value, options),
+          serializeCookie(name, value, {
+            ...options,
+            // Forçar httpOnly em TODOS os cookies de sessão do Supabase.
+            // O cliente JS NUNCA precisa ler esses cookies — o RLS e as
+            // APIs server-side cuidam da autenticação. Isso impede que
+            // XSS roube o access_token JWT.
+            httpOnly: true,
+            secure: true,
+            sameSite: "Lax",
+            path: "/",
+          }),
         );
         res.setHeader("Set-Cookie", prev.concat(next));
       },

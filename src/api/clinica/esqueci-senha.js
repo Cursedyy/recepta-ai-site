@@ -1,12 +1,35 @@
 import { createClient } from "@supabase/supabase-js";
 import { Resend } from "resend";
 import { nanoid } from "nanoid";
+import { rateLimit, getClientIp } from "../_lib/rate-limit.js";
 
 const VALIDADE_HORAS = 2;
+
+// Máximo 3 pedidos de reset por IP a cada 15 minutos
+const MAX_PEDIDOS = 3;
+const JANELA_MS = 15 * 60 * 1000;
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
 
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store, must-revalidate");
   if (req.method !== "POST") return res.status(405).json({ erro: "metodo" });
+
+  // Rate limiting por IP
+  const ip = getClientIp(req);
+  if (rateLimit("esqueci-senha:" + ip, MAX_PEDIDOS, JANELA_MS)) {
+    return res.status(429).json({
+      erro: "muitas_tentativas",
+      mensagem: "Muitos pedidos. Tente novamente em 15 minutos.",
+    });
+  }
 
   let body;
   try {
@@ -37,14 +60,19 @@ export default async function handler(req, res) {
         "Se esse email tiver uma conta, enviamos um link de redefinicao.",
     });
 
-  // ponytail: listUsers sem filtro de email nativo no supabase-js -- scan
-  // simples de 1 pagina, ok pro volume atual de clinicas. Se crescer muito,
-  // trocar por GET /auth/v1/admin/users?email= direto via REST.
-  const { data: listaUsuarios, error: erroLista } =
-    await admin.auth.admin.listUsers({ page: 1, perPage: 200 });
-  if (erroLista) return res.status(500).json({ erro: "falha_buscar_usuario" });
-
-  const usuario = listaUsuarios.users.find(
+  // Busca o usuario diretamente pelo REST API do Supabase Auth, filtrando
+  // por email. Mais eficiente que listUsers (que escaneia tudo).
+  const urlAuth = url + "/auth/v1/admin/users?email=" + encodeURIComponent(email);
+  const authRes = await fetch(urlAuth, {
+    headers: {
+      Authorization: "Bearer " + serviceKey,
+      apikey: serviceKey,
+    },
+  });
+  if (!authRes.ok) return res.status(500).json({ erro: "falha_buscar_usuario" });
+  const authData = await authRes.json();
+  const usuarios = authData?.users || [];
+  const usuario = usuarios.find(
     (u) => (u.email || "").toLowerCase() === email,
   );
   if (!usuario) return respostaGenerica();
@@ -81,10 +109,10 @@ export default async function handler(req, res) {
     html:
       "<p>Recebemos um pedido para redefinir a senha do painel da sua clinica.</p>" +
       '<p><a href="' +
-      linkReset +
+      escapeHtml(linkReset) +
       '">Clique aqui para criar uma nova senha</a></p>' +
       "<p>Este link expira em " +
-      VALIDADE_HORAS +
+      escapeHtml(String(VALIDADE_HORAS)) +
       " horas. Se voce nao pediu isso, ignore este email.</p>",
   });
   if (erroEmail) {

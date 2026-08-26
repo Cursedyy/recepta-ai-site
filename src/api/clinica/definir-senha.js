@@ -1,8 +1,22 @@
 import { createClient } from "@supabase/supabase-js";
+import { rateLimit, getClientIp } from "../_lib/rate-limit.js";
+
+// 5 tentativas de uso de token por IP a cada 15 minutos
+const MAX_TENTATIVAS = 5;
+const JANELA_MS = 15 * 60 * 1000;
 
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store, must-revalidate");
   if (req.method !== "POST") return res.status(405).json({ erro: "metodo" });
+
+  // Rate limiting por IP
+  const ip = getClientIp(req);
+  if (rateLimit("definir-senha:" + ip, MAX_TENTATIVAS, JANELA_MS)) {
+    return res.status(429).json({
+      erro: "muitas_tentativas",
+      mensagem: "Muitas tentativas. Tente novamente em 15 minutos.",
+    });
+  }
 
   let body;
   try {
