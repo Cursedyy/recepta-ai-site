@@ -171,6 +171,47 @@ async function acaoRetomarConversa(admin, perfil, body) {
   return { status: 200, corpo: { ok: true, pausada: false } };
 }
 
+async function acaoRemarcarAgendamento(admin, perfil, body) {
+  const agendamentoId = body?.agendamento_id;
+  const novaDataHora = body?.nova_data_hora;
+  if (!agendamentoId || !novaDataHora)
+    return { status: 400, corpo: { erro: "parametros_invalidos" } };
+
+  // Validar data
+  const novaData = new Date(novaDataHora);
+  if (isNaN(novaData.getTime()) || novaData <= new Date())
+    return { status: 400, corpo: { erro: "data_invalida" } };
+
+  // Buscar o agendamento e verificar ownership
+  const { data: agendamento, error: erroBusca } = await admin
+    .from("agendamentos")
+    .select("id,status,clinica_id")
+    .eq("id", agendamentoId)
+    .maybeSingle();
+
+  if (erroBusca || !agendamento)
+    return { status: 404, corpo: { erro: "agendamento_nao_encontrado" } };
+
+  if (agendamento.clinica_id !== perfil.clinica_id)
+    return { status: 403, corpo: { erro: "sem_permissao" } };
+
+  if (agendamento.status === "cancelado")
+    return { status: 400, corpo: { erro: "agendamento_cancelado" } };
+
+  // Atualizar data/hora
+  const { error: erroUpdate } = await admin
+    .from("agendamentos")
+    .update({ data_hora: novaData.toISOString() })
+    .eq("id", agendamentoId);
+
+  if (erroUpdate) {
+    console.error("remarcar_agendamento_erro", erroUpdate.message);
+    return { status: 500, corpo: { erro: "falha_remarcar" } };
+  }
+
+  return { status: 200, corpo: { ok: true } };
+}
+
 async function acaoCancelarAgendamento(admin, perfil, body) {
   const agendamentoId = body?.agendamento_id;
   if (!agendamentoId)
@@ -341,6 +382,10 @@ export default async function handler(req, res) {
     }
     if (body?.acao === "retomar_conversa") {
       const resultado = await acaoRetomarConversa(admin, perfil, body);
+      return res.status(resultado.status).json(resultado.corpo);
+    }
+    if (body?.acao === "remarcar_agendamento") {
+      const resultado = await acaoRemarcarAgendamento(admin, perfil, body);
       return res.status(resultado.status).json(resultado.corpo);
     }
     if (body?.acao === "cancelar_agendamento") {

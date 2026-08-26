@@ -114,6 +114,23 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--accent);outline-
 .ag-btn-cancelar{flex:0 0 auto;width:28px;height:28px;border:1px solid #D32F2F;background:transparent;color:#D32F2F;border-radius:8px;cursor:pointer;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
 .ag-btn-cancelar:hover{background:#FBEAEA;border-color:#B71C1C}
 .ag-btn-cancelar:disabled{opacity:.5;cursor:default}
+.ag-btn-remarcar{flex:0 0 auto;width:28px;height:28px;border:1px solid var(--accent);background:transparent;color:var(--accent);border-radius:8px;cursor:pointer;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
+.ag-btn-remarcar:hover{background:var(--accent-soft);border-color:var(--accent)}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px}
+.modal-conteudo{background:var(--surface);border-radius:var(--radius);padding:24px;max-width:380px;width:100%;box-shadow:0 20px 60px -20px rgba(0,0,0,0.3)}
+.modal-conteudo h3{font-size:17px;margin-bottom:4px}
+.modal-sub{color:var(--muted);font-size:13px;margin-bottom:18px}
+.modal-linha{margin-bottom:14px}
+.modal-linha label{display:block;font-size:13px;font-weight:600;margin-bottom:5px;color:var(--muted)}
+.modal-linha input{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:9px;font:inherit}
+.modal-linha input:focus{outline:2px solid var(--accent);outline-offset:1px}
+.modal-erro{color:#B3261E;font-size:13px;min-height:18px;margin-bottom:10px}
+.modal-btns{display:flex;gap:10px;justify-content:flex-end}
+.modal-btn-cancelar{padding:9px 18px;border:1px solid var(--line);border-radius:9px;background:transparent;cursor:pointer;font:inherit;font-weight:500}
+.modal-btn-cancelar:hover{background:var(--accent-soft)}
+.modal-btn-confirmar{padding:9px 18px;border:none;border-radius:9px;background:var(--accent);color:#fff;cursor:pointer;font:inherit;font-weight:600}
+.modal-btn-confirmar:hover{filter:brightness(1.08)}
+.modal-btn-confirmar:disabled{opacity:.6;cursor:default}
 .ag-anteriores summary{cursor:pointer;font-size:13.5px;color:var(--muted);padding:4px 0;list-style:none}
 .ag-anteriores summary::-webkit-details-marker{display:none}
 .ag-anteriores summary::before{content:'▸ '}
@@ -263,8 +280,16 @@ function agendaItem(item, passado) {
       text: cancelado ? 'Cancelado' : 'Agendado'
     })
   ];
-  // Botão cancelar para agendamentos futuros não cancelados
+  // Botões cancelar e remarcar para agendamentos futuros não cancelados
   if (!passado && !cancelado) {
+    // Botão remarcar
+    var btnRemarcar = el('button', { type: 'button', class: 'ag-btn-remarcar', text: '✎' });
+    btnRemarcar.title = 'Remarcar agendamento';
+    btnRemarcar.addEventListener('click', function() {
+      abrirModalRemarcar(item);
+    });
+    filhos.push(btnRemarcar);
+    // Botão cancelar
     var btnCancelar = el('button', { type: 'button', class: 'ag-btn-cancelar', text: '✕' });
     btnCancelar.title = 'Cancelar agendamento';
     btnCancelar.addEventListener('click', function() {
@@ -291,6 +316,7 @@ function agendaItem(item, passado) {
             badge.textContent = 'Cancelado';
           }
           btnCancelar.style.display = 'none';
+          btnRemarcar.style.display = 'none';
         })
         .catch(function() {
           btnCancelar.disabled = false;
@@ -302,6 +328,103 @@ function agendaItem(item, passado) {
   }
   return el('div', { class: classes }, filhos);
 }
+
+// Modal de remarcar agendamento
+function abrirModalRemarcar(item) {
+  // Remover modal existente
+  var modalExistente = document.getElementById('modal-remarcar');
+  if (modalExistente) modalExistente.remove();
+
+  var dt = new Date(item.data_hora);
+  var dataAtual = dt.toISOString().slice(0, 10);
+  var horaAtual = dt.toTimeString().slice(0, 5);
+
+  var modal = el('div', { id: 'modal-remarcar', class: 'modal-overlay' });
+  var conteudo = el('div', { class: 'modal-conteudo' });
+
+  var titulo = el('h3', { text: 'Remarcar agendamento' });
+  var subtitulo = el('p', { class: 'modal-sub', text: formatarTelefone(item.paciente_telefone) });
+
+  var linhaData = el('div', { class: 'modal-linha' }, [
+    el('label', { text: 'Nova data' }),
+  ]);
+  var inputData = el('input', { type: 'date', value: dataAtual });
+  linhaData.appendChild(inputData);
+
+  var linhaHora = el('div', { class: 'modal-linha' }, [
+    el('label', { text: 'Novo horário' }),
+  ]);
+  var inputHora = el('input', { type: 'time', value: horaAtual });
+  linhaHora.appendChild(inputHora);
+
+  var erroMsg = el('p', { class: 'modal-erro', text: '' });
+
+  var btnGroup = el('div', { class: 'modal-btns' });
+  var btnCancelarModal = el('button', { type: 'button', class: 'modal-btn-cancelar', text: 'Cancelar' });
+  btnCancelarModal.addEventListener('click', function() { modal.remove(); });
+  var btnConfirmar = el('button', { type: 'button', class: 'modal-btn-confirmar', text: 'Remarcar' });
+  btnConfirmar.addEventListener('click', function() {
+    var novaData = inputData.value;
+    var novaHora = inputHora.value;
+    if (!novaData || !novaHora) {
+      erroMsg.textContent = 'Preencha data e horário.';
+      return;
+    }
+    var novaDataHora = novaData + 'T' + novaHora + ':00';
+    btnConfirmar.disabled = true;
+    btnConfirmar.textContent = 'Remarcando…';
+    erroMsg.textContent = '';
+    fetch('/api/clinica/painel-acoes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        acao: 'remarcar_agendamento',
+        agendamento_id: item.id,
+        nova_data_hora: novaDataHora
+      })
+    })
+      .then(function(r) { return r.json(); })
+      .then(function(res) {
+        if (res.erro) {
+          erroMsg.textContent = res.erro === 'data_invalida' ? 'Data/hora inválida ou no passado.' : 'Erro: ' + res.erro;
+          btnConfirmar.disabled = false;
+          btnConfirmar.textContent = 'Remarcar';
+          return;
+        }
+        modal.remove();
+        // Recarregar agenda
+        fetch('/api/clinica/agenda-listar')
+          .then(function(r) { return r.json(); })
+          .then(function(res) {
+            if (res.ok) renderAgenda(res.agendamentos || []);
+          });
+      })
+      .catch(function() {
+        erroMsg.textContent = 'Falha de conexão.';
+        btnConfirmar.disabled = false;
+        btnConfirmar.textContent = 'Remarcar';
+      });
+  });
+  btnGroup.appendChild(btnCancelarModal);
+  btnGroup.appendChild(btnConfirmar);
+
+  conteudo.appendChild(titulo);
+  conteudo.appendChild(subtitulo);
+  conteudo.appendChild(linhaData);
+  conteudo.appendChild(linhaHora);
+  conteudo.appendChild(erroMsg);
+  conteudo.appendChild(btnGroup);
+  modal.appendChild(conteudo);
+
+  // Fechar ao clicar fora
+  modal.addEventListener('click', function(e) {
+    if (e.target === modal) modal.remove();
+  });
+
+  document.body.appendChild(modal);
+  inputData.focus();
+}
+
 function renderAgenda(agendamentos) {
   var elStatus = document.getElementById('agenda-status');
   var elProximos = document.getElementById('agenda-proximos');
