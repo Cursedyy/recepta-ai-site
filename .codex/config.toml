@@ -1,0 +1,27 @@
+[mcp_servers.AgentsRoom-MCP]
+command = "node"
+args = ['C:\Users\matheus\AppData\Local\Programs\AgentsRoom\resources\app-mcp-server.cjs']
+
+[mcp_servers.AgentsRoom-MCP.env]
+AR_PROJECT_ID = "proj-1787540849728-dh7lac"
+AR_PROJECT_PATH = 'C:\Users\matheus\Desktop\Recepta LP'
+AR_API_BASE_URL = "https://agentsroom.dev"
+AR_SETTINGS_FILE = 'C:\Users\matheus\.agentsroom\settings.json'
+AR_BRIDGE_FILE = 'C:\Users\matheus\.agentsroom\browser-bridge.json'
+
+[mcp_servers.AgentsRoom-QA-Tester]
+command = "node"
+args = ['C:\Users\matheus\AppData\Local\Programs\AgentsRoom\resources\qa-tester-mcp-server.cjs']
+
+[mcp_servers.AgentsRoom-QA-Tester.env]
+AR_BROWSER_BRIDGE_FILE = 'C:\Users\matheus\.agentsroom\browser-bridge.json'
+AR_BROWSER_PROJECT_ID = "proj-1787540849728-dh7lac"
+
+[mcp_servers.AgentsRoom-Test-Runner]
+command = "node"
+args = ['C:\Users\matheus\AppData\Local\Programs\AgentsRoom\resources\test-runner-mcp-server.cjs']
+
+[mcp_servers.AgentsRoom-Test-Runner.env]
+AR_BROWSER_BRIDGE_FILE = 'C:\Users\matheus\.agentsroom\browser-bridge.json'
+AR_BROWSER_PROJECT_ID = "proj-1787540849728-dh7lac"
+AR_PROJECT_PATH = 'C:\Users\matheus\Desktop\Recepta LP'

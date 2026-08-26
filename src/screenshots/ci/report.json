@@ -1,0 +1,290 @@
+{
+  "timestamp": "2026-08-26T22:20:09.632Z",
+  "baseUrl": "https://www.receptaai.com.br",
+  "thresholds": {
+    "maxOverflow": 0,
+    "maxTouchSmall": 20,
+    "maxTotal": 150,
+    "maxCritical": 0
+  },
+  "summary": {
+    "total": 27,
+    "passed": 27,
+    "failed": 0,
+    "errors": 0,
+    "totalIssues": 131,
+    "criticalIssues": 0
+  },
+  "results": [
+    {
+      "page": "home",
+      "viewport": "desktop",
+      "url": "https://www.receptaai.com.br/",
+      "overflow": 0,
+      "touchTargets": 18,
+      "total": 18,
+      "screenshot": "screenshots/ci/home-desktop.png",
+      "passed": true
+    },
+    {
+      "page": "home",
+      "viewport": "tablet",
+      "url": "https://www.receptaai.com.br/",
+      "overflow": 0,
+      "touchTargets": 17,
+      "total": 17,
+      "screenshot": "screenshots/ci/home-tablet.png",
+      "passed": true
+    },
+    {
+      "page": "home",
+      "viewport": "mobile",
+      "url": "https://www.receptaai.com.br/",
+      "overflow": 0,
+      "touchTargets": 5,
+      "total": 5,
+      "screenshot": "screenshots/ci/home-mobile.png",
+      "passed": true
+    },
+    {
+      "page": "briefing",
+      "viewport": "desktop",
+      "url": "https://www.receptaai.com.br/briefing",
+      "overflow": 0,
+      "touchTargets": 1,
+      "total": 1,
+      "screenshot": "screenshots/ci/briefing-desktop.png",
+      "passed": true
+    },
+    {
+      "page": "briefing",
+      "viewport": "tablet",
+      "url": "https://www.receptaai.com.br/briefing",
+      "overflow": 0,
+      "touchTargets": 1,
+      "total": 1,
+      "screenshot": "screenshots/ci/briefing-tablet.png",
+      "passed": true
+    },
+    {
+      "page": "briefing",
+      "viewport": "mobile",
+      "url": "https://www.receptaai.com.br/briefing",
+      "overflow": 0,
+      "touchTargets": 1,
+      "total": 1,
+      "screenshot": "screenshots/ci/briefing-mobile.png",
+      "passed": true
+    },
+    {
+      "page": "login",
+      "viewport": "desktop",
+      "url": "https://www.receptaai.com.br/clinica/login/",
+      "overflow": 0,
+      "touchTargets": 2,
+      "total": 2,
+      "screenshot": "screenshots/ci/login-desktop.png",
+      "passed": true
+    },
+    {
+      "page": "login",
+      "viewport": "tablet",
+      "url": "https://www.receptaai.com.br/clinica/login/",
+      "overflow": 0,
+      "touchTargets": 2,
+      "total": 2,
+      "screenshot": "screenshots/ci/login-tablet.png",
+      "passed": true
+    },
+    {
+      "page": "login",
+      "viewport": "mobile",
+      "url": "https://www.receptaai.com.br/clinica/login/",
+      "overflow": 0,
+      "touchTargets": 2,
+      "total": 2,
+      "screenshot": "screenshots/ci/login-mobile.png",
+      "passed": true
+    },
+    {
+      "page": "definir-senha",
+      "viewport": "desktop",
+      "url": "https://www.receptaai.com.br/clinica/definir-senha/",
+      "overflow": 0,
+      "touchTargets": 1,
+      "total": 1,
+      "screenshot": "screenshots/ci/definir-senha-desktop.png",
+      "passed": true
+    },
+    {
+      "page": "definir-senha",
+      "viewport": "tablet",
+      "url": "https://www.receptaai.com.br/clinica/definir-senha/",
+      "overflow": 0,
+      "touchTargets": 1,
+      "total": 1,
+      "screenshot": "screenshots/ci/definir-senha-tablet.png",
+      "passed": true
+    },
+    {
+      "page": "definir-senha",
+      "viewport": "mobile",
+      "url": "https://www.receptaai.com.br/clinica/definir-senha/",
+      "overflow": 0,
+      "touchTargets": 1,
+      "total": 1,
+      "screenshot": "screenshots/ci/definir-senha-mobile.png",
+      "passed": true
+    },
+    {
+      "page": "esqueci-senha",
+      "viewport": "desktop",
+      "url": "https://www.receptaai.com.br/clinica/esqueci-senha/",
+      "overflow": 0,
+      "touchTargets": 2,
+      "total": 2,
+      "screenshot": "screenshots/ci/esqueci-senha-desktop.png",
+      "passed": true
+    },
+    {
+      "page": "esqueci-senha",
+      "viewport": "tablet",
+      "url": "https://www.receptaai.com.br/clinica/esqueci-senha/",
+      "overflow": 0,
+      "touchTargets": 2,
+      "total": 2,
+      "screenshot": "screenshots/ci/esqueci-senha-tablet.png",
+      "passed": true
+    },
+    {
+      "page": "esqueci-senha",
+      "viewport": "mobile",
+      "url": "https://www.receptaai.com.br/clinica/esqueci-senha/",
+      "overflow": 0,
+      "touchTargets": 2,
+      "total": 2,
+      "screenshot": "screenshots/ci/esqueci-senha-mobile.png",
+      "passed": true
+    },
+    {
+      "page": "painel",
+      "viewport": "desktop",
+      "url": "https://www.receptaai.com.br/painel/",
+      "overflow": 0,
+      "touchTargets": 0,
+      "total": 0,
+      "screenshot": "screenshots/ci/painel-desktop.png",
+      "passed": true
+    },
+    {
+      "page": "painel",
+      "viewport": "tablet",
+      "url": "https://www.receptaai.com.br/painel/",
+      "overflow": 0,
+      "touchTargets": 0,
+      "total": 0,
+      "screenshot": "screenshots/ci/painel-tablet.png",
+      "passed": true
+    },
+    {
+      "page": "painel",
+      "viewport": "mobile",
+      "url": "https://www.receptaai.com.br/painel/",
+      "overflow": 0,
+      "touchTargets": 0,
+      "total": 0,
+      "screenshot": "screenshots/ci/painel-mobile.png",
+      "passed": true
+    },
+    {
+      "page": "termos",
+      "viewport": "desktop",
+      "url": "https://www.receptaai.com.br/termos/",
+      "overflow": 0,
+      "touchTargets": 19,
+      "total": 19,
+      "screenshot": "screenshots/ci/termos-desktop.png",
+      "passed": true
+    },
+    {
+      "page": "termos",
+      "viewport": "tablet",
+      "url": "https://www.receptaai.com.br/termos/",
+      "overflow": 0,
+      "touchTargets": 19,
+      "total": 19,
+      "screenshot": "screenshots/ci/termos-tablet.png",
+      "passed": true
+    },
+    {
+      "page": "termos",
+      "viewport": "mobile",
+      "url": "https://www.receptaai.com.br/termos/",
+      "overflow": 0,
+      "touchTargets": 1,
+      "total": 1,
+      "screenshot": "screenshots/ci/termos-mobile.png",
+      "passed": true
+    },
+    {
+      "page": "privacidade",
+      "viewport": "desktop",
+      "url": "https://www.receptaai.com.br/privacidade/",
+      "overflow": 0,
+      "touchTargets": 15,
+      "total": 15,
+      "screenshot": "screenshots/ci/privacidade-desktop.png",
+      "passed": true
+    },
+    {
+      "page": "privacidade",
+      "viewport": "tablet",
+      "url": "https://www.receptaai.com.br/privacidade/",
+      "overflow": 0,
+      "touchTargets": 15,
+      "total": 15,
+      "screenshot": "screenshots/ci/privacidade-tablet.png",
+      "passed": true
+    },
+    {
+      "page": "privacidade",
+      "viewport": "mobile",
+      "url": "https://www.receptaai.com.br/privacidade/",
+      "overflow": 0,
+      "touchTargets": 1,
+      "total": 1,
+      "screenshot": "screenshots/ci/privacidade-mobile.png",
+      "passed": true
+    },
+    {
+      "page": "trial",
+      "viewport": "desktop",
+      "url": "https://www.receptaai.com.br/t/",
+      "overflow": 0,
+      "touchTargets": 1,
+      "total": 1,
+      "screenshot": "screenshots/ci/trial-desktop.png",
+      "passed": true
+    },
+    {
+      "page": "trial",
+      "viewport": "tablet",
+      "url": "https://www.receptaai.com.br/t/",
+      "overflow": 0,
+      "touchTargets": 1,
+      "total": 1,
+      "screenshot": "screenshots/ci/trial-tablet.png",
+      "passed": true
+    },
+    {
+      "page": "trial",
+      "viewport": "mobile",
+      "url": "https://www.receptaai.com.br/t/",
+      "overflow": 0,
+      "touchTargets": 1,
+      "total": 1,
+      "screenshot": "screenshots/ci/trial-mobile.png",
+      "passed": true
+    }
+  ]
+}

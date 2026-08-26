@@ -213,6 +213,58 @@ async function acaoCancelarAgendamento(admin, perfil, body) {
   return { status: 200, corpo: { ok: true } };
 }
 
+function escapeCsv(valor) {
+  const str = String(valor || "");
+  if (str.includes(",") || str.includes('"') || str.includes("\n")) {
+    return '"' + str.replace(/"/g, '""') + '"';
+  }
+  return str;
+}
+
+async function acaoExportar(admin, perfil, query) {
+  const clinicaFiltro = query?.clinica || null;
+  const dataInicio = query?.inicio || null;
+  const dataFim = query?.fim || null;
+
+  let q = admin
+    .from("conversas")
+    .select("telefone,clinica,role,mensagem,criado_em")
+    .order("criado_em", { ascending: true });
+
+  if (perfil.papel === "clinica" && perfil.clinica_id) {
+    const { data: clinicaRow } = await admin
+      .from("clinicas")
+      .select("clinica")
+      .eq("id", perfil.clinica_id)
+      .maybeSingle();
+    if (clinicaRow?.clinica) q = q.eq("clinica", clinicaRow.clinica);
+  } else if (clinicaFiltro) {
+    q = q.eq("clinica", clinicaFiltro);
+  }
+
+  if (dataInicio) q = q.gte("criado_em", dataInicio);
+  if (dataFim) q = q.lte("criado_em", dataFim);
+
+  const { data: conversas, error } = await q.limit(10000);
+  if (error) return { status: 500, corpo: { erro: "falha_exportar" } };
+  if (!conversas || !conversas.length)
+    return { status: 200, corpo: { ok: true, csv: "", total: 0 } };
+
+  const header = "Data,Hora,Telefone,Clínica,Papel,Mensagem";
+  const linhas = conversas.map((c) => {
+    const dt = new Date(c.criado_em);
+    const data = dt.toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });
+    const hora = dt.toLocaleTimeString("pt-BR", { timeZone: "America/Sao_Paulo", hour: "2-digit", minute: "2-digit" });
+    return [
+      escapeCsv(data), escapeCsv(hora), escapeCsv(c.telefone),
+      escapeCsv(c.clinica), escapeCsv(c.role === "ia" ? "IA" : "Paciente"),
+      escapeCsv(c.mensagem)
+    ].join(",");
+  });
+
+  return { status: 200, corpo: { ok: true, csv: header + "\n" + linhas.join("\n"), total: conversas.length } };
+}
+
 async function acaoMetricas(admin, perfil) {
   const { data: clinicaRow } = await admin
     .from("clinicas")
@@ -264,6 +316,10 @@ export default async function handler(req, res) {
     const acao = req.query?.acao;
     if (acao === "metricas") {
       const resultado = await acaoMetricas(admin, perfil);
+      return res.status(resultado.status).json(resultado.corpo);
+    }
+    if (acao === "exportar") {
+      const resultado = await acaoExportar(admin, perfil, req.query);
       return res.status(resultado.status).json(resultado.corpo);
     }
     return res.status(400).json({ erro: "acao_invalida" });
