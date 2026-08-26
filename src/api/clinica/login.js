@@ -11,7 +11,7 @@ export default async function handler(req, res) {
 
   // Rate limiting por IP para prevenir brute force
   const ip = getClientIp(req);
-  const rl = rateLimit("login:" + ip, MAX_TENTATIVAS, JANELA_MS);
+  const rl = await rateLimit("login:" + ip, MAX_TENTATIVAS, JANELA_MS);
   if (rl.blocked) {
     const minutosReset = Math.ceil(rl.resetMs / 60000);
     return res.status(429).json({
