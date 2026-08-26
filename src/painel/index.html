@@ -18,6 +18,9 @@
       href="/img/favicon-512.png"
     />
     <link rel="apple-touch-icon" href="/img/apple-touch-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <style>
       :root {
         --bg: #fafafd;
@@ -28,7 +31,10 @@
         --accent: #26205c;
         --accent-ink: #ffffff;
         --accent-soft: #f3f2f5;
+        --accent-2: #afa8eb;
+        --header-bg: #151749;
         --radius: 14px;
+        --ghost: #eceafa;
       }
       * {
         box-sizing: border-box;
@@ -39,12 +45,13 @@
         background: var(--bg);
         color: var(--ink);
         font-family:
-          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
-          Arial, sans-serif;
+          "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          Helvetica, Arial, sans-serif;
         font-size: 15px;
         line-height: 1.5;
         height: 100vh;
         overflow: hidden;
+        -webkit-font-smoothing: antialiased;
       }
       button,
       input {
@@ -123,7 +130,7 @@
         align-items: center;
         justify-content: space-between;
         padding: 12px 18px;
-        background: var(--ink);
+        background: linear-gradient(90deg, var(--header-bg) 0%, #241f63 58%, #332a80 100%);
         color: #fff;
         flex: 0 0 auto;
       }
@@ -275,17 +282,19 @@
         display: block;
         width: 100%;
         text-align: left;
-        padding: 11px 16px 11px 22px;
+        padding: 12px 16px 12px 22px;
         border: none;
         border-bottom: 1px solid var(--line);
         background: transparent;
         cursor: pointer;
+        transition: background 0.15s;
       }
       .paciente-item:hover {
-        background: var(--accent-soft);
+        background: var(--ghost);
       }
       .paciente-item.ativo {
         background: var(--accent-soft);
+        border-left: 3px solid var(--accent);
       }
       .paciente-item .linha1 {
         display: flex;
@@ -344,6 +353,31 @@
       #conversa-head .info .sub {
         font-size: 11.5px;
         color: var(--muted);
+      }
+      #conversa-head .info {
+        flex: 1;
+        min-width: 0;
+      }
+      .btn-pausar {
+        flex: 0 0 auto;
+        padding: 6px 14px;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: var(--surface);
+        color: var(--accent);
+        font-size: 12.5px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s;
+        white-space: nowrap;
+      }
+      .btn-pausar:hover {
+        background: var(--accent-soft);
+      }
+      .btn-pausar.pausada {
+        background: #fef3cd;
+        border-color: #f59e0b;
+        color: #92400e;
       }
       @keyframes pulse {
         0%,
@@ -506,6 +540,7 @@
               <b id="conversa-tel"></b>
               <div class="sub" id="conversa-clinica"></div>
             </div>
+            <button type="button" id="btn-pausar-ia" class="btn-pausar" style="display:none">Pausar IA</button>
           </div>
           <div id="msgs">
             <div class="placeholder">
@@ -542,6 +577,7 @@
       var listaEmVoo = false;
       var conversaEmVoo = false;
       var meuPapel = null;
+      var iaPausada = false;
 
       function fmtHora(iso) {
         try {
@@ -711,7 +747,13 @@
         elMsgs.appendChild(criarBolha(msg));
       }
 
+      var canalRealtime = null;
+
       function pararPoll() {
+        if (canalRealtime) {
+          supabase.removeChannel(canalRealtime);
+          canalRealtime = null;
+        }
         if (pollTimer) {
           clearInterval(pollTimer);
           pollTimer = null;
@@ -796,19 +838,50 @@
         refrescarConversa();
       }
 
-      function iniciarPoll() {
+      function iniciarRealtime() {
         pararPoll();
-        pollTimer = setInterval(tick, 4000);
+        canalRealtime = supabase
+          .channel("conversas-realtime")
+          .on(
+            "postgres_changes",
+            { event: "INSERT", schema: "public", table: "conversas" },
+            function (payload) {
+              var nova = payload.new;
+              // Atualizar lista
+              refrescarLista();
+              // Se a conversa aberta recebeu mensagem nova, atualizar
+              if (
+                atual &&
+                nova.telefone === atual.telefone &&
+                nova.clinica === atual.clinica
+              ) {
+                refrescarConversa();
+              }
+            },
+          )
+          .subscribe(function (status) {
+            atualizarConexao(status === "SUBSCRIBED");
+          });
+      }
+
+      function atualizarBtnPausar() {
+        var btn = document.getElementById("btn-pausar-ia");
+        if (!atual) { btn.style.display = "none"; return; }
+        btn.style.display = "";
+        btn.textContent = iaPausada ? "Retomar IA" : "Pausar IA";
+        btn.classList.toggle("pausada", iaPausada);
       }
 
       function abrirConversa(item) {
         atual = { telefone: item.telefone, clinica: item.clinica };
         ultimaChaveDia = null;
+        iaPausada = false;
         elApp.classList.add("conversa-aberta");
         elHead.style.display = "flex";
         elConversaTel.textContent = formatarTelefone(item.telefone);
         elConversaClinica.textContent = item.clinica;
         elMsgs.innerHTML = "";
+        atualizarBtnPausar();
         var carregando = document.createElement("div");
         carregando.className = "placeholder";
         carregando.textContent = "Carregando…";
@@ -1030,7 +1103,7 @@
             mostrarApp();
             refrescarLista();
             atualizarConexao(true);
-            iniciarPoll();
+            iniciarRealtime();
           });
       }
 
@@ -1075,11 +1148,43 @@
           elApp.classList.remove("conversa-aberta");
         });
 
-      // Aba volta ao foco: nao espera o proximo tick (que pode estar atrasado por
-      // throttling de aba em background) - refresca na hora.
+      document
+        .getElementById("btn-pausar-ia")
+        .addEventListener("click", function () {
+          if (!atual) return;
+          var btn = this;
+          btn.disabled = true;
+          var acao = iaPausada ? "retomar_conversa" : "pausar_conversa";
+          fetch("/api/clinica/painel-acoes", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              acao: acao,
+              telefone: atual.telefone,
+              clinica: atual.clinica,
+            }),
+          })
+            .then(function (r) {
+              return r.json().then(function (j) {
+                return { ok: r.ok, corpo: j };
+              });
+            })
+            .then(function (res) {
+              btn.disabled = false;
+              if (!res.ok) return;
+              iaPausada = !iaPausada;
+              atualizarBtnPausar();
+            })
+            .catch(function () {
+              btn.disabled = false;
+            });
+        });
+
+      // Aba volta ao foco: refresca dados mesmo se Realtime perdeu algo.
       document.addEventListener("visibilitychange", function () {
-        if (document.visibilityState === "visible" && pollTimer) {
-          tick();
+        if (document.visibilityState === "visible") {
+          refrescarLista();
+          if (atual) refrescarConversa();
         }
       });
 

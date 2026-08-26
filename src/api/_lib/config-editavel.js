@@ -9,6 +9,9 @@ const DIAS = [
 ];
 const HORA_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
 const MENSAGEM_MAX = 300;
+const REGRAS_MAX = 2000;
+const FAQ_ITEM_MAX = 500;
+const FAQ_MAX_ITENS = 20;
 
 export function configEditavelPadrao() {
   return {
@@ -16,6 +19,8 @@ export function configEditavelPadrao() {
     horarios: Object.fromEntries(DIAS.map((dia) => [dia, []])),
     convenios: [],
     mensagem_identidade: "",
+    regras_ia: "",
+    faq: [],
   };
 }
 
@@ -69,6 +74,35 @@ export function validarConfigEditavel(input) {
     return { erro: "mensagem_invalida" };
   }
 
+  // regras_ia: string opcional, max 2000 chars
+  const regras = typeof input.regras_ia === "string" ? input.regras_ia : "";
+  if (regras.length > REGRAS_MAX) {
+    return { erro: "regras_ia_muito_longo" };
+  }
+
+  // faq: array opcional de {pergunta, resposta}
+  const faq = Array.isArray(input.faq) ? input.faq : [];
+  if (faq.length > FAQ_MAX_ITENS) {
+    return { erro: "faq_muitos_itens" };
+  }
+  for (const item of faq) {
+    if (
+      !item ||
+      typeof item.pergunta !== "string" ||
+      !item.pergunta.trim() ||
+      typeof item.resposta !== "string" ||
+      !item.resposta.trim()
+    ) {
+      return { erro: "faq_invalido" };
+    }
+    if (
+      item.pergunta.length > FAQ_ITEM_MAX ||
+      item.resposta.length > FAQ_ITEM_MAX
+    ) {
+      return { erro: "faq_item_muito_longo" };
+    }
+  }
+
   const limpo = {
     precos: precos.map((p) => ({
       nome: p.nome.trim(),
@@ -82,6 +116,11 @@ export function validarConfigEditavel(input) {
     ),
     convenios: convenios.map((c) => c.trim()),
     mensagem_identidade: mensagem.trim(),
+    regras_ia: regras.trim(),
+    faq: faq.map((item) => ({
+      pergunta: item.pergunta.trim(),
+      resposta: item.resposta.trim(),
+    })),
   };
 
   return { ok: true, limpo };

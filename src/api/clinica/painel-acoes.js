@@ -103,6 +103,59 @@ async function acaoPortalSessao(admin, perfil) {
   return { status: 200, corpo: { ok: true, url: dados.url } };
 }
 
+async function acaoPausarConversa(admin, perfil, body) {
+  const telefone = body?.telefone;
+  const clinica = body?.clinica;
+  if (!telefone || !clinica)
+    return { status: 400, corpo: { erro: "parametros_invalidos" } };
+
+  // Verificar se a conversa existe e pertence à clínica do usuário
+  const { data: conversa } = await admin
+    .from("conversas")
+    .select("id")
+    .eq("telefone", telefone)
+    .eq("clinica", clinica)
+    .limit(1)
+    .maybeSingle();
+
+  if (!conversa)
+    return { status: 404, corpo: { erro: "conversa_nao_encontrada" } };
+
+  // Usar upsert para marcar como pausada
+  const { error } = await admin.from("conversas_pausadas").upsert(
+    { telefone, clinica, pausada: true, pausada_em: new Date().toISOString() },
+    { onConflict: "telefone,clinica" }
+  );
+
+  if (error) {
+    // Se a tabela não existe, criar via SQL inline
+    console.error("pausar_conversa_erro", error.message);
+    return { status: 500, corpo: { erro: "falha_pausar" } };
+  }
+
+  return { status: 200, corpo: { ok: true, pausada: true } };
+}
+
+async function acaoRetomarConversa(admin, perfil, body) {
+  const telefone = body?.telefone;
+  const clinica = body?.clinica;
+  if (!telefone || !clinica)
+    return { status: 400, corpo: { erro: "parametros_invalidos" } };
+
+  const { error } = await admin
+    .from("conversas_pausadas")
+    .delete()
+    .eq("telefone", telefone)
+    .eq("clinica", clinica);
+
+  if (error) {
+    console.error("retomar_conversa_erro", error.message);
+    return { status: 500, corpo: { erro: "falha_retomar" } };
+  }
+
+  return { status: 200, corpo: { ok: true, pausada: false } };
+}
+
 async function acaoMetricas(admin, perfil) {
   const { data: clinicaRow } = await admin
     .from("clinicas")
@@ -173,6 +226,14 @@ export default async function handler(req, res) {
     }
     if (body?.acao === "portal_sessao") {
       const resultado = await acaoPortalSessao(admin, perfil);
+      return res.status(resultado.status).json(resultado.corpo);
+    }
+    if (body?.acao === "pausar_conversa") {
+      const resultado = await acaoPausarConversa(admin, perfil, body);
+      return res.status(resultado.status).json(resultado.corpo);
+    }
+    if (body?.acao === "retomar_conversa") {
+      const resultado = await acaoRetomarConversa(admin, perfil, body);
       return res.status(resultado.status).json(resultado.corpo);
     }
     return res.status(400).json({ erro: "acao_invalida" });

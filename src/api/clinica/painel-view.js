@@ -91,6 +91,10 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--accent);outline-
 .status.ok{color:#1E7A3D}
 .status.erro{color:#B3261E}
 .vazio{color:var(--muted);font-size:13px;padding:4px 0}
+.faq-item{border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px;background:var(--bg)}
+.faq-cabeca{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.faq-cabeca input{flex:1;min-width:0}
+.faq-item textarea{width:100%;min-height:56px}
 .ag-lista{display:flex;flex-direction:column;gap:8px}
 .ag-item{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
 .ag-item.ag-passado{opacity:.55}
@@ -168,6 +172,20 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--accent);outline-
     <div class="contador"><span id="contador-mensagem">0</span>/300</div>
   </section>
 
+  <section class="bloco">
+    <h2>Regras da IA</h2>
+    <p class="desc">Instruções personalizadas para o comportamento da secretária virtual. Exemplo: "Ao mencionar urgência, encaminhe imediatamente para o humano." ou "Nunca informe valores de exames não cadastrados."</p>
+    <textarea id="regras-ia" maxlength="2000" rows="6" placeholder="Ex: Ao paciente pedir cancelamento, sempre ofereça remarcação antes de confirmar."></textarea>
+    <div class="contador"><span id="contador-regras">0</span>/2000</div>
+  </section>
+
+  <section class="bloco">
+    <h2>Perguntas Frequentes (FAQ)</h2>
+    <p class="desc">Adicione perguntas e respostas que a IA usa como base. Útil para dúvidas recorrentes sobre a clínica.</p>
+    <div id="lista-faq"></div>
+    <button type="button" class="btn-add" id="add-faq">+ Adicionar pergunta</button>
+  </section>
+
   <div class="rodape-salvar">
     <button type="button" class="btn-salvar" id="btn-salvar">Salvar alterações</button>
     <span class="status" id="status-salvar"></span>
@@ -201,6 +219,8 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--accent);outline-
 var CONFIG = ${jsonParaScript(config)};
 var DIAS = ${jsonParaScript(DIAS)};
 var NOME_DIA = ${jsonParaScript(NOME_DIA)};
+if (!CONFIG.regras_ia) CONFIG.regras_ia = '';
+if (!Array.isArray(CONFIG.faq)) CONFIG.faq = [];
 
 function el(tag, attrs, filhos) {
   var e = document.createElement(tag);
@@ -373,6 +393,44 @@ renderPrecos();
 renderConvenios();
 renderHorarios();
 
+// --- regras ia ---
+var elRegras = document.getElementById('regras-ia');
+var elContadorRegras = document.getElementById('contador-regras');
+elRegras.value = CONFIG.regras_ia || '';
+elContadorRegras.textContent = elRegras.value.length;
+elRegras.addEventListener('input', function(){
+  elContadorRegras.textContent = elRegras.value.length;
+});
+
+// --- faq ---
+var elListaFaq = document.getElementById('lista-faq');
+function renderFaq(){
+  elListaFaq.innerHTML = '';
+  if (!CONFIG.faq.length) {
+    elListaFaq.appendChild(el('p', { class: 'vazio', text: 'Nenhuma pergunta cadastrada.' }));
+  }
+  CONFIG.faq.forEach(function(item, i){
+    var wrap = el('div', { class: 'faq-item' });
+    var inputPergunta = el('input', { type: 'text', placeholder: 'Pergunta (ex: Vocês atendem Unimed?)', value: item.pergunta });
+    inputPergunta.addEventListener('input', function(){ CONFIG.faq[i].pergunta = inputPergunta.value; });
+    var textareaResposta = el('textarea', { placeholder: 'Resposta da IA (ex: Sim, atendemos Unimed e Amil.)', rows: '2' });
+    textareaResposta.value = item.resposta;
+    textareaResposta.addEventListener('input', function(){ CONFIG.faq[i].resposta = textareaResposta.value; });
+    var btnDel = el('button', { type: 'button', class: 'btn-remover', text: '×' });
+    btnDel.addEventListener('click', function(){ CONFIG.faq.splice(i, 1); renderFaq(); });
+    var cabeca = el('div', { class: 'faq-cabeca' }, [inputPergunta, btnDel]);
+    wrap.appendChild(cabeca);
+    wrap.appendChild(textareaResposta);
+    elListaFaq.appendChild(wrap);
+  });
+}
+document.getElementById('add-faq').addEventListener('click', function(){
+  if (CONFIG.faq.length >= 20) return;
+  CONFIG.faq.push({ pergunta: '', resposta: '' });
+  renderFaq();
+});
+renderFaq();
+
 // --- salvar ---
 var elStatus = document.getElementById('status-salvar');
 var elBtnSalvar = document.getElementById('btn-salvar');
@@ -386,7 +444,9 @@ elBtnSalvar.addEventListener('click', function(){
     precos: CONFIG.precos,
     horarios: CONFIG.horarios,
     convenios: CONFIG.convenios,
-    mensagem_identidade: elMensagem.value
+    mensagem_identidade: elMensagem.value,
+    regras_ia: elRegras.value,
+    faq: CONFIG.faq
   };
 
   fetch('/api/clinica/config-salvar', {
@@ -407,6 +467,9 @@ elBtnSalvar.addEventListener('click', function(){
       renderPrecos();
       renderConvenios();
       renderHorarios();
+      renderFaq();
+      elRegras.value = CONFIG.regras_ia || '';
+      elContadorRegras.textContent = elRegras.value.length;
       elStatus.textContent = 'Salvo!';
       elStatus.className = 'status ok';
     })
@@ -592,6 +655,13 @@ export default async function handler(req, res) {
       typeof configSalvo.mensagem_identidade === "string"
         ? configSalvo.mensagem_identidade
         : padrao.mensagem_identidade,
+    regras_ia:
+      typeof configSalvo.regras_ia === "string"
+        ? configSalvo.regras_ia
+        : padrao.regras_ia,
+    faq: Array.isArray(configSalvo.faq)
+      ? configSalvo.faq
+      : padrao.faq,
   };
 
   const tempoPausaAtual =
