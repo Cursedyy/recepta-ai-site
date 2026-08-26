@@ -176,25 +176,19 @@ async function acaoCancelarAgendamento(admin, perfil, body) {
   if (!agendamentoId)
     return { status: 400, corpo: { erro: "parametros_invalidos" } };
 
-  // Verificar se a clínica existe
-  const { data: clinicaRow } = await admin
-    .from("clinicas")
-    .select("clinica")
-    .eq("id", perfil.clinica_id)
-    .maybeSingle();
-
-  if (!clinicaRow)
-    return { status: 404, corpo: { erro: "clinica_nao_encontrada" } };
-
-  // Buscar o agendamento e verificar pertence à clínica
+  // Buscar o agendamento e verificar pertence à clínica do usuário
   const { data: agendamento, error: erroBusca } = await admin
     .from("agendamentos")
-    .select("id,status")
+    .select("id,status,clinica_id")
     .eq("id", agendamentoId)
     .maybeSingle();
 
   if (erroBusca || !agendamento)
     return { status: 404, corpo: { erro: "agendamento_nao_encontrado" } };
+
+  // Ownership: verificar se o agendamento pertence à clínica do usuário
+  if (agendamento.clinica_id !== perfil.clinica_id)
+    return { status: 403, corpo: { erro: "sem_permissao" } };
 
   if (agendamento.status === "cancelado")
     return { status: 200, corpo: { ok: true, mensagem: "ja_cancelado" } };
