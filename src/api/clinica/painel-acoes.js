@@ -103,34 +103,45 @@ async function acaoPortalSessao(admin, perfil) {
   return { status: 200, corpo: { ok: true, url: dados.url } };
 }
 
+async function resolverNomeClinica(admin, perfil) {
+  const { data } = await admin
+    .from("clinicas")
+    .select("clinica")
+    .eq("id", perfil.clinica_id)
+    .maybeSingle();
+  return data?.clinica || null;
+}
+
 async function acaoPausarConversa(admin, perfil, body) {
   const telefone = body?.telefone;
-  const clinica = body?.clinica;
-  if (!telefone || !clinica)
+  const clinicaBody = body?.clinica;
+  if (!telefone || !clinicaBody)
     return { status: 400, corpo: { erro: "parametros_invalidos" } };
 
-  // Verificar se a conversa existe e pertence à clínica do usuário
+  // Verificar ownership: o nome da clínica no body deve bater com a do perfil
+  const nomeClinica = await resolverNomeClinica(admin, perfil);
+  if (!nomeClinica || nomeClinica !== clinicaBody)
+    return { status: 403, corpo: { erro: "sem_permissao" } };
+
   const { data: conversa } = await admin
     .from("conversas")
     .select("id")
     .eq("telefone", telefone)
-    .eq("clinica", clinica)
+    .eq("clinica", nomeClinica)
     .limit(1)
     .maybeSingle();
 
   if (!conversa)
     return { status: 404, corpo: { erro: "conversa_nao_encontrada" } };
 
-  // Usar upsert para marcar como pausada
   const { error } = await admin.from("conversas_pausadas").upsert(
-    { telefone, clinica, pausada: true, pausada_em: new Date().toISOString() },
+    { telefone, clinica: nomeClinica, pausada: true, pausada_em: new Date().toISOString() },
     { onConflict: "telefone,clinica" }
   );
 
   if (error) {
-    // Se a tabela não existe, criar via SQL inline
     console.error("pausar_conversa_erro", error.message);
-    return { status: 500, corpo: { erro: "falha_pausar" } };
+    return { status: 500, corpo: { erro: "falha_pausar", detalhe: "Tabela conversas_pausadas não existe. Execute o SQL de migração." } };
   }
 
   return { status: 200, corpo: { ok: true, pausada: true } };
@@ -138,19 +149,23 @@ async function acaoPausarConversa(admin, perfil, body) {
 
 async function acaoRetomarConversa(admin, perfil, body) {
   const telefone = body?.telefone;
-  const clinica = body?.clinica;
-  if (!telefone || !clinica)
+  const clinicaBody = body?.clinica;
+  if (!telefone || !clinicaBody)
     return { status: 400, corpo: { erro: "parametros_invalidos" } };
+
+  const nomeClinica = await resolverNomeClinica(admin, perfil);
+  if (!nomeClinica || nomeClinica !== clinicaBody)
+    return { status: 403, corpo: { erro: "sem_permissao" } };
 
   const { error } = await admin
     .from("conversas_pausadas")
     .delete()
     .eq("telefone", telefone)
-    .eq("clinica", clinica);
+    .eq("clinica", nomeClinica);
 
   if (error) {
     console.error("retomar_conversa_erro", error.message);
-    return { status: 500, corpo: { erro: "falha_retomar" } };
+    return { status: 500, corpo: { erro: "falha_retomar", detalhe: "Tabela conversas_pausadas não existe. Execute o SQL de migração." } };
   }
 
   return { status: 200, corpo: { ok: true, pausada: false } };

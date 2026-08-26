@@ -30,7 +30,8 @@ function jsonParaScript(obj) {
   return JSON.stringify(obj)
     .replace(/</g, "\\u003c")
     .replace(/>/g, "\\u003e")
-    .replace(/&/g, "\\u0026");
+    .replace(/&/g, "\\u0026")
+    .replace(/\//g, "\\u002f");
 }
 
 function paginaPainel(nomeClinica, config, tempoPausaAtual, assinatura) {
@@ -44,15 +45,19 @@ function paginaPainel(nomeClinica, config, tempoPausaAtual, assinatura) {
 <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32.png">
 <link rel="icon" type="image/png" sizes="512x512" href="/img/favicon-512.png">
 <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#FAFAFD;--surface:#ffffff;--ink:#100D22;--muted:#302E47;--line:#E7E5F2;
-  --accent:#26205C;--accent-ink:#ffffff;--accent-soft:#F3F2F5;--radius:14px;
+  --accent:#26205C;--accent-ink:#ffffff;--accent-soft:#F3F2F5;--accent-2:#afa8eb;
+  --header-bg:#151749;--ghost:#eceafa;--radius:14px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.5;padding-bottom:60px}
+body{background:var(--bg);color:var(--ink);font-family:"Poppins",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.5;padding-bottom:60px;-webkit-font-smoothing:antialiased}
 button,input,textarea,select{font:inherit}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:var(--ink);color:#fff;position:sticky;top:0;z-index:5}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:linear-gradient(90deg,var(--header-bg) 0%,#241f63 58%,#332a80 100%);color:#fff;position:sticky;top:0;z-index:5}
 .topbar b{font-size:15px}
 .topbar button{background:transparent;border:1px solid rgba(255,255,255,.25);color:#fff;padding:7px 14px;border-radius:9px;cursor:pointer;font:inherit}
 .topbar button:hover{background:rgba(255,255,255,.1)}

@@ -11,7 +11,7 @@ const HORA_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
 const MENSAGEM_MAX = 300;
 const REGRAS_MAX = 2000;
 const FAQ_ITEM_MAX = 500;
-const FAQ_MAX_ITENS = 20;
+const FAQ_MAX_ITEMS = 20;
 
 export function configEditavelPadrao() {
   return {
@@ -82,7 +82,7 @@ export function validarConfigEditavel(input) {
 
   // faq: array opcional de {pergunta, resposta}
   const faq = Array.isArray(input.faq) ? input.faq : [];
-  if (faq.length > FAQ_MAX_ITENS) {
+  if (faq.length > FAQ_MAX_ITEMS) {
     return { erro: "faq_muitos_itens" };
   }
   for (const item of faq) {
