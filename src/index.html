@@ -97,6 +97,7 @@
       html {
         -webkit-text-size-adjust: 100%;
         scroll-padding-top: 84px;
+        overflow-x: hidden;
       }
       body {
         background: var(--bg);
@@ -114,6 +115,7 @@
         font-size: 16px;
         line-height: 1.6;
         -webkit-font-smoothing: antialiased;
+        overflow-x: hidden;
       }
       a {
         color: inherit;
@@ -1396,6 +1398,98 @@
           transition: none !important;
           opacity: 1 !important;
           transform: none !important;
+        }
+      }
+
+      /* ===== duvidas mobile ===== */
+      @media (max-width: 760px) {
+        .duvidas .item {
+          grid-template-columns: 1fr;
+          gap: 24px;
+          min-height: auto;
+          padding: 24px 0;
+        }
+        .duvidas .track-line {
+          display: none;
+        }
+        .duvidas .track-fill {
+          display: none;
+        }
+        .duvidas .dot {
+          display: none;
+        }
+        .duvidas .ghost-num {
+          position: static;
+          font-size: 48px;
+          margin-bottom: -20px;
+          opacity: 0.15;
+        }
+        .duvidas .item:nth-child(even) .visual {
+          order: 1;
+        }
+        .duvidas .item:nth-child(even) .text {
+          order: 2;
+          padding-left: 0;
+          padding-right: 0;
+          text-align: left;
+        }
+        .duvidas .visual {
+          width: 100%;
+          overflow: hidden;
+        }
+        .duvidas .visual-inner {
+          width: 100%;
+          max-width: 100%;
+          padding: 24px;
+          min-height: auto;
+          box-sizing: border-box;
+        }
+        .duvidas .pill-stack {
+          width: 100%;
+        }
+        .duvidas .badge-pill {
+          white-space: normal;
+          word-break: break-word;
+        }
+        .duvidas .text {
+          padding-left: 0;
+          padding-right: 0;
+        }
+        .duvidas .text h3 {
+          font-size: 22px;
+        }
+        .duvidas .text p {
+          max-width: 100%;
+        }
+        .duvidas .pause-card {
+          flex-direction: column;
+          text-align: center;
+        }
+        .duvidas .agenda-card {
+          width: 100%;
+        }
+        .duvidas .lock-card {
+          width: 100%;
+        }
+      }
+
+      /* ===== touch targets mobile ===== */
+      @media (max-width: 760px) {
+        .nav-link {
+          padding: 12px 16px;
+          min-height: 44px;
+          display: inline-flex;
+          align-items: center;
+        }
+        footer a, .legal a {
+          padding: 10px 8px;
+          min-height: 44px;
+          display: inline-flex;
+          align-items: center;
+        }
+        .cta-btn, .btn {
+          min-height: 48px;
+          padding: 14px 24px;
         }
       }
 
