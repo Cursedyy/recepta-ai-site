@@ -121,6 +121,37 @@
         border-top: 1px solid var(--line);
         margin: 32px 0;
       }
+
+      /* ===== Touch targets mobile ===== */
+      @media (max-width: 760px) {
+        .toc ol {
+          padding-left: 0;
+        }
+        .toc li {
+          margin-bottom: 0;
+        }
+        .toc li a {
+          display: block;
+          padding: 10px 8px;
+          min-height: 44px;
+          line-height: 1.4;
+        }
+        .back {
+          display: block;
+          text-align: center;
+          padding: 12px 16px;
+          min-height: 48px;
+          margin-top: 20px;
+          background: var(--accent);
+          color: #fff;
+          border-radius: 10px;
+          text-decoration: none;
+          font-weight: 500;
+        }
+        .back:hover {
+          opacity: 0.9;
+        }
+      }
     </style>
     <link rel="stylesheet" href="/page-transition.css" />
     <link rel="stylesheet" href="/loading-screen.css" />
