@@ -3,10 +3,21 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "scripts": {
+    "test": "node test-responsive-ci.mjs",
+    "test:local": "node test-responsive-ci.mjs --base-url http://localhost:3000",
+    "test:ci": "node test-responsive-ci.mjs --max-overflow 0 --max-touch-small 20 --max-total 150 --max-critical 0",
+    "test:strict": "node test-responsive-ci.mjs --max-overflow 0 --max-touch-small 10 --max-total 80 --max-critical 0"
+  },
   "dependencies": {
     "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.45.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "motion": "^13.1.1",
     "nanoid": "^5.0.0",
-    "resend": "^4.8.0"
+    "playwright": "^1.62.1",
+    "resend": "^4.8.0",
+    "tailwind-merge": "^3.6.0"
   }
 }
