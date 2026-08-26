@@ -235,7 +235,19 @@
               return;
             }
             if (!res.ok) {
-              elErro.textContent = "Senha ou email incorretos.";
+              var msg = "E-mail ou senha incorretos.";
+              if (res.corpo && typeof res.corpo.restantes === "number" && res.corpo.restantes > 0) {
+                msg += " Tentativas restantes: " + res.corpo.restantes + "/5.";
+              } else if (res.corpo && typeof res.corpo.restantes === "number" && res.corpo.restantes === 0) {
+                msg = "Muitas tentativas. Conta bloqueada temporariamente.";
+                elBtn.disabled = true;
+                elBtn.textContent = "Bloqueado";
+                setTimeout(function () {
+                  elBtn.disabled = false;
+                  elBtn.textContent = "Entrar";
+                }, 300000);
+              }
+              elErro.textContent = msg;
               elBtn.disabled = false;
               elBtn.textContent = "Entrar";
               return;

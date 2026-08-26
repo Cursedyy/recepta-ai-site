@@ -11,10 +11,13 @@ export default async function handler(req, res) {
 
   // Rate limiting por IP para prevenir brute force
   const ip = getClientIp(req);
-  if (rateLimit("login:" + ip, MAX_TENTATIVAS, JANELA_MS)) {
+  const rl = rateLimit("login:" + ip, MAX_TENTATIVAS, JANELA_MS);
+  if (rl.blocked) {
+    const minutosReset = Math.ceil(rl.resetMs / 60000);
     return res.status(429).json({
       erro: "muitas_tentativas",
-      mensagem: "Muitas tentativas. Tente novamente em 5 minutos.",
+      mensagem: "Muitas tentativas. Tente novamente em " + minutosReset + " minuto" + (minutosReset > 1 ? "s" : "") + ".",
+      restantes: 0,
     });
   }
 
@@ -41,7 +44,12 @@ export default async function handler(req, res) {
     email,
     password: senha,
   });
-  if (error) return res.status(401).json({ erro: "credenciais_invalidas" });
+  if (error) {
+    return res.status(401).json({
+      erro: "credenciais_invalidas",
+      restantes: rl.restantes,
+    });
+  }
 
   return res.status(200).json({ ok: true });
 }

@@ -5,8 +5,9 @@
  * considere Redis (Upstash) ou similar.
  *
  * Uso:
- *   if (rateLimit("login:" + ip, 5, 300_000)) { // 5 tentativas a cada 5min
- *     return res.status(429).json({ erro: "muitas_tentativas" });
+ *   const rl = rateLimit("login:" + ip, 5, 300_000);
+ *   if (rl.blocked) {
+ *     return res.status(429).json({ erro: "muitas_tentativas", restantes: rl.restantes });
  *   }
  */
 
@@ -24,7 +25,7 @@ setInterval(() => {
  * @param {string} key - Chave única (ex: "login:1.2.3.4")
  * @param {number} max - Máximo de requests no window
  * @param {number} windowMs - Janela de tempo em ms
- * @returns {boolean} true se deve bloquear (rate limited)
+ * @returns {{ blocked: boolean, restantes: number, resetMs: number }}
  */
 export function rateLimit(key, max, windowMs) {
   const now = Date.now();
@@ -33,11 +34,12 @@ export function rateLimit(key, max, windowMs) {
   if (!entry || now > entry.resetAt) {
     entry = { count: 1, resetAt: now + windowMs };
     buckets.set(key, entry);
-    return false;
+    return { blocked: false, restantes: max - 1, resetMs: windowMs };
   }
 
   entry.count++;
-  return entry.count > max;
+  const restantes = Math.max(0, max - entry.count);
+  return { blocked: entry.count > max, restantes, resetMs: entry.resetAt - now };
 }
 
 /**
