@@ -171,6 +171,48 @@ async function acaoRetomarConversa(admin, perfil, body) {
   return { status: 200, corpo: { ok: true, pausada: false } };
 }
 
+async function acaoCancelarAgendamento(admin, perfil, body) {
+  const agendamentoId = body?.agendamento_id;
+  if (!agendamentoId)
+    return { status: 400, corpo: { erro: "parametros_invalidos" } };
+
+  // Verificar se a clínica existe
+  const { data: clinicaRow } = await admin
+    .from("clinicas")
+    .select("clinica")
+    .eq("id", perfil.clinica_id)
+    .maybeSingle();
+
+  if (!clinicaRow)
+    return { status: 404, corpo: { erro: "clinica_nao_encontrada" } };
+
+  // Buscar o agendamento e verificar pertence à clínica
+  const { data: agendamento, error: erroBusca } = await admin
+    .from("agendamentos")
+    .select("id,status")
+    .eq("id", agendamentoId)
+    .maybeSingle();
+
+  if (erroBusca || !agendamento)
+    return { status: 404, corpo: { erro: "agendamento_nao_encontrado" } };
+
+  if (agendamento.status === "cancelado")
+    return { status: 200, corpo: { ok: true, mensagem: "ja_cancelado" } };
+
+  // Cancelar
+  const { error: erroUpdate } = await admin
+    .from("agendamentos")
+    .update({ status: "cancelado", cancelado_em: new Date().toISOString() })
+    .eq("id", agendamentoId);
+
+  if (erroUpdate) {
+    console.error("cancelar_agendamento_erro", erroUpdate.message);
+    return { status: 500, corpo: { erro: "falha_cancelar" } };
+  }
+
+  return { status: 200, corpo: { ok: true } };
+}
+
 async function acaoMetricas(admin, perfil) {
   const { data: clinicaRow } = await admin
     .from("clinicas")
@@ -249,6 +291,10 @@ export default async function handler(req, res) {
     }
     if (body?.acao === "retomar_conversa") {
       const resultado = await acaoRetomarConversa(admin, perfil, body);
+      return res.status(resultado.status).json(resultado.corpo);
+    }
+    if (body?.acao === "cancelar_agendamento") {
+      const resultado = await acaoCancelarAgendamento(admin, perfil, body);
       return res.status(resultado.status).json(resultado.corpo);
     }
     return res.status(400).json({ erro: "acao_invalida" });

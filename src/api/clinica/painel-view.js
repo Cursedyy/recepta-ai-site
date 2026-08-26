@@ -111,6 +111,9 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--accent);outline-
 .ag-badge{flex:0 0 auto;font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:999px;white-space:nowrap}
 .ag-badge-agendado{background:#E8F3EC;color:#1E7A3D}
 .ag-badge-cancelado{background:var(--accent-soft);color:var(--muted)}
+.ag-btn-cancelar{flex:0 0 auto;width:28px;height:28px;border:1px solid #D32F2F;background:transparent;color:#D32F2F;border-radius:8px;cursor:pointer;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
+.ag-btn-cancelar:hover{background:#FBEAEA;border-color:#B71C1C}
+.ag-btn-cancelar:disabled{opacity:.5;cursor:default}
 .ag-anteriores summary{cursor:pointer;font-size:13.5px;color:var(--muted);padding:4px 0;list-style:none}
 .ag-anteriores summary::-webkit-details-marker{display:none}
 .ag-anteriores summary::before{content:'▸ '}
@@ -249,7 +252,7 @@ function agendaItem(item, passado) {
   var horaStr = dt.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' });
   var cancelado = item.status === 'cancelado';
   var classes = 'ag-item' + (passado ? ' ag-passado' : '') + (cancelado ? ' ag-cancelado' : '');
-  return el('div', { class: classes }, [
+  var filhos = [
     el('div', { class: 'ag-data' }, [
       el('b', { text: dataStr }),
       el('span', { text: horaStr })
@@ -259,7 +262,45 @@ function agendaItem(item, passado) {
       class: 'ag-badge ' + (cancelado ? 'ag-badge-cancelado' : 'ag-badge-agendado'),
       text: cancelado ? 'Cancelado' : 'Agendado'
     })
-  ]);
+  ];
+  // Botão cancelar para agendamentos futuros não cancelados
+  if (!passado && !cancelado) {
+    var btnCancelar = el('button', { type: 'button', class: 'ag-btn-cancelar', text: '✕' });
+    btnCancelar.title = 'Cancelar agendamento';
+    btnCancelar.addEventListener('click', function() {
+      if (!confirm('Cancelar este agendamento?')) return;
+      btnCancelar.disabled = true;
+      btnCancelar.textContent = '…';
+      fetch('/api/clinica/painel-acoes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ acao: 'cancelar_agendamento', agendamento_id: item.id })
+      })
+        .then(function(r) { return r.json(); })
+        .then(function(res) {
+          if (res.erro) {
+            alert('Erro: ' + res.erro);
+            btnCancelar.disabled = false;
+            btnCancelar.textContent = '✕';
+            return;
+          }
+          // Atualizar visual
+          var badge = btnCancelar.parentElement.querySelector('.ag-badge');
+          if (badge) {
+            badge.className = 'ag-badge ag-badge-cancelado';
+            badge.textContent = 'Cancelado';
+          }
+          btnCancelar.style.display = 'none';
+        })
+        .catch(function() {
+          btnCancelar.disabled = false;
+          btnCancelar.textContent = '✕';
+          alert('Falha de conexão.');
+        });
+    });
+    filhos.push(btnCancelar);
+  }
+  return el('div', { class: classes }, filhos);
 }
 function renderAgenda(agendamentos) {
   var elStatus = document.getElementById('agenda-status');

@@ -512,6 +512,7 @@
             ><span class="dot"></span
             ><span id="conexao-label">conectando…</span></span
           >
+          <button id="btn-exportar" type="button" title="Exportar conversas em CSV">📥 CSV</button>
           <button id="btn-logout" type="button">Sair</button>
         </div>
       </div>
@@ -1139,6 +1140,44 @@
           supabase.auth.signOut().then(function () {
             mostrarGate();
           });
+        });
+
+      // Exportar CSV
+      document
+        .getElementById("btn-exportar")
+        .addEventListener("click", function () {
+          var btn = this;
+          btn.disabled = true;
+          btn.textContent = "⏳";
+          fetch("/api/clinica/painel-exportar")
+            .then(function (r) {
+              return r.json().then(function (j) {
+                return { ok: r.ok, corpo: j };
+              });
+            })
+            .then(function (res) {
+              btn.disabled = false;
+              btn.textContent = "📥 CSV";
+              if (!res.ok || !res.corpo.csv) {
+                alert("Nenhuma conversa para exportar.");
+                return;
+              }
+              // Download do CSV
+              var blob = new Blob([res.corpo.csv], {
+                type: "text/csv;charset=utf-8;",
+              });
+              var url = URL.createObjectURL(blob);
+              var a = document.createElement("a");
+              a.href = url;
+              a.download = "conversas-recepta-" + new Date().toISOString().slice(0, 10) + ".csv";
+              a.click();
+              URL.revokeObjectURL(url);
+            })
+            .catch(function () {
+              btn.disabled = false;
+              btn.textContent = "📥 CSV";
+              alert("Falha ao exportar. Tente novamente.");
+            });
         });
 
       document
