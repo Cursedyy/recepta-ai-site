@@ -551,7 +551,7 @@
               <b id="conversa-tel"></b>
               <div class="sub" id="conversa-clinica"></div>
             </div>
-            <button type="button" id="btn-pausar-ia" class="btn-pausar" style="display:none">Pausar IA</button>
+            <button type="button" id="btn-pausar-ia" class="btn-pausar" style="display:none">Pausar Recepta</button>
           </div>
           <div id="msgs">
             <div class="placeholder">
@@ -879,7 +879,7 @@
         var btn = document.getElementById("btn-pausar-ia");
         if (!atual) { btn.style.display = "none"; return; }
         btn.style.display = "";
-        btn.textContent = iaPausada ? "Retomar IA" : "Pausar IA";
+        btn.textContent = iaPausada ? "Retomar Recepta" : "Pausar Recepta";
         btn.classList.toggle("pausada", iaPausada);
       }
 
