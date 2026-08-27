@@ -65,7 +65,7 @@ contrato de como vai funcionar **quando** os workflows Criar/Cancelar Agendament
 **Quando existir**: escrita dupla, sempre nesta ordem — Supabase primeiro, planilha
 depois (nunca o contrário, porque sem linha no Supabase o lembrete nunca dispara):
 
-1. IA decide agendar → **insert** em `agendamentos` (`status='agendado'`) → captura o
+1. Recepta decide agendar → **insert** em `agendamentos` (`status='agendado'`) → captura o
    `id` gerado.
 2. **`values.append`** na planilha da clínica (usa `clinicas.spreadsheet_id`) — a API
    do Sheets devolve a posição da linha escrita.

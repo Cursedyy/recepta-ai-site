@@ -1,4 +1,4 @@
--- Schema de agenda por clinica (Google Sheets + IA sem confirmacao humana).
+-- Schema de agenda por clinica (Google Sheets + Recepta sem confirmacao humana).
 -- Nao mexe em ia_config, config_editavel nem colunas existentes.
 
 alter table public.clinicas

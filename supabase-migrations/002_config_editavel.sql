@@ -1,5 +1,5 @@
 -- Campos editaveis pela propria clinica no /clinica/painel, separados de
--- ia_config (que fica fora do alcance da clinica: persona/prompt da IA).
+-- ia_config (que fica fora do alcance da clinica: persona/prompt da Recepta).
 
 alter table public.clinicas
   add column config_editavel jsonb not null default '{

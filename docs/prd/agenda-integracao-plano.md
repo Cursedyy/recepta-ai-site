@@ -10,7 +10,7 @@
 > - O workflow de Atendimento **não tem nenhum node de tool** (é `Montar Prompt` ->
 >   HTTP `Chamar Claude`). Criar/Cancelar só têm `executeWorkflowTrigger` e **nada os
 >   invoca**: são código vivo que ninguém chama.
-> - Conclusão: o modo "IA confirma o horário sozinha" **não é executável hoje** — falta
+> - Conclusão: o modo "Recepta confirma o horário sozinha" **não é executável hoje** — falta
 >   wiring e falta listagem de disponibilidade, não falta planilha.
 >
 > Ler o restante como histórico de planejamento, não como estado atual.
@@ -21,9 +21,9 @@ Schema Supabase já existe (`003_agenda.sql`): `clinicas.spreadsheet_id`, `clini
 
 - 1 planilha Google Sheets por clínica
 - Service account do Google (Matheus cria e compartilha) — sem OAuth do cliente
-- IA lê disponibilidade e agenda sozinha, sem confirmação humana
+- Recepta lê disponibilidade e agenda sozinha, sem confirmação humana
 - Lembrete automático 24h antes + algumas horas antes (schema usa 3h)
-- Paciente cancela → IA cancela na planilha sozinha e avisa a clínica
+- Paciente cancela → Recepta cancela na planilha sozinha e avisa a clínica
 
 ## 1. Fonte da verdade — confirmado
 
@@ -52,11 +52,11 @@ Aba "Agenda", colunas:
 
 ## 4. Workflows n8n necessários (nenhum existe ainda)
 
-**a) Verificar Disponibilidade** (chamado como tool pela IA durante a conversa)
+**a) Verificar Disponibilidade** (chamado como tool pela Recepta durante a conversa)
 
 - Lê `config_agenda` (dias_atendimento, duracao_consulta_min, intervalo_min) da clínica
 - Consulta `agendamentos` no Supabase (não a planilha) pra saber horários já ocupados no período pedido
-- Calcula e devolve slots livres pra IA oferecer ao paciente
+- Calcula e devolve slots livres pra Recepta oferecer ao paciente
 
 **b) Criar Agendamento** (tool)
 
@@ -65,7 +65,7 @@ Aba "Agenda", colunas:
 3. Se o append falhar: alerta pro WhatsApp do Matheus, agendamento no Supabase permanece válido
 4. Confirma pro paciente
 
-**c) Cancelar Agendamento** (tool, disparado quando IA interpreta "não posso ir"/similar)
+**c) Cancelar Agendamento** (tool, disparado quando Recepta interpreta "não posso ir"/similar)
 
 1. Localiza o agendamento certo (por telefone + proximidade da data/hora da conversa)
 2. Update no Supabase (`status='cancelado'`, `cancelado_em=now()`)
@@ -81,7 +81,7 @@ Aba "Agenda", colunas:
 
 ## 5. Onde entra na conversa (fora de escopo detalhar agora)
 
-O workflow **"Recepta AI - Atendimento WhatsApp"** (hoje inativo, ainda em desenvolvimento) é onde os 3 tools (a/b/c) precisam ser conectados como LangChain Tool nodes que a IA chama durante a conversa — igual ao padrão de `chainLlm` já usado no onboarding pra gerar `ia_config`. Não abri esse workflow nesta passada porque isso já é implementação, não planejamento — mas é o ponto de entrada real quando formos construir.
+O workflow **"Recepta AI - Atendimento WhatsApp"** (hoje inativo, ainda em desenvolvimento) é onde os 3 tools (a/b/c) precisam ser conectados como LangChain Tool nodes que a Recepta chama durante a conversa — igual ao padrão de `chainLlm` já usado no onboarding pra gerar `ia_config`. Não abri esse workflow nesta passada porque isso já é implementação, não planejamento — mas é o ponto de entrada real quando formos construir.
 
 ## Perguntas em aberto — respostas propostas
 
@@ -99,4 +99,4 @@ Todas marcadas **PROPOSTA — aguardando validação de Matheus**. Não é decis
 
 4. **Sim, começa pelos workflows de lembrete (d) primeiro.**
    PROPOSTA — aguardando validação de Matheus.
-   Justificativa: lembrete (cron + query Supabase + envio WhatsApp) não depende do workflow de atendimento existir nem da IA decidir nada — é testável isolado, entrega valor sozinho (lembrete automático já funcionando reduz falta), e valida o padrão de acesso a `agendamentos`/`clinicas` que os outros 3 workflows (a/b/c) vão reusar. Verificar Disponibilidade/Criar/Cancelar (a/b/c) ficam pra depois que o workflow de atendimento em si existir de verdade — não faz sentido construir tools pra um workflow que ainda não roda.
+   Justificativa: lembrete (cron + query Supabase + envio WhatsApp) não depende do workflow de atendimento existir nem da Recepta decidir nada — é testável isolado, entrega valor sozinho (lembrete automático já funcionando reduz falta), e valida o padrão de acesso a `agendamentos`/`clinicas` que os outros 3 workflows (a/b/c) vão reusar. Verificar Disponibilidade/Criar/Cancelar (a/b/c) ficam pra depois que o workflow de atendimento em si existir de verdade — não faz sentido construir tools pra um workflow que ainda não roda.

@@ -43,11 +43,11 @@ Descrição sugerida: "O mínimo pra sua secretária virtual entrar no ar. Leva 
 | `i`            | `l`                                           | `r` | `ty`                   | `p` / `h`                                                                                                                                                                            |
 | -------------- | --------------------------------------------- | --- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `clinica`      | Nome da clínica                               | 1   | text                   | p: `Ex: Clínica Imagem Diagnóstica`                                                                                                                                                  |
-| `whats_resp`   | Seu WhatsApp (com DDD)                        | 1   | tel                    | p: `53 99999-9999` · h: `Pra falar com você durante o teste e pra IA te chamar quando precisar de um humano.`                                                                        |
+| `whats_resp`   | Seu WhatsApp (com DDD)                        | 1   | tel                    | p: `53 99999-9999` · h: `Pra falar com você durante o teste e pra Recepta te chamar quando precisar de um humano.`                                                                        |
 | `numero`       | Número que a Recepta vai atender (com DDD)    | 1   | tel                    | p: `53 3333-3333` · h: `Pode ser o mesmo do campo acima.`                                                                                                                            |
 | `cnpj`         | CNPJ da clínica                               | 1   | text + `im: "numeric"` | p: `00.000.000/0000-00` · h: `Usamos só pra travar teste grátis repetido no mesmo CNPJ.`                                                                                             |
-| `endereco`     | Endereço completo da clínica                  | 1   | ta                     | h: `A IA vai passar isso pro paciente. Inclua ponto de referência.`                                                                                                                  |
-| `servicos`     | Exames / consultas / procedimentos oferecidos | 1   | ta                     | p: `Ultrassonografia abdominal` + quebra + `Raio-X de tórax` + quebra + `Mamografia` · h: `Um por linha, com o nome que o paciente usa. A IA só confirma o que estiver nesta lista.` |
+| `endereco`     | Endereço completo da clínica                  | 1   | ta                     | h: `A Recepta vai passar isso pro paciente. Inclua ponto de referência.`                                                                                                                  |
+| `servicos`     | Exames / consultas / procedimentos oferecidos | 1   | ta                     | p: `Ultrassonografia abdominal` + quebra + `Raio-X de tórax` + quebra + `Mamografia` · h: `Um por linha, com o nome que o paciente usa. A Recepta só confirma o que estiver nesta lista.` |
 | `convenios`    | Convênios aceitos                             | 1   | ta                     | p: `Unimed` + quebra + `Ipê Saúde` + quebra + `Particular` · h: `Um por linha. Se atende particular, escreva "Particular" na lista.`                                                 |
 | `horario_func` | Horário de funcionamento                      | 1   | ta                     | p: `Seg a sex 8h-18h, sáb 8h-12h`                                                                                                                                                    |
 
@@ -57,7 +57,7 @@ Descrição sugerida: "O mínimo pra sua secretária virtual entrar no ar. Leva 
 | -------- | ----------- | --- | ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `aceite` | Confirmação | 1   | check | `["Autorizo o uso destas informações para configurar meu atendimento durante o teste", "Vou desligar as respostas automáticas do número durante o teste"]` |
 
-**Os outros 34 campos devem ser DELETADOS do array `S`.** Não esconder com CSS, não deixar `r: 0` renderizando invisível: sair do DOM. Menos campo no payload = prompt da IA mais enxuto, e o pipeline já sabe escalar o que ela não souber.
+**Os outros 34 campos devem ser DELETADOS do array `S`.** Não esconder com CSS, não deixar `r: 0` renderizando invisível: sair do DOM. Menos campo no payload = prompt da Recepta mais enxuto, e o pipeline já sabe escalar o que ela não souber.
 
 ## Restrições duras
 
