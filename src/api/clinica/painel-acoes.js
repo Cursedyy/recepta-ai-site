@@ -292,7 +292,7 @@ async function acaoExportar(admin, perfil, query) {
     const hora = dt.toLocaleTimeString("pt-BR", { timeZone: "America/Sao_Paulo", hour: "2-digit", minute: "2-digit" });
     return [
       escapeCsv(data), escapeCsv(hora), escapeCsv(c.telefone),
-      escapeCsv(c.clinica), escapeCsv(c.role === "ia" ? "IA" : "Paciente"),
+      escapeCsv(c.clinica), escapeCsv(c.role === "ia" ? "Recepta" : "Paciente"),
       escapeCsv(c.mensagem)
     ].join(",");
   });
