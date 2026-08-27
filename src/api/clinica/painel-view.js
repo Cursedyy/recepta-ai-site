@@ -229,8 +229,11 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
     <button class="nav-item" data-tab="mensagem"><span class="icon">💬</span><span>Mensagem</span></button>
     <button class="nav-item" data-tab="regras"><span class="icon">⚙️</span><span>Regras</span></button>
     <button class="nav-item" data-tab="faq"><span class="icon">❓</span><span>FAQ</span></button>
+    <button class="nav-item" data-tab="conversas"><span class="icon">🗨️</span><span>Conversas</span></button>
     <div class="sidebar-section">Conta</div>
     <button class="nav-item" data-tab="pausa"><span class="icon">⏸️</span><span>Pausa</span></button>
+    <button class="nav-item" data-tab="perfil"><span class="icon">👤</span><span>Perfil</span></button>
+    <button class="nav-item" data-tab="feriados"><span class="icon">📅</span><span>Feriados</span></button>
     <button class="nav-item" data-tab="status"><span class="icon">📊</span><span>Status</span></button>
   </nav>
 
@@ -318,6 +321,17 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
       </div>
     </div>
 
+    <!-- ── CONVERSAS ── -->
+    <div class="tab-panel" id="tab-conversas">
+      <div class="content-header"><h1>Monitoramento</h1><p>Acompanhe as conversas dos pacientes com a Recepta.</p></div>
+      <div class="content-body">
+        <div class="section-card">
+          <div id="conv-status" class="vazio">Carregando conversas…</div>
+          <div id="conv-lista"></div>
+        </div>
+      </div>
+    </div>
+
     <!-- ── PAUSA ── -->
     <div class="tab-panel" id="tab-pausa">
       <div class="content-header"><h1>Pausa da Recepta</h1><p>Tempo que a Recepta fica em silêncio após uma resposta manual sua.</p></div>
@@ -333,6 +347,37 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
               <span id="status-pausa"></span>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PERFIL ── -->
+    <div class="tab-panel" id="tab-perfil">
+      <div class="content-header"><h1>Meu perfil</h1><p>Altere seu nome e senha de acesso.</p></div>
+      <div class="content-body">
+        <div class="section-card">
+          <div class="field"><label class="field-label">Nome</label><input type="text" id="perfil-nome" class="field-input" maxlength="100" placeholder="Seu nome" /></div>
+          <div class="field"><label class="field-label">Senha atual</label><input type="password" id="perfil-senha-atual" class="field-input" autocomplete="current-password" /></div>
+          <div class="field"><label class="field-label">Nova senha</label><input type="password" id="perfil-nova-senha" class="field-input" minlength="8" autocomplete="new-password" /><p style="font-size:11px;color:var(--muted);margin-top:4px">Mínimo 8 caracteres. Deixe em branco para não alterar.</p></div>
+          <div id="perfil-erro" style="color:var(--red);font-size:13px;min-height:16px;margin-bottom:8px"></div>
+          <button type="button" class="btn btn-primary" id="btn-salvar-perfil">Salvar perfil</button>
+          <span id="perfil-status"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── FERIADOS ── -->
+    <div class="tab-panel" id="tab-feriados">
+      <div class="content-header"><h1>Feriados e datas especiais</h1><p>Dias em que a clínica não atende.</p></div>
+      <div class="content-body">
+        <div class="section-card">
+          <div id="feriados-lista"></div>
+          <div style="display:flex;gap:8px;margin-top:12px;align-items:center">
+            <input type="date" id="feriado-data" class="field-input" style="width:160px" />
+            <input type="text" id="feriado-nome" class="field-input" style="flex:1" placeholder="Nome (ex: Natal)" />
+            <button type="button" class="btn btn-primary btn-sm" id="btn-add-feriado">Adicionar</button>
+          </div>
+          <div id="feriado-erro" style="color:var(--red);font-size:13px;min-height:16px;margin-top:6px"></div>
         </div>
       </div>
     </div>
@@ -655,6 +700,120 @@ var ASSINATURA = ${jsonParaScript(assinatura)};
     elA.appendChild(btn);
   }
 })();
+
+// ── Conversas (monitoramento) ──
+function carregarConversas() {
+  fetch('/api/clinica/painel-acoes?acao=metricas').then(function(r){return r.json();}).then(function(res){
+    if (!res.ok) { document.getElementById('conv-status').textContent='Erro ao carregar.'; return; }
+    // Carregar conversas via Supabase (RLS filtra pela clínica)
+    fetch('/api/painel/config',{cache:'no-store'}).then(function(r){return r.json();}).then(function(cfg){
+      var sb = window.__supabase || null;
+      if (!sb && window.createClient) { sb = window.createClient(cfg.url, cfg.anonKey); window.__supabase = sb; }
+      if (!sb) { document.getElementById('conv-status').textContent='Erro de configuração.'; return; }
+      sb.from('conversas').select('id,telefone,clinica,role,mensagem,criado_em').order('criado_em',{ascending:false}).limit(200).then(function(r2){
+        if(r2.error){document.getElementById('conv-status').textContent='Erro ao carregar.';return;}
+        renderConversas(r2.data||[]);
+      });
+    });
+  });
+}
+function renderConversas(msgs) {
+  var elSt = document.getElementById('conv-status');
+  var elLi = document.getElementById('conv-lista');
+  elLi.innerHTML = '';
+  if (!msgs.length) { elSt.textContent='Nenhuma conversa ainda.'; elSt.style.display=''; return; }
+  elSt.style.display='none';
+  var porTel = {};
+  msgs.forEach(function(m){
+    if(!porTel[m.telefone]) porTel[m.telefone]={telefone:m.telefone, msgs:[]};
+    porTel[m.telefone].msgs.push(m);
+  });
+  Object.values(porTel).forEach(function(conv){
+    var div = document.createElement('div');
+    div.style.cssText='border:1.5px solid var(--border);border-radius:var(--radius);padding:12px 16px;margin-bottom:8px;cursor:pointer;transition:all 0.2s';
+    div.onmouseover=function(){div.style.boxShadow='var(--shadow)';};
+    div.onmouseout=function(){div.style.boxShadow='none';};
+    var tel = conv.telefone;
+    var d = String(tel||'').replace(/\\D/g,'');
+    if((d.length===12||d.length===13)&&d.indexOf('55')===0)d=d.slice(2);
+    var telFmt = d.length>=10 ? '('+d.slice(0,2)+') '+d.slice(2) : tel;
+    var ult = conv.msgs[0];
+    var role = ult.role==='ia'?'Recepta: ':'Paciente: ';
+    var corpo = ult.mensagem||'';
+    try { var o=JSON.parse(corpo); if(o&&o.mimetype) corpo=(o.mimetype.indexOf('audio')>=0?'🎤 Áudio':o.mimetype.indexOf('image')>=0?'🖼 Imagem':'📎 Doc'); } catch(e){}
+    if(corpo.length>80) corpo=corpo.slice(0,80)+'…';
+    var dt = new Date(ult.criado_em).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+    div.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><b style="font-size:14px">'+telFmt+'</b><span style="font-size:11px;color:var(--muted)">'+dt+'</span></div><div style="font-size:12.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+role+escapeHtml(corpo).replace(/\n/g,' ')+'</div><div style="font-size:11px;color:var(--muted);margin-top:2px">'+conv.msgs.length+' mensagens</div>';
+    elLi.appendChild(div);
+  });
+}
+carregarConversas();
+
+// ── Perfil ──
+(function(){
+  var elNome = document.getElementById('perfil-nome');
+  var elSn = document.getElementById('perfil-senha-atual');
+  var elNs = document.getElementById('perfil-nova-senha');
+  var elErr = document.getElementById('perfil-erro');
+  var elSt = document.getElementById('perfil-status');
+  // Carregar nome atual
+  fetch('/api/clinica/painel-acoes?acao=metricas').then(function(){});
+  document.getElementById('btn-salvar-perfil').addEventListener('click', function(){
+    elErr.textContent=''; elSt.innerHTML='';
+    var body = {};
+    if(elNome.value.trim()) body.nome=elNome.value.trim();
+    if(elSn.value&&elNs.value){ body.senha_atual=elSn.value; body.nova_senha=elNs.value; }
+    if(!body.nome&&!body.nova_senha){ elErr.textContent='Preencha pelo menos um campo.'; return; }
+    if(body.nova_senha&&body.nova_senha.length<8){ elErr.textContent='Nova senha precisa ter pelo menos 8 caracteres.'; return; }
+    fetch('/api/clinica/perfil',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(function(r){return r.json();}).then(function(res){
+      if(res.erro){elErr.textContent=res.detalhes?res.detalhes.join(' '):'Erro: '+res.erro;return;}
+      elSn.value=''; elNs.value='';
+      elSt.innerHTML='<span class="badge badge-green">Salvo!</span>';
+      setTimeout(function(){elSt.innerHTML='';},3000);
+    }).catch(function(){elErr.textContent='Falha de conexão.';});
+  });
+})();
+
+// ── Feriados ──
+var feriadosDados = [];
+function carregarFeriados(){
+  fetch('/api/clinica/feriados').then(function(r){return r.json();}).then(function(d){
+    feriadosDados=d.feriados||[];
+    renderFeriados();
+  });
+}
+function renderFeriados(){
+  var elLi=document.getElementById('feriados-lista');
+  elLi.innerHTML='';
+  if(!feriadosDados.length){elLi.innerHTML='<p class="vazio">Nenhum feriado cadastrado.</p>';return;}
+  feriadosDados.forEach(function(f){
+    var div=document.createElement('div');
+    div.style.cssText='display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)';
+    var d=new Date(f.data+'T12:00:00');
+    var dataFmt=d.toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo',day:'2-digit',month:'2-digit',year:'numeric'});
+    div.innerHTML='<div style="min-width:100px;font-weight:600;font-size:13px">'+dataFmt+'</div><div style="flex:1;color:var(--muted);font-size:13px">'+escapeHtml(f.nome||'—')+'</div>';
+    var btn=document.createElement('button');btn.className='btn-icon';btn.textContent='×';btn.title='Remover';
+    btn.addEventListener('click',function(){
+      fetch('/api/clinica/feriados',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({acao:'remover',id:f.id})}).then(function(){carregarFeriados();});
+    });
+    div.appendChild(btn);
+    elLi.appendChild(div);
+  });
+}
+document.getElementById('btn-add-feriado').addEventListener('click',function(){
+  var data=document.getElementById('feriado-data').value;
+  var nome=document.getElementById('feriado-nome').value.trim();
+  var elErr=document.getElementById('feriado-erro');
+  elErr.textContent='';
+  if(!data){elErr.textContent='Selecione uma data.';return;}
+  fetch('/api/clinica/feriados',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({acao:'adicionar',data:data,nome:nome||null})}).then(function(r){return r.json();}).then(function(res){
+    if(res.erro){elErr.textContent=res.erro==='data_ja_cadastrada'?'Data já cadastrada.':'Erro: '+res.erro;return;}
+    document.getElementById('feriado-data').value='';
+    document.getElementById('feriado-nome').value='';
+    carregarFeriados();
+  });
+});
+carregarFeriados();
 
 // ── Métricas ──
 fetch('/api/clinica/painel-acoes?acao=metricas')

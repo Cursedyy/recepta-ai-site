@@ -11,10 +11,13 @@ export default async function handler(req, res) {
 
   // Rate limiting por IP
   const ip = getClientIp(req);
-  if (rateLimit("definir-senha:" + ip, MAX_TENTATIVAS, JANELA_MS)) {
+  const rl = await rateLimit("definir-senha:" + ip, MAX_TENTATIVAS, JANELA_MS);
+  if (rl.blocked) {
+    const minutosReset = Math.ceil(rl.resetMs / 60000);
     return res.status(429).json({
       erro: "muitas_tentativas",
-      mensagem: "Muitas tentativas. Tente novamente em 15 minutos.",
+      mensagem: "Muitas tentativas. Tente novamente em " + minutosReset + " minuto" + (minutosReset > 1 ? "s" : "") + ".",
+      restantes: 0,
     });
   }
 
