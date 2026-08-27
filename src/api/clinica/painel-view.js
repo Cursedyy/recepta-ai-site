@@ -101,8 +101,8 @@ button, input, textarea, select { font: inherit; }
 .content-body::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
 
 /* ── Tab panels ── */
-.tab-panel { display: none; }
-.tab-panel.active { display: block; animation: fadeUp 0.25s ease; }
+.tab-panel { display: none; flex: 1 1 auto; min-height: 0; overflow: hidden; }
+.tab-panel.active { display: flex; flex-direction: column; animation: fadeUp 0.25s ease; }
 @keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
 /* ── Form elements ── */
@@ -834,6 +834,9 @@ fetch('/api/clinica/painel-acoes?acao=metricas')
     grid.appendChild(item1); grid.appendChild(item2); elC.appendChild(grid);
   }).catch(function() { document.getElementById('metricas-corpo').textContent = 'Falha de conexão.'; });
 </script>
+<link rel="stylesheet" href="/page-transition.css" />
+<link rel="stylesheet" href="/loading-screen.css" />
+<script src="/page-transition.js"></script>
 </body>
 </html>`;
 }
