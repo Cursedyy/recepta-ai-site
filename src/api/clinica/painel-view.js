@@ -210,12 +210,12 @@ textarea.field-input { resize: vertical; min-height: 60px; }
     <button class="nav-item" data-tab="horarios"><span class="icon">🕐</span><span>Horários</span></button>
     <button class="nav-item" data-tab="precos"><span class="icon">💰</span><span>Preços</span></button>
     <button class="nav-item" data-tab="convenios"><span class="icon">🏥</span><span>Convênios</span></button>
-    <div class="sidebar-section">IA</div>
+    <div class="sidebar-section">Recepta</div>
     <button class="nav-item" data-tab="mensagem"><span class="icon">💬</span><span>Mensagem</span></button>
-    <button class="nav-item" data-tab="regras"><span class="icon">⚙️</span><span>Regras da IA</span></button>
+    <button class="nav-item" data-tab="regras"><span class="icon">⚙️</span><span>Regras da Recepta</span></button>
     <button class="nav-item" data-tab="faq"><span class="icon">❓</span><span>FAQ</span></button>
     <div class="sidebar-section">Conta</div>
-    <button class="nav-item" data-tab="pausa"><span class="icon">⏸</span><span>Pausa da IA</span></button>
+    <button class="nav-item" data-tab="pausa"><span class="icon">⏸</span><span>Pausa da Recepta</span></button>
     <button class="nav-item" data-tab="status"><span class="icon">📊</span><span>Status</span></button>
   </nav>
 
@@ -269,7 +269,7 @@ textarea.field-input { resize: vertical; min-height: 60px; }
 
     <!-- ── MENSAGEM ── -->
     <div class="tab-panel" id="tab-mensagem">
-      <div class="content-header"><h1>Mensagem de identidade</h1><p>Frase curta de boas-vindas que a IA usa ao iniciar conversa.</p></div>
+      <div class="content-header"><h1>Mensagem de identidade</h1><p>Frase curta de boas-vindas que a Recepta usa ao iniciar conversa.</p></div>
       <div class="content-body">
         <div class="section-card">
           <div class="field">
@@ -282,7 +282,7 @@ textarea.field-input { resize: vertical; min-height: 60px; }
 
     <!-- ── REGRAS ── -->
     <div class="tab-panel" id="tab-regras">
-      <div class="content-header"><h1>Regras da IA</h1><p>Instruções personalizadas para o comportamento da secretária virtual.</p></div>
+      <div class="content-header"><h1>Regras da Recepta</h1><p>Instruções personalizadas para o comportamento da secretária virtual.</p></div>
       <div class="content-body">
         <div class="section-card">
           <div class="field">
@@ -296,7 +296,7 @@ textarea.field-input { resize: vertical; min-height: 60px; }
 
     <!-- ── FAQ ── -->
     <div class="tab-panel" id="tab-faq">
-      <div class="content-header"><h1>Perguntas frequentes</h1><p>FAQ que a IA usa como base para responder pacientes.</p></div>
+      <div class="content-header"><h1>Perguntas frequentes</h1><p>FAQ que a Recepta usa como base para responder pacientes.</p></div>
       <div class="content-body">
         <div id="lista-faq"></div>
         <button type="button" class="btn btn-ghost btn-sm" id="add-faq" style="margin-top:4px">+ Adicionar pergunta</button>
@@ -305,12 +305,12 @@ textarea.field-input { resize: vertical; min-height: 60px; }
 
     <!-- ── PAUSA ── -->
     <div class="tab-panel" id="tab-pausa">
-      <div class="content-header"><h1>Pausa da IA</h1><p>Tempo que a IA fica em silêncio após uma resposta manual sua.</p></div>
+      <div class="content-header"><h1>Pausa da Recepta</h1><p>Tempo que a Recepta fica em silêncio após uma resposta manual sua.</p></div>
       <div class="content-body">
         <div class="section-card">
           <div class="field">
             <label class="field-label">Minutos de pausa</label>
-            <div class="field-desc">Depois que você responder manualmente no WhatsApp, a IA fica pausada por esse tempo.</div>
+            <div class="field-desc">Depois que você responder manualmente no WhatsApp, a Recepta fica pausada por esse tempo.</div>
             <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
               <input type="number" id="tempo-pausa" class="field-input" min="1" max="120" step="1" value="${tempoPausaAtual}" style="width:100px" />
               <span style="font-size:13px;color:var(--muted)">minutos</span>
@@ -564,7 +564,7 @@ function renderFaq() {
     var btn = el('button', { type: 'button', class: 'btn-icon', text: '×', title: 'Remover' });
     btn.addEventListener('click', function() { CONFIG.faq.splice(i, 1); renderFaq(); });
     cab.appendChild(iP); cab.appendChild(btn); wrap.appendChild(cab);
-    var tA = el('textarea', { placeholder: 'Resposta da IA', rows: '2' });
+    var tA = el('textarea', { placeholder: 'Resposta da Recepta', rows: '2' });
     tA.value = item.resposta;
     tA.addEventListener('input', function() { CONFIG.faq[i].resposta = tA.value; });
     wrap.appendChild(tA);
