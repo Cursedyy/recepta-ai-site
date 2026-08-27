@@ -36,6 +36,10 @@
         --radius: 14px;
         --ghost: #eceafa;
       }
+      html {
+        overflow: hidden;
+        height: 100vh;
+      }
       * {
         box-sizing: border-box;
         margin: 0;
@@ -52,6 +56,10 @@
         height: 100vh;
         overflow: hidden;
         -webkit-font-smoothing: antialiased;
+      }
+      main {
+        overflow: hidden;
+        height: 100vh;
       }
       button,
       input {
@@ -70,26 +78,26 @@
         background: var(--surface);
         border: 1px solid var(--line);
         border-radius: var(--radius);
-        padding: 32px 28px;
-        max-width: 340px;
+        padding: 24px 22px;
+        max-width: 320px;
         width: 100%;
         box-shadow: 0 20px 50px -30px rgba(20, 30, 27, 0.35);
       }
       #gate h1 {
-        font-size: 19px;
-        margin-bottom: 6px;
+        font-size: 17px;
+        margin-bottom: 4px;
       }
       #gate p {
         color: var(--muted);
-        font-size: 13.5px;
-        margin-bottom: 18px;
+        font-size: 12.5px;
+        margin-bottom: 14px;
       }
       #gate input {
         width: 100%;
-        padding: 11px 13px;
+        padding: 9px 11px;
         border: 1px solid var(--line);
         border-radius: 10px;
-        margin-bottom: 12px;
+        margin-bottom: 10px;
       }
       #gate input:focus {
         outline: 2px solid var(--accent);
@@ -129,7 +137,7 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 12px 18px;
+        padding: 8px 16px;
         background: linear-gradient(90deg, var(--header-bg) 0%, #241f63 58%, #332a80 100%);
         color: #fff;
         flex: 0 0 auto;
@@ -195,8 +203,8 @@
 
       /* lista */
       #lista-col {
-        width: 340px;
-        flex: 0 0 340px;
+        width: 300px;
+        flex: 0 0 300px;
         border-right: 1px solid var(--line);
         display: flex;
         flex-direction: column;
@@ -204,16 +212,17 @@
         min-height: 0;
       }
       #busca-wrap {
-        padding: 10px 12px;
+        padding: 8px 10px;
         border-bottom: 1px solid var(--line);
         flex: 0 0 auto;
       }
       #busca {
         width: 100%;
-        padding: 9px 12px;
+        padding: 7px 10px;
         border: 1px solid var(--line);
         border-radius: 9px;
         background: var(--bg);
+        font-size: 13px;
       }
       #busca:focus {
         outline: 2px solid var(--accent);
@@ -240,7 +249,7 @@
         align-items: center;
         gap: 6px;
         width: 100%;
-        padding: 10px 16px;
+        padding: 7px 14px;
         background: var(--accent-soft);
         border: none;
         border-bottom: 1px solid var(--line);
@@ -282,7 +291,7 @@
         display: block;
         width: 100%;
         text-align: left;
-        padding: 12px 16px 12px 22px;
+        padding: 9px 14px 9px 18px;
         border: none;
         border-bottom: 1px solid var(--line);
         background: transparent;
@@ -330,7 +339,7 @@
         background: #f1f0f9;
       }
       #conversa-head {
-        padding: 11px 18px;
+        padding: 8px 16px;
         background: var(--surface);
         border-bottom: 1px solid var(--line);
         display: flex;
@@ -392,10 +401,10 @@
       #msgs {
         flex: 1 1 auto;
         overflow-y: auto;
-        padding: 14px 16px;
+        padding: 10px 14px;
         display: flex;
         flex-direction: column;
-        gap: 5px;
+        gap: 4px;
       }
       #msgs .placeholder {
         margin: auto;
@@ -416,10 +425,10 @@
       }
       .bub {
         max-width: 58%;
-        padding: 7px 11px;
-        border-radius: 14px;
-        font-size: 13.5px;
-        line-height: 1.4;
+        padding: 6px 10px;
+        border-radius: 12px;
+        font-size: 13px;
+        line-height: 1.35;
         word-break: break-word;
       }
       .bub .tm {
@@ -455,6 +464,7 @@
           inset: 0;
           width: 100%;
           z-index: 2;
+          flex: 1 1 auto;
         }
         #app.conversa-aberta #lista-col {
           display: none;

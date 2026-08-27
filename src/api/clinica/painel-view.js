@@ -14,7 +14,7 @@ const NOME_DIA = {
 
 function escapeHtml(valor) {
   return String(valor).replace(
-    /[&<>"']/g,
+    /[&<>\"']/g,
     (c) =>
       ({
         "&": "&amp;",
@@ -47,199 +47,308 @@ function paginaPainel(nomeClinica, config, tempoPausaAtual, assinatura) {
 <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#FAFAFD;--surface:#ffffff;--ink:#100D22;--muted:#302E47;--line:#E7E5F2;
-  --accent:#26205C;--accent-ink:#ffffff;--accent-soft:#F3F2F5;--accent-2:#afa8eb;
-  --header-bg:#151749;--ghost:#eceafa;--radius:14px;
+:root {
+  --bg: #fafafa; --surface: #ffffff; --ink: #09090b; --muted: #71717a;
+  --border: #e4e4e7; --accent: #18181b; --accent-soft: #f4f4f5;
+  --primary: #26205c; --primary-hover: #1e1a4a; --primary-soft: #ede9fe;
+  --green: #16a34a; --green-bg: #f0fdf4; --red: #dc2626; --red-bg: #fef2f2;
+  --ring: rgba(38,32,92,0.15); --radius: 8px; --radius-lg: 12px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --sidebar-w: 220px; --topbar-h: 52px;
 }
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:var(--bg);color:var(--ink);font-family:"Poppins",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:15px;line-height:1.5;padding-bottom:60px;-webkit-font-smoothing:antialiased}
-button,input,textarea,select{font:inherit}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:linear-gradient(90deg,var(--header-bg) 0%,#241f63 58%,#332a80 100%);color:#fff;position:sticky;top:0;z-index:5}
-.topbar b{font-size:15px}
-.topbar button{background:transparent;border:1px solid rgba(255,255,255,.25);color:#fff;padding:7px 14px;border-radius:9px;cursor:pointer;font:inherit}
-.topbar button:hover{background:rgba(255,255,255,.1)}
-main{max-width:640px;margin:0 auto;padding:28px 20px}
-h1{font-size:21px;margin-bottom:4px}
-main > p.sub{color:var(--muted);font-size:14px;margin-bottom:28px}
-section.bloco{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px 20px;margin-bottom:18px}
-section.bloco h2{font-size:15.5px;margin-bottom:4px}
-section.bloco p.desc{color:var(--muted);font-size:13px;margin-bottom:16px}
-section.bloco-dica{background:var(--accent-soft);border:1px solid var(--line);border-radius:var(--radius);padding:16px 20px;margin-bottom:18px}
-section.bloco-dica h2{font-size:13.5px;margin-bottom:8px;color:var(--accent)}
-section.bloco-dica p{color:var(--muted);font-size:13px;line-height:1.5}
-section.bloco-dica p+p{margin-top:6px}
-.linha{display:flex;gap:8px;align-items:center;margin-bottom:8px}
-.linha input[type=text],.linha input[type=number]{flex:1;min-width:0;padding:9px 11px;border:1px solid var(--line);border-radius:9px}
-.linha input[type=number]{flex:0 0 110px}
-.linha input[type=time]{padding:9px 11px;border:1px solid var(--line);border-radius:9px}
-.btn-remover{flex:0 0 auto;background:transparent;border:1px solid var(--line);color:#B3261E;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:15px;line-height:1}
-.btn-remover:hover{background:#FBEAEA}
-.btn-add{margin-top:6px;background:var(--accent-soft);border:1px solid var(--line);color:var(--accent);padding:8px 14px;border-radius:9px;cursor:pointer;font-size:13.5px;font-weight:600}
-.btn-add:hover{filter:brightness(0.97)}
-.dia-bloco{border-bottom:1px solid var(--line);padding:12px 0}
-.dia-bloco:last-child{border-bottom:none;padding-bottom:0}
-.dia-bloco:first-child{padding-top:0}
-.dia-cabeca{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.dia-cabeca b{font-size:13.5px}
-.dia-cabeca .fechado{color:var(--muted);font-size:12.5px}
-textarea{width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:10px;resize:vertical;min-height:80px}
-.contador{color:var(--muted);font-size:12px;margin-top:4px;text-align:right}
-input:focus,textarea:focus,select:focus{outline:2px solid var(--accent);outline-offset:1px}
-.rodape-salvar{position:sticky;bottom:0;background:var(--bg);padding:16px 0 4px;display:flex;align-items:center;gap:12px}
-.btn-salvar{background:var(--accent);color:#fff;border:none;padding:12px 24px;border-radius:10px;font-weight:600;cursor:pointer}
-.btn-salvar:hover{filter:brightness(1.08)}
-.btn-salvar:disabled{opacity:.6;cursor:default}
-.status{font-size:13.5px}
-.status.ok{color:#1E7A3D}
-.status.erro{color:#B3261E}
-.vazio{color:var(--muted);font-size:13px;padding:4px 0}
-.faq-item{border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px;background:var(--bg)}
-.faq-cabeca{display:flex;gap:8px;align-items:center;margin-bottom:8px}
-.faq-cabeca input{flex:1;min-width:0}
-.faq-item textarea{width:100%;min-height:56px}
-.ag-lista{display:flex;flex-direction:column;gap:8px}
-.ag-item{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:10px;padding:10px 12px}
-.ag-item.ag-passado{opacity:.55}
-.ag-item.ag-cancelado .ag-data b,.ag-item.ag-cancelado .ag-tel{text-decoration:line-through;color:var(--muted)}
-.ag-data{flex:0 0 auto;min-width:58px}
-.ag-data b{display:block;font-size:14px}
-.ag-data span{display:block;font-size:12px;color:var(--muted)}
-.ag-tel{flex:1;min-width:0;font-size:13.5px;overflow-wrap:anywhere}
-.ag-badge{flex:0 0 auto;font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:999px;white-space:nowrap}
-.ag-badge-agendado{background:#E8F3EC;color:#1E7A3D}
-.ag-badge-cancelado{background:var(--accent-soft);color:var(--muted)}
-.ag-btn-cancelar{flex:0 0 auto;width:28px;height:28px;border:1px solid #D32F2F;background:transparent;color:#D32F2F;border-radius:8px;cursor:pointer;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
-.ag-btn-cancelar:hover{background:#FBEAEA;border-color:#B71C1C}
-.ag-btn-cancelar:disabled{opacity:.5;cursor:default}
-.ag-btn-remarcar{flex:0 0 auto;width:28px;height:28px;border:1px solid var(--accent);background:transparent;color:var(--accent);border-radius:8px;cursor:pointer;font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center;transition:all 0.15s}
-.ag-btn-remarcar:hover{background:var(--accent-soft);border-color:var(--accent)}
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px}
-.modal-conteudo{background:var(--surface);border-radius:var(--radius);padding:24px;max-width:380px;width:100%;box-shadow:0 20px 60px -20px rgba(0,0,0,0.3)}
-.modal-conteudo h3{font-size:17px;margin-bottom:4px}
-.modal-sub{color:var(--muted);font-size:13px;margin-bottom:18px}
-.modal-linha{margin-bottom:14px}
-.modal-linha label{display:block;font-size:13px;font-weight:600;margin-bottom:5px;color:var(--muted)}
-.modal-linha input{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:9px;font:inherit}
-.modal-linha input:focus{outline:2px solid var(--accent);outline-offset:1px}
-.modal-erro{color:#B3261E;font-size:13px;min-height:18px;margin-bottom:10px}
-.modal-btns{display:flex;gap:10px;justify-content:flex-end}
-.modal-btn-cancelar{padding:9px 18px;border:1px solid var(--line);border-radius:9px;background:transparent;cursor:pointer;font:inherit;font-weight:500}
-.modal-btn-cancelar:hover{background:var(--accent-soft)}
-.modal-btn-confirmar{padding:9px 18px;border:none;border-radius:9px;background:var(--accent);color:#fff;cursor:pointer;font:inherit;font-weight:600}
-.modal-btn-confirmar:hover{filter:brightness(1.08)}
-.modal-btn-confirmar:disabled{opacity:.6;cursor:default}
-.ag-anteriores summary{cursor:pointer;font-size:13.5px;color:var(--muted);padding:4px 0;list-style:none}
-.ag-anteriores summary::-webkit-details-marker{display:none}
-.ag-anteriores summary::before{content:'▸ '}
-.ag-anteriores[open] summary::before{content:'▾ '}
-.ag-anteriores .ag-lista{margin-top:10px}
-@media(max-width:420px){
-  .linha{flex-wrap:wrap}
-  .linha input[type=number]{flex:1 1 100%}
-  .ag-item{flex-wrap:wrap}
-  .ag-badge{margin-left:auto}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body { font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: var(--ink); font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+button, input, textarea, select { font: inherit; }
+
+/* ── Topbar ── */
+.topbar { display: flex; align-items: center; justify-content: space-between; height: var(--topbar-h); padding: 0 20px; background: var(--accent); color: #fff; }
+.topbar-left { display: flex; align-items: center; gap: 10px; }
+.topbar-logo { font-weight: 700; font-size: 15px; letter-spacing: -0.3px; }
+.topbar-sep { opacity: 0.2; font-weight: 300; }
+.topbar-clinic { font-size: 13px; opacity: 0.7; }
+.topbar button { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 6px 14px; border-radius: var(--radius); cursor: pointer; font-size: 13px; font-weight: 500; transition: background 0.15s; }
+.topbar button:hover { background: rgba(255,255,255,0.1); }
+
+/* ── Layout ── */
+.layout { display: flex; height: calc(100vh - var(--topbar-h)); }
+
+/* ── Sidebar ── */
+.sidebar { width: var(--sidebar-w); flex: 0 0 auto; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 12px 8px; gap: 2px; }
+.sidebar-section { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; padding: 10px 12px 6px; }
+.nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: var(--radius); cursor: pointer; font-size: 13px; font-weight: 500; color: var(--muted); transition: all 0.12s; border: none; background: none; width: 100%; text-align: left; }
+.nav-item:hover { background: var(--accent-soft); color: var(--ink); }
+.nav-item.active { background: var(--accent); color: #fff; }
+.nav-item .icon { width: 18px; text-align: center; font-size: 14px; flex-shrink: 0; }
+.sidebar-footer { margin-top: auto; padding: 12px; border-top: 1px solid var(--border); }
+
+/* ── Content ── */
+.content { flex: 1 1 auto; overflow: hidden; display: flex; flex-direction: column; }
+.content-header { padding: 16px 24px 12px; background: var(--surface); border-bottom: 1px solid var(--border); }
+.content-header h1 { font-size: 17px; font-weight: 700; letter-spacing: -0.3px; }
+.content-header p { font-size: 13px; color: var(--muted); margin-top: 2px; }
+.content-body { flex: 1 1 auto; overflow-y: auto; padding: 20px 24px 80px; }
+.content-body::-webkit-scrollbar { width: 5px; }
+.content-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+
+/* ── Tab panels ── */
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── Form elements ── */
+.field { margin-bottom: 16px; }
+.field-label { display: block; font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 5px; }
+.field-desc { font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+.field-input { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 13px; background: var(--surface); transition: border-color 0.15s, box-shadow 0.15s; color: var(--ink); }
+.field-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
+.field-input::placeholder { color: #a1a1aa; }
+textarea.field-input { resize: vertical; min-height: 60px; }
+.field-counter { font-size: 11px; color: var(--muted); text-align: right; margin-top: 3px; }
+
+/* ── Cards / Sections ── */
+.section-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px 20px; margin-bottom: 14px; }
+.section-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.section-card-title { font-size: 14px; font-weight: 600; }
+.section-card-desc { font-size: 12px; color: var(--muted); }
+
+/* ── Inline rows (prices, convenios, etc) ── */
+.item-row { display: flex; gap: 6px; align-items: center; margin-bottom: 8px; }
+.item-row input[type="text"] { flex: 1; min-width: 0; padding: 7px 10px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 13px; background: var(--surface); transition: border-color 0.15s, box-shadow 0.15s; }
+.item-row input[type="text"]:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
+.item-row input[type="number"] { width: 100px; padding: 7px 10px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 13px; background: var(--surface); transition: border-color 0.15s; }
+.item-row input[type="number"]:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
+.item-row input[type="time"] { padding: 7px 10px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 13px; background: var(--surface); transition: border-color 0.15s; }
+.item-row input[type="time"]:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
+
+/* ── Buttons ── */
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: var(--radius); font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-hover); }
+.btn-primary:disabled { opacity: 0.5; cursor: default; }
+.btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--ink); }
+.btn-ghost:hover { background: var(--accent-soft); }
+.btn-danger { background: transparent; border: 1px solid var(--border); color: var(--red); }
+.btn-danger:hover { background: var(--red-bg); border-color: var(--red); }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+.btn-icon { width: 30px; height: 30px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: var(--radius); border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; transition: all 0.15s; font-size: 14px; }
+.btn-icon:hover { background: var(--red-bg); color: var(--red); border-color: var(--red); }
+
+/* ── Status badge ── */
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 500; }
+.badge-green { background: var(--green-bg); color: var(--green); }
+.badge-red { background: var(--red-bg); color: var(--red); }
+.badge-muted { background: var(--accent-soft); color: var(--muted); }
+
+/* ── Agenda ── */
+.ag-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 6px; font-size: 13px; transition: box-shadow 0.15s; }
+.ag-item:hover { box-shadow: var(--shadow-sm); }
+.ag-date { font-weight: 600; min-width: 55px; font-size: 13px; }
+.ag-time { font-size: 12px; color: var(--muted); }
+.ag-phone { flex: 1; min-width: 0; }
+.ag-actions { display: flex; gap: 4px; }
+.vazio { color: var(--muted); font-size: 13px; font-style: italic; padding: 8px 0; }
+
+/* ── FAQ items ── */
+.faq-item { border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; margin-bottom: 8px; }
+.faq-header { display: flex; gap: 6px; align-items: center; margin-bottom: 8px; }
+.faq-header input { flex: 1; min-width: 0; padding: 7px 10px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 13px; }
+.faq-header input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
+.faq-item textarea { width: 100%; min-height: 48px; padding: 7px 10px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 13px; resize: vertical; }
+.faq-item textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
+
+/* ── Day blocks ── */
+.day-block { padding: 8px 0; border-bottom: 1px solid var(--border); }
+.day-block:last-child { border-bottom: none; }
+.day-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.day-header b { font-size: 13px; font-weight: 600; }
+.day-header .closed { color: var(--muted); font-size: 12px; }
+
+/* ── Modal ── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+.modal-content { background: var(--surface); border-radius: var(--radius-lg); padding: 24px; max-width: 360px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
+.modal-content h3 { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.modal-sub { color: var(--muted); font-size: 12px; margin-bottom: 14px; }
+.modal-field { margin-bottom: 10px; }
+.modal-field label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: var(--muted); }
+.modal-field input { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 13px; }
+.modal-field input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
+.modal-error { color: var(--red); font-size: 12px; min-height: 16px; margin-bottom: 8px; }
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+/* ── Floating save ── */
+.save-bar { position: fixed; bottom: 16px; right: 20px; z-index: 50; display: flex; align-items: center; gap: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 8px 14px; box-shadow: 0 4px 20px -4px rgba(0,0,0,0.12); }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .sidebar { width: 56px; padding: 8px 4px; }
+  .sidebar-section { display: none; }
+  .nav-item { justify-content: center; padding: 10px; }
+  .nav-item span:not(.icon) { display: none; }
+  .sidebar-footer { display: none; }
+  .content-header { padding: 12px 16px 10px; }
+  .content-body { padding: 14px 16px 80px; }
 }
 </style>
 </head>
 <body>
 <div class="topbar">
-  <b>Recepta AI</b>
+  <div class="topbar-left">
+    <span class="topbar-logo">Recepta AI</span>
+    <span class="topbar-sep">|</span>
+    <span class="topbar-clinic">${escapeHtml(nomeClinica)}</span>
+  </div>
   <button id="btn-sair" type="button">Sair</button>
 </div>
-<main>
-  <h1>Olá, ${escapeHtml(nomeClinica)}</h1>
-  <p class="sub">Edite as informações que a secretária virtual usa pra atender.</p>
 
-  <section class="bloco-dica">
-    <h2>Como funciona o dia a dia</h2>
-    <p>Quer testar antes de avisar os pacientes? Manda uma mensagem pro número da clínica e vê a Recepta AI respondendo.</p>
-    <p>Se quiser assumir uma conversa a qualquer momento, é só responder direto pelo WhatsApp — a IA para de responder sozinha por um tempo.</p>
-  </section>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-section">Configuração</div>
+    <button class="nav-item active" data-tab="agenda"><span class="icon">📋</span><span>Agenda</span></button>
+    <button class="nav-item" data-tab="horarios"><span class="icon">🕐</span><span>Horários</span></button>
+    <button class="nav-item" data-tab="precos"><span class="icon">💰</span><span>Preços</span></button>
+    <button class="nav-item" data-tab="convenios"><span class="icon">🏥</span><span>Convênios</span></button>
+    <div class="sidebar-section">IA</div>
+    <button class="nav-item" data-tab="mensagem"><span class="icon">💬</span><span>Mensagem</span></button>
+    <button class="nav-item" data-tab="regras"><span class="icon">⚙️</span><span>Regras da IA</span></button>
+    <button class="nav-item" data-tab="faq"><span class="icon">❓</span><span>FAQ</span></button>
+    <div class="sidebar-section">Conta</div>
+    <button class="nav-item" data-tab="pausa"><span class="icon">⏸</span><span>Pausa da IA</span></button>
+    <button class="nav-item" data-tab="status"><span class="icon">📊</span><span>Status</span></button>
+  </nav>
 
-  <section class="bloco">
-    <h2>Agenda</h2>
-    <p class="desc">Consultas marcadas pela secretária virtual. Só visualização.</p>
-    <div id="agenda-status" class="vazio">Carregando agendamentos…</div>
-    <div id="agenda-proximos" class="ag-lista" style="display:none"></div>
-    <details class="ag-anteriores" id="agenda-anteriores-wrap" style="display:none">
-      <summary>Agendamentos anteriores</summary>
-      <div id="agenda-anteriores" class="ag-lista"></div>
-    </details>
-  </section>
+  <div class="content">
+    <!-- ── AGENDA ── -->
+    <div class="tab-panel active" id="tab-agenda">
+      <div class="content-header"><h1>Agenda</h1><p>Consultas marcadas pela secretária virtual.</p></div>
+      <div class="content-body">
+        <div class="section-card">
+          <div id="agenda-status" class="vazio">Carregando agendamentos…</div>
+          <div id="agenda-proximos"></div>
+          <details id="agenda-anteriores-wrap" style="display:none">
+            <summary style="cursor:pointer;font-size:12px;color:var(--muted);padding:6px 0">Agendamentos anteriores</summary>
+            <div id="agenda-anteriores" style="margin-top:6px"></div>
+          </details>
+        </div>
+      </div>
+    </div>
 
-  <section class="bloco">
-    <h2>Preços dos serviços/exames</h2>
-    <p class="desc">Nome do serviço e valor em reais.</p>
-    <div id="lista-precos"></div>
-    <button type="button" class="btn-add" id="add-preco">+ Adicionar preço</button>
-  </section>
+    <!-- ── HORÁRIOS ── -->
+    <div class="tab-panel" id="tab-horarios">
+      <div class="content-header"><h1>Horários de atendimento</h1><p>Configure os dias e faixas horárias da clínica.</p></div>
+      <div class="content-body">
+        <div class="section-card">
+          <div id="lista-horarios"></div>
+        </div>
+      </div>
+    </div>
 
-  <section class="bloco">
-    <h2>Horários de atendimento</h2>
-    <p class="desc">Deixe sem faixas os dias em que a clínica não atende.</p>
-    <div id="lista-horarios"></div>
-  </section>
+    <!-- ── PREÇOS ── -->
+    <div class="tab-panel" id="tab-precos">
+      <div class="content-header"><h1>Preços dos serviços</h1><p>Nome do serviço e valor em reais.</p></div>
+      <div class="content-body">
+        <div class="section-card">
+          <div id="lista-precos"></div>
+          <button type="button" class="btn btn-ghost btn-sm" id="add-preco" style="margin-top:4px">+ Adicionar preço</button>
+        </div>
+      </div>
+    </div>
 
-  <section class="bloco">
-    <h2>Convênios aceitos</h2>
-    <p class="desc">Um por linha.</p>
-    <div id="lista-convenios"></div>
-    <button type="button" class="btn-add" id="add-convenio">+ Adicionar convênio</button>
-  </section>
+    <!-- ── CONVÊNIOS ── -->
+    <div class="tab-panel" id="tab-convenios">
+      <div class="content-header"><h1>Convênios aceitos</h1><p>Lista de convênios que a clínica atende.</p></div>
+      <div class="content-body">
+        <div class="section-card">
+          <div id="lista-convenios"></div>
+          <button type="button" class="btn btn-ghost btn-sm" id="add-convenio" style="margin-top:4px">+ Adicionar convênio</button>
+        </div>
+      </div>
+    </div>
 
-  <section class="bloco">
-    <h2>Mensagem de identidade</h2>
-    <p class="desc">Frase curta de boas-vindas. Não é o roteiro da IA, só a apresentação.</p>
-    <textarea id="mensagem-identidade" maxlength="300"></textarea>
-    <div class="contador"><span id="contador-mensagem">0</span>/300</div>
-  </section>
+    <!-- ── MENSAGEM ── -->
+    <div class="tab-panel" id="tab-mensagem">
+      <div class="content-header"><h1>Mensagem de identidade</h1><p>Frase curta de boas-vindas que a IA usa ao iniciar conversa.</p></div>
+      <div class="content-body">
+        <div class="section-card">
+          <div class="field">
+            <textarea id="mensagem-identidade" class="field-input" maxlength="300" rows="3" placeholder="Ex: Olá! Aqui é a secretária da Clínica Saúde+. Como posso ajudar?"></textarea>
+            <div class="field-counter"><span id="contador-mensagem">0</span>/300</div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-  <section class="bloco">
-    <h2>Regras da IA</h2>
-    <p class="desc">Instruções personalizadas para o comportamento da secretária virtual. Exemplo: "Ao mencionar urgência, encaminhe imediatamente para o humano." ou "Nunca informe valores de exames não cadastrados."</p>
-    <textarea id="regras-ia" maxlength="2000" rows="6" placeholder="Ex: Ao paciente pedir cancelamento, sempre ofereça remarcação antes de confirmar."></textarea>
-    <div class="contador"><span id="contador-regras">0</span>/2000</div>
-  </section>
+    <!-- ── REGRAS ── -->
+    <div class="tab-panel" id="tab-regras">
+      <div class="content-header"><h1>Regras da IA</h1><p>Instruções personalizadas para o comportamento da secretária virtual.</p></div>
+      <div class="content-body">
+        <div class="section-card">
+          <div class="field">
+            <div class="field-desc">Ex: "Ao paciente pedir cancelamento, sempre ofereça remarcação." Separe cada regra em uma linha.</div>
+            <textarea id="regras-ia" class="field-input" maxlength="2000" rows="6" placeholder="Digite as regras aqui..."></textarea>
+            <div class="field-counter"><span id="contador-regras">0</span>/2000</div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-  <section class="bloco">
-    <h2>Perguntas Frequentes (FAQ)</h2>
-    <p class="desc">Adicione perguntas e respostas que a IA usa como base. Útil para dúvidas recorrentes sobre a clínica.</p>
-    <div id="lista-faq"></div>
-    <button type="button" class="btn-add" id="add-faq">+ Adicionar pergunta</button>
-  </section>
+    <!-- ── FAQ ── -->
+    <div class="tab-panel" id="tab-faq">
+      <div class="content-header"><h1>Perguntas frequentes</h1><p>FAQ que a IA usa como base para responder pacientes.</p></div>
+      <div class="content-body">
+        <div id="lista-faq"></div>
+        <button type="button" class="btn btn-ghost btn-sm" id="add-faq" style="margin-top:4px">+ Adicionar pergunta</button>
+      </div>
+    </div>
 
-  <div class="rodape-salvar">
-    <button type="button" class="btn-salvar" id="btn-salvar">Salvar alterações</button>
-    <span class="status" id="status-salvar"></span>
+    <!-- ── PAUSA ── -->
+    <div class="tab-panel" id="tab-pausa">
+      <div class="content-header"><h1>Pausa da IA</h1><p>Tempo que a IA fica em silêncio após uma resposta manual sua.</p></div>
+      <div class="content-body">
+        <div class="section-card">
+          <div class="field">
+            <label class="field-label">Minutos de pausa</label>
+            <div class="field-desc">Depois que você responder manualmente no WhatsApp, a IA fica pausada por esse tempo.</div>
+            <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
+              <input type="number" id="tempo-pausa" class="field-input" min="1" max="120" step="1" value="${tempoPausaAtual}" style="width:100px" />
+              <span style="font-size:13px;color:var(--muted)">minutos</span>
+              <button type="button" class="btn btn-primary btn-sm" id="btn-salvar-pausa">Salvar</button>
+              <span id="status-pausa"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STATUS ── -->
+    <div class="tab-panel" id="tab-status">
+      <div class="content-header"><h1>Status da conta</h1><p>Informações sobre assinatura e métricas de uso.</p></div>
+      <div class="content-body">
+        <div class="section-card">
+          <div class="section-card-header">
+            <div class="section-card-title">Assinatura</div>
+          </div>
+          <div id="assinatura-status" class="vazio" style="margin-bottom:8px">Carregando…</div>
+          <div id="assinatura-acao"></div>
+        </div>
+        <div class="section-card">
+          <div class="section-card-header">
+            <div class="section-card-title">Métricas</div>
+          </div>
+          <div id="metricas-corpo" class="vazio">Carregando métricas…</div>
+        </div>
+      </div>
+    </div>
   </div>
+</div>
 
-  <section class="bloco">
-    <h2>Tempo de pausa da IA</h2>
-    <p class="desc">Quantos minutos a Recepta fica em silêncio depois que alguém da clínica responde manualmente no WhatsApp.</p>
-    <div class="linha">
-      <input type="number" id="tempo-pausa" min="1" max="120" step="1" value="${tempoPausaAtual}" style="max-width:110px" />
-      <span>minutos</span>
-    </div>
-    <div class="rodape-salvar" style="position:static;padding:14px 0 0">
-      <button type="button" class="btn-salvar" id="btn-salvar-pausa">Salvar</button>
-      <span class="status" id="status-pausa"></span>
-    </div>
-  </section>
+<div class="save-bar">
+  <button type="button" class="btn btn-primary" id="btn-salvar">Salvar alterações</button>
+  <span id="status-salvar"></span>
+</div>
 
-  <section class="bloco">
-    <h2>Assinatura</h2>
-    <p class="desc" id="assinatura-status">Carregando…</p>
-    <div id="assinatura-acao"></div>
-  </section>
-
-  <section class="bloco">
-    <h2>Métricas</h2>
-    <div id="metricas-corpo" class="vazio">Carregando…</div>
-  </section>
-</main>
 <script>
 var CONFIG = ${jsonParaScript(config)};
 var DIAS = ${jsonParaScript(DIAS)};
@@ -247,516 +356,309 @@ var NOME_DIA = ${jsonParaScript(NOME_DIA)};
 if (!CONFIG.regras_ia) CONFIG.regras_ia = '';
 if (!Array.isArray(CONFIG.faq)) CONFIG.faq = [];
 
+// ── Tab navigation ──
+var navItems = document.querySelectorAll('.nav-item[data-tab]');
+navItems.forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    navItems.forEach(function(b) { b.classList.remove('active'); });
+    document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+// ── Helpers ──
 function el(tag, attrs, filhos) {
   var e = document.createElement(tag);
   attrs = attrs || {};
-  Object.keys(attrs).forEach(function(k){
+  Object.keys(attrs).forEach(function(k) {
     if (k === 'text') e.textContent = attrs[k];
     else e.setAttribute(k, attrs[k]);
   });
-  (filhos || []).forEach(function(f){ e.appendChild(f); });
+  (filhos || []).forEach(function(f) { e.appendChild(f); });
   return e;
 }
 
-// --- agenda (somente leitura) ---
+// ── Agenda ──
 function formatarTelefone(tel) {
-  var digitos = String(tel || '').replace(/\D/g, '');
-  return digitos ? '+' + digitos : '(sem telefone)';
+  var d = String(tel || '').replace(/\\D/g, '');
+  return d ? '+' + d : '(sem telefone)';
 }
 function agendaItem(item, passado) {
   var dt = new Date(item.data_hora);
   var dataStr = dt.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit' });
   var horaStr = dt.toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' });
   var cancelado = item.status === 'cancelado';
-  var classes = 'ag-item' + (passado ? ' ag-passado' : '') + (cancelado ? ' ag-cancelado' : '');
+  var badge = cancelado
+    ? el('span', { class: 'badge badge-muted', text: 'Cancelado' })
+    : el('span', { class: 'badge badge-green', text: 'Agendado' });
   var filhos = [
-    el('div', { class: 'ag-data' }, [
-      el('b', { text: dataStr }),
-      el('span', { text: horaStr })
-    ]),
-    el('div', { class: 'ag-tel', text: formatarTelefone(item.paciente_telefone) }),
-    el('span', {
-      class: 'ag-badge ' + (cancelado ? 'ag-badge-cancelado' : 'ag-badge-agendado'),
-      text: cancelado ? 'Cancelado' : 'Agendado'
-    })
+    el('div', {}, [el('div', { class: 'ag-date', text: dataStr }), el('div', { class: 'ag-time', text: horaStr })]),
+    el('div', { class: 'ag-phone', text: formatarTelefone(item.paciente_telefone) }),
+    badge
   ];
-  // Botões cancelar e remarcar para agendamentos futuros não cancelados
   if (!passado && !cancelado) {
-    // Botão remarcar
-    var btnRemarcar = el('button', { type: 'button', class: 'ag-btn-remarcar', text: '✎' });
-    btnRemarcar.title = 'Remarcar agendamento';
-    btnRemarcar.addEventListener('click', function() {
-      abrirModalRemarcar(item);
-    });
-    filhos.push(btnRemarcar);
-    // Botão cancelar
-    var btnCancelar = el('button', { type: 'button', class: 'ag-btn-cancelar', text: '✕' });
-    btnCancelar.title = 'Cancelar agendamento';
-    btnCancelar.addEventListener('click', function() {
+    var actions = el('div', { class: 'ag-actions' });
+    var btnR = el('button', { type: 'button', class: 'btn-icon', text: '✎', title: 'Remarcar' });
+    btnR.addEventListener('click', function() { abrirModalRemarcar(item); });
+    var btnC = el('button', { type: 'button', class: 'btn-icon', text: '✕', title: 'Cancelar' });
+    btnC.addEventListener('click', function() {
       if (!confirm('Cancelar este agendamento?')) return;
-      btnCancelar.disabled = true;
-      btnCancelar.textContent = '…';
-      fetch('/api/clinica/painel-acoes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ acao: 'cancelar_agendamento', agendamento_id: item.id })
-      })
+      btnC.disabled = true;
+      fetch('/api/clinica/painel-acoes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ acao: 'cancelar_agendamento', agendamento_id: item.id }) })
         .then(function(r) { return r.json(); })
         .then(function(res) {
-          if (res.erro) {
-            alert('Erro: ' + res.erro);
-            btnCancelar.disabled = false;
-            btnCancelar.textContent = '✕';
-            return;
-          }
-          // Atualizar visual
-          var badge = btnCancelar.parentElement.querySelector('.ag-badge');
-          if (badge) {
-            badge.className = 'ag-badge ag-badge-cancelado';
-            badge.textContent = 'Cancelado';
-          }
-          btnCancelar.style.display = 'none';
-          btnRemarcar.style.display = 'none';
-        })
-        .catch(function() {
-          btnCancelar.disabled = false;
-          btnCancelar.textContent = '✕';
-          alert('Falha de conexão.');
-        });
+          if (res.erro) { alert('Erro: ' + res.erro); btnC.disabled = false; return; }
+          badge.className = 'badge badge-muted'; badge.textContent = 'Cancelado';
+          btnC.style.display = 'none'; btnR.style.display = 'none';
+        }).catch(function() { btnC.disabled = false; alert('Falha de conexão.'); });
     });
-    filhos.push(btnCancelar);
+    actions.appendChild(btnR); actions.appendChild(btnC);
+    filhos.push(actions);
   }
-  return el('div', { class: classes }, filhos);
+  return el('div', { class: 'ag-item' + (passado ? ' opacity:0.5' : '') }, filhos);
 }
 
-// Modal de remarcar agendamento
 function abrirModalRemarcar(item) {
-  // Remover modal existente
-  var modalExistente = document.getElementById('modal-remarcar');
-  if (modalExistente) modalExistente.remove();
-
+  var existente = document.getElementById('modal-remarcar');
+  if (existente) existente.remove();
   var dt = new Date(item.data_hora);
-  var dataAtual = dt.toISOString().slice(0, 10);
-  var horaAtual = dt.toTimeString().slice(0, 5);
-
   var modal = el('div', { id: 'modal-remarcar', class: 'modal-overlay' });
-  var conteudo = el('div', { class: 'modal-conteudo' });
-
-  var titulo = el('h3', { text: 'Remarcar agendamento' });
-  var subtitulo = el('p', { class: 'modal-sub', text: formatarTelefone(item.paciente_telefone) });
-
-  var linhaData = el('div', { class: 'modal-linha' }, [
-    el('label', { text: 'Nova data' }),
-  ]);
-  var inputData = el('input', { type: 'date', value: dataAtual });
-  linhaData.appendChild(inputData);
-
-  var linhaHora = el('div', { class: 'modal-linha' }, [
-    el('label', { text: 'Novo horário' }),
-  ]);
-  var inputHora = el('input', { type: 'time', value: horaAtual });
-  linhaHora.appendChild(inputHora);
-
-  var erroMsg = el('p', { class: 'modal-erro', text: '' });
-
-  var btnGroup = el('div', { class: 'modal-btns' });
-  var btnCancelarModal = el('button', { type: 'button', class: 'modal-btn-cancelar', text: 'Cancelar' });
-  btnCancelarModal.addEventListener('click', function() { modal.remove(); });
-  var btnConfirmar = el('button', { type: 'button', class: 'modal-btn-confirmar', text: 'Remarcar' });
-  btnConfirmar.addEventListener('click', function() {
-    var novaData = inputData.value;
-    var novaHora = inputHora.value;
-    if (!novaData || !novaHora) {
-      erroMsg.textContent = 'Preencha data e horário.';
-      return;
-    }
-    var novaDataHora = novaData + 'T' + novaHora + ':00';
-    btnConfirmar.disabled = true;
-    btnConfirmar.textContent = 'Remarcando…';
-    erroMsg.textContent = '';
-    fetch('/api/clinica/painel-acoes', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        acao: 'remarcar_agendamento',
-        agendamento_id: item.id,
-        nova_data_hora: novaDataHora
-      })
-    })
+  var conteudo = el('div', { class: 'modal-content' });
+  conteudo.appendChild(el('h3', { text: 'Remarcar agendamento' }));
+  conteudo.appendChild(el('p', { class: 'modal-sub', text: formatarTelefone(item.paciente_telefone) }));
+  var lData = el('div', { class: 'modal-field' }, [el('label', { text: 'Nova data' })]);
+  var iData = el('input', { type: 'date', value: dt.toISOString().slice(0, 10) });
+  lData.appendChild(iData);
+  var lHora = el('div', { class: 'modal-field' }, [el('label', { text: 'Novo horário' })]);
+  var iHora = el('input', { type: 'time', value: dt.toTimeString().slice(0, 5) });
+  lHora.appendChild(iHora);
+  var erroMsg = el('p', { class: 'modal-error' });
+  var actions = el('div', { class: 'modal-actions' });
+  var btnC = el('button', { type: 'button', class: 'btn btn-ghost', text: 'Cancelar' });
+  btnC.addEventListener('click', function() { modal.remove(); });
+  var btnOK = el('button', { type: 'button', class: 'btn btn-primary', text: 'Remarcar' });
+  btnOK.addEventListener('click', function() {
+    if (!iData.value || !iHora.value) { erroMsg.textContent = 'Preencha data e horário.'; return; }
+    btnOK.disabled = true; btnOK.textContent = 'Remarcando…';
+    fetch('/api/clinica/painel-acoes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ acao: 'remarcar_agendamento', agendamento_id: item.id, nova_data_hora: iData.value + 'T' + iHora.value + ':00' }) })
       .then(function(r) { return r.json(); })
       .then(function(res) {
-        if (res.erro) {
-          erroMsg.textContent = res.erro === 'data_invalida' ? 'Data/hora inválida ou no passado.' : 'Erro: ' + res.erro;
-          btnConfirmar.disabled = false;
-          btnConfirmar.textContent = 'Remarcar';
-          return;
-        }
-        modal.remove();
-        // Recarregar agenda
-        fetch('/api/clinica/agenda-listar')
-          .then(function(r) { return r.json(); })
-          .then(function(res) {
-            if (res.ok) renderAgenda(res.agendamentos || []);
-          });
-      })
-      .catch(function() {
-        erroMsg.textContent = 'Falha de conexão.';
-        btnConfirmar.disabled = false;
-        btnConfirmar.textContent = 'Remarcar';
-      });
+        if (res.erro) { erroMsg.textContent = res.erro === 'data_invalida' ? 'Data/hora inválida.' : 'Erro: ' + res.erro; btnOK.disabled = false; btnOK.textContent = 'Remarcar'; return; }
+        modal.remove(); carregarAgenda();
+      }).catch(function() { erroMsg.textContent = 'Falha de conexão.'; btnOK.disabled = false; btnOK.textContent = 'Remarcar'; });
   });
-  btnGroup.appendChild(btnCancelarModal);
-  btnGroup.appendChild(btnConfirmar);
-
-  conteudo.appendChild(titulo);
-  conteudo.appendChild(subtitulo);
-  conteudo.appendChild(linhaData);
-  conteudo.appendChild(linhaHora);
-  conteudo.appendChild(erroMsg);
-  conteudo.appendChild(btnGroup);
+  actions.appendChild(btnC); actions.appendChild(btnOK);
+  conteudo.appendChild(lData); conteudo.appendChild(lHora); conteudo.appendChild(erroMsg); conteudo.appendChild(actions);
   modal.appendChild(conteudo);
-
-  // Fechar ao clicar fora
-  modal.addEventListener('click', function(e) {
-    if (e.target === modal) modal.remove();
-  });
-
+  modal.addEventListener('click', function(e) { if (e.target === modal) modal.remove(); });
   document.body.appendChild(modal);
-  inputData.focus();
+  iData.focus();
 }
 
 function renderAgenda(agendamentos) {
   var elStatus = document.getElementById('agenda-status');
-  var elProximos = document.getElementById('agenda-proximos');
-  var elAnterioresWrap = document.getElementById('agenda-anteriores-wrap');
-  var elAnteriores = document.getElementById('agenda-anteriores');
-
-  if (!agendamentos.length) {
-    elStatus.textContent = 'Nenhum agendamento por aqui ainda.';
-    return;
-  }
-
-  var agora = new Date();
-  var proximos = [];
-  var anteriores = [];
-  agendamentos.forEach(function (item) {
-    if (new Date(item.data_hora) >= agora) proximos.push(item);
-    else anteriores.push(item);
-  });
+  var elProx = document.getElementById('agenda-proximos');
+  var elAntW = document.getElementById('agenda-anteriores-wrap');
+  var elAnt = document.getElementById('agenda-anteriores');
+  elProx.innerHTML = ''; elAnt.innerHTML = '';
+  if (!agendamentos.length) { elStatus.textContent = 'Nenhum agendamento por aqui ainda.'; elStatus.style.display = ''; return; }
+  var agora = new Date(), proximos = [], anteriores = [];
+  agendamentos.forEach(function(item) { (new Date(item.data_hora) >= agora ? proximos : anteriores).push(item); });
   anteriores.reverse();
-
   elStatus.style.display = 'none';
-
-  if (proximos.length) {
-    elProximos.style.display = '';
-    proximos.forEach(function (item) { elProximos.appendChild(agendaItem(item, false)); });
-  } else {
-    elStatus.style.display = '';
-    elStatus.textContent = 'Nenhum agendamento futuro no momento.';
-  }
-
-  if (anteriores.length) {
-    elAnterioresWrap.style.display = '';
-    anteriores.forEach(function (item) { elAnteriores.appendChild(agendaItem(item, true)); });
-  }
+  if (proximos.length) { proximos.forEach(function(item) { elProx.appendChild(agendaItem(item, false)); }); }
+  else { elStatus.style.display = ''; elStatus.textContent = 'Nenhum agendamento futuro.'; }
+  if (anteriores.length) { elAntW.style.display = ''; anteriores.forEach(function(item) { elAnt.appendChild(agendaItem(item, true)); }); }
+  else { elAntW.style.display = 'none'; }
 }
-fetch('/api/clinica/agenda-listar')
-  .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, corpo: j }; }); })
-  .then(function (res) {
-    if (!res.ok || !res.corpo || !res.corpo.ok) {
-      document.getElementById('agenda-status').textContent = 'Não foi possível carregar a agenda.';
-      return;
-    }
-    renderAgenda(res.corpo.agendamentos || []);
-  })
-  .catch(function () {
-    document.getElementById('agenda-status').textContent = 'Falha de conexão ao carregar a agenda.';
-  });
+function carregarAgenda() {
+  fetch('/api/clinica/agenda-listar').then(function(r) { return r.json(); })
+    .then(function(j) { if (j.ok) renderAgenda(j.agendamentos || []); else document.getElementById('agenda-status').textContent = 'Erro ao carregar.'; })
+    .catch(function() { document.getElementById('agenda-status').textContent = 'Falha de conexão.'; });
+}
+carregarAgenda();
 
-// --- precos ---
-var elListaPrecos = document.getElementById('lista-precos');
-function renderPrecos(){
-  elListaPrecos.innerHTML = '';
-  if (!CONFIG.precos.length) {
-    elListaPrecos.appendChild(el('p', { class: 'vazio', text: 'Nenhum preço cadastrado.' }));
-  }
-  CONFIG.precos.forEach(function(item, i){
-    var inputNome = el('input', { type: 'text', placeholder: 'Nome do serviço', value: item.nome });
-    inputNome.addEventListener('input', function(){ CONFIG.precos[i].nome = inputNome.value; });
-    var inputValor = el('input', { type: 'number', step: '0.01', min: '0', placeholder: 'R$', value: item.valor });
-    inputValor.addEventListener('input', function(){ CONFIG.precos[i].valor = parseFloat(inputValor.value || '0'); });
-    var btnDel = el('button', { type: 'button', class: 'btn-remover', text: '×' });
-    btnDel.addEventListener('click', function(){ CONFIG.precos.splice(i, 1); renderPrecos(); });
-    elListaPrecos.appendChild(el('div', { class: 'linha' }, [inputNome, inputValor, btnDel]));
+// ── Preços ──
+var elPrecos = document.getElementById('lista-precos');
+function renderPrecos() {
+  elPrecos.innerHTML = '';
+  if (!CONFIG.precos.length) { elPrecos.appendChild(el('p', { class: 'vazio', text: 'Nenhum preço cadastrado.' })); return; }
+  CONFIG.precos.forEach(function(item, i) {
+    var iN = el('input', { type: 'text', placeholder: 'Nome do serviço', value: item.nome });
+    iN.addEventListener('input', function() { CONFIG.precos[i].nome = iN.value; });
+    var iV = el('input', { type: 'number', step: '0.01', min: '0', placeholder: 'R$', value: item.valor });
+    iV.addEventListener('input', function() { CONFIG.precos[i].valor = parseFloat(iV.value || '0'); });
+    var btn = el('button', { type: 'button', class: 'btn-icon', text: '×', title: 'Remover' });
+    btn.addEventListener('click', function() { CONFIG.precos.splice(i, 1); renderPrecos(); });
+    elPrecos.appendChild(el('div', { class: 'item-row' }, [iN, iV, btn]));
   });
 }
-document.getElementById('add-preco').addEventListener('click', function(){
-  CONFIG.precos.push({ nome: '', valor: 0 });
-  renderPrecos();
-});
+document.getElementById('add-preco').addEventListener('click', function() { CONFIG.precos.push({ nome: '', valor: 0 }); renderPrecos(); });
 
-// --- convenios ---
-var elListaConvenios = document.getElementById('lista-convenios');
-function renderConvenios(){
-  elListaConvenios.innerHTML = '';
-  if (!CONFIG.convenios.length) {
-    elListaConvenios.appendChild(el('p', { class: 'vazio', text: 'Nenhum convênio cadastrado.' }));
-  }
-  CONFIG.convenios.forEach(function(nome, i){
-    var input = el('input', { type: 'text', placeholder: 'Nome do convênio', value: nome });
-    input.addEventListener('input', function(){ CONFIG.convenios[i] = input.value; });
-    var btnDel = el('button', { type: 'button', class: 'btn-remover', text: '×' });
-    btnDel.addEventListener('click', function(){ CONFIG.convenios.splice(i, 1); renderConvenios(); });
-    elListaConvenios.appendChild(el('div', { class: 'linha' }, [input, btnDel]));
+// ── Convênios ──
+var elConv = document.getElementById('lista-convenios');
+function renderConvenios() {
+  elConv.innerHTML = '';
+  if (!CONFIG.convenios.length) { elConv.appendChild(el('p', { class: 'vazio', text: 'Nenhum convênio cadastrado.' })); return; }
+  CONFIG.convenios.forEach(function(nome, i) {
+    var iN = el('input', { type: 'text', placeholder: 'Nome do convênio', value: nome });
+    iN.addEventListener('input', function() { CONFIG.convenios[i] = iN.value; });
+    var btn = el('button', { type: 'button', class: 'btn-icon', text: '×', title: 'Remover' });
+    btn.addEventListener('click', function() { CONFIG.convenios.splice(i, 1); renderConvenios(); });
+    elConv.appendChild(el('div', { class: 'item-row' }, [iN, btn]));
   });
 }
-document.getElementById('add-convenio').addEventListener('click', function(){
-  CONFIG.convenios.push('');
-  renderConvenios();
-});
+document.getElementById('add-convenio').addEventListener('click', function() { CONFIG.convenios.push(''); renderConvenios(); });
 
-// --- horarios ---
-var elListaHorarios = document.getElementById('lista-horarios');
-function renderHorarios(){
-  elListaHorarios.innerHTML = '';
-  DIAS.forEach(function(dia){
+// ── Horários ──
+var elHorarios = document.getElementById('lista-horarios');
+function renderHorarios() {
+  elHorarios.innerHTML = '';
+  DIAS.forEach(function(dia) {
     var faixas = CONFIG.horarios[dia] || (CONFIG.horarios[dia] = []);
-    var wrap = el('div', { class: 'dia-bloco' });
-    var cabeca = el('div', { class: 'dia-cabeca' }, [
-      el('b', { text: NOME_DIA[dia] }),
-      faixas.length ? document.createTextNode('') : el('span', { class: 'fechado', text: 'Fechado' })
-    ]);
-    wrap.appendChild(cabeca);
-
-    faixas.forEach(function(faixa, i){
-      var inicio = el('input', { type: 'time', value: faixa.inicio || '' });
-      inicio.addEventListener('input', function(){ faixa.inicio = inicio.value; });
-      var fim = el('input', { type: 'time', value: faixa.fim || '' });
-      fim.addEventListener('input', function(){ faixa.fim = fim.value; });
-      var btnDel = el('button', { type: 'button', class: 'btn-remover', text: '×' });
-      btnDel.addEventListener('click', function(){ faixas.splice(i, 1); renderHorarios(); });
-      wrap.appendChild(el('div', { class: 'linha' }, [inicio, document.createTextNode('até'), fim, btnDel]));
+    var wrap = el('div', { class: 'day-block' });
+    var cab = el('div', { class: 'day-header' }, [el('b', { text: NOME_DIA[dia] })]);
+    if (!faixas.length) cab.appendChild(el('span', { class: 'closed', text: 'Fechado' }));
+    wrap.appendChild(cab);
+    faixas.forEach(function(f, i) {
+      var iI = el('input', { type: 'time', value: f.inicio || '' });
+      iI.addEventListener('input', function() { f.inicio = iI.value; });
+      var iF = el('input', { type: 'time', value: f.fim || '' });
+      iF.addEventListener('input', function() { f.fim = iF.value; });
+      var btn = el('button', { type: 'button', class: 'btn-icon', text: '×', title: 'Remover' });
+      btn.addEventListener('click', function() { faixas.splice(i, 1); renderHorarios(); });
+      wrap.appendChild(el('div', { class: 'item-row' }, [iI, document.createTextNode('até'), iF, btn]));
     });
-
-    var btnAdd = el('button', { type: 'button', class: 'btn-add', text: faixas.length ? '+ Adicionar faixa' : '+ Abrir nesse dia' });
-    btnAdd.addEventListener('click', function(){
-      faixas.push({ inicio: '08:00', fim: '18:00' });
-      renderHorarios();
-    });
+    var btnAdd = el('button', { type: 'button', class: 'btn btn-ghost btn-sm', text: faixas.length ? '+ Adicionar faixa' : '+ Abrir nesse dia' });
+    btnAdd.addEventListener('click', function() { faixas.push({ inicio: '08:00', fim: '18:00' }); renderHorarios(); });
     wrap.appendChild(btnAdd);
-
-    elListaHorarios.appendChild(wrap);
+    elHorarios.appendChild(wrap);
   });
 }
 
-// --- mensagem ---
-var elMensagem = document.getElementById('mensagem-identidade');
-var elContador = document.getElementById('contador-mensagem');
-elMensagem.value = CONFIG.mensagem_identidade || '';
-elContador.textContent = elMensagem.value.length;
-elMensagem.addEventListener('input', function(){
-  elContador.textContent = elMensagem.value.length;
-});
+// ── Mensagem ──
+var elMsg = document.getElementById('mensagem-identidade');
+var elContMsg = document.getElementById('contador-mensagem');
+elMsg.value = CONFIG.mensagem_identidade || '';
+elContMsg.textContent = elMsg.value.length;
+elMsg.addEventListener('input', function() { elContMsg.textContent = elMsg.value.length; });
 
-renderPrecos();
-renderConvenios();
-renderHorarios();
-
-// --- regras ia ---
+// ── Regras ──
 var elRegras = document.getElementById('regras-ia');
-var elContadorRegras = document.getElementById('contador-regras');
+var elContRegras = document.getElementById('contador-regras');
 elRegras.value = CONFIG.regras_ia || '';
-elContadorRegras.textContent = elRegras.value.length;
-elRegras.addEventListener('input', function(){
-  elContadorRegras.textContent = elRegras.value.length;
-});
+elContRegras.textContent = elRegras.value.length;
+elRegras.addEventListener('input', function() { elContRegras.textContent = elRegras.value.length; });
 
-// --- faq ---
-var elListaFaq = document.getElementById('lista-faq');
-function renderFaq(){
-  elListaFaq.innerHTML = '';
-  if (!CONFIG.faq.length) {
-    elListaFaq.appendChild(el('p', { class: 'vazio', text: 'Nenhuma pergunta cadastrada.' }));
-  }
-  CONFIG.faq.forEach(function(item, i){
+// ── FAQ ──
+var elFaq = document.getElementById('lista-faq');
+function renderFaq() {
+  elFaq.innerHTML = '';
+  if (!CONFIG.faq.length) { elFaq.appendChild(el('p', { class: 'vazio', text: 'Nenhuma pergunta cadastrada.' })); return; }
+  CONFIG.faq.forEach(function(item, i) {
     var wrap = el('div', { class: 'faq-item' });
-    var inputPergunta = el('input', { type: 'text', placeholder: 'Pergunta (ex: Vocês atendem Unimed?)', value: item.pergunta });
-    inputPergunta.addEventListener('input', function(){ CONFIG.faq[i].pergunta = inputPergunta.value; });
-    var textareaResposta = el('textarea', { placeholder: 'Resposta da IA (ex: Sim, atendemos Unimed e Amil.)', rows: '2' });
-    textareaResposta.value = item.resposta;
-    textareaResposta.addEventListener('input', function(){ CONFIG.faq[i].resposta = textareaResposta.value; });
-    var btnDel = el('button', { type: 'button', class: 'btn-remover', text: '×' });
-    btnDel.addEventListener('click', function(){ CONFIG.faq.splice(i, 1); renderFaq(); });
-    var cabeca = el('div', { class: 'faq-cabeca' }, [inputPergunta, btnDel]);
-    wrap.appendChild(cabeca);
-    wrap.appendChild(textareaResposta);
-    elListaFaq.appendChild(wrap);
+    var cab = el('div', { class: 'faq-header' });
+    var iP = el('input', { type: 'text', placeholder: 'Pergunta do paciente', value: item.pergunta });
+    iP.addEventListener('input', function() { CONFIG.faq[i].pergunta = iP.value; });
+    var btn = el('button', { type: 'button', class: 'btn-icon', text: '×', title: 'Remover' });
+    btn.addEventListener('click', function() { CONFIG.faq.splice(i, 1); renderFaq(); });
+    cab.appendChild(iP); cab.appendChild(btn); wrap.appendChild(cab);
+    var tA = el('textarea', { placeholder: 'Resposta da IA', rows: '2' });
+    tA.value = item.resposta;
+    tA.addEventListener('input', function() { CONFIG.faq[i].resposta = tA.value; });
+    wrap.appendChild(tA);
+    elFaq.appendChild(wrap);
   });
 }
-document.getElementById('add-faq').addEventListener('click', function(){
-  if (CONFIG.faq.length >= 20) return;
-  CONFIG.faq.push({ pergunta: '', resposta: '' });
-  renderFaq();
-});
-renderFaq();
+document.getElementById('add-faq').addEventListener('click', function() { if (CONFIG.faq.length >= 20) return; CONFIG.faq.push({ pergunta: '', resposta: '' }); renderFaq(); });
 
-// --- salvar ---
-var elStatus = document.getElementById('status-salvar');
+// ── Render all ──
+renderPrecos(); renderConvenios(); renderHorarios(); renderFaq();
+
+// ── Save ──
+var elStatusSalvar = document.getElementById('status-salvar');
 var elBtnSalvar = document.getElementById('btn-salvar');
-elBtnSalvar.addEventListener('click', function(){
-  elStatus.textContent = '';
-  elStatus.className = 'status';
-  elBtnSalvar.disabled = true;
-  elBtnSalvar.textContent = 'Salvando…';
-
-  var payload = {
-    precos: CONFIG.precos,
-    horarios: CONFIG.horarios,
-    convenios: CONFIG.convenios,
-    mensagem_identidade: elMensagem.value,
-    regras_ia: elRegras.value,
-    faq: CONFIG.faq
-  };
-
+elBtnSalvar.addEventListener('click', function() {
+  elStatusSalvar.textContent = '';
+  elBtnSalvar.disabled = true; elBtnSalvar.textContent = 'Salvando…';
   fetch('/api/clinica/config-salvar', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  })
-    .then(function(r){ return r.json().then(function(j){ return { ok: r.ok, corpo: j }; }); })
-    .then(function(res){
-      elBtnSalvar.disabled = false;
-      elBtnSalvar.textContent = 'Salvar alterações';
-      if (!res.ok) {
-        elStatus.textContent = 'Não foi possível salvar. Confere os campos.';
-        elStatus.className = 'status erro';
-        return;
-      }
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ precos: CONFIG.precos, horarios: CONFIG.horarios, convenios: CONFIG.convenios, mensagem_identidade: elMsg.value, regras_ia: elRegras.value, faq: CONFIG.faq })
+  }).then(function(r) { return r.json().then(function(j) { return { ok: r.ok, corpo: j }; }); })
+    .then(function(res) {
+      elBtnSalvar.disabled = false; elBtnSalvar.textContent = 'Salvar alterações';
+      if (!res.ok) { elStatusSalvar.innerHTML = '<span class="badge badge-red">Erro ao salvar</span>'; return; }
       CONFIG = res.corpo.config;
-      renderPrecos();
-      renderConvenios();
-      renderHorarios();
-      renderFaq();
-      elRegras.value = CONFIG.regras_ia || '';
-      elContadorRegras.textContent = elRegras.value.length;
-      elStatus.textContent = 'Salvo!';
-      elStatus.className = 'status ok';
-    })
-    .catch(function(){
-      elBtnSalvar.disabled = false;
-      elBtnSalvar.textContent = 'Salvar alterações';
-      elStatus.textContent = 'Falha de conexão. Tenta de novo.';
-      elStatus.className = 'status erro';
+      renderPrecos(); renderConvenios(); renderHorarios(); renderFaq();
+      elRegras.value = CONFIG.regras_ia || ''; elContRegras.textContent = elRegras.value.length;
+      elStatusSalvar.innerHTML = '<span class="badge badge-green">Salvo!</span>';
+      setTimeout(function() { elStatusSalvar.innerHTML = ''; }, 3000);
+    }).catch(function() {
+      elBtnSalvar.disabled = false; elBtnSalvar.textContent = 'Salvar alterações';
+      elStatusSalvar.innerHTML = '<span class="badge badge-red">Falha de conexão</span>';
     });
 });
 
-document.getElementById('btn-sair').addEventListener('click', function(){
-  fetch('/api/clinica/logout', { method: 'POST' }).then(function(){
-    window.location.href = '/clinica/login';
-  });
+// ── Logout ──
+document.getElementById('btn-sair').addEventListener('click', function() {
+  fetch('/api/clinica/logout', { method: 'POST' }).then(function() { window.location.href = '/clinica/login'; });
 });
 
-// --- tempo de pausa ---
-document.getElementById('btn-salvar-pausa').addEventListener('click', function(){
-  var elStatus = document.getElementById('status-pausa');
-  var input = document.getElementById('tempo-pausa');
-  var valor = parseInt(input.value, 10);
-  elStatus.textContent = '';
-  elStatus.className = 'status';
-  if (!Number.isInteger(valor) || valor < 1 || valor > 120) {
-    elStatus.textContent = 'Informe um número entre 1 e 120.';
-    elStatus.className = 'status erro';
-    return;
-  }
-  fetch('/api/clinica/painel-acoes', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ acao: 'tempo_pausa', tempo_pausa_minutos: valor })
-  })
-    .then(function(r){ return r.json().then(function(j){ return { ok: r.ok, corpo: j }; }); })
-    .then(function(res){
-      if (!res.ok) {
-        elStatus.textContent = 'Não foi possível salvar.';
-        elStatus.className = 'status erro';
-        return;
-      }
-      elStatus.textContent = 'Salvo!';
-      elStatus.className = 'status ok';
-    })
-    .catch(function(){
-      elStatus.textContent = 'Falha de conexão.';
-      elStatus.className = 'status erro';
-    });
+// ── Pausa ──
+document.getElementById('btn-salvar-pausa').addEventListener('click', function() {
+  var elSP = document.getElementById('status-pausa');
+  var v = parseInt(document.getElementById('tempo-pausa').value, 10);
+  elSP.innerHTML = '';
+  if (!Number.isInteger(v) || v < 1 || v > 120) { elSP.innerHTML = '<span class="badge badge-red">Informe 1–120</span>'; return; }
+  fetch('/api/clinica/painel-acoes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ acao: 'tempo_pausa', tempo_pausa_minutos: v }) })
+    .then(function(r) { return r.json(); })
+    .then(function(res) { elSP.innerHTML = res.ok ? '<span class="badge badge-green">Salvo!</span>' : '<span class="badge badge-red">Erro</span>'; })
+    .catch(function() { elSP.innerHTML = '<span class="badge badge-red">Falha</span>'; });
 });
 
-// --- assinatura ---
+// ── Assinatura ──
 var ASSINATURA = ${jsonParaScript(assinatura)};
-(function(){
-  var elStatus = document.getElementById('assinatura-status');
-  var elAcao = document.getElementById('assinatura-acao');
-  var statusLabel = ASSINATURA.status === 'ativo'
-    ? 'Assinatura ativa'
-    : (ASSINATURA.status === 'trial' ? 'Em período de teste' : (ASSINATURA.status || 'Status desconhecido'));
-  var partes = [statusLabel];
+(function() {
+  var elS = document.getElementById('assinatura-status');
+  var elA = document.getElementById('assinatura-acao');
+  var lbl = ASSINATURA.status === 'ativo' ? 'Assinatura ativa' : (ASSINATURA.status === 'trial' ? 'Período de teste' : (ASSINATURA.status || 'Desconhecido'));
+  var partes = [lbl];
   if (ASSINATURA.plano) partes.push('Plano: ' + (ASSINATURA.plano === 'anual' ? 'Anual' : 'Mensal'));
-  if (ASSINATURA.trial_fim) {
-    var dt = new Date(ASSINATURA.trial_fim);
-    partes.push('Trial até ' + dt.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }));
-  }
-  elStatus.textContent = partes.join(' · ');
-
+  if (ASSINATURA.trial_fim) partes.push('Trial até ' + new Date(ASSINATURA.trial_fim).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }));
+  elS.textContent = partes.join(' · ');
+  elS.className = ASSINATURA.status === 'ativo' ? 'badge badge-green' : (ASSINATURA.status === 'trial' ? 'badge badge-muted' : 'badge badge-muted');
   if (ASSINATURA.tem_stripe) {
-    var btn = el('button', { type: 'button', class: 'btn-add', text: 'Gerenciar assinatura' });
-    btn.addEventListener('click', function(){
-      btn.disabled = true;
-      btn.textContent = 'Abrindo…';
-      fetch('/api/clinica/painel-acoes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ acao: 'portal_sessao' })
-      })
-        .then(function(r){ return r.json().then(function(j){ return { ok: r.ok, corpo: j }; }); })
-        .then(function(res){
-          if (!res.ok || !res.corpo.url) {
-            btn.disabled = false;
-            btn.textContent = 'Gerenciar assinatura';
-            elStatus.textContent = elStatus.textContent + ' — falha ao abrir o portal.';
-            return;
-          }
-          window.location.href = res.corpo.url;
-        })
-        .catch(function(){
-          btn.disabled = false;
-          btn.textContent = 'Gerenciar assinatura';
-        });
+    var btn = el('button', { type: 'button', class: 'btn btn-ghost btn-sm', text: 'Gerenciar assinatura' });
+    btn.addEventListener('click', function() {
+      btn.disabled = true; btn.textContent = 'Abrindo…';
+      fetch('/api/clinica/painel-acoes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ acao: 'portal_sessao' }) })
+        .then(function(r) { return r.json(); })
+        .then(function(res) { if (res.ok && res.url) window.location.href = res.url; else { btn.disabled = false; btn.textContent = 'Gerenciar assinatura'; } })
+        .catch(function() { btn.disabled = false; btn.textContent = 'Gerenciar assinatura'; });
     });
-    elAcao.appendChild(btn);
+    elA.appendChild(btn);
   }
 })();
 
-// --- metricas ---
+// ── Métricas ──
 fetch('/api/clinica/painel-acoes?acao=metricas')
-  .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, corpo: j }; }); })
-  .then(function (res) {
-    var elCorpo = document.getElementById('metricas-corpo');
-    if (!res.ok || !res.corpo || !res.corpo.ok) {
-      elCorpo.textContent = 'Não foi possível carregar as métricas.';
-      return;
-    }
-    elCorpo.className = '';
-    elCorpo.innerHTML = '';
-    elCorpo.appendChild(el('div', { class: 'linha' }, [
-      el('b', { text: 'Conversas: ' }),
-      document.createTextNode(String(res.corpo.total_conversas))
-    ]));
-    elCorpo.appendChild(el('div', { class: 'linha' }, [
-      el('b', { text: 'Escalonamentos: ' }),
-      document.createTextNode(String(res.corpo.total_escalonamentos))
-    ]));
-  })
-  .catch(function () {
-    document.getElementById('metricas-corpo').textContent = 'Falha de conexão ao carregar métricas.';
-  });
+  .then(function(r) { return r.json(); })
+  .then(function(res) {
+    var elC = document.getElementById('metricas-corpo');
+    if (!res.ok) { elC.textContent = 'Erro ao carregar métricas.'; return; }
+    elC.className = ''; elC.innerHTML = '';
+    var grid = el('div', { style: 'display:grid;grid-template-columns:1fr 1fr;gap:12px' });
+    var item1 = el('div', { style: 'text-align:center;padding:12px;background:var(--accent-soft);border-radius:var(--radius)' }, [
+      el('div', { style: 'font-size:24px;font-weight:700;color:var(--primary)', text: String(res.total_conversas || 0) }),
+      el('div', { style: 'font-size:12px;color:var(--muted)', text: 'Conversas' })
+    ]);
+    var item2 = el('div', { style: 'text-align:center;padding:12px;background:var(--accent-soft);border-radius:var(--radius)' }, [
+      el('div', { style: 'font-size:24px;font-weight:700;color:var(--primary)', text: String(res.total_escalonamentos || 0) }),
+      el('div', { style: 'font-size:12px;color:var(--muted)', text: 'Escalonamentos' })
+    ]);
+    grid.appendChild(item1); grid.appendChild(item2); elC.appendChild(grid);
+  }).catch(function() { document.getElementById('metricas-corpo').textContent = 'Falha de conexão.'; });
 </script>
 </body>
 </html>`;
