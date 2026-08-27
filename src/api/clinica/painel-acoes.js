@@ -300,6 +300,65 @@ async function acaoExportar(admin, perfil, query) {
   return { status: 200, corpo: { ok: true, csv: header + "\n" + linhas.join("\n"), total: conversas.length } };
 }
 
+async function acaoListarFeriados(admin, perfil) {
+  const { data, error } = await admin.from("feriados").select("id,data,nome").eq("clinica_id", perfil.clinica_id).order("data", { ascending: true });
+  if (error) return { status: 500, corpo: { erro: "falha_buscar" } };
+  return { status: 200, corpo: { ok: true, feriados: data || [] } };
+}
+
+async function acaoAdicionarFeriado(admin, perfil, body) {
+  const data = body?.data;
+  const nome = typeof body?.nome === "string" ? body.nome.trim() : null;
+  if (!data) return { status: 400, corpo: { erro: "data_obrigatoria" } };
+  const { error } = await admin.from("feriados").insert({ clinica_id: perfil.clinica_id, data, nome });
+  if (error) {
+    if (error.code === "23505") return { status: 409, corpo: { erro: "data_ja_cadastrada" } };
+    return { status: 500, corpo: { erro: "falha_salvar" } };
+  }
+  return { status: 200, corpo: { ok: true } };
+}
+
+async function acaoRemoverFeriado(admin, perfil, body) {
+  const id = body?.id;
+  if (!id) return { status: 400, corpo: { erro: "id_obrigatorio" } };
+  const { error } = await admin.from("feriados").delete().eq("id", id).eq("clinica_id", perfil.clinica_id);
+  if (error) return { status: 500, corpo: { erro: "falha_remover" } };
+  return { status: 200, corpo: { ok: true } };
+}
+
+async function acaoAtualizarPerfil(admin, user, body) {
+  const erros = [];
+  if (typeof body?.nome === "string" && body.nome.trim()) {
+    const nome = body.nome.trim();
+    if (nome.length > 100) { erros.push("Nome muito longo (máx 100 caracteres)."); }
+    else {
+      const { error } = await admin.from("perfis").update({ nome }).eq("id", user.id);
+      if (error) erros.push("Falha ao salvar nome.");
+    }
+  }
+  if (typeof body?.senha_atual === "string" && typeof body?.nova_senha === "string") {
+    if (body.nova_senha.length < 8) {
+      erros.push("A nova senha precisa ter pelo menos 8 caracteres.");
+    } else {
+      const url = process.env.SUPABASE_URL;
+      const tempClient = createClient(url, process.env.SUPABASE_ANON_KEY);
+      const { data: emailUser } = await admin.auth.admin.getUserById(user.id);
+      const email = emailUser?.user?.email;
+      if (!email) { erros.push("Não foi possível verificar a senha atual."); }
+      else {
+        const { error: loginError } = await tempClient.auth.signInWithPassword({ email, password: body.senha_atual });
+        if (loginError) { erros.push("A senha atual está incorreta."); }
+        else {
+          const { error: updateError } = await admin.auth.admin.updateUserById(user.id, { password: body.nova_senha });
+          if (updateError) erros.push("Falha ao atualizar senha.");
+        }
+      }
+    }
+  }
+  if (erros.length) return { status: 400, corpo: { erro: "erros", detalhes: erros } };
+  return { status: 200, corpo: { ok: true } };
+}
+
 async function acaoMetricas(admin, perfil) {
   const { data: clinicaRow } = await admin
     .from("clinicas")
@@ -357,6 +416,15 @@ export default async function handler(req, res) {
       const resultado = await acaoExportar(admin, perfil, req.query);
       return res.status(resultado.status).json(resultado.corpo);
     }
+    if (acao === "feriados") {
+      const resultado = await acaoListarFeriados(admin, perfil);
+      return res.status(resultado.status).json(resultado.corpo);
+    }
+    if (acao === "logout") {
+      const supabase = createSupabaseServerClient(req, res);
+      await supabase.auth.signOut();
+      return res.status(200).json({ ok: true });
+    }
     return res.status(400).json({ erro: "acao_invalida" });
   }
 
@@ -390,6 +458,18 @@ export default async function handler(req, res) {
     }
     if (body?.acao === "cancelar_agendamento") {
       const resultado = await acaoCancelarAgendamento(admin, perfil, body);
+      return res.status(resultado.status).json(resultado.corpo);
+    }
+    if (body?.acao === "adicionar_feriado") {
+      const resultado = await acaoAdicionarFeriado(admin, perfil, body);
+      return res.status(resultado.status).json(resultado.corpo);
+    }
+    if (body?.acao === "remover_feriado") {
+      const resultado = await acaoRemoverFeriado(admin, perfil, body);
+      return res.status(resultado.status).json(resultado.corpo);
+    }
+    if (body?.acao === "atualizar_perfil") {
+      const resultado = await acaoAtualizarPerfil(admin, { id: perfil.id || user.id }, body);
       return res.status(resultado.status).json(resultado.corpo);
     }
     return res.status(400).json({ erro: "acao_invalida" });

@@ -662,7 +662,7 @@ elBtnSalvar.addEventListener('click', function() {
 
 // ── Logout ──
 document.getElementById('btn-sair').addEventListener('click', function() {
-  fetch('/api/clinica/logout', { method: 'POST' }).then(function() { window.location.href = '/clinica/login'; });
+  fetch('/api/clinica/painel-acoes?acao=logout', { method: 'GET' }).then(function() { window.location.href = '/clinica/login'; });
 });
 
 // ── Pausa ──
@@ -765,7 +765,7 @@ carregarConversas();
     if(elSn.value&&elNs.value){ body.senha_atual=elSn.value; body.nova_senha=elNs.value; }
     if(!body.nome&&!body.nova_senha){ elErr.textContent='Preencha pelo menos um campo.'; return; }
     if(body.nova_senha&&body.nova_senha.length<8){ elErr.textContent='Nova senha precisa ter pelo menos 8 caracteres.'; return; }
-    fetch('/api/clinica/perfil',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(function(r){return r.json();}).then(function(res){
+    fetch('/api/clinica/painel-acoes',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({acao:'atualizar_perfil',...body})}).then(function(r){return r.json();}).then(function(res){
       if(res.erro){elErr.textContent=res.detalhes?res.detalhes.join(' '):'Erro: '+res.erro;return;}
       elSn.value=''; elNs.value='';
       elSt.innerHTML='<span class="badge badge-green">Salvo!</span>';
@@ -777,7 +777,7 @@ carregarConversas();
 // ── Feriados ──
 var feriadosDados = [];
 function carregarFeriados(){
-  fetch('/api/clinica/feriados').then(function(r){return r.json();}).then(function(d){
+  fetch('/api/clinica/painel-acoes?acao=feriados').then(function(r){return r.json();}).then(function(d){
     feriadosDados=d.feriados||[];
     renderFeriados();
   });
@@ -794,7 +794,7 @@ function renderFeriados(){
     div.innerHTML='<div style="min-width:100px;font-weight:600;font-size:13px">'+dataFmt+'</div><div style="flex:1;color:var(--muted);font-size:13px">'+escapeHtml(f.nome||'—')+'</div>';
     var btn=document.createElement('button');btn.className='btn-icon';btn.textContent='×';btn.title='Remover';
     btn.addEventListener('click',function(){
-      fetch('/api/clinica/feriados',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({acao:'remover',id:f.id})}).then(function(){carregarFeriados();});
+      fetch('/api/clinica/painel-acoes',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({acao:'remover_feriado',id:f.id})}).then(function(){carregarFeriados();});
     });
     div.appendChild(btn);
     elLi.appendChild(div);
@@ -806,7 +806,7 @@ document.getElementById('btn-add-feriado').addEventListener('click',function(){
   var elErr=document.getElementById('feriado-erro');
   elErr.textContent='';
   if(!data){elErr.textContent='Selecione uma data.';return;}
-  fetch('/api/clinica/feriados',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({acao:'adicionar',data:data,nome:nome||null})}).then(function(r){return r.json();}).then(function(res){
+  fetch('/api/clinica/painel-acoes',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({acao:'adicionar_feriado',data:data,nome:nome||null})}).then(function(r){return r.json();}).then(function(res){
     if(res.erro){elErr.textContent=res.erro==='data_ja_cadastrada'?'Data já cadastrada.':'Erro: '+res.erro;return;}
     document.getElementById('feriado-data').value='';
     document.getElementById('feriado-nome').value='';
