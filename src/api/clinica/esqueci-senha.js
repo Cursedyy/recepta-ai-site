@@ -29,7 +29,12 @@ export default async function handler(req, res) {
     const minutosReset = Math.ceil(rl.resetMs / 60000);
     return res.status(429).json({
       erro: "muitas_tentativas",
-      mensagem: "Muitos pedidos. Tente novamente em " + minutosReset + " minuto" + (minutosReset > 1 ? "s" : "") + ".",
+      mensagem:
+        "Muitos pedidos. Tente novamente em " +
+        minutosReset +
+        " minuto" +
+        (minutosReset > 1 ? "s" : "") +
+        ".",
       restantes: 0,
     });
   }
@@ -65,19 +70,19 @@ export default async function handler(req, res) {
 
   // Busca o usuario diretamente pelo REST API do Supabase Auth, filtrando
   // por email. Mais eficiente que listUsers (que escaneia tudo).
-  const urlAuth = url + "/auth/v1/admin/users?email=" + encodeURIComponent(email);
+  const urlAuth =
+    url + "/auth/v1/admin/users?email=" + encodeURIComponent(email);
   const authRes = await fetch(urlAuth, {
     headers: {
       Authorization: "Bearer " + serviceKey,
       apikey: serviceKey,
     },
   });
-  if (!authRes.ok) return res.status(500).json({ erro: "falha_buscar_usuario" });
+  if (!authRes.ok)
+    return res.status(500).json({ erro: "falha_buscar_usuario" });
   const authData = await authRes.json();
   const usuarios = authData?.users || [];
-  const usuario = usuarios.find(
-    (u) => (u.email || "").toLowerCase() === email,
-  );
+  const usuario = usuarios.find((u) => (u.email || "").toLowerCase() === email);
   if (!usuario) return respostaGenerica();
 
   const { data: perfil } = await admin
@@ -87,6 +92,17 @@ export default async function handler(req, res) {
     .eq("papel", "clinica")
     .maybeSingle();
   if (!perfil) return respostaGenerica();
+
+  // Invalida os resets anteriores ainda nao usados desta clinica antes de
+  // emitir o novo. Sem isso, cada pedido acumulava um link valido por 2h: um
+  // link vazado (encaminhado, historico de email, log de proxy) continuava
+  // trocando a senha mesmo depois de a vitima pedir outro.
+  await admin
+    .from("convites_clinica")
+    .update({ usado_em: new Date().toISOString() })
+    .eq("clinica_id", perfil.clinica_id)
+    .eq("tipo", "reset")
+    .is("usado_em", null);
 
   const token = nanoid(24);
   const expiraEm = new Date(

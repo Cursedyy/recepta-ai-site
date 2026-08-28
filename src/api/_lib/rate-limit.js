@@ -11,12 +11,16 @@
 // --- Fallback em memória (quando Redis não está configurado) ---
 const buckets = new Map();
 
-setInterval(() => {
+// unref: este timer nao pode ser motivo para o processo continuar vivo. Sem
+// ele, qualquer script que importe este modulo (e a propria funcao serverless
+// ao terminar) fica preso no event loop.
+const limpeza = setInterval(() => {
   const now = Date.now();
   for (const [key, entry] of buckets) {
     if (now > entry.resetAt) buckets.delete(key);
   }
 }, 600_000);
+limpeza.unref?.();
 
 function rateLimitMem(key, max, windowMs) {
   const now = Date.now();

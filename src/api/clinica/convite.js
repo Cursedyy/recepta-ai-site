@@ -1,14 +1,36 @@
 import { createClient } from "@supabase/supabase-js";
 import { nanoid } from "nanoid";
+import { timingSafeEqual } from "node:crypto";
+import { rateLimit, getClientIp } from "../_lib/rate-limit.js";
 
 const VALIDADE_HORAS = 48;
+
+// Este endpoint emite convites que criam contas de clinica. E' protegido por
+// uma unica API key estatica, entao precisa de teto de tentativas.
+const MAX_TENTATIVAS = 10;
+const JANELA_MS = 10 * 60 * 1000;
+
+/** Comparacao em tempo constante: `!==` vaza o tamanho do prefixo correto. */
+function apiKeyValida(recebida, esperada) {
+  if (typeof recebida !== "string" || typeof esperada !== "string")
+    return false;
+  const a = Buffer.from(recebida);
+  const b = Buffer.from(esperada);
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(a, b);
+}
 
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store, must-revalidate");
   if (req.method !== "POST") return res.status(405).json({ erro: "metodo" });
 
-  const apiKey = req.headers["x-api-key"];
-  if (!apiKey || apiKey !== process.env.CLINICA_CONVITE_API_KEY) {
+  const ip = getClientIp(req);
+  const rl = await rateLimit("convite:" + ip, MAX_TENTATIVAS, JANELA_MS);
+  if (rl.blocked) return res.status(429).json({ erro: "muitas_tentativas" });
+
+  const esperada = process.env.CLINICA_CONVITE_API_KEY;
+  if (!esperada) return res.status(500).json({ erro: "nao_configurado" });
+  if (!apiKeyValida(req.headers["x-api-key"], esperada)) {
     return res.status(401).json({ erro: "nao_autorizado" });
   }
 

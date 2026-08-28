@@ -16,8 +16,16 @@ export default async function handler(req, res) {
     const minutosReset = Math.ceil(rl.resetMs / 60000);
     return res.status(429).json({
       erro: "muitas_tentativas",
-      mensagem: "Muitas tentativas. Tente novamente em " + minutosReset + " minuto" + (minutosReset > 1 ? "s" : "") + ".",
+      mensagem:
+        "Muitas tentativas. Tente novamente em " +
+        minutosReset +
+        " minuto" +
+        (minutosReset > 1 ? "s" : "") +
+        ".",
       restantes: 0,
+      // Instante real do fim da janela. Sem ele o front conta 5 minutos fixos
+      // e libera o botao antes (ou depois) do rate limit de verdade.
+      bloqueado_ate: new Date(Date.now() + rl.resetMs).toISOString(),
     });
   }
 
@@ -48,6 +56,12 @@ export default async function handler(req, res) {
     return res.status(401).json({
       erro: "credenciais_invalidas",
       restantes: rl.restantes,
+      // Esta tentativa gastou a ultima do bucket: o proximo POST leva 429.
+      // Manda a janela junto para o front bloquear com o tempo certo.
+      bloqueado_ate:
+        rl.restantes <= 0
+          ? new Date(Date.now() + rl.resetMs).toISOString()
+          : undefined,
     });
   }
 
