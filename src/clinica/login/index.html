@@ -82,6 +82,7 @@
         outline-offset: 1px;
       }
       button {
+        position: relative;
         width: 100%;
         padding: 11px;
         border: none;
@@ -90,20 +91,90 @@
         color: #fff;
         font-weight: 600;
         cursor: pointer;
-        transition: filter 0.12s;
+        transition:
+          filter 0.15s,
+          opacity 0.15s;
+        overflow: hidden;
       }
-      button:hover {
+      button:hover:not(:disabled) {
         filter: brightness(1.08);
       }
       button:disabled {
         opacity: 0.6;
         cursor: default;
       }
+      button:active:not(:disabled) {
+        transform: scale(0.98);
+      }
+
+      /* loading spinner (21st.dev pattern) */
+      .btn-loading .btn-text {
+        opacity: 0;
+        transform: translateY(6px);
+      }
+      .btn-loading::after {
+        content: "";
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        margin: auto;
+        border: 2.5px solid rgba(255, 255, 255, 0.3);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: loginSpinner 0.7s linear infinite;
+      }
+      .btn-text {
+        display: inline-block;
+        transition:
+          opacity 0.2s,
+          transform 0.2s;
+      }
+      @keyframes loginSpinner {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* error / attempt messages */
       .erro {
         color: #b3261e;
         font-size: 13px;
         margin-bottom: 10px;
-        min-height: 16px;
+        min-height: 18px;
+        line-height: 1.4;
+        transition: opacity 0.2s;
+      }
+      .erro:empty {
+        min-height: 0;
+        margin-bottom: 0;
+      }
+      .erro .attempt-count {
+        display: block;
+        margin-top: 4px;
+        font-size: 12px;
+        color: #8b1a1a;
+        opacity: 0.85;
+      }
+      .erro-blocked {
+        color: #8b1a1a;
+        background: #fdeaea;
+        border: 1px solid #f5c6c6;
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-size: 13px;
+        margin-bottom: 10px;
+        line-height: 1.4;
+      }
+      .erro-blocked .blocked-timer {
+        display: block;
+        margin-top: 6px;
+        font-weight: 600;
+        font-size: 14px;
+        color: #b3261e;
       }
     </style>
     <link rel="stylesheet" href="/clinica/auth.css" />
@@ -177,7 +248,9 @@
               autocomplete="current-password"
               required
             />
-            <button type="submit" id="btn-entrar">Entrar</button>
+            <button type="submit" id="btn-entrar">
+              <span class="btn-text">Entrar</span>
+            </button>
             <a
               href="/clinica/esqueci-senha"
               style="
@@ -197,10 +270,68 @@
       var elForm = document.getElementById("form-login");
       var elErro = document.getElementById("login-erro");
       var elBtn = document.getElementById("btn-entrar");
+      var elBtnText = elBtn.querySelector(".btn-text");
+
+      function setLoading(on) {
+        if (on) {
+          elBtn.classList.add("btn-loading");
+          elBtn.disabled = true;
+        } else {
+          elBtn.classList.remove("btn-loading");
+          elBtn.disabled = false;
+          elBtnText.textContent = "Entrar";
+        }
+      }
+
+      // Segundos que faltam ate o fim da janela do rate limit. A API manda
+      // bloqueado_ate (ISO); os 300s so valem se ela nao mandar. Sem o clamp,
+      // um relogio local adiantado libera o botao antes da hora, e um atrasado
+      // deixa o usuario esperando uma janela que ja acabou.
+      function segundosDeBloqueio(corpo) {
+        var ate = corpo && corpo.bloqueado_ate;
+        if (!ate) return 300;
+        var faltam = Math.ceil((new Date(ate).getTime() - Date.now()) / 1000);
+        if (!isFinite(faltam)) return 300;
+        return Math.max(1, Math.min(faltam, 3600));
+      }
+
+      function setBlocked(seconds) {
+        elBtn.classList.remove("btn-loading");
+        elBtn.disabled = true;
+        elBtnText.textContent = "Bloqueado";
+        var elTimer = elErro.querySelector(".blocked-timer");
+        var remaining = seconds;
+        function tick() {
+          if (remaining <= 0) {
+            setLoading(false);
+            elErro.innerHTML = "";
+            return;
+          }
+          var m = Math.floor(remaining / 60);
+          var s = remaining % 60;
+          var time = m > 0 ? m + "min " + s + "s" : s + "s";
+          elBtnText.textContent = "Aguarde " + time;
+          if (elTimer) elTimer.textContent = time;
+          remaining--;
+          setTimeout(tick, 1000);
+        }
+        tick();
+      }
+
+      function showError(msg, attempts) {
+        var html = msg;
+        if (typeof attempts === "number" && attempts >= 0) {
+          html +=
+            '<span class="attempt-count">Tentativas restantes: ' +
+            attempts +
+            "/5</span>";
+        }
+        elErro.innerHTML = html;
+      }
 
       elForm.addEventListener("submit", function (ev) {
         ev.preventDefault();
-        elErro.textContent = "";
+        elErro.innerHTML = "";
 
         var email = document.getElementById("email").value.trim();
         var senha = document.getElementById("senha").value;
@@ -210,8 +341,8 @@
           return;
         }
 
-        elBtn.disabled = true;
-        elBtn.textContent = "Entrando…";
+        setLoading(true);
+        elBtnText.textContent = "Entrando\u2026";
 
         fetch("/api/clinica/login", {
           method: "POST",
@@ -225,39 +356,36 @@
           })
           .then(function (res) {
             if (res.corpo && res.corpo.erro === "muitas_tentativas") {
-              elErro.textContent = res.corpo.mensagem || "Muitas tentativas. Aguarde.";
-              elBtn.disabled = true;
-              elBtn.textContent = "Bloqueado";
-              setTimeout(function () {
-                elBtn.disabled = false;
-                elBtn.textContent = "Entrar";
-              }, 300000);
+              var msg =
+                res.corpo.mensagem ||
+                "Muitas tentativas. Conta bloqueada temporariamente.";
+              elErro.innerHTML =
+                '<div class="erro-blocked">' +
+                msg +
+                '<span class="blocked-timer"></span></div>';
+              setBlocked(segundosDeBloqueio(res.corpo));
               return;
             }
             if (!res.ok) {
-              var msg = "E-mail ou senha incorretos.";
-              if (res.corpo && typeof res.corpo.restantes === "number" && res.corpo.restantes > 0) {
-                msg += " Tentativas restantes: " + res.corpo.restantes + "/5.";
-              } else if (res.corpo && typeof res.corpo.restantes === "number" && res.corpo.restantes === 0) {
-                msg = "Muitas tentativas. Conta bloqueada temporariamente.";
-                elBtn.disabled = true;
-                elBtn.textContent = "Bloqueado";
-                setTimeout(function () {
-                  elBtn.disabled = false;
-                  elBtn.textContent = "Entrar";
-                }, 300000);
+              var restantes =
+                res.corpo && typeof res.corpo.restantes === "number"
+                  ? res.corpo.restantes
+                  : null;
+              if (restantes !== null && restantes <= 0) {
+                elErro.innerHTML =
+                  '<div class="erro-blocked">E-mail ou senha incorretos.<span class="blocked-timer"></span></div>';
+                setBlocked(segundosDeBloqueio(res.corpo));
+                return;
               }
-              elErro.textContent = msg;
-              elBtn.disabled = false;
-              elBtn.textContent = "Entrar";
+              setLoading(false);
+              showError("E-mail ou senha incorretos.", restantes);
               return;
             }
             window.location.href = "/clinica/painel";
           })
           .catch(function () {
-            elErro.textContent = "Falha de conexão. Tenta de novo.";
-            elBtn.disabled = false;
-            elBtn.textContent = "Entrar";
+            setLoading(false);
+            showError("Falha de conexão. Tenta de novo.");
           });
       });
     </script>

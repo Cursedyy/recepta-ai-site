@@ -314,6 +314,130 @@
           display: none;
         }
       }
+
+      /* hamburger button */
+      .hamburger {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        padding: 0;
+        border-radius: 10px;
+        flex-shrink: 0;
+      }
+      .hamburger:hover {
+        background: rgba(255,255,255,0.1);
+      }
+      .hamburger:focus-visible {
+        outline: 2px solid #fff;
+        outline-offset: 2px;
+      }
+      .hamburger svg {
+        width: 24px;
+        height: 24px;
+        color: #fff;
+      }
+      .hamburger .icon-close {
+        display: none;
+      }
+      .hamburger[aria-expanded="true"] .icon-open {
+        display: none;
+      }
+      .hamburger[aria-expanded="true"] .icon-close {
+        display: block;
+      }
+      @media (max-width: 900px) {
+        .hamburger {
+          display: flex;
+        }
+      }
+
+      /* mobile nav overlay */
+      .mobile-nav-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 19;
+        background: rgba(16,13,34,0.55);
+        backdrop-filter: blur(4px);
+        opacity: 0;
+        transition: opacity 0.25s ease;
+      }
+      .mobile-nav-overlay.is-open {
+        display: block;
+        opacity: 1;
+      }
+
+      /* mobile nav drawer */
+      .mobile-nav {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: min(320px, 85vw);
+        height: 100dvh;
+        z-index: 21;
+        background: var(--header-bg);
+        border-left: 1px solid rgba(255,255,255,0.12);
+        padding: 80px 24px 32px;
+        transform: translateX(100%);
+        transition: transform 0.3s cubic-bezier(0.16,1,0.3,1);
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        pointer-events: none;
+      }
+      .mobile-nav.is-open {
+        transform: translateX(0);
+        pointer-events: auto;
+      }
+      .mobile-nav a {
+        display: flex;
+        align-items: center;
+        padding: 14px 16px;
+        color: rgba(255,255,255,0.88);
+        font-size: 16px;
+        font-weight: 500;
+        text-decoration: none;
+        border-radius: 12px;
+        transition: background 0.15s, color 0.15s;
+        min-height: 48px;
+      }
+      .mobile-nav a:hover {
+        background: rgba(255,255,255,0.1);
+        color: #fff;
+      }
+      .mobile-nav a:focus-visible {
+        outline: 2px solid #fff;
+        outline-offset: 2px;
+      }
+      .mobile-nav .mobile-nav-divider {
+        height: 1px;
+        background: rgba(255,255,255,0.12);
+        margin: 12px 0;
+      }
+      .mobile-nav .mobile-nav-cta {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 14px 20px;
+        background: #fff;
+        color: var(--accent);
+        font-weight: 600;
+        font-size: 15px;
+        text-decoration: none;
+        border-radius: 12px;
+        text-align: center;
+        margin-top: 8px;
+        min-height: 48px;
+      }
+      .mobile-nav .mobile-nav-cta:hover {
+        background: var(--accent-soft);
+      }
       @media (max-width: 480px) {
         .topbar .btn-primary {
           padding: 10px 16px;
@@ -1001,14 +1125,52 @@
           grid-column: 2;
         }
         .foot-grid {
-          grid-template-columns: 1.6fr 1fr 1fr 1.3fr;
-          gap: 40px;
-          padding: 64px 0 44px;
+          grid-template-columns: 1fr 1fr;
+          gap: 36px 40px;
+          padding: 56px 0 40px;
+        }
+        .foot-brand {
+          grid-column: 1 / -1;
         }
         .foot-bottom {
           flex-direction: row;
           align-items: center;
           justify-content: space-between;
+        }
+      }
+      @media (min-width: 960px) {
+        .foot-grid {
+          grid-template-columns: 1.6fr 1fr 1fr 1.3fr;
+          gap: 40px;
+          padding: 64px 0 44px;
+        }
+        .foot-brand {
+          grid-column: auto;
+        }
+      }
+      @media (max-width: 480px) {
+        .foot-grid {
+          gap: 28px;
+        }
+        .foot-col h3 {
+          font-size: 11px;
+        }
+        .foot-col a {
+          font-size: 13px;
+          padding: 6px 0;
+        }
+        .foot-tagline {
+          font-size: 12.5px;
+          max-width: 28ch;
+        }
+        .foot-bottom {
+          gap: 12px;
+        }
+        .foot-legal {
+          gap: 14px;
+        }
+        .foot-legal a {
+          font-size: 12px;
         }
       }
 
@@ -2103,9 +2265,28 @@
           <a href="/briefing" class="btn btn-primary btn-sm"
             >Experimente grátis</a
           >
+          <button class="hamburger" aria-label="Abrir menu" aria-expanded="false" aria-controls="mobileNav">
+            <svg class="icon-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            <svg class="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
         </div>
       </div>
     </header>
+
+    <!-- mobile nav -->
+    <div class="mobile-nav-overlay" id="mobileNavOverlay"></div>
+    <nav class="mobile-nav" id="mobileNav" aria-label="Menu mobile">
+      <a href="#como-funciona">Como funciona</a>
+      <a href="#recursos">O que ela faz</a>
+      <a href="#painel">O painel</a>
+      <a href="#clinica">Para sua clínica</a>
+      <a href="#custo">Quanto custa</a>
+      <a href="#planos">Planos</a>
+      <a href="#faq">Dúvidas</a>
+      <div class="mobile-nav-divider"></div>
+      <a href="/clinica/login">Entrar</a>
+      <a href="/briefing" class="mobile-nav-cta">Experimente grátis</a>
+    </nav>
     <script>
       document.addEventListener("click", function (event) {
         var insideLink = event.target.closest(".nav-dropdown a");
@@ -2123,6 +2304,50 @@
           menu.open = false;
         });
       });
+
+      /* mobile nav toggle */
+      (function () {
+        var btn = document.querySelector(".hamburger");
+        var drawer = document.getElementById("mobileNav");
+        var overlay = document.getElementById("mobileNavOverlay");
+        if (!btn || !drawer || !overlay) return;
+
+        function openMenu() {
+          btn.setAttribute("aria-expanded", "true");
+          btn.setAttribute("aria-label", "Fechar menu");
+          drawer.classList.add("is-open");
+          overlay.classList.add("is-open");
+          document.body.style.overflow = "hidden";
+        }
+
+        function closeMenu() {
+          btn.setAttribute("aria-expanded", "false");
+          btn.setAttribute("aria-label", "Abrir menu");
+          drawer.classList.remove("is-open");
+          overlay.classList.remove("is-open");
+          document.body.style.overflow = "";
+        }
+
+        btn.addEventListener("click", function () {
+          if (btn.getAttribute("aria-expanded") === "true") {
+            closeMenu();
+          } else {
+            openMenu();
+          }
+        });
+
+        overlay.addEventListener("click", closeMenu);
+
+        drawer.querySelectorAll("a").forEach(function (link) {
+          link.addEventListener("click", closeMenu);
+        });
+
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "Escape" && btn.getAttribute("aria-expanded") === "true") {
+            closeMenu();
+          }
+        });
+      })();
     </script>
 
     <main>
