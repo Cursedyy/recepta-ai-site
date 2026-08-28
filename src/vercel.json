@@ -68,11 +68,5 @@
       "source": "/api/clinica/convite",
       "destination": "/api/painel/admin"
     }
-  ],
-  "crons": [
-    {
-      "path": "/api/cron/expirar-trials",
-      "schedule": "0 9 * * *"
-    }
   ]
 }
