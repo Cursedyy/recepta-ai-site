@@ -721,32 +721,13 @@ function renderConversas(msgs) {
   });
   Object.values(porTel).forEach(function (conv) {
     var div = document.createElement("div");
-    div.style.cssText =
-      "border:1.5px solid var(--border);border-radius:var(--radius);padding:12px 16px;margin-bottom:8px;cursor:pointer;transition:all 0.2s";
-    div.onmouseover = function () {
-      div.style.boxShadow = "var(--shadow)";
-    };
-    div.onmouseout = function () {
-      div.style.boxShadow = "none";
-    };
-    var tel = conv.telefone;
-    var d = String(tel || "").replace(/\D/g, "");
-    if ((d.length === 12 || d.length === 13) && d.indexOf("55") === 0)
-      d = d.slice(2);
-    var telFmt = d.length >= 10 ? "(" + d.slice(0, 2) + ") " + d.slice(2) : tel;
+    div.className = "conv-card";
+    div.setAttribute("role", "button");
+    div.setAttribute("tabindex", "0");
+    var telFmt = telefoneBonito(conv.telefone);
     var ult = conv.msgs[0];
     var role = ult.role === "ia" ? "Recepta: " : "Paciente: ";
-    var corpo = ult.mensagem || "";
-    try {
-      var o = JSON.parse(corpo);
-      if (o && o.mimetype)
-        corpo =
-          o.mimetype.indexOf("audio") >= 0
-            ? "🎤 Áudio"
-            : o.mimetype.indexOf("image") >= 0
-              ? "🖼 Imagem"
-              : "📎 Doc";
-    } catch (e) {}
+    var corpo = textoMensagem(ult.mensagem);
     if (corpo.length > 80) corpo = corpo.slice(0, 80) + "…";
     var dt = new Date(ult.criado_em).toLocaleString("pt-BR", {
       timeZone: "America/Sao_Paulo",
@@ -766,9 +747,137 @@ function renderConversas(msgs) {
       '</div><div style="font-size:11px;color:var(--muted);margin-top:2px">' +
       conv.msgs.length +
       " mensagens</div>";
+    div.setAttribute("aria-label", "Abrir conversa com " + telFmt);
+    div.addEventListener("click", function () {
+      abrirConversa(conv);
+    });
+    div.addEventListener("keydown", function (ev) {
+      if (ev.key === "Enter" || ev.key === " ") {
+        ev.preventDefault();
+        abrirConversa(conv);
+      }
+    });
     elLi.appendChild(div);
   });
 }
+// Telefone no formato que a clinica reconhece: o banco guarda E.164
+// ("5553991635302"), o painel mostra "(53) 991635302". Estava inline dentro do
+// card; o modal precisa do mesmo rotulo, entao virou funcao.
+function telefoneBonito(tel) {
+  var d = String(tel || "").replace(/\D/g, "");
+  if ((d.length === 12 || d.length === 13) && d.indexOf("55") === 0)
+    d = d.slice(2);
+  return d.length >= 10 ? "(" + d.slice(0, 2) + ") " + d.slice(2) : tel;
+}
+
+// Midia chega como JSON com mimetype, nao como texto. Sem isso o balao mostra
+// o JSON cru (com o base64 junto, quando a midia vem inline).
+function textoMensagem(bruto) {
+  var corpo = bruto || "";
+  try {
+    var o = JSON.parse(corpo);
+    if (o && o.mimetype)
+      corpo =
+        o.mimetype.indexOf("audio") >= 0
+          ? "🎤 Áudio"
+          : o.mimetype.indexOf("image") >= 0
+            ? "🖼 Imagem"
+            : "📎 Documento";
+  } catch (e) {}
+  return corpo;
+}
+
+// Abre a conversa inteira num modal. NAO chama o servidor: convCache ja tem
+// todas as mensagens (?acao=conversas devolve ate 500 linhas, ja filtradas pela
+// clinica no servidor), entao a thread e' so o agrupamento que renderConversas
+// ja montou. Um fetch novo aqui criaria mais uma rota multi-tenant para revisar.
+function abrirConversa(conv) {
+  var antigo = document.getElementById("modal-conversa");
+  if (antigo) antigo.remove();
+
+  var rotulo = telefoneBonito(conv.telefone);
+  var modal = el("div", { id: "modal-conversa", class: "modal-overlay" });
+  var caixa = el("div", {
+    class: "modal-content modal-chat",
+    role: "dialog",
+    "aria-modal": "true",
+    "aria-label": "Conversa com " + rotulo,
+  });
+
+  var btnX = el("button", {
+    type: "button",
+    class: "chat-close",
+    "aria-label": "Fechar conversa",
+    text: "✕",
+  });
+  caixa.appendChild(
+    el("div", { class: "chat-head" }, [
+      el("div", {}, [
+        el("h3", { text: rotulo }),
+        el("p", { class: "modal-sub", text: conv.msgs.length + " mensagens" }),
+      ]),
+      btnX,
+    ]),
+  );
+
+  // convCache vem do mais recente para o mais antigo; a thread le ao contrario.
+  var thread = el("div", { class: "chat-thread" });
+  var diaAtual = "";
+  conv.msgs
+    .slice()
+    .reverse()
+    .forEach(function (m) {
+      var d = new Date(m.criado_em);
+      var dia = d.toLocaleDateString("pt-BR", {
+        timeZone: "America/Sao_Paulo",
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+      if (dia !== diaAtual) {
+        diaAtual = dia;
+        thread.appendChild(el("div", { class: "chat-day", text: dia }));
+      }
+      var ehIa = m.role === "ia";
+      thread.appendChild(
+        el("div", { class: "chat-row " + (ehIa ? "ia" : "paciente") }, [
+          el("span", {
+            class: "chat-autor",
+            text: ehIa ? "Recepta" : "Paciente",
+          }),
+          el("div", { class: "chat-bubble", text: textoMensagem(m.mensagem) }),
+          el("span", {
+            class: "chat-hora",
+            text: d.toLocaleTimeString("pt-BR", {
+              timeZone: "America/Sao_Paulo",
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+          }),
+        ]),
+      );
+    });
+  caixa.appendChild(thread);
+  modal.appendChild(caixa);
+
+  function fechar() {
+    document.removeEventListener("keydown", aoTeclar);
+    modal.remove();
+  }
+  function aoTeclar(ev) {
+    if (ev.key === "Escape") fechar();
+  }
+  btnX.addEventListener("click", fechar);
+  modal.addEventListener("click", function (ev) {
+    if (ev.target === modal) fechar();
+  });
+  document.addEventListener("keydown", aoTeclar);
+
+  document.body.appendChild(modal);
+  thread.scrollTop = thread.scrollHeight;
+  btnX.focus();
+}
+
 // Busca: seleciona os telefones com match e mantem a conversa inteira.
 // Filtrar mensagem a mensagem faria o card exibir contagem e previa erradas.
 document.getElementById("conv-busca").addEventListener("input", function () {

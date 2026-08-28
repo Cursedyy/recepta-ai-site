@@ -2,3 +2,5 @@ node_modules
 test-painel-script.mjs
 test-responsive-ci.mjs
 screenshots
+test-getclientip.mjs
+preview-conversa.html

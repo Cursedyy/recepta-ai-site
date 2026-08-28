@@ -187,6 +187,38 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
 .modal-error { color: var(--red); font-size: 12px; min-height: 18px; margin-bottom: 10px; }
 .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
 
+/* -- Conversa (thread) --
+   Fundo do thread: canvas slate-100 com dot-grid discreto (padrao dos chats do
+   21st.dev). Existe para os baloes brancos terem borda visivel contra o fundo:
+   sobre o branco do modal o balao do paciente sumia. Contraste do texto:
+   --ink (#0f172a) sobre #fff = 17.8:1 e sobre --primary-soft (#eef2ff) = 16.4:1,
+   os dois passam WCAG AAA. */
+.modal-chat { max-width: 640px; padding: 0; display: flex; flex-direction: column; max-height: 86vh; overflow: hidden; }
+.chat-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 18px 22px; border-bottom: 1px solid var(--border); background: var(--surface); }
+.chat-head .modal-sub { margin: 2px 0 0; }
+.chat-close { width: 30px; height: 30px; flex: 0 0 auto; border-radius: 8px; border: 1.5px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; font-size: 15px; line-height: 1; transition: all 0.2s ease; }
+.chat-close:hover { background: var(--accent-soft); color: var(--ink); }
+.chat-close:focus-visible { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
+.chat-thread { flex: 1; overflow-y: auto; padding: 20px 22px; display: flex; flex-direction: column; gap: 10px; background-color: #f1f5f9; background-image: radial-gradient(circle at 1px 1px, rgba(15,23,42,0.07) 1px, transparent 0); background-size: 18px 18px; }
+.chat-thread::-webkit-scrollbar { width: 8px; }
+.chat-thread::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+.chat-day { align-self: center; margin: 6px 0; font-size: 11px; font-weight: 600; color: var(--muted); background: rgba(255,255,255,0.92); border: 1px solid var(--border); padding: 3px 12px; border-radius: 999px; }
+.chat-row { display: flex; flex-direction: column; max-width: 78%; }
+.chat-row.ia { align-self: flex-end; align-items: flex-end; }
+.chat-row.paciente { align-self: flex-start; align-items: flex-start; }
+.chat-autor { font-size: 10.5px; font-weight: 600; color: var(--muted); margin-bottom: 3px; padding: 0 4px; text-transform: uppercase; letter-spacing: 0.4px; }
+.chat-bubble { padding: 9px 13px; border-radius: 14px; font-size: 13.5px; line-height: 1.55; color: var(--ink); white-space: pre-wrap; overflow-wrap: anywhere; box-shadow: var(--shadow-sm); }
+.chat-row.paciente .chat-bubble { background: #ffffff; border: 1px solid var(--border); border-bottom-left-radius: 4px; }
+.chat-row.ia .chat-bubble { background: var(--primary-soft); border: 1px solid #c7d2fe; border-bottom-right-radius: 4px; }
+.chat-hora { font-size: 10.5px; color: var(--muted); margin-top: 3px; padding: 0 4px; }
+.conv-card { border: 1.5px solid var(--border); border-radius: var(--radius); padding: 12px 16px; margin-bottom: 8px; cursor: pointer; background: var(--surface); transition: box-shadow 0.2s ease, border-color 0.2s ease; }
+.conv-card:hover { box-shadow: var(--shadow); border-color: #c7d2fe; }
+.conv-card:focus-visible { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
+@media (max-width: 768px) {
+  .modal-chat { max-height: 92vh; }
+  .chat-row { max-width: 88%; }
+}
+
 /* ── Floating save ── */
 .save-bar { position: fixed; bottom: 20px; right: 24px; z-index: 50; display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-lg); padding: 10px 18px; box-shadow: var(--shadow-lg); }
 
