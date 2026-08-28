@@ -1,46 +1,18 @@
 import { createClient } from "@supabase/supabase-js";
 import { createSupabaseServerClient } from "../_lib/supabase-server.js";
+import { autenticarClinica } from "../_lib/auth-clinica.js";
+import { rateLimit } from "../_lib/rate-limit.js";
 
 const MIN_MINUTOS = 1;
 const MAX_MINUTOS = 120;
 const STRIPE_RETURN_URL = "https://www.receptaai.com.br/clinica/painel";
 
-async function autenticar(req, res) {
-  const supabase = createSupabaseServerClient(req, res);
-  const { data: userData } = await supabase.auth.getUser();
-  const user = userData?.user;
-  if (!user)
-    return { erro: { status: 401, corpo: { erro: "nao_autenticado" } } };
-
-  const url = process.env.SUPABASE_URL;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !serviceKey) {
-    return {
-      erro: { status: 500, corpo: { erro: "supabase_nao_configurado" } },
-    };
-  }
-
-  const admin = createClient(url, serviceKey, {
-    auth: { persistSession: false },
-  });
-
-  const { data: perfil } = await admin
-    .from("perfis")
-    .select("id,papel,clinica_id,nome,ativo")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (
-    !perfil ||
-    perfil.papel !== "clinica" ||
-    !perfil.ativo ||
-    !perfil.clinica_id
-  ) {
-    return { erro: { status: 403, corpo: { erro: "sem_permissao" } } };
-  }
-
-  return { admin, perfil };
-}
+// Mutacoes do painel: 60 por minuto por usuario. Uso normal fica muito
+// abaixo disso; o limite existe para conter loop no client ou conta
+// comprometida cancelando a agenda inteira. Chave por usuario, nao por IP:
+// aqui ja passamos da autenticacao e clinicas compartilham IP de consultorio.
+const MAX_MUTACOES = 60;
+const JANELA_MUTACOES_MS = 60 * 1000;
 
 async function acaoTempoPausa(admin, perfil, body) {
   const valor = Number(body?.tempo_pausa_minutos);
@@ -96,7 +68,10 @@ async function acaoPortalSessao(admin, perfil) {
     console.error("stripe_portal_erro", JSON.stringify(dados?.error));
     return {
       status: 502,
-      corpo: { erro: "falha_stripe", detalhe: "Erro ao comunicar com o Stripe. Tente novamente." },
+      corpo: {
+        erro: "falha_stripe",
+        detalhe: "Erro ao comunicar com o Stripe. Tente novamente.",
+      },
     };
   }
 
@@ -135,13 +110,25 @@ async function acaoPausarConversa(admin, perfil, body) {
     return { status: 404, corpo: { erro: "conversa_nao_encontrada" } };
 
   const { error } = await admin.from("conversas_pausadas").upsert(
-    { telefone, clinica: nomeClinica, pausada: true, pausada_em: new Date().toISOString() },
-    { onConflict: "telefone,clinica" }
+    {
+      telefone,
+      clinica: nomeClinica,
+      pausada: true,
+      pausada_em: new Date().toISOString(),
+    },
+    { onConflict: "telefone,clinica" },
   );
 
   if (error) {
     console.error("pausar_conversa_erro", error.message);
-    return { status: 500, corpo: { erro: "falha_pausar", detalhe: "Tabela conversas_pausadas não existe. Execute o SQL de migração." } };
+    return {
+      status: 500,
+      corpo: {
+        erro: "falha_pausar",
+        detalhe:
+          "Tabela conversas_pausadas não existe. Execute o SQL de migração.",
+      },
+    };
   }
 
   return { status: 200, corpo: { ok: true, pausada: true } };
@@ -165,7 +152,14 @@ async function acaoRetomarConversa(admin, perfil, body) {
 
   if (error) {
     console.error("retomar_conversa_erro", error.message);
-    return { status: 500, corpo: { erro: "falha_retomar", detalhe: "Tabela conversas_pausadas não existe. Execute o SQL de migração." } };
+    return {
+      status: 500,
+      corpo: {
+        erro: "falha_retomar",
+        detalhe:
+          "Tabela conversas_pausadas não existe. Execute o SQL de migração.",
+      },
+    };
   }
 
   return { status: 200, corpo: { ok: true, pausada: false } };
@@ -260,25 +254,22 @@ function escapeCsv(valor) {
 }
 
 async function acaoExportar(admin, perfil, query) {
-  const clinicaFiltro = query?.clinica || null;
   const dataInicio = query?.inicio || null;
   const dataFim = query?.fim || null;
+
+  // FAIL CLOSED: se o nome da clinica nao resolver, NAO exportamos nada.
+  // Antes o filtro simplesmente nao era aplicado e o CSV saia com as conversas
+  // de TODAS as clinicas (vazamento entre tenants de dados de pacientes).
+  // O parametro ?clinica= tambem foi removido: `autenticar` ja garante
+  // papel === "clinica", entao o unico escopo legitimo e' o do proprio perfil.
+  const nomeClinica = await resolverNomeClinica(admin, perfil);
+  if (!nomeClinica) return { status: 403, corpo: { erro: "sem_permissao" } };
 
   let q = admin
     .from("conversas")
     .select("telefone,clinica,role,mensagem,criado_em")
+    .eq("clinica", nomeClinica)
     .order("criado_em", { ascending: true });
-
-  if (perfil.papel === "clinica" && perfil.clinica_id) {
-    const { data: clinicaRow } = await admin
-      .from("clinicas")
-      .select("clinica")
-      .eq("id", perfil.clinica_id)
-      .maybeSingle();
-    if (clinicaRow?.clinica) q = q.eq("clinica", clinicaRow.clinica);
-  } else if (clinicaFiltro) {
-    q = q.eq("clinica", clinicaFiltro);
-  }
 
   if (dataInicio) q = q.gte("criado_em", dataInicio);
   if (dataFim) q = q.lte("criado_em", dataFim);
@@ -291,20 +282,62 @@ async function acaoExportar(admin, perfil, query) {
   const header = "Data,Hora,Telefone,Clínica,Papel,Mensagem";
   const linhas = conversas.map((c) => {
     const dt = new Date(c.criado_em);
-    const data = dt.toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo" });
-    const hora = dt.toLocaleTimeString("pt-BR", { timeZone: "America/Sao_Paulo", hour: "2-digit", minute: "2-digit" });
+    const data = dt.toLocaleDateString("pt-BR", {
+      timeZone: "America/Sao_Paulo",
+    });
+    const hora = dt.toLocaleTimeString("pt-BR", {
+      timeZone: "America/Sao_Paulo",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
     return [
-      escapeCsv(data), escapeCsv(hora), escapeCsv(c.telefone),
-      escapeCsv(c.clinica), escapeCsv(c.role === "ia" ? "Recepta" : "Paciente"),
-      escapeCsv(c.mensagem)
+      escapeCsv(data),
+      escapeCsv(hora),
+      escapeCsv(c.telefone),
+      escapeCsv(c.clinica),
+      escapeCsv(c.role === "ia" ? "Recepta" : "Paciente"),
+      escapeCsv(c.mensagem),
     ].join(",");
   });
 
-  return { status: 200, corpo: { ok: true, csv: header + "\n" + linhas.join("\n"), total: conversas.length } };
+  return {
+    status: 200,
+    corpo: {
+      ok: true,
+      csv: header + "\n" + linhas.join("\n"),
+      total: conversas.length,
+    },
+  };
+}
+
+const CONVERSAS_LIMITE = 500;
+
+// Lista as conversas da clinica do usuario. Existe porque o painel antes lia a
+// tabela `conversas` DIRETO do navegador com a anon key e SEM filtro de
+// clinica: qualquer clinica logada (ou anonimo, se a RLS estivesse permissiva)
+// recebia telefone e mensagens de pacientes de todas as outras clinicas.
+// O filtro por tenant tem que acontecer no servidor, com a service role.
+async function acaoConversas(admin, perfil) {
+  const nomeClinica = await resolverNomeClinica(admin, perfil);
+  if (!nomeClinica) return { status: 403, corpo: { erro: "sem_permissao" } };
+
+  const { data, error } = await admin
+    .from("conversas")
+    .select("id,telefone,clinica,role,mensagem,criado_em")
+    .eq("clinica", nomeClinica)
+    .order("criado_em", { ascending: false })
+    .limit(CONVERSAS_LIMITE);
+
+  if (error) return { status: 500, corpo: { erro: "falha_buscar" } };
+  return { status: 200, corpo: { ok: true, conversas: data || [] } };
 }
 
 async function acaoListarFeriados(admin, perfil) {
-  const { data, error } = await admin.from("feriados").select("id,data,nome").eq("clinica_id", perfil.clinica_id).order("data", { ascending: true });
+  const { data, error } = await admin
+    .from("feriados")
+    .select("id,data,nome")
+    .eq("clinica_id", perfil.clinica_id)
+    .order("data", { ascending: true });
   if (error) return { status: 500, corpo: { erro: "falha_buscar" } };
   return { status: 200, corpo: { ok: true, feriados: data || [] } };
 }
@@ -313,9 +346,12 @@ async function acaoAdicionarFeriado(admin, perfil, body) {
   const data = body?.data;
   const nome = typeof body?.nome === "string" ? body.nome.trim() : null;
   if (!data) return { status: 400, corpo: { erro: "data_obrigatoria" } };
-  const { error } = await admin.from("feriados").insert({ clinica_id: perfil.clinica_id, data, nome });
+  const { error } = await admin
+    .from("feriados")
+    .insert({ clinica_id: perfil.clinica_id, data, nome });
   if (error) {
-    if (error.code === "23505") return { status: 409, corpo: { erro: "data_ja_cadastrada" } };
+    if (error.code === "23505")
+      return { status: 409, corpo: { erro: "data_ja_cadastrada" } };
     return { status: 500, corpo: { erro: "falha_salvar" } };
   }
   return { status: 200, corpo: { ok: true } };
@@ -324,7 +360,11 @@ async function acaoAdicionarFeriado(admin, perfil, body) {
 async function acaoRemoverFeriado(admin, perfil, body) {
   const id = body?.id;
   if (!id) return { status: 400, corpo: { erro: "id_obrigatorio" } };
-  const { error } = await admin.from("feriados").delete().eq("id", id).eq("clinica_id", perfil.clinica_id);
+  const { error } = await admin
+    .from("feriados")
+    .delete()
+    .eq("id", id)
+    .eq("clinica_id", perfil.clinica_id);
   if (error) return { status: 500, corpo: { erro: "falha_remover" } };
   return { status: 200, corpo: { ok: true } };
 }
@@ -333,13 +373,20 @@ async function acaoAtualizarPerfil(admin, user, body) {
   const erros = [];
   if (typeof body?.nome === "string" && body.nome.trim()) {
     const nome = body.nome.trim();
-    if (nome.length > 100) { erros.push("Nome muito longo (máx 100 caracteres)."); }
-    else {
-      const { error } = await admin.from("perfis").update({ nome }).eq("id", user.id);
+    if (nome.length > 100) {
+      erros.push("Nome muito longo (máx 100 caracteres).");
+    } else {
+      const { error } = await admin
+        .from("perfis")
+        .update({ nome })
+        .eq("id", user.id);
       if (error) erros.push("Falha ao salvar nome.");
     }
   }
-  if (typeof body?.senha_atual === "string" && typeof body?.nova_senha === "string") {
+  if (
+    typeof body?.senha_atual === "string" &&
+    typeof body?.nova_senha === "string"
+  ) {
     if (body.nova_senha.length < 8) {
       erros.push("A nova senha precisa ter pelo menos 8 caracteres.");
     } else {
@@ -347,18 +394,27 @@ async function acaoAtualizarPerfil(admin, user, body) {
       const tempClient = createClient(url, process.env.SUPABASE_ANON_KEY);
       const { data: emailUser } = await admin.auth.admin.getUserById(user.id);
       const email = emailUser?.user?.email;
-      if (!email) { erros.push("Não foi possível verificar a senha atual."); }
-      else {
-        const { error: loginError } = await tempClient.auth.signInWithPassword({ email, password: body.senha_atual });
-        if (loginError) { erros.push("A senha atual está incorreta."); }
-        else {
-          const { error: updateError } = await admin.auth.admin.updateUserById(user.id, { password: body.nova_senha });
+      if (!email) {
+        erros.push("Não foi possível verificar a senha atual.");
+      } else {
+        const { error: loginError } = await tempClient.auth.signInWithPassword({
+          email,
+          password: body.senha_atual,
+        });
+        if (loginError) {
+          erros.push("A senha atual está incorreta.");
+        } else {
+          const { error: updateError } = await admin.auth.admin.updateUserById(
+            user.id,
+            { password: body.nova_senha },
+          );
           if (updateError) erros.push("Falha ao atualizar senha.");
         }
       }
     }
   }
-  if (erros.length) return { status: 400, corpo: { erro: "erros", detalhes: erros } };
+  if (erros.length)
+    return { status: 400, corpo: { erro: "erros", detalhes: erros } };
   return { status: 200, corpo: { ok: true } };
 }
 
@@ -409,12 +465,7 @@ async function acaoMetricas(admin, perfil) {
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store, must-revalidate");
 
-  let auth;
-  try {
-    auth = await autenticar(req, res);
-  } catch {
-    return res.status(500).json({ erro: "supabase_nao_configurado" });
-  }
+  const auth = await autenticarClinica(req, res);
   if (auth.erro) return res.status(auth.erro.status).json(auth.erro.corpo);
   const { admin, perfil } = auth;
 
@@ -426,6 +477,10 @@ export default async function handler(req, res) {
     }
     if (acao === "exportar") {
       const resultado = await acaoExportar(admin, perfil, req.query);
+      return res.status(resultado.status).json(resultado.corpo);
+    }
+    if (acao === "conversas") {
+      const resultado = await acaoConversas(admin, perfil);
       return res.status(resultado.status).json(resultado.corpo);
     }
     if (acao === "feriados") {
@@ -441,6 +496,18 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "POST") {
+    const rl = await rateLimit(
+      "painel:" + perfil.id,
+      MAX_MUTACOES,
+      JANELA_MUTACOES_MS,
+    );
+    if (rl.blocked) {
+      return res.status(429).json({
+        erro: "muitas_requisicoes",
+        mensagem: "Muitas acoes seguidas. Aguarde um momento e tente de novo.",
+      });
+    }
+
     let body;
     try {
       body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
