@@ -3,11 +3,26 @@
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "X-XSS-Protection", "value": "1; mode=block" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=()"
+        },
         {
           "key": "Content-Security-Policy",
           "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://esm.sh https://unpkg.com https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
@@ -17,15 +32,39 @@
     {
       "source": "/api/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "no-store, no-cache, must-revalidate" }
+        {
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate"
+        }
       ]
     }
   ],
   "rewrites": [
-    { "source": "/t/:token", "destination": "/t/index.html" },
-    { "source": "/clinica/login", "destination": "/clinica/login/index.html" },
-    { "source": "/clinica/definir-senha/:token", "destination": "/clinica/definir-senha/index.html" },
-    { "source": "/clinica/esqueci-senha", "destination": "/clinica/esqueci-senha/index.html" },
-    { "source": "/clinica/painel", "destination": "/api/clinica/painel-view" }
+    {
+      "source": "/t/:token",
+      "destination": "/t/index.html"
+    },
+    {
+      "source": "/clinica/login",
+      "destination": "/clinica/login/index.html"
+    },
+    {
+      "source": "/clinica/definir-senha/:token",
+      "destination": "/clinica/definir-senha/index.html"
+    },
+    {
+      "source": "/clinica/esqueci-senha",
+      "destination": "/clinica/esqueci-senha/index.html"
+    },
+    {
+      "source": "/clinica/painel",
+      "destination": "/api/clinica/painel-view"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/expirar-trials",
+      "schedule": "0 9 * * *"
+    }
   ]
 }
