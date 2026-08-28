@@ -3,8 +3,8 @@
 Workflow **Atendimento WhatsApp (Template Genérico) (1)** — `cxn5FxUNMJmlJ1WJ`.
 
 Sem este IF, `/api/stripe/webhook` e `/api/cron/expirar-trials` gravam
-`suspensa` no banco e o bot continua atendendo de graça. Ver a nota de memória `billing`.
-`suspensa` no banco e o bot continua atendendo de graça. Ver [[billing]].
+`suspensa` no banco e o bot continua atendendo de graça. Ver a nota de
+memória `billing`.
 
 ## Onde entra
 
