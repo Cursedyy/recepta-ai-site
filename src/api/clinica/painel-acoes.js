@@ -26,7 +26,7 @@ async function autenticar(req, res) {
 
   const { data: perfil } = await admin
     .from("perfis")
-    .select("papel,clinica_id,nome,ativo")
+    .select("id,papel,clinica_id,nome,ativo")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -481,7 +481,7 @@ export default async function handler(req, res) {
       return res.status(resultado.status).json(resultado.corpo);
     }
     if (body?.acao === "atualizar_perfil") {
-      const resultado = await acaoAtualizarPerfil(admin, { id: perfil.id || user.id }, body);
+      const resultado = await acaoAtualizarPerfil(admin, perfil, body);
       return res.status(resultado.status).json(resultado.corpo);
     }
     return res.status(400).json({ erro: "acao_invalida" });
