@@ -380,7 +380,19 @@ async function acaoMetricas(admin, perfil) {
     .eq("clinica", clinicaRow.clinica)
     .eq("escalado", true);
 
-  if (erroConversas || erroEscalonamentos) {
+  const { count: totalAgendamentos, error: erroAgendamentos } = await admin
+    .from("agendamentos")
+    .select("id", { count: "exact", head: true })
+    .eq("clinica_id", perfil.clinica_id);
+
+  const { count: agendamentosAtivos, error: erroAgendAtivos } = await admin
+    .from("agendamentos")
+    .select("id", { count: "exact", head: true })
+    .eq("clinica_id", perfil.clinica_id)
+    .eq("status", "agendado")
+    .gte("data_hora", new Date().toISOString());
+
+  if (erroConversas || erroEscalonamentos || erroAgendamentos || erroAgendAtivos) {
     return { status: 500, corpo: { erro: "falha_buscar" } };
   }
 
@@ -388,8 +400,11 @@ async function acaoMetricas(admin, perfil) {
     status: 200,
     corpo: {
       ok: true,
+      nome: perfil.nome || null,
       total_conversas: totalConversas || 0,
       total_escalonamentos: totalEscalonamentos || 0,
+      total_agendamentos: totalAgendamentos || 0,
+      agendamentos_ativos: agendamentosAtivos || 0,
     },
   };
 }

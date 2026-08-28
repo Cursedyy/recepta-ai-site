@@ -325,6 +325,10 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
     <div class="tab-panel" id="tab-conversas">
       <div class="content-header"><h1>Monitoramento</h1><p>Acompanhe as conversas dos pacientes com a Recepta.</p></div>
       <div class="content-body">
+        <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center">
+          <input type="text" id="conv-busca" class="field-input" placeholder="Buscar por telefone ou mensagem…" style="flex:1" />
+          <button type="button" class="btn btn-ghost btn-sm" id="btn-exportar-conv">📥 Exportar CSV</button>
+        </div>
         <div class="section-card">
           <div id="conv-status" class="vazio">Carregando conversas…</div>
           <div id="conv-lista"></div>
@@ -702,17 +706,18 @@ var ASSINATURA = ${jsonParaScript(assinatura)};
 })();
 
 // ── Conversas (monitoramento) ──
+var convCache = [];
 function carregarConversas() {
   fetch('/api/clinica/painel-acoes?acao=metricas').then(function(r){return r.json();}).then(function(res){
     if (!res.ok) { document.getElementById('conv-status').textContent='Erro ao carregar.'; return; }
-    // Carregar conversas via Supabase (RLS filtra pela clínica)
     fetch('/api/painel/config',{cache:'no-store'}).then(function(r){return r.json();}).then(function(cfg){
       var sb = window.__supabase || null;
       if (!sb && window.createClient) { sb = window.createClient(cfg.url, cfg.anonKey); window.__supabase = sb; }
       if (!sb) { document.getElementById('conv-status').textContent='Erro de configuração.'; return; }
-      sb.from('conversas').select('id,telefone,clinica,role,mensagem,criado_em').order('criado_em',{ascending:false}).limit(200).then(function(r2){
+      sb.from('conversas').select('id,telefone,clinica,role,mensagem,criado_em').order('criado_em',{ascending:false}).limit(500).then(function(r2){
         if(r2.error){document.getElementById('conv-status').textContent='Erro ao carregar.';return;}
-        renderConversas(r2.data||[]);
+        convCache = r2.data||[];
+        renderConversas(convCache);
       });
     });
   });
@@ -747,6 +752,35 @@ function renderConversas(msgs) {
     elLi.appendChild(div);
   });
 }
+// Busca nas conversas
+document.getElementById('conv-busca').addEventListener('input', function() {
+  var q = this.value.trim().toLowerCase();
+  if (!q) { renderConversas(convCache); return; }
+  var filtradas = convCache.filter(function(m) {
+    var tel = formatarTelefone(m.telefone).toLowerCase();
+    var msg = (m.mensagem||'').toLowerCase();
+    return tel.indexOf(q) !== -1 || msg.indexOf(q) !== -1;
+  });
+  renderConversas(filtradas);
+});
+// Exportar CSV
+document.getElementById('btn-exportar-conv').addEventListener('click', function() {
+  if (!convCache.length) return;
+  var linhas = ['Data,Hora,Telefone,Clínica,Papel,Mensagem'];
+  convCache.slice().reverse().forEach(function(m) {
+    var dt = new Date(m.criado_em);
+    var data = dt.toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'});
+    var hora = dt.toLocaleTimeString('pt-BR',{timeZone:'America/Sao_Paulo',hour:'2-digit',minute:'2-digit'});
+    var tel = formatarTelefone(m.telefone);
+    var msg = (m.mensagem||'').replace(/"/g,'""');
+    linhas.push('"'+data+'","'+hora+'","'+tel+'","'+(m.clinica||'')+'","'+(m.role==='ia'?'Recepta':'Paciente')+'","'+msg+'"');
+  });
+  var blob = new Blob([linhas.join('\n')],{type:'text/csv;charset=utf-8'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = 'conversas-'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click(); URL.revokeObjectURL(url);
+});
 carregarConversas();
 
 // ── Perfil ──
@@ -756,8 +790,10 @@ carregarConversas();
   var elNs = document.getElementById('perfil-nova-senha');
   var elErr = document.getElementById('perfil-erro');
   var elSt = document.getElementById('perfil-status');
-  // Carregar nome atual
-  fetch('/api/clinica/painel-acoes?acao=metricas').then(function(){});
+  // Carregar nome atual via métricas (retorna dados do perfil)
+  fetch('/api/clinica/painel-acoes?acao=metricas').then(function(r){return r.json();}).then(function(d){
+    if(d.ok && d.nome) elNome.placeholder = d.nome || 'Seu nome';
+  });
   document.getElementById('btn-salvar-perfil').addEventListener('click', function(){
     elErr.textContent=''; elSt.innerHTML='';
     var body = {};
@@ -822,16 +858,20 @@ fetch('/api/clinica/painel-acoes?acao=metricas')
     var elC = document.getElementById('metricas-corpo');
     if (!res.ok) { elC.textContent = 'Erro ao carregar métricas.'; return; }
     elC.className = ''; elC.innerHTML = '';
-    var grid = el('div', { style: 'display:grid;grid-template-columns:1fr 1fr;gap:12px' });
-    var item1 = el('div', { style: 'text-align:center;padding:12px;background:var(--accent-soft);border-radius:var(--radius)' }, [
-      el('div', { style: 'font-size:24px;font-weight:700;color:var(--primary)', text: String(res.total_conversas || 0) }),
-      el('div', { style: 'font-size:12px;color:var(--muted)', text: 'Conversas' })
-    ]);
-    var item2 = el('div', { style: 'text-align:center;padding:12px;background:var(--accent-soft);border-radius:var(--radius)' }, [
-      el('div', { style: 'font-size:24px;font-weight:700;color:var(--primary)', text: String(res.total_escalonamentos || 0) }),
-      el('div', { style: 'font-size:12px;color:var(--muted)', text: 'Escalonamentos' })
-    ]);
-    grid.appendChild(item1); grid.appendChild(item2); elC.appendChild(grid);
+    var grid = el('div', { style: 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px' });
+    var items = [
+      { val: res.total_conversas || 0, lbl: 'Conversas', color: 'var(--primary)' },
+      { val: res.agendamentos_ativos || 0, lbl: 'Próximos agendamentos', color: 'var(--green)' },
+      { val: res.total_escalonamentos || 0, lbl: 'Escalonamentos', color: 'var(--orange)' }
+    ];
+    items.forEach(function(item) {
+      var card = el('div', { style: 'text-align:center;padding:14px 12px;background:var(--accent-soft);border-radius:var(--radius)' }, [
+        el('div', { style: 'font-size:28px;font-weight:700;color:' + item.color, text: String(item.val) }),
+        el('div', { style: 'font-size:12px;color:var(--muted);margin-top:2px', text: item.lbl })
+      ]);
+      grid.appendChild(card);
+    });
+    elC.appendChild(grid);
   }).catch(function() { document.getElementById('metricas-corpo').textContent = 'Falha de conexão.'; });
 </script>
 <link rel="stylesheet" href="/page-transition.css" />
