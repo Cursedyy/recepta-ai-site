@@ -28,14 +28,21 @@ function rateLimitMem(key, max, windowMs) {
   }
   entry.count++;
   const restantes = Math.max(0, max - entry.count);
-  return { blocked: entry.count > max, restantes, resetMs: entry.resetAt - now };
+  return {
+    blocked: entry.count > max,
+    restantes,
+    resetMs: entry.resetAt - now,
+  };
 }
 
 // --- Redis (Upstash) ---
 let redisClient = null;
 async function getRedis() {
   if (redisClient !== null) return redisClient;
-  if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
+  if (
+    !process.env.UPSTASH_REDIS_REST_URL ||
+    !process.env.UPSTASH_REDIS_REST_TOKEN
+  ) {
     return null;
   }
   try {
@@ -55,11 +62,7 @@ async function rateLimitRedis(key, max, windowSec) {
   const ttlKey = key + ":ttl";
 
   // INCR + EXPIRE atômico via pipeline
-  const [count, ttl] = await redis
-    .pipeline()
-    .incr(key)
-    .ttl(key)
-    .exec();
+  const [count, ttl] = await redis.pipeline().incr(key).ttl(key).exec();
 
   const currentCount = Number(count) || 0;
   const currentTtl = Number(ttl) || 0;
@@ -99,11 +102,27 @@ export async function rateLimit(key, max, windowMs) {
 
 /**
  * Retorna IP real do request, respeitando proxy headers do Vercel.
+ *
+ * SEGURANCA: x-forwarded-for e' escrito pelo CLIENTE e a borda da Vercel
+ * apenas ACRESCENTA o IP real no fim da cadeia. Ler o primeiro elemento deixa
+ * qualquer um forjar o IP ("X-Forwarded-For: 1.2.3.4") e zerar o rate limit a
+ * cada request — brute force livre em login, definir-senha e esqueci-senha.
+ * Por isso lemos primeiro os headers que so a borda escreve e, so entao, o
+ * ULTIMO hop do XFF, que e' o unico que o cliente nao consegue controlar.
  */
 export function getClientIp(req) {
-  const forwarded = req.headers["x-forwarded-for"];
-  if (typeof forwarded === "string") {
-    return forwarded.split(",")[0].trim();
+  const vercel = req.headers["x-vercel-forwarded-for"];
+  if (typeof vercel === "string" && vercel.trim()) {
+    return vercel.split(",").pop().trim();
   }
+
+  const real = req.headers["x-real-ip"];
+  if (typeof real === "string" && real.trim()) return real.trim();
+
+  const forwarded = req.headers["x-forwarded-for"];
+  if (typeof forwarded === "string" && forwarded.trim()) {
+    return forwarded.split(",").pop().trim();
+  }
+
   return req.socket?.remoteAddress || "unknown";
 }

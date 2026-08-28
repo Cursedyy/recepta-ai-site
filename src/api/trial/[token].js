@@ -8,8 +8,12 @@ const JANELA_MS = 5 * 60 * 1000;
 export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ erro: 'metodo' });
 
+  // rateLimit e' async: sem await a condicao testava a Promise (sempre truthy)
+  // e TODA consulta virava 429 — o rate limit nao existia e a pagina /t/:token
+  // ficava permanentemente quebrada.
   const ip = getClientIp(req);
-  if (rateLimit('trial:' + ip, MAX_CONSULTAS, JANELA_MS)) {
+  const rl = await rateLimit('trial:' + ip, MAX_CONSULTAS, JANELA_MS);
+  if (rl.blocked) {
     return res.status(429).json({ erro: 'muitas_tentativas' });
   }
 
