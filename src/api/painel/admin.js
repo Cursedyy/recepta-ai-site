@@ -350,8 +350,66 @@ async function handlePost(req, res, auth) {
   return res.status(400).json({ erro: "acao_invalida" });
 }
 
+// ── Config (publico, sem auth) ──
+async function handleConfig(req, res) {
+  if (req.method !== "GET") return res.status(405).json({ erro: "metodo" });
+  const url = process.env.SUPABASE_URL;
+  const anonKey = process.env.SUPABASE_ANON_KEY;
+  if (!url || !anonKey) return res.status(500).json({ erro: "supabase_nao_configurado" });
+  return res.status(200).json({ url, anonKey });
+}
+
+// ── Convite externo (API key, sem auth de clinica) ──
+// Mesclado de api/clinica/convite.js
+import { timingSafeEqual } from "node:crypto";
+const VALIDADE_CONVITE_HORAS = 48;
+function apiKeyValida(recebida, esperada) {
+  if (typeof recebida !== "string" || typeof esperada !== "string") return false;
+  const a = Buffer.from(recebida);
+  const b = Buffer.from(esperada);
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(a, b);
+}
+async function handleConviteExterno(req, res) {
+  if (req.method !== "POST") return res.status(405).json({ erro: "metodo" });
+  const ip = getClientIp(req);
+  const rl = await (await import("../_lib/rate-limit.js")).rateLimit("convite:" + ip, 10, 10 * 60 * 1000);
+  if (rl.blocked) return res.status(429).json({ erro: "muitas_tentativas" });
+  const esperada = process.env.CLINICA_CONVITE_API_KEY;
+  if (!esperada) return res.status(500).json({ erro: "nao_configurado" });
+  if (!apiKeyValida(req.headers["x-api-key"], esperada))
+    return res.status(401).json({ erro: "nao_autorizado" });
+  let body;
+  try { body = typeof req.body === "string" ? JSON.parse(req.body) : req.body; } catch { return res.status(400).json({ erro: "payload_invalido" }); }
+  const clinicaId = typeof body?.clinica_id === "string" ? body.clinica_id.trim() : "";
+  if (!clinicaId) return res.status(400).json({ erro: "clinica_id_obrigatorio" });
+  const url = process.env.SUPABASE_URL;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !serviceKey) return res.status(500).json({ erro: "supabase_nao_configurado" });
+  const admin = createClient(url, serviceKey, { auth: { persistSession: false } });
+  const { data: clinicaRow, error: erroClinica } = await admin.from("clinicas").select("id").eq("id", clinicaId).maybeSingle();
+  if (erroClinica || !clinicaRow) return res.status(404).json({ erro: "clinica_nao_encontrada" });
+  const { nanoid } = await import("nanoid");
+  const token = nanoid(24);
+  const expiraEm = new Date(Date.now() + VALIDADE_CONVITE_HORAS * 3600000).toISOString();
+  const { error: erroInsert } = await admin.from("convites_clinica").insert({ clinica_id: clinicaId, token, expira_em: expiraEm });
+  if (erroInsert) return res.status(500).json({ erro: "falha_criar_convite" });
+  const base = process.env.SITE_URL || "https://www.receptaai.com.br";
+  return res.status(200).json({ ok: true, token, expira_em: expiraEm, url: base + "/clinica/definir-senha/" + token });
+}
+
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store, must-revalidate");
+
+  // /api/painel/config — publico
+  if (req.url?.startsWith("/api/painel/config")) {
+    return handleConfig(req, res);
+  }
+
+  // /api/clinica/convite — API key auth
+  if (req.url?.startsWith("/api/clinica/convite")) {
+    return handleConviteExterno(req, res);
+  }
 
   let auth;
   try {

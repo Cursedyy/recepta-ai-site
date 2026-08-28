@@ -59,6 +59,14 @@
     {
       "source": "/clinica/painel",
       "destination": "/api/clinica/painel-view"
+    },
+    {
+      "source": "/api/painel/config",
+      "destination": "/api/painel/admin"
+    },
+    {
+      "source": "/api/clinica/convite",
+      "destination": "/api/painel/admin"
     }
   ],
   "crons": [
