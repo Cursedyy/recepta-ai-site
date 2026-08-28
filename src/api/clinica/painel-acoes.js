@@ -165,6 +165,68 @@ async function acaoRetomarConversa(admin, perfil, body) {
   return { status: 200, corpo: { ok: true, pausada: false } };
 }
 
+// Normaliza para E.164 sem "+", o formato que a tabela conversas ja usa
+// ("5553991635302"). O telefone importa: o cron de lembretes manda WhatsApp
+// para paciente_telefone, entao um numero digitado errado vira mensagem para
+// um estranho. Retorna null quando nao da para confiar no que foi digitado.
+export function normalizarTelefone(bruto) {
+  let d = String(bruto || "").replace(/\D/g, "");
+  if (d.length === 10 || d.length === 11) d = "55" + d;
+  if (d.length !== 12 && d.length !== 13) return null;
+  if (!d.startsWith("55")) return null;
+  const ddd = Number(d.slice(2, 4));
+  if (!(ddd >= 11 && ddd <= 99)) return null;
+  return d;
+}
+
+// Agendamento criado a mao pela clinica (paciente que ligou, balcao, encaixe).
+// Entra na MESMA tabela dos agendamentos da Recepta de proposito: os lembretes
+// automaticos de 24h e 3h saem de um cron sobre `agendamentos`, entao o manual
+// ja nasce com lembrete, sem workflow novo.
+async function acaoCriarAgendamento(admin, perfil, body) {
+  const telefone = normalizarTelefone(body?.paciente_telefone);
+  if (!telefone) return { status: 400, corpo: { erro: "telefone_invalido" } };
+
+  const data = new Date(body?.data_hora);
+  if (isNaN(data.getTime()) || data <= new Date())
+    return { status: 400, corpo: { erro: "data_invalida" } };
+
+  // Encaixe duplicado no mesmo horario quase sempre e' erro de digitacao, e
+  // dois lembretes sairiam para o mesmo slot. Bloqueia so o choque exato:
+  // sobreposicao por duracao depende de config_agenda, que ainda nao existe
+  // nesta tela.
+  const { data: choque } = await admin
+    .from("agendamentos")
+    .select("id")
+    .eq("clinica_id", perfil.clinica_id)
+    .eq("data_hora", data.toISOString())
+    .neq("status", "cancelado")
+    .limit(1)
+    .maybeSingle();
+
+  if (choque) return { status: 409, corpo: { erro: "horario_ocupado" } };
+
+  // clinica_id vem SEMPRE do perfil autenticado, nunca do body: aceitar do
+  // cliente deixaria qualquer clinica logada escrever na agenda de outra.
+  const { data: criado, error } = await admin
+    .from("agendamentos")
+    .insert({
+      clinica_id: perfil.clinica_id,
+      paciente_telefone: telefone,
+      data_hora: data.toISOString(),
+      status: "agendado",
+    })
+    .select("id,paciente_telefone,data_hora,status,cancelado_em")
+    .maybeSingle();
+
+  if (error) {
+    console.error("criar_agendamento_erro", error.message);
+    return { status: 500, corpo: { erro: "falha_criar" } };
+  }
+
+  return { status: 200, corpo: { ok: true, agendamento: criado } };
+}
+
 async function acaoRemarcarAgendamento(admin, perfil, body) {
   const agendamentoId = body?.agendamento_id;
   const novaDataHora = body?.nova_data_hora;
@@ -529,6 +591,10 @@ export default async function handler(req, res) {
     }
     if (body?.acao === "retomar_conversa") {
       const resultado = await acaoRetomarConversa(admin, perfil, body);
+      return res.status(resultado.status).json(resultado.corpo);
+    }
+    if (body?.acao === "criar_agendamento") {
+      const resultado = await acaoCriarAgendamento(admin, perfil, body);
       return res.status(resultado.status).json(resultado.corpo);
     }
     if (body?.acao === "remarcar_agendamento") {

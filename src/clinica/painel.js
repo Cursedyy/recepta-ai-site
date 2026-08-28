@@ -99,7 +99,7 @@ function agendaItem(item, passado) {
       title: "Remarcar",
     });
     btnR.addEventListener("click", function () {
-      abrirModalRemarcar(item);
+      abrirModalAgendamento(item);
     });
     var btnC = el("button", {
       type: "button",
@@ -148,37 +148,104 @@ function agendaItem(item, passado) {
   );
 }
 
-function abrirModalRemarcar(item) {
-  var existente = document.getElementById("modal-remarcar");
+// Mensagens dos erros que o servidor devolve nos dois fluxos de agenda.
+// Sem esse mapa a UI mostrava o codigo cru ("Erro: horario_ocupado").
+// O painel inteiro exibe horario em America/Sao_Paulo, mas os <input date/time>
+// devolvem "2026-09-02" + "15:00" sem fuso nenhum. O servidor roda em UTC, entao
+// `new Date("2026-09-02T15:00:00")` virava 15:00Z = 12:00 em Brasilia: a clinica
+// digitava 15h e a agenda mostrava 12h. Anexar o offset explicito resolve os dois
+// fluxos de uma vez. O Brasil nao tem mais horario de verao desde 2019
+// (Decreto 9.772/2019), entao Sao Paulo e' UTC-3 o ano todo.
+var TZ_PAINEL = "America/Sao_Paulo";
+var OFFSET_PAINEL = "-03:00";
+
+// "YYYY-MM-DD" no fuso do painel. toISOString() daria a data em UTC, que depois
+// das 21h em Brasilia ja e' o dia seguinte. en-CA formata como ISO.
+function dataInputBR(dt) {
+  return dt.toLocaleDateString("en-CA", { timeZone: TZ_PAINEL });
+}
+
+// "HH:MM" no fuso do painel. toTimeString() usaria o fuso do navegador, que nao
+// e' necessariamente o da clinica.
+function horaInputBR(dt) {
+  return dt.toLocaleTimeString("pt-BR", {
+    timeZone: TZ_PAINEL,
+    hour12: false,
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+var ERROS_AGENDA = {
+  data_invalida: "Data e horario precisam estar no futuro.",
+  telefone_invalido: "Telefone invalido. Use DDD + numero, ex: (53) 99163-5302.",
+  horario_ocupado: "Ja existe um agendamento nesse horario.",
+  agendamento_cancelado: "Esse agendamento ja foi cancelado.",
+  agendamento_nao_encontrado: "Agendamento nao encontrado.",
+  sem_permissao: "Sem permissao para essa agenda.",
+};
+
+// Modal de agendamento, um so para os dois fluxos: criar manual (item null) e
+// remarcar (item preenchido). Eram duas telas quase identicas; a diferenca real
+// e' o campo de telefone, que so o manual edita, e a acao enviada no POST.
+function abrirModalAgendamento(item) {
+  var existente = document.getElementById("modal-agendamento");
   if (existente) existente.remove();
-  var dt = new Date(item.data_hora);
-  var modal = el("div", { id: "modal-remarcar", class: "modal-overlay" });
+
+  var novo = !item;
+  var dt = novo ? null : new Date(item.data_hora);
+  var modal = el("div", { id: "modal-agendamento", class: "modal-overlay" });
   var conteudo = el("div", { class: "modal-content" });
-  conteudo.appendChild(el("h3", { text: "Remarcar agendamento" }));
+
+  conteudo.appendChild(
+    el("h3", { text: novo ? "Novo agendamento" : "Remarcar agendamento" }),
+  );
   conteudo.appendChild(
     el("p", {
       class: "modal-sub",
-      text: formatarTelefone(item.paciente_telefone),
+      text: novo
+        ? "Consulta marcada pela clinica, fora da Recepta."
+        : formatarTelefone(item.paciente_telefone),
     }),
   );
+
+  // So o fluxo manual pede telefone: remarcar mantem o paciente que ja existe.
+  var iTel = null;
+  if (novo) {
+    var lTel = el("div", { class: "modal-field" }, [
+      el("label", { text: "Telefone do paciente" }),
+    ]);
+    iTel = el("input", {
+      type: "tel",
+      placeholder: "(53) 99163-5302",
+      autocomplete: "off",
+    });
+    lTel.appendChild(iTel);
+    conteudo.appendChild(lTel);
+  }
+
   var lData = el("div", { class: "modal-field" }, [
-    el("label", { text: "Nova data" }),
+    el("label", { text: novo ? "Data" : "Nova data" }),
   ]);
   var iData = el("input", {
     type: "date",
-    value: dt.toISOString().slice(0, 10),
+    min: dataInputBR(new Date()),
+    value: dt ? dataInputBR(dt) : "",
   });
   lData.appendChild(iData);
+
   var lHora = el("div", { class: "modal-field" }, [
-    el("label", { text: "Novo horário" }),
+    el("label", { text: novo ? "Horario" : "Novo horario" }),
   ]);
   var iHora = el("input", {
     type: "time",
-    value: dt.toTimeString().slice(0, 5),
+    value: dt ? horaInputBR(dt) : "",
   });
   lHora.appendChild(iHora);
+
   var erroMsg = el("p", { class: "modal-error" });
-  var actions = el("div", { class: "modal-actions" });
+  var rotulo = novo ? "Agendar" : "Remarcar";
+
   var btnC = el("button", {
     type: "button",
     class: "btn btn-ghost",
@@ -187,51 +254,61 @@ function abrirModalRemarcar(item) {
   btnC.addEventListener("click", function () {
     modal.remove();
   });
+
   var btnOK = el("button", {
     type: "button",
     class: "btn btn-primary",
-    text: "Remarcar",
+    text: rotulo,
   });
   btnOK.addEventListener("click", function () {
-    if (!iData.value || !iHora.value) {
-      erroMsg.textContent = "Preencha data e horário.";
+    if (novo && !iTel.value.trim()) {
+      erroMsg.textContent = "Informe o telefone do paciente.";
       return;
     }
+    if (!iData.value || !iHora.value) {
+      erroMsg.textContent = "Preencha data e horario.";
+      return;
+    }
+    var dataHora = iData.value + "T" + iHora.value + ":00" + OFFSET_PAINEL;
+    var corpo = novo
+      ? {
+          acao: "criar_agendamento",
+          paciente_telefone: iTel.value,
+          data_hora: dataHora,
+        }
+      : {
+          acao: "remarcar_agendamento",
+          agendamento_id: item.id,
+          nova_data_hora: dataHora,
+        };
     btnOK.disabled = true;
-    btnOK.textContent = "Remarcando…";
+    btnOK.textContent = novo ? "Agendando…" : "Remarcando…";
     fetch("/api/clinica/painel-acoes", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        acao: "remarcar_agendamento",
-        agendamento_id: item.id,
-        nova_data_hora: iData.value + "T" + iHora.value + ":00",
-      }),
+      body: JSON.stringify(corpo),
     })
       .then(function (r) {
         return r.json();
       })
       .then(function (res) {
         if (res.erro) {
-          erroMsg.textContent =
-            res.erro === "data_invalida"
-              ? "Data/hora inválida."
-              : "Erro: " + res.erro;
+          erroMsg.textContent = ERROS_AGENDA[res.erro] || "Erro: " + res.erro;
           btnOK.disabled = false;
-          btnOK.textContent = "Remarcar";
+          btnOK.textContent = rotulo;
           return;
         }
         modal.remove();
         carregarAgenda();
       })
       .catch(function () {
-        erroMsg.textContent = "Falha de conexão.";
+        erroMsg.textContent = "Falha de conexao.";
         btnOK.disabled = false;
-        btnOK.textContent = "Remarcar";
+        btnOK.textContent = rotulo;
       });
   });
-  actions.appendChild(btnC);
-  actions.appendChild(btnOK);
+
+  var actions = el("div", { class: "modal-actions" }, [btnC, btnOK]);
   conteudo.appendChild(lData);
   conteudo.appendChild(lHora);
   conteudo.appendChild(erroMsg);
@@ -241,7 +318,7 @@ function abrirModalRemarcar(item) {
     if (e.target === modal) modal.remove();
   });
   document.body.appendChild(modal);
-  iData.focus();
+  (novo ? iTel : iData).focus();
 }
 
 function renderAgenda(agendamentos) {
@@ -297,6 +374,13 @@ function carregarAgenda() {
         "Falha de conexão.";
     });
 }
+// item null = fluxo manual: a clinica marca uma consulta que nao passou pela
+// Recepta (paciente que ligou, encaixe, balcao).
+document
+  .getElementById("btn-novo-agendamento")
+  .addEventListener("click", function () {
+    abrirModalAgendamento(null);
+  });
 carregarAgenda();
 
 // ── Preços ──

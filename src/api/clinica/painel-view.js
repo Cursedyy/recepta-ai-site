@@ -271,8 +271,11 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
   <div class="content">
     <!-- ── AGENDA ── -->
     <div class="tab-panel active" id="tab-agenda">
-      <div class="content-header"><h1>Agenda</h1><p>Consultas marcadas pela secretária virtual.</p></div>
+      <div class="content-header"><h1>Agenda</h1><p>Consultas marcadas pela secretária virtual e pela clínica.</p></div>
       <div class="content-body">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+          <button type="button" class="btn btn-primary btn-sm" id="btn-novo-agendamento">+ Novo agendamento</button>
+        </div>
         <div class="section-card">
           <div id="agenda-status" class="vazio">Carregando agendamentos…</div>
           <div id="agenda-proximos"></div>
