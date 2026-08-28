@@ -12,6 +12,11 @@ const STRIPE_RETURN_URL = "https://www.receptaai.com.br/clinica/painel";
 // comprometida cancelando a agenda inteira. Chave por usuario, nao por IP:
 // aqui ja passamos da autenticacao e clinicas compartilham IP de consultorio.
 const MAX_MUTACOES = 60;
+
+// Nome e observacao do agendamento manual. Limites gemeos do maxlength dos
+// inputs: o cliente impede na digitacao, o servidor recusa no request forjado.
+const MAX_NOME = 120;
+const MAX_OBSERVACAO = 500;
 const JANELA_MUTACOES_MS = 60 * 1000;
 
 async function acaoTempoPausa(admin, perfil, body) {
@@ -76,6 +81,81 @@ async function acaoPortalSessao(admin, perfil) {
   }
 
   return { status: 200, corpo: { ok: true, url: dados.url } };
+}
+
+// Detalhes que so o Stripe tem: valor cobrado, proxima fatura, cartao, se a
+// assinatura ja esta marcada para cancelar no fim do periodo. O banco guarda
+// apenas status/plano/trial_fim, entao a aba Status mostrava um resumo sem
+// nenhuma informacao de cobranca.
+//
+// Degrada em silencio: sem chave, sem customer ou com o Stripe fora do ar a
+// resposta volta { ok: true, assinatura: null } e o painel cai no que ja tem
+// no window.__PAINEL__. Detalhe de cobranca nao vale derrubar a aba inteira.
+async function acaoAssinaturaDetalhes(admin, perfil) {
+  const stripeKey = process.env.STRIPE_SECRET_KEY;
+  if (!stripeKey) return { status: 200, corpo: { ok: true, assinatura: null } };
+
+  const { data: clinicaRow } = await admin
+    .from("clinicas")
+    .select("stripe_customer_id")
+    .eq("id", perfil.clinica_id)
+    .maybeSingle();
+
+  if (!clinicaRow?.stripe_customer_id)
+    return { status: 200, corpo: { ok: true, assinatura: null } };
+
+  const params = new URLSearchParams();
+  params.set("customer", clinicaRow.stripe_customer_id);
+  params.set("status", "all");
+  params.set("limit", "1");
+  params.append("expand[]", "data.default_payment_method");
+
+  let dados;
+  try {
+    const resposta = await fetch(
+      "https://api.stripe.com/v1/subscriptions?" + params.toString(),
+      { headers: { Authorization: "Bearer " + stripeKey } },
+    );
+    dados = await resposta.json();
+    if (!resposta.ok) {
+      // Mesmo tratamento do portal: logar o erro do Stripe, nunca devolver ao
+      // cliente (pode carregar id interno ou motivo sensivel).
+      console.error("stripe_assinatura_erro", JSON.stringify(dados?.error));
+      return { status: 200, corpo: { ok: true, assinatura: null } };
+    }
+  } catch (e) {
+    console.error("stripe_assinatura_falha", e.message);
+    return { status: 200, corpo: { ok: true, assinatura: null } };
+  }
+
+  const assinatura = dados?.data?.[0];
+  if (!assinatura)
+    return { status: 200, corpo: { ok: true, assinatura: null } };
+
+  const preco = assinatura.items?.data?.[0]?.price || null;
+  const cartao = assinatura.default_payment_method?.card || null;
+
+  // Lista fechada de campos: devolver o objeto do Stripe inteiro jogaria ids
+  // internos e metadata dentro do HTML do painel.
+  return {
+    status: 200,
+    corpo: {
+      ok: true,
+      assinatura: {
+        status: assinatura.status || null,
+        cancela_no_fim: !!assinatura.cancel_at_period_end,
+        periodo_fim: assinatura.current_period_end
+          ? new Date(assinatura.current_period_end * 1000).toISOString()
+          : null,
+        valor_centavos:
+          typeof preco?.unit_amount === "number" ? preco.unit_amount : null,
+        moeda: preco?.currency || null,
+        intervalo: preco?.recurring?.interval || null,
+        cartao_bandeira: cartao?.brand || null,
+        cartao_final: cartao?.last4 || null,
+      },
+    },
+  };
 }
 
 async function resolverNomeClinica(admin, perfil) {
@@ -179,6 +259,15 @@ export function normalizarTelefone(bruto) {
   return d;
 }
 
+// Campo de texto opcional: espaco em branco vira null, para o painel nao ter
+// que distinguir "" de ausente na hora de decidir o que exibir.
+function textoOpcional(bruto, limite) {
+  const texto = String(bruto == null ? "" : bruto).trim();
+  if (!texto) return { valor: null };
+  if (texto.length > limite) return { excedeu: true };
+  return { valor: texto };
+}
+
 // Agendamento criado a mao pela clinica (paciente que ligou, balcao, encaixe).
 // Entra na MESMA tabela dos agendamentos da Recepta de proposito: os lembretes
 // automaticos de 24h e 3h saem de um cron sobre `agendamentos`, entao o manual
@@ -190,6 +279,13 @@ async function acaoCriarAgendamento(admin, perfil, body) {
   const data = new Date(body?.data_hora);
   if (isNaN(data.getTime()) || data <= new Date())
     return { status: 400, corpo: { erro: "data_invalida" } };
+
+  const nome = textoOpcional(body?.paciente_nome, MAX_NOME);
+  if (nome.excedeu) return { status: 400, corpo: { erro: "nome_muito_longo" } };
+
+  const observacao = textoOpcional(body?.observacao, MAX_OBSERVACAO);
+  if (observacao.excedeu)
+    return { status: 400, corpo: { erro: "observacao_muito_longa" } };
 
   // Encaixe duplicado no mesmo horario quase sempre e' erro de digitacao, e
   // dois lembretes sairiam para o mesmo slot. Bloqueia so o choque exato:
@@ -213,10 +309,14 @@ async function acaoCriarAgendamento(admin, perfil, body) {
     .insert({
       clinica_id: perfil.clinica_id,
       paciente_telefone: telefone,
+      paciente_nome: nome.valor,
+      observacao: observacao.valor,
       data_hora: data.toISOString(),
       status: "agendado",
     })
-    .select("id,paciente_telefone,data_hora,status,cancelado_em")
+    .select(
+      "id,paciente_telefone,paciente_nome,observacao,data_hora,status,cancelado_em",
+    )
     .maybeSingle();
 
   if (error) {
@@ -539,6 +639,10 @@ export default async function handler(req, res) {
     }
     if (acao === "exportar") {
       const resultado = await acaoExportar(admin, perfil, req.query);
+      return res.status(resultado.status).json(resultado.corpo);
+    }
+    if (acao === "assinatura") {
+      const resultado = await acaoAssinaturaDetalhes(admin, perfil);
       return res.status(resultado.status).json(resultado.corpo);
     }
     if (acao === "conversas") {

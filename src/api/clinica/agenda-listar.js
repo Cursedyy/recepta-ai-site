@@ -10,7 +10,9 @@ export default async function handler(req, res) {
 
   const { data: agendamentos, error: erroBusca } = await admin
     .from("agendamentos")
-    .select("id,paciente_telefone,data_hora,status,cancelado_em")
+    .select(
+      "id,paciente_telefone,paciente_nome,observacao,data_hora,status,cancelado_em",
+    )
     .eq("clinica_id", perfil.clinica_id)
     .order("data_hora", { ascending: true });
 

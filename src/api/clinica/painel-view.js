@@ -153,7 +153,12 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
 .ag-item:hover { box-shadow: var(--shadow); border-color: #cbd5e1; }
 .ag-date { font-weight: 700; min-width: 60px; font-size: 13px; color: var(--ink); }
 .ag-time { font-size: 12px; color: var(--muted); font-weight: 500; }
-.ag-phone { flex: 1; min-width: 0; font-weight: 500; }
+/* O bloco central do item cresce; nome e observacao truncam em vez de
+   empurrar a badge e os botoes para fora da linha. */
+.ag-info { flex: 1; min-width: 0; }
+.ag-nome { font-weight: 600; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ag-phone { font-size: 12px; color: var(--muted); font-weight: 500; }
+.ag-obs { font-size: 12px; color: var(--muted); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ag-actions { display: flex; gap: 6px; }
 .vazio { color: var(--muted); font-size: 13px; font-style: italic; padding: 12px 0; }
 
@@ -182,10 +187,25 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
 .modal-sub { color: var(--muted); font-size: 13px; margin-bottom: 18px; }
 .modal-field { margin-bottom: 14px; }
 .modal-field label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 6px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.3px; }
-.modal-field input { width: 100%; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: 13px; transition: all 0.2s; }
-.modal-field input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
+.modal-field input, .modal-field textarea { width: 100%; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: 13px; background: var(--surface); color: var(--ink); transition: all 0.2s; }
+.modal-field input:focus, .modal-field textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
+.modal-field textarea { resize: vertical; min-height: 68px; line-height: 1.6; }
 .modal-error { color: var(--red); font-size: 12px; min-height: 18px; margin-bottom: 10px; }
 .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+/* -- Lista de detalhes (aba Status) --
+   Rotulo a esquerda com largura fixa e valor a direita; em telas estreitas
+   vira duas linhas em vez de espremer o valor. */
+.det-lista { display: flex; flex-direction: column; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.det-linha { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; padding: 10px 14px; background: var(--surface); font-size: 13px; }
+.det-rotulo { color: var(--muted); flex: 0 0 auto; }
+.det-valor { color: var(--ink); font-weight: 600; text-align: right; min-width: 0; overflow-wrap: anywhere; }
+.det-valor.alerta { color: var(--red); }
+.det-nota { font-size: 12px; color: var(--muted); margin-top: 10px; line-height: 1.5; }
+@media (max-width: 520px) {
+  .det-linha { flex-direction: column; gap: 2px; }
+  .det-valor { text-align: left; }
+}
 
 /* -- Conversa (thread) --
    Fundo do thread: canvas slate-100 com dot-grid discreto (padrao dos chats do
@@ -428,7 +448,8 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
           <div class="section-card-header">
             <div class="section-card-title">Assinatura</div>
           </div>
-          <div id="assinatura-status" class="vazio" style="margin-bottom:8px">Carregando…</div>
+          <div id="assinatura-status" class="vazio" style="margin-bottom:12px">Carregando…</div>
+          <div id="assinatura-detalhes" style="margin-bottom:12px"></div>
           <div id="assinatura-acao"></div>
         </div>
         <div class="section-card">
@@ -479,7 +500,7 @@ export default async function handler(req, res) {
   const { data: clinicaRow } = await admin
     .from("clinicas")
     .select(
-      "clinica,config_editavel,tempo_pausa_minutos,status,trial_fim,plano,stripe_customer_id",
+      "clinica,config_editavel,tempo_pausa_minutos,status,trial_fim,plano,stripe_customer_id,criado_em",
     )
     .eq("id", perfil.clinica_id)
     .maybeSingle();
@@ -503,9 +524,7 @@ export default async function handler(req, res) {
       typeof configSalvo.regras_ia === "string"
         ? configSalvo.regras_ia
         : padrao.regras_ia,
-    faq: Array.isArray(configSalvo.faq)
-      ? configSalvo.faq
-      : padrao.faq,
+    faq: Array.isArray(configSalvo.faq) ? configSalvo.faq : padrao.faq,
   };
 
   const tempoPausaAtual =
@@ -517,6 +536,7 @@ export default async function handler(req, res) {
     status: clinicaRow?.status || null,
     trial_fim: clinicaRow?.trial_fim || null,
     plano: clinicaRow?.plano || null,
+    criado_em: clinicaRow?.criado_em || null,
     tem_stripe: !!clinicaRow?.stripe_customer_id,
   };
 

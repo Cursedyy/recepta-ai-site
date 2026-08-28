@@ -63,6 +63,30 @@ function formatarTelefone(tel) {
   var d = String(tel || "").replace(/\D/g, "");
   return d ? "+" + d : "(sem telefone)";
 }
+// Bloco central do item da agenda. Sem nome (todo agendamento feito pela
+// Recepta, e os manuais em que a clinica nao preencheu) o telefone continua
+// sendo a linha principal, entao a agenda antiga fica identica ao que era.
+// Com nome, o telefone vira a linha secundaria.
+function infoAgenda(item) {
+  var info = el("div", { class: "ag-info" });
+  var nome = (item.paciente_nome || "").trim();
+  var telefone = formatarTelefone(item.paciente_telefone);
+
+  if (nome) {
+    info.appendChild(el("div", { class: "ag-nome", title: nome, text: nome }));
+    info.appendChild(el("div", { class: "ag-phone", text: telefone }));
+  } else {
+    info.appendChild(el("div", { class: "ag-nome", text: telefone }));
+  }
+
+  var obs = (item.observacao || "").trim();
+  // title guarda o texto inteiro: a linha trunca com ellipsis no CSS.
+  if (obs)
+    info.appendChild(el("div", { class: "ag-obs", title: obs, text: obs }));
+
+  return info;
+}
+
 function agendaItem(item, passado) {
   var dt = new Date(item.data_hora);
   var dataStr = dt.toLocaleDateString("pt-BR", {
@@ -84,10 +108,7 @@ function agendaItem(item, passado) {
       el("div", { class: "ag-date", text: dataStr }),
       el("div", { class: "ag-time", text: horaStr }),
     ]),
-    el("div", {
-      class: "ag-phone",
-      text: formatarTelefone(item.paciente_telefone),
-    }),
+    infoAgenda(item),
     badge,
   ];
   if (!passado && !cancelado) {
@@ -178,7 +199,10 @@ function horaInputBR(dt) {
 
 var ERROS_AGENDA = {
   data_invalida: "Data e horario precisam estar no futuro.",
-  telefone_invalido: "Telefone invalido. Use DDD + numero, ex: (53) 99163-5302.",
+  telefone_invalido:
+    "Telefone invalido. Use DDD + numero, ex: (53) 99163-5302.",
+  nome_muito_longo: "Nome longo demais (maximo 120 caracteres).",
+  observacao_muito_longa: "Descricao longa demais (maximo 500 caracteres).",
   horario_ocupado: "Ja existe um agendamento nesse horario.",
   agendamento_cancelado: "Esse agendamento ja foi cancelado.",
   agendamento_nao_encontrado: "Agendamento nao encontrado.",
@@ -211,6 +235,8 @@ function abrirModalAgendamento(item) {
 
   // So o fluxo manual pede telefone: remarcar mantem o paciente que ja existe.
   var iTel = null;
+  var iNome = null;
+  var iObs = null;
   if (novo) {
     var lTel = el("div", { class: "modal-field" }, [
       el("label", { text: "Telefone do paciente" }),
@@ -222,6 +248,18 @@ function abrirModalAgendamento(item) {
     });
     lTel.appendChild(iTel);
     conteudo.appendChild(lTel);
+
+    var lNome = el("div", { class: "modal-field" }, [
+      el("label", { text: "Nome do paciente (opcional)" }),
+    ]);
+    iNome = el("input", {
+      type: "text",
+      maxlength: "120",
+      placeholder: "Maria Souza",
+      autocomplete: "off",
+    });
+    lNome.appendChild(iNome);
+    conteudo.appendChild(lNome);
   }
 
   var lData = el("div", { class: "modal-field" }, [
@@ -242,6 +280,19 @@ function abrirModalAgendamento(item) {
     value: dt ? horaInputBR(dt) : "",
   });
   lHora.appendChild(iHora);
+
+  var lObs = null;
+  if (novo) {
+    lObs = el("div", { class: "modal-field" }, [
+      el("label", { text: "Descricao (opcional)" }),
+    ]);
+    iObs = el("textarea", {
+      rows: "3",
+      maxlength: "500",
+      placeholder: "Motivo da consulta, retorno, convenio…",
+    });
+    lObs.appendChild(iObs);
+  }
 
   var erroMsg = el("p", { class: "modal-error" });
   var rotulo = novo ? "Agendar" : "Remarcar";
@@ -274,6 +325,8 @@ function abrirModalAgendamento(item) {
       ? {
           acao: "criar_agendamento",
           paciente_telefone: iTel.value,
+          paciente_nome: iNome.value,
+          observacao: iObs.value,
           data_hora: dataHora,
         }
       : {
@@ -311,6 +364,7 @@ function abrirModalAgendamento(item) {
   var actions = el("div", { class: "modal-actions" }, [btnC, btnOK]);
   conteudo.appendChild(lData);
   conteudo.appendChild(lHora);
+  if (lObs) conteudo.appendChild(lObs);
   conteudo.appendChild(erroMsg);
   conteudo.appendChild(actions);
   modal.appendChild(conteudo);
@@ -688,34 +742,185 @@ document
 
 // ── Assinatura ──
 var ASSINATURA = DADOS.assinatura || {};
+
+// dd/mm/aaaa no fuso do painel, a partir de uma string ISO.
+function dataBR(iso) {
+  if (!iso) return null;
+  var d = new Date(iso);
+  if (isNaN(d.getTime())) return null;
+  return d.toLocaleDateString("pt-BR", { timeZone: TZ_PAINEL });
+}
+
+// O Stripe manda o valor em centavos e a moeda em minusculo ("brl").
+function moedaBR(centavos, moeda) {
+  if (typeof centavos !== "number") return null;
+  try {
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: (moeda || "brl").toUpperCase(),
+    }).format(centavos / 100);
+  } catch (e) {
+    return (centavos / 100).toFixed(2);
+  }
+}
+
+// Dias inteiros que faltam para uma data. Compara so a parte de data, senao
+// "termina hoje as 23h" apareceria como 0 dia igual a uma data ja vencida.
+function diasAte(iso) {
+  var alvo = new Date(iso);
+  if (isNaN(alvo.getTime())) return null;
+  var hoje = new Date();
+  var msDia = 24 * 60 * 60 * 1000;
+  return Math.ceil(
+    (alvo.setHours(0, 0, 0, 0) - hoje.setHours(0, 0, 0, 0)) / msDia,
+  );
+}
+
+var INTERVALO_LABEL = { month: "mes", year: "ano", week: "semana", day: "dia" };
+
+// Rotulos dos status que o Stripe devolve. O que nao estiver aqui aparece cru,
+// que e' melhor do que esconder um estado de cobranca que a clinica precisa ver.
+var STATUS_STRIPE = {
+  active: "Ativa",
+  trialing: "Em periodo de teste",
+  past_due: "Pagamento atrasado",
+  unpaid: "Pagamento pendente",
+  canceled: "Cancelada",
+  incomplete: "Pagamento incompleto",
+  incomplete_expired: "Pagamento expirado",
+  paused: "Pausada",
+};
+
+function linhaDetalhe(rotulo, valor, alerta) {
+  return el("div", { class: "det-linha" }, [
+    el("span", { class: "det-rotulo", text: rotulo }),
+    el("span", {
+      class: "det-valor" + (alerta ? " alerta" : ""),
+      text: valor,
+    }),
+  ]);
+}
+
 (function () {
   var elS = document.getElementById("assinatura-status");
+  var elD = document.getElementById("assinatura-detalhes");
   var elA = document.getElementById("assinatura-acao");
-  var lbl =
-    ASSINATURA.status === "ativo"
-      ? "Assinatura ativa"
-      : ASSINATURA.status === "trial"
-        ? "Período de teste"
-        : ASSINATURA.status || "Desconhecido";
-  var partes = [lbl];
-  if (ASSINATURA.plano)
-    partes.push(
-      "Plano: " + (ASSINATURA.plano === "anual" ? "Anual" : "Mensal"),
+
+  // ── Badge: sai do banco, aparece de imediato, sem esperar o Stripe ──
+  var ehTrial = ASSINATURA.status === "trial";
+  var ehAtivo = ASSINATURA.status === "ativo";
+  elS.textContent = ehAtivo
+    ? "Assinatura ativa"
+    : ehTrial
+      ? "Periodo de teste"
+      : ASSINATURA.status || "Desconhecido";
+  elS.className = ehAtivo ? "badge badge-green" : "badge badge-muted";
+
+  // ── Detalhes do banco ──
+  var lista = el("div", { class: "det-lista" });
+  var temLinha = false;
+  function addLinha(rotulo, valor, alerta) {
+    if (!valor) return;
+    lista.appendChild(linhaDetalhe(rotulo, valor, alerta));
+    temLinha = true;
+  }
+
+  addLinha(
+    "Plano",
+    ASSINATURA.plano
+      ? ASSINATURA.plano === "anual"
+        ? "Anual"
+        : "Mensal"
+      : null,
+  );
+
+  if (ASSINATURA.trial_fim) {
+    var dias = diasAte(ASSINATURA.trial_fim);
+    var restante =
+      dias === null
+        ? ""
+        : dias > 1
+          ? " (" + dias + " dias restantes)"
+          : dias === 1
+            ? " (ultimo dia)"
+            : dias === 0
+              ? " (termina hoje)"
+              : " (expirado)";
+    addLinha(
+      "Teste ate",
+      dataBR(ASSINATURA.trial_fim) + restante,
+      dias !== null && dias <= 3,
     );
-  if (ASSINATURA.trial_fim)
-    partes.push(
-      "Trial até " +
-        new Date(ASSINATURA.trial_fim).toLocaleDateString("pt-BR", {
-          timeZone: "America/Sao_Paulo",
-        }),
-    );
-  elS.textContent = partes.join(" · ");
-  elS.className =
-    ASSINATURA.status === "ativo"
-      ? "badge badge-green"
-      : ASSINATURA.status === "trial"
-        ? "badge badge-muted"
-        : "badge badge-muted";
+  }
+
+  addLinha("Cliente desde", dataBR(ASSINATURA.criado_em));
+
+  if (temLinha) elD.appendChild(lista);
+
+  // ── Cobranca: so o Stripe sabe valor, proxima fatura e cartao ──
+  // Falha aqui nao apaga o que ja esta na tela: o endpoint devolve
+  // { assinatura: null } em vez de erro justamente para isso.
+  if (ASSINATURA.tem_stripe) {
+    fetch("/api/clinica/painel-acoes?acao=assinatura")
+      .then(function (r) {
+        return r.json();
+      })
+      .then(function (res) {
+        var a = res && res.assinatura;
+        if (!a) return;
+
+        if (a.status && a.status !== "active")
+          addLinha(
+            "Situacao da cobranca",
+            STATUS_STRIPE[a.status] || a.status,
+            true,
+          );
+
+        var valor = moedaBR(a.valor_centavos, a.moeda);
+        if (valor)
+          addLinha(
+            "Valor",
+            valor +
+              (a.intervalo
+                ? " / " + (INTERVALO_LABEL[a.intervalo] || a.intervalo)
+                : ""),
+          );
+
+        // Com cancelamento agendado a mesma data deixa de ser "proxima
+        // cobranca" e passa a ser o fim do acesso: rotulo errado aqui faria a
+        // clinica achar que ainda vai ser cobrada.
+        if (a.periodo_fim)
+          addLinha(
+            a.cancela_no_fim ? "Acesso ate" : "Proxima cobranca",
+            dataBR(a.periodo_fim),
+            a.cancela_no_fim,
+          );
+
+        if (a.cartao_final)
+          addLinha(
+            "Pagamento",
+            (a.cartao_bandeira
+              ? a.cartao_bandeira.charAt(0).toUpperCase() +
+                a.cartao_bandeira.slice(1)
+              : "Cartao") +
+              " •••• " +
+              a.cartao_final,
+          );
+
+        if (temLinha && !lista.parentNode) elD.appendChild(lista);
+
+        if (a.cancela_no_fim)
+          elD.appendChild(
+            el("p", {
+              class: "det-nota",
+              text: "A assinatura foi cancelada e nao sera renovada. Voce mantem o acesso ate a data acima.",
+            }),
+          );
+      })
+      .catch(function () {});
+  }
+
+  // ── Portal do Stripe ──
   if (ASSINATURA.tem_stripe) {
     var btn = el("button", {
       type: "button",
