@@ -705,10 +705,17 @@ var ASSINATURA = ${jsonParaScript(assinatura)};
   }
 })();
 
+// ── Metricas: 1 request so, compartilhado por conversas / perfil / cards ──
+// .catch aqui evita que uma falha de rede vire 3 rejeicoes nao tratadas:
+// cada consumidor trata o { ok:false } por conta propria.
+var metricasPromise = fetch('/api/clinica/painel-acoes?acao=metricas')
+  .then(function(r){return r.json();})
+  .catch(function(){ return { ok: false }; });
+
 // ── Conversas (monitoramento) ──
 var convCache = [];
 function carregarConversas() {
-  fetch('/api/clinica/painel-acoes?acao=metricas').then(function(r){return r.json();}).then(function(res){
+  metricasPromise.then(function(res){
     if (!res.ok) { document.getElementById('conv-status').textContent='Erro ao carregar.'; return; }
     fetch('/api/painel/config',{cache:'no-store'}).then(function(r){return r.json();}).then(function(cfg){
       var sb = window.__supabase || null;
@@ -748,38 +755,39 @@ function renderConversas(msgs) {
     try { var o=JSON.parse(corpo); if(o&&o.mimetype) corpo=(o.mimetype.indexOf('audio')>=0?'🎤 Áudio':o.mimetype.indexOf('image')>=0?'🖼 Imagem':'📎 Doc'); } catch(e){}
     if(corpo.length>80) corpo=corpo.slice(0,80)+'…';
     var dt = new Date(ult.criado_em).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo',day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
-    div.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><b style="font-size:14px">'+telFmt+'</b><span style="font-size:11px;color:var(--muted)">'+dt+'</span></div><div style="font-size:12.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+role+escapeHtml(corpo).replace(/\n/g,' ')+'</div><div style="font-size:11px;color:var(--muted);margin-top:2px">'+conv.msgs.length+' mensagens</div>';
+    div.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><b style="font-size:14px">'+telFmt+'</b><span style="font-size:11px;color:var(--muted)">'+dt+'</span></div><div style="font-size:12.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+role+escapeHtml(corpo).replace(/\\n/g,' ')+'</div><div style="font-size:11px;color:var(--muted);margin-top:2px">'+conv.msgs.length+' mensagens</div>';
     elLi.appendChild(div);
   });
 }
-// Busca nas conversas
+// Busca: seleciona os telefones com match e mantem a conversa inteira.
+// Filtrar mensagem a mensagem faria o card exibir contagem e previa erradas.
 document.getElementById('conv-busca').addEventListener('input', function() {
   var q = this.value.trim().toLowerCase();
   if (!q) { renderConversas(convCache); return; }
-  var filtradas = convCache.filter(function(m) {
+  var tels = {};
+  convCache.forEach(function(m) {
     var tel = formatarTelefone(m.telefone).toLowerCase();
-    var msg = (m.mensagem||'').toLowerCase();
-    return tel.indexOf(q) !== -1 || msg.indexOf(q) !== -1;
+    if (tel.indexOf(q) !== -1 || (m.mensagem||'').toLowerCase().indexOf(q) !== -1) tels[m.telefone] = 1;
   });
-  renderConversas(filtradas);
+  renderConversas(convCache.filter(function(m) { return tels[m.telefone]; }));
 });
-// Exportar CSV
+// Exportar CSV pelo endpoint /api/clinica/painel-acoes?acao=exportar:
+// o servidor ja filtra pela clinica, escapa os campos e vai ate 10k linhas.
 document.getElementById('btn-exportar-conv').addEventListener('click', function() {
-  if (!convCache.length) return;
-  var linhas = ['Data,Hora,Telefone,Clínica,Papel,Mensagem'];
-  convCache.slice().reverse().forEach(function(m) {
-    var dt = new Date(m.criado_em);
-    var data = dt.toLocaleDateString('pt-BR',{timeZone:'America/Sao_Paulo'});
-    var hora = dt.toLocaleTimeString('pt-BR',{timeZone:'America/Sao_Paulo',hour:'2-digit',minute:'2-digit'});
-    var tel = formatarTelefone(m.telefone);
-    var msg = (m.mensagem||'').replace(/"/g,'""');
-    linhas.push('"'+data+'","'+hora+'","'+tel+'","'+(m.clinica||'')+'","'+(m.role==='ia'?'Recepta':'Paciente')+'","'+msg+'"');
-  });
-  var blob = new Blob([linhas.join('\n')],{type:'text/csv;charset=utf-8'});
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href = url; a.download = 'conversas-'+new Date().toISOString().slice(0,10)+'.csv';
-  a.click(); URL.revokeObjectURL(url);
+  var btn = this;
+  btn.disabled = true;
+  fetch('/api/clinica/painel-acoes?acao=exportar').then(function(r){return r.json();}).then(function(res){
+    btn.disabled = false;
+    if (!res.ok || !res.csv) { alert('Nada para exportar.'); return; }
+    var bom = String.fromCharCode(0xFEFF);
+    var blob = new Blob([bom + res.csv], {type:'text/csv;charset=utf-8'});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'conversas-' + new Date().toISOString().slice(0,10) + '.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  }).catch(function(){ btn.disabled = false; alert('Falha ao exportar.'); });
 });
 carregarConversas();
 
@@ -791,8 +799,8 @@ carregarConversas();
   var elErr = document.getElementById('perfil-erro');
   var elSt = document.getElementById('perfil-status');
   // Carregar nome atual via métricas (retorna dados do perfil)
-  fetch('/api/clinica/painel-acoes?acao=metricas').then(function(r){return r.json();}).then(function(d){
-    if(d.ok && d.nome) elNome.placeholder = d.nome || 'Seu nome';
+  metricasPromise.then(function(d){
+    if(d.ok && d.nome) elNome.placeholder = d.nome;
   });
   document.getElementById('btn-salvar-perfil').addEventListener('click', function(){
     elErr.textContent=''; elSt.innerHTML='';
@@ -852,8 +860,7 @@ document.getElementById('btn-add-feriado').addEventListener('click',function(){
 carregarFeriados();
 
 // ── Métricas ──
-fetch('/api/clinica/painel-acoes?acao=metricas')
-  .then(function(r) { return r.json(); })
+metricasPromise
   .then(function(res) {
     var elC = document.getElementById('metricas-corpo');
     if (!res.ok) { elC.textContent = 'Erro ao carregar métricas.'; return; }

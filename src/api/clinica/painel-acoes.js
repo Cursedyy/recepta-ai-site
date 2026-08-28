@@ -26,7 +26,7 @@ async function autenticar(req, res) {
 
   const { data: perfil } = await admin
     .from("perfis")
-    .select("papel,clinica_id,ativo")
+    .select("papel,clinica_id,nome,ativo")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -248,8 +248,11 @@ async function acaoCancelarAgendamento(admin, perfil, body) {
   return { status: 200, corpo: { ok: true } };
 }
 
+// Prefixa apostrofo em valores que o Excel/Sheets interpretaria como formula.
+// Sem isso, uma mensagem de paciente como =HYPERLINK(...) executa ao abrir o CSV.
 function escapeCsv(valor) {
-  const str = String(valor || "");
+  let str = String(valor || "");
+  if (/^[=+\-@\t\r]/.test(str)) str = "'" + str;
   if (str.includes(",") || str.includes('"') || str.includes("\n")) {
     return '"' + str.replace(/"/g, '""') + '"';
   }
@@ -380,11 +383,6 @@ async function acaoMetricas(admin, perfil) {
     .eq("clinica", clinicaRow.clinica)
     .eq("escalado", true);
 
-  const { count: totalAgendamentos, error: erroAgendamentos } = await admin
-    .from("agendamentos")
-    .select("id", { count: "exact", head: true })
-    .eq("clinica_id", perfil.clinica_id);
-
   const { count: agendamentosAtivos, error: erroAgendAtivos } = await admin
     .from("agendamentos")
     .select("id", { count: "exact", head: true })
@@ -392,7 +390,7 @@ async function acaoMetricas(admin, perfil) {
     .eq("status", "agendado")
     .gte("data_hora", new Date().toISOString());
 
-  if (erroConversas || erroEscalonamentos || erroAgendamentos || erroAgendAtivos) {
+  if (erroConversas || erroEscalonamentos || erroAgendAtivos) {
     return { status: 500, corpo: { erro: "falha_buscar" } };
   }
 
@@ -403,7 +401,6 @@ async function acaoMetricas(admin, perfil) {
       nome: perfil.nome || null,
       total_conversas: totalConversas || 0,
       total_escalonamentos: totalEscalonamentos || 0,
-      total_agendamentos: totalAgendamentos || 0,
       agendamentos_ativos: agendamentosAtivos || 0,
     },
   };
