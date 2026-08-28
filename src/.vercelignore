@@ -1,9 +1,9 @@
+# tudo que nao e site: testes, previews e saida de teste ficam fora do deploy.
+# padroes, nao lista nominal — arquivo novo de teste ja nasce excluido.
 node_modules
-test-painel-script.mjs
-test-responsive-ci.mjs
 screenshots
-test-getclientip.mjs
-preview-conversa.html
-test-agendamento.mjs
-preview-agendamento.html
-preview-agenda-status.html
+test-*.mjs
+check-briefing*
+preview-*.html
+.github
+*.md

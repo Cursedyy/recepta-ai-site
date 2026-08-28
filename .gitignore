@@ -7,3 +7,6 @@ logo-assets
 .agentsroom/handoff-transcript-*.txt
 .agentsroom/handoff-summary-*.md
 .agents/mcp.json
+
+# saida dos testes (regeravel: test-responsiveness / test-accessibility / CI)
+src/screenshots/
