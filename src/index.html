@@ -822,6 +822,10 @@
         padding: 48px 0 0;
         overflow: hidden;
       }
+      .hero-copy {
+        padding-left: 0;
+        text-align: left;
+      }
       .hero-inner {
         position: relative;
         z-index: 1;
@@ -836,7 +840,8 @@
         border: 1px solid rgba(255, 255, 255, 0.28);
         border-radius: 99px;
         padding: 3px 3px 3px 12px;
-        margin-bottom: 20px;
+        margin-bottom: 24px;
+        margin-left: 0;
       }
       .hero-badge-brand {
         display: inline-flex;
@@ -923,21 +928,23 @@
         }
       }
       .hero h1 {
-        font-size: clamp(26px, 5vw, 40px);
+        font-size: clamp(28px, 5.5vw, 48px);
         max-width: 100%;
-        margin-bottom: 20px;
+        margin: 0 0 24px 0;
         color: #fff;
-        line-height: 1.08;
+        line-height: 1.1;
         letter-spacing: -0.025em;
       }
       .hero h1 .hl {
         color: var(--accent-2);
       }
       .hero .lede {
-        font-size: 24px;
-        line-height: 1.7;
-        margin-bottom: 32px;
+        font-size: clamp(17px, 2.2vw, 21px);
+        line-height: 1.6;
+        margin: 0 0 36px 0;
+        padding: 0;
         color: rgba(255, 255, 255, 0.82);
+        max-width: 44ch;
       }
       .hero .btn-ghost {
         background: rgba(255, 255, 255, 0.14);
@@ -958,12 +965,15 @@
         display: flex;
         flex-wrap: wrap;
         gap: 12px;
+        margin-left: 0;
       }
       .hero .btn-primary {
         background: #fff;
         color: var(--accent);
-        font-size: 19px;
-        padding: 14px 28px;
+        font-size: 18px;
+        padding: 16px 32px;
+        font-weight: 600;
+        border-radius: 99px;
       }
       @media (max-width: 420px) {
         .hero .btn-primary {
@@ -982,14 +992,15 @@
         font-size: 13px;
       }
       .hero .hero-note {
-        margin-top: 16px;
-        color: rgba(255, 255, 255, 0.7);
+        margin: 16px 0 0 0;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 13px;
       }
       .hero-urgency {
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        margin-top: 18px;
+        margin: 20px 0 0 0;
         padding: 8px 14px;
         border-radius: 99px;
         background: rgba(255, 183, 77, 0.18);
@@ -1518,17 +1529,25 @@
         }
         .hero-inner.container {
           max-width: 1140px;
+          margin: 0 auto;
+          padding-inline: 24px;
         }
         .hero-inner {
           display: grid;
-          grid-template-columns: 1.05fr 0.95fr;
-          column-gap: 28px;
+          grid-template-columns: 1.1fr 0.9fr;
+          column-gap: 32px;
           row-gap: 0;
           align-items: start;
         }
         .hero-copy {
           grid-column: 1;
+          padding-left: 0;
+          margin: 0;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
         }
+
         .demo-stage {
           grid-column: 2;
         }
@@ -3405,18 +3424,10 @@
                   <polyline points="12 5 19 12 12 19" />
                 </svg>
               </a>
-              <a href="#painel" class="btn btn-ghost">
-                Como funciona na prática
-              </a>
             </div>
             <p class="hero-note">
-              Teste de 7 dias grátis, sem cartão de crédito e sem fidelidade.
-              Cancela quando quiser.
+              Teste de 7 dias grátis, sem cartão de crédito.
             </p>
-            <div class="hero-urgency">
-              <span class="urgency-dot"></span>
-              Configuração gratuita por tempo limitado — depois, taxa de setup de R$ 297
-            </div>
           </div>
           <div class="demo-stage" aria-hidden="true">
             <div class="demo-panel"></div>
@@ -3473,7 +3484,7 @@
         </div>
         <div class="hero-trust-band">
           <div class="container">
-            <p class="trust-anchor">Sem fricção pra começar</p>
+            <p class="trust-anchor">Clínicas de todos os portes confiam na Recepta</p>
             <div class="hero-trust">
               <span class="trust-pill">
                 <svg
