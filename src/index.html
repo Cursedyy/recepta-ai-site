@@ -351,6 +351,13 @@
         margin: 0;
         padding: 0;
       }
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+        color: inherit;
+      }
       html {
         -webkit-text-size-adjust: 100%;
         scroll-padding-top: 84px;
@@ -694,6 +701,42 @@
       }
       .mobile-nav .mobile-nav-cta:hover {
         background: var(--accent-soft);
+      }
+      .cta-short {
+        display: none;
+      }
+      /* telas muito estreitas (<=380px): folga lateral menor pro header caber */
+      @media (max-width: 380px) {
+        .topbar {
+          padding-left: 14px;
+          padding-right: 14px;
+        }
+      }
+      /* <=340px nao cabe logo + CTA + hamburger: o CTA vive no menu */
+      @media (max-width: 340px) {
+        .topbar .btn-primary {
+          display: none;
+        }
+      }
+      @media (max-width: 380px) {
+        .topbar .btn-primary {
+          padding: 10px 13px;
+          font-size: 13px;
+        }
+      }
+      @media (max-width: 560px) {
+        .topbar .btn-login {
+          display: none;
+        }
+        .topbar .cta-full {
+          display: none;
+        }
+        .topbar .cta-short {
+          display: inline;
+        }
+        .topbar-left {
+          min-width: 0;
+        }
       }
       @media (max-width: 480px) {
         .topbar .btn-primary {
@@ -1518,11 +1561,11 @@
           gap: 28px;
         }
         .foot-col h3 {
-          font-size: 11px;
+          font-size: 12px;
         }
         .foot-col a {
-          font-size: 13px;
-          padding: 6px 0;
+          font-size: 13.5px;
+          padding: 10px 0;
         }
         .foot-tagline {
           font-size: 12.5px;
@@ -2001,12 +2044,6 @@
 
       /* ===== touch targets mobile ===== */
       @media (max-width: 760px) {
-        .nav-link {
-          padding: 12px 16px;
-          min-height: 44px;
-          display: inline-flex;
-          align-items: center;
-        }
         footer a, .legal a {
           padding: 10px 8px;
           min-height: 44px;
@@ -3209,7 +3246,8 @@
           <a href="#faq" class="nav-link nav-link-help">Ajuda</a>
           <a href="/clinica/login" class="btn btn-sm btn-login">Entrar</a>
           <a href="/briefing" class="btn btn-primary btn-sm"
-            >Começar agora, grátis</a
+            ><span class="cta-full">Começar agora, grátis</span
+            ><span class="cta-short">Começar grátis</span></a
           >
           <button class="hamburger" aria-label="Abrir menu" aria-expanded="false" aria-controls="mobileNav">
             <svg class="icon-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
@@ -3346,9 +3384,8 @@
               ninguém.
             </h1>
             <p class="lede">
-              Secretária virtual com IA treinada com as regras da sua clínica:
-              atende, agenda e remarca consultas pelo WhatsApp, 24 horas por dia,
-              7 dias por semana.
+              Secretária virtual com IA treinada pra sua clínica: atende, agenda
+              e remarca consultas pelo WhatsApp, 24 horas por dia.
             </p>
             <div class="hero-ctas">
               <a href="/briefing" class="btn btn-primary">
@@ -4185,7 +4222,7 @@
           <div class="pricing-grid">
             <div class="pricing-intro">
               <span class="eyebrow">Preço</span>
-              <h2>Quanto custa a secretária virtual da sua clínica</h2>
+              <h2>Planos e preços da secretária virtual</h2>
               <p class="lede">
                 Sem contrato de fidelidade. Cancela quando quiser, sem multa.
               </p>

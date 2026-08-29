@@ -7,3 +7,6 @@ check-briefing*
 preview-*.html
 .github
 *.md
+
+# ferramentas de build (geram assets, nao fazem parte do site)
+gen-*.mjs
