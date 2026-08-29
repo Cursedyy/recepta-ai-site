@@ -152,14 +152,17 @@ const run = async () => {
         );
     }
 
-    // aviso, nao falha: o demo do chat transborda de proposito (margens negativas
-    // em .msg-in / .msg-out). acima de 1200px isso passa da borda do container.
-    let bleed = "";
-    if (m.inner && m.msgRight != null) {
-      const over = m.msgRight - m.inner.right;
-      if (over > TOL)
-        bleed = `\n  [aviso] chat ultrapassa a borda direita do container em ${over.toFixed(0)}px`;
-    }
+    // O demo do chat transborda o container de proposito: e o efeito de
+    // sobreposicao pedido no design, feito com as margens negativas de
+    // .msg-in / .msg-out sobre o .demo-panel, que fica recuado 15%. Acima de
+    // 1200px isso passa ~10px da borda direita e ESTA CORRETO — nao "consertar".
+    // O que precisa continuar valendo e o assert de overflow horizontal la em
+    // cima: o transbordo e contido pelo overflow:hidden do .hero e nunca pode
+    // virar barra de rolagem. So por isso a medida segue sendo reportada.
+    const sangria =
+      m.inner && m.msgRight != null
+        ? `  sangria do chat: ${(m.msgRight - m.inner.right).toFixed(0)}px (intencional)`
+        : "";
 
     await page
       .locator(".hero")
@@ -172,7 +175,7 @@ const run = async () => {
         `\n  container: left=${m.inner?.left.toFixed(1)} right=${m.inner?.right.toFixed(1)} width=${m.inner?.width.toFixed(1)} maxW=${m.innerCS?.maxWidth} pad=${m.innerCS?.paddingLeft}/${m.innerCS?.paddingRight} margin=${m.innerCS?.marginLeft}/${m.innerCS?.marginRight}` +
         `\n  copy: ${m.copy ? `${m.copy.left.toFixed(1)}..${m.copy.right.toFixed(1)}` : "n/a"}   demo: ${m.demo ? `${m.demo.left.toFixed(1)}..${m.demo.right.toFixed(1)}` : "n/a"}` +
         `\n  badge: ${m.badge ? `${m.badge.width.toFixed(0)}px (${m.badgeDisplay})` : "n/a"}   CTAs: ${m.ctas.map((c) => `${c.w.toFixed(0)}x${c.h.toFixed(0)}`).join(", ") || "nenhum"}` +
-        bleed +
+        `\n${sangria}` +
         (problems.length ? `\n  -> ${problems.join("\n  -> ")}` : ""),
     );
   }
