@@ -2336,352 +2336,433 @@
         line-height: 1.5;
       }
 
-      /* ===== preview do painel ===== */
+      /* ===== preview do painel =====
+         Replica o painel real da clinica (src/api/clinica/painel-view.js).
+         Os tokens espelham os de la: slate #0f172a na topbar, indigo #4f46e5
+         no item ativo, superficie branca, thread com dot-grid sobre #f1f5f9.
+         Levam prefixo --ps- e escopo local pra nao vazarem nos tokens da LP.
+         A fonte do painel real e Inter; aqui usamos a stack do sistema, que e
+         equivalente nesse tamanho e nao custa um request de fonte a mais. */
       .painel-shot {
+        --ps-surface: #ffffff;
+        --ps-ink: #0f172a;
+        --ps-muted: #64748b;
+        --ps-border: #e2e8f0;
+        --ps-soft: #f1f5f9;
+        --ps-primary: #4f46e5;
+        --ps-primary-soft: #eef2ff;
+        --ps-primary-bd: #c7d2fe;
+        --ps-r: 10px;
+        --ps-r-lg: 14px;
+        position: relative;
         margin-top: 28px;
         border: 1px solid var(--line);
         border-radius: 16px;
         overflow: hidden;
-        background: var(--surface);
+        background: #f8fafc;
         box-shadow: 0 24px 60px -30px rgba(16, 13, 34, 0.4);
+        font-family:
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          Arial,
+          sans-serif;
+        font-size: 14px;
+        line-height: 1.6;
+        color: var(--ps-ink);
+        text-align: left;
       }
-      /* -- topbar real do painel -- */
+
+      /* -- topbar -- */
       .ps-topbar {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        height: 52px;
+        height: 56px;
         padding: 0 20px;
-        background: #0f172a;
+        background: var(--ps-ink);
         color: #fff;
-        border-bottom: 1px solid rgba(255,255,255,0.06);
       }
       .ps-topbar-left {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 12px;
+        min-width: 0;
       }
-      .ps-topbar-logo {
+      .ps-logo {
         display: flex;
         align-items: center;
-        gap: 7px;
+        gap: 8px;
         font-weight: 700;
-        font-size: 15px;
+        font-size: 16px;
+        letter-spacing: -0.4px;
       }
-      .ps-topbar-logo svg {
+      .ps-logo svg {
         width: 22px;
         height: 22px;
-        flex-shrink: 0;
+        flex: 0 0 auto;
       }
-      .ps-topbar-sub {
-        font-size: 12px;
-        color: rgba(255,255,255,0.5);
+      .ps-sep {
+        opacity: 0.2;
+        font-weight: 300;
+        font-size: 18px;
       }
-      .ps-topbar-right {
-        display: flex;
-        align-items: center;
-        gap: 12px;
+      .ps-clinic {
+        font-size: 13px;
+        opacity: 0.6;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
       }
-      .ps-conexao {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 11px;
-        font-weight: 500;
-        color: rgba(255,255,255,0.6);
-      }
-      .ps-conexao .ps-cdot {
-        width: 7px;
-        height: 7px;
-        border-radius: 50%;
-        background: #059669;
-        box-shadow: 0 0 6px rgba(5,150,105,0.5);
-      }
-      .ps-topbar-btn {
-        background: rgba(255,255,255,0.08);
-        border: 1px solid rgba(255,255,255,0.12);
+      .ps-sair {
+        flex: 0 0 auto;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.12);
         color: #fff;
-        padding: 7px 14px;
-        border-radius: 10px;
+        padding: 7px 16px;
+        border-radius: var(--ps-r);
         font-size: 13px;
         font-weight: 500;
       }
-      /* -- layout com sidebar -- */
+
+      /* -- layout -- */
       .ps-layout {
         display: flex;
-        min-height: 380px;
+        min-height: 640px;
       }
+
       /* -- sidebar -- */
       .ps-sidebar {
         width: 200px;
-        flex: 0 0 200px;
-        background: var(--surface);
-        border-right: 1px solid var(--line);
-        padding: 12px 8px;
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
+        flex: 0 0 auto;
+        background: var(--ps-surface);
+        border-right: 1px solid var(--ps-border);
+        padding: 6px 10px 16px;
       }
-      .ps-sidebar-section {
+      .ps-sec {
         font-size: 10px;
         font-weight: 700;
-        color: var(--muted);
+        color: var(--ps-muted);
         text-transform: uppercase;
         letter-spacing: 0.8px;
-        padding: 14px 14px 6px;
+        padding: 14px 12px 6px;
       }
-      .ps-nav-item {
+      .ps-nav {
         display: flex;
         align-items: center;
         gap: 10px;
-        padding: 9px 14px;
-        border-radius: 10px;
+        padding: 8px 12px;
+        border-radius: var(--ps-r);
         font-size: 13px;
         font-weight: 500;
-        color: var(--muted);
-        border: none;
-        background: none;
-        width: 100%;
-        text-align: left;
+        color: var(--ps-muted);
       }
-      .ps-nav-item.active {
-        background: var(--accent);
+      .ps-nav.active {
+        background: var(--ps-primary);
         color: #fff;
-        box-shadow: 0 2px 8px rgba(79,70,229,0.3);
+        box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
       }
-      .ps-nav-item .ps-icon {
-        width: 20px;
+      .ps-nav .ps-ic {
+        width: 18px;
         text-align: center;
-        font-size: 15px;
-        flex-shrink: 0;
+        font-size: 14px;
+        flex: 0 0 auto;
       }
-      /* -- lista de conversas -- */
-      .ps-conv-col {
-        width: 280px;
-        flex: 0 0 280px;
-        border-right: 1px solid var(--line);
+
+      /* -- conteudo -- */
+      .ps-content {
+        flex: 1 1 auto;
+        min-width: 0;
         display: flex;
         flex-direction: column;
-        background: var(--surface);
       }
-      .ps-search {
-        padding: 12px;
-        border-bottom: 1px solid var(--line);
+      .ps-content-head {
+        padding: 18px 24px 14px;
+        background: var(--ps-surface);
+        border-bottom: 1px solid var(--ps-border);
       }
-      .ps-search-input {
-        width: 100%;
-        padding: 9px 14px;
-        border: 1.5px solid var(--line);
-        border-radius: 10px;
-        background: #f8fafc;
-        font-size: 13px;
-        color: var(--muted);
-      }
-      .ps-grupo {
-        border-bottom: 1px solid var(--line);
-      }
-      .ps-grupo-hdr {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        width: 100%;
-        padding: 9px 14px;
-        background: #f1f5f9;
-        border: none;
-        border-bottom: 1px solid var(--line);
-        text-align: left;
-      }
-      .ps-grupo-nome {
-        font-weight: 700;
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 0.3px;
-        color: var(--muted);
-      }
-      .ps-grupo-count {
-        font-weight: 600;
-        color: var(--accent);
-        font-size: 11px;
-        background: #eef2ff;
-        padding: 2px 8px;
-        border-radius: 99px;
-      }
-      .ps-paciente {
+      .ps-content-head b {
         display: block;
-        width: 100%;
-        text-align: left;
-        padding: 11px 14px 11px 18px;
-        border: none;
-        border-bottom: 1px solid var(--line);
-        background: transparent;
-      }
-      .ps-paciente.ativo {
-        background: #eef2ff;
-        border-left: 3px solid var(--accent);
-      }
-      .ps-pac-top {
-        display: flex;
-        justify-content: space-between;
-        align-items: baseline;
-        gap: 8px;
-      }
-      .ps-pac-tel {
+        font-size: 20px;
         font-weight: 700;
-        font-size: 13.5px;
-        color: var(--ink);
+        letter-spacing: -0.4px;
+        color: var(--ps-ink);
+        line-height: 1.3;
       }
-      .ps-pac-time {
-        color: var(--muted);
-        font-size: 11px;
+      .ps-content-head span {
+        display: block;
+        font-size: 13px;
+        color: var(--ps-muted);
+        margin-top: 2px;
+      }
+      .ps-content-body {
+        flex: 1 1 auto;
+        padding: 18px 24px;
+      }
+      .ps-toolbar {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+      .ps-input {
+        flex: 1 1 auto;
+        min-width: 0;
+        padding: 9px 14px;
+        border: 1.5px solid var(--ps-border);
+        border-radius: var(--ps-r);
+        background: var(--ps-surface);
+        font-size: 13px;
+        color: #94a3b8;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .ps-btn-ghost {
+        flex: 0 0 auto;
+        padding: 8px 14px;
+        border: 1.5px solid var(--ps-border);
+        border-radius: var(--ps-r);
+        background: var(--ps-surface);
+        font-size: 12.5px;
+        font-weight: 500;
+        color: var(--ps-ink);
         white-space: nowrap;
       }
-      .ps-pac-prev {
-        color: var(--muted);
+
+      /* -- cards de conversa -- */
+      .ps-section-card {
+        background: var(--ps-surface);
+        border: 1px solid var(--ps-border);
+        border-radius: var(--ps-r-lg);
+        padding: 16px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+      }
+      .ps-conv-card {
+        border: 1.5px solid var(--ps-border);
+        border-radius: var(--ps-r);
+        padding: 12px 16px;
+        margin-bottom: 8px;
+        background: var(--ps-surface);
+      }
+      .ps-conv-card:last-child {
+        margin-bottom: 0;
+      }
+      .ps-cc-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 4px;
+      }
+      .ps-cc-top b {
+        font-size: 14px;
+      }
+      .ps-cc-top span {
+        font-size: 11px;
+        color: var(--ps-muted);
+        flex: 0 0 auto;
+      }
+      .ps-cc-prev {
         font-size: 12.5px;
+        color: var(--ps-muted);
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-        margin-top: 3px;
       }
-      /* -- thread da conversa -- */
-      .ps-thread-col {
-        flex: 1 1 auto;
-        display: flex;
-        flex-direction: column;
-        min-width: 0;
-        background: #f1f0f9;
+      .ps-cc-count {
+        font-size: 11px;
+        color: var(--ps-muted);
+        margin-top: 2px;
       }
-      .ps-conv-head {
-        padding: 10px 20px;
-        background: var(--surface);
-        border-bottom: 1px solid var(--line);
+
+      /* -- modal da conversa --
+         No painel real a thread nao e uma coluna fixa: abre num modal por cima
+         da lista, com overlay. O preview reproduz esse estado. */
+      .ps-modal {
+        position: absolute;
+        inset: 56px 0 0;
+        background: rgba(15, 23, 42, 0.5);
         display: flex;
         align-items: center;
-        gap: 12px;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+        justify-content: center;
+        padding: 20px;
       }
-      .ps-conv-head-info {
-        flex: 1;
-        min-width: 0;
-      }
-      .ps-conv-head-info b {
-        display: block;
-        font-size: 15px;
-        font-weight: 700;
-      }
-      .ps-conv-head-info .ps-sub {
-        font-size: 12px;
-        color: var(--muted);
-      }
-      .ps-btn-pausar {
-        padding: 7px 16px;
-        border-radius: 999px;
-        border: 1.5px solid var(--line);
-        background: var(--surface);
-        color: var(--accent);
-        font-size: 12.5px;
-        font-weight: 600;
-        white-space: nowrap;
-      }
-      .ps-msgs {
-        flex: 1 1 auto;
-        overflow-y: auto;
-        padding: 12px 16px;
+      .ps-modal-box {
+        width: 100%;
+        max-width: 440px;
+        max-height: 100%;
         display: flex;
         flex-direction: column;
-        gap: 5px;
+        background: var(--ps-surface);
+        border-radius: var(--ps-r-lg);
+        overflow: hidden;
+        box-shadow: 0 20px 45px -12px rgba(15, 23, 42, 0.45);
       }
-      .ps-day-sep {
+      .ps-chat-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--ps-border);
+        background: var(--ps-surface);
+      }
+      .ps-chat-head b {
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: -0.3px;
+      }
+      .ps-chat-sub {
+        display: block;
+        font-size: 13px;
+        color: var(--ps-muted);
+        margin-top: 2px;
+      }
+      .ps-chat-close {
+        flex: 0 0 auto;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        border: 1.5px solid var(--ps-border);
+        color: var(--ps-muted);
+        font-size: 15px;
+        line-height: 1;
+      }
+
+      /* -- thread -- */
+      .ps-thread {
+        flex: 1 1 auto;
+        padding: 18px 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        background-color: var(--ps-soft);
+        background-image: radial-gradient(
+          circle at 1px 1px,
+          rgba(15, 23, 42, 0.07) 1px,
+          transparent 0
+        );
+        background-size: 18px 18px;
+      }
+      .ps-day {
         align-self: center;
-        background: rgba(15,23,42,0.06);
-        color: var(--muted);
+        margin: 2px 0;
         font-size: 11px;
         font-weight: 600;
-        padding: 5px 14px;
-        border-radius: 99px;
-        margin: 10px 0;
+        color: var(--ps-muted);
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid var(--ps-border);
+        padding: 3px 12px;
+        border-radius: 999px;
       }
-      .ps-bub {
-        max-width: 58%;
-        padding: 8px 12px;
-        border-radius: 14px;
-        font-size: 13px;
-        line-height: 1.45;
-        word-break: break-word;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+      .ps-row {
+        display: flex;
+        flex-direction: column;
+        max-width: 78%;
       }
-      .ps-bub .ps-tm {
-        display: block;
-        font-size: 10px;
-        color: var(--muted);
-        margin-top: 3px;
-        text-align: right;
-      }
-      .ps-bub.in {
+      .ps-row.paciente {
         align-self: flex-start;
-        background: #fff;
+        align-items: flex-start;
+      }
+      .ps-row.ia {
+        align-self: flex-end;
+        align-items: flex-end;
+      }
+      .ps-autor {
+        font-size: 10.5px;
+        font-weight: 600;
+        color: var(--ps-muted);
+        margin-bottom: 3px;
+        padding: 0 4px;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+      }
+      .ps-bubble {
+        padding: 9px 13px;
+        border-radius: var(--ps-r-lg);
+        font-size: 13.5px;
+        line-height: 1.55;
+        color: var(--ps-ink);
+        box-shadow:
+          0 1px 3px rgba(0, 0, 0, 0.04),
+          0 1px 2px rgba(0, 0, 0, 0.03);
+      }
+      .ps-row.paciente .ps-bubble {
+        background: #ffffff;
+        border: 1px solid var(--ps-border);
         border-bottom-left-radius: 4px;
       }
-      .ps-bub.out {
-        align-self: flex-end;
-        background: #eef2ff;
+      .ps-row.ia .ps-bubble {
+        background: var(--ps-primary-soft);
+        border: 1px solid var(--ps-primary-bd);
         border-bottom-right-radius: 4px;
       }
-      .ps-foot {
-        border-top: 1px solid var(--line);
-        padding: 11px 18px;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        flex-wrap: wrap;
-        font-size: 12.5px;
-        color: var(--muted);
-        background: #f8fafc;
+      .ps-hora {
+        font-size: 10.5px;
+        color: var(--ps-muted);
+        margin-top: 3px;
+        padding: 0 4px;
       }
-      .ps-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 5px;
-        padding: 4px 10px;
-        border-radius: 999px;
-        background: #eef2ff;
-        border: 1px solid var(--line);
-        font-weight: 600;
-        color: var(--accent);
-        font-size: 11.5px;
+
+      /* -- responsivo: espelha os breakpoints do painel real -- */
+      /* Em tela larga o modal fica encostado a direita em vez de centralizado:
+         no painel real ele e centrado, mas ai cobre o titulo da aba e os
+         telefones dos cards. Deslocado, o preview mostra a thread E a tela por
+         baixo, que e o ponto da secao. */
+      @media (min-width: 900px) {
+        .ps-modal {
+          justify-content: flex-end;
+          padding-right: 28px;
+        }
       }
       @media (max-width: 900px) {
         .ps-sidebar {
           width: 56px;
-          padding: 10px 4px;
+          padding: 10px 6px;
         }
-        .ps-sidebar-section,
-        .ps-nav-item span:not(.ps-icon) {
+        .ps-sec {
           display: none;
         }
-        .ps-nav-item {
+        .ps-nav {
           justify-content: center;
           padding: 10px;
         }
-      }
-      @media (max-width: 760px) {
-        .ps-layout {
-          flex-direction: column;
-          min-height: auto;
+        .ps-nav span:not(.ps-ic) {
+          display: none;
         }
+      }
+      @media (max-width: 620px) {
         .ps-sidebar {
           display: none;
         }
-        .ps-conv-col {
-          width: 100%;
-          flex: 0 0 auto;
-          max-height: 180px;
+        .ps-layout {
+          min-height: 640px;
         }
-        .ps-thread-col {
-          min-height: 260px;
+        .ps-sep,
+        .ps-clinic {
+          display: none;
         }
-        .ps-bub {
-          max-width: 80%;
+        .ps-modal {
+          padding: 12px;
+        }
+        .ps-row {
+          max-width: 88%;
+        }
+      }
+      @media (max-width: 400px) {
+        .ps-layout {
+          min-height: 720px;
+        }
+        .ps-modal {
+          padding: 10px;
+        }
+        .ps-thread {
+          padding: 14px 14px;
         }
       }
       .painel-points {
@@ -3730,115 +3811,143 @@
           </p>
 
           <div class="painel-shot" aria-hidden="true">
-            <!-- topbar real do painel -->
+            <!-- topbar: igual a do painel real (slate, logo, clinica, Sair) -->
             <div class="ps-topbar">
               <div class="ps-topbar-left">
-                <div class="ps-topbar-logo">
-                  <svg viewBox="0 0 100 100" aria-hidden="true">
-                    <g transform="translate(0 50)">
-                      <path d="M 34 -34 C -1.7 -15.9, -1.7 15.9, 34 34 C 69.7 15.9, 69.7 -15.9, 34 -34 Z" fill="currentColor" fill-opacity="0.6" />
-                      <path d="M 66 -34 C 30.3 -15.9, 30.3 15.9, 66 34 C 101.7 15.9, 101.7 -15.9, 66 -34 Z" fill="currentColor" />
-                    </g>
-                  </svg>
-                  Recepta AI
-                </div>
-                <span class="ps-topbar-sub">Painel</span>
+                <span class="ps-logo"><svg viewBox="0 0 100 100" fill="currentColor" aria-hidden="true"><g transform="translate(0 50)"><path d="M 34 -34 C -1.7 -15.9, -1.7 15.9, 34 34 C 69.7 15.9, 69.7 -15.9, 34 -34 Z" fill-opacity="0.6" /><path d="M 66 -34 C 30.3 -15.9, 30.3 15.9, 66 34 C 101.7 15.9, 101.7 -15.9, 66 -34 Z" /></g></svg> Recepta</span>
+                <span class="ps-sep">|</span>
+                <span class="ps-clinic">Clínica Vida</span>
               </div>
-              <div class="ps-topbar-right">
-                <span class="ps-conexao">
-                  <span class="ps-cdot"></span>
-                  Conectado
-                </span>
-                <span class="ps-topbar-btn">Configurações</span>
-              </div>
+              <span class="ps-sair">Sair</span>
             </div>
             <div class="ps-layout">
-              <!-- sidebar -->
-              <div class="ps-sidebar">
-                <div class="ps-sidebar-section">Menu</div>
-                <button class="ps-nav-item active">
-                  <span class="ps-icon">💬</span>
+              <!-- sidebar: mesmos grupos e itens do painel real -->
+              <nav class="ps-sidebar">
+                <div class="ps-sec">Clínica</div>
+                <div class="ps-nav">
+                  <span class="ps-ic">📋</span>
+                  <span>Agenda</span>
+                </div>
+                <div class="ps-nav">
+                  <span class="ps-ic">🕐</span>
+                  <span>Horários</span>
+                </div>
+                <div class="ps-nav">
+                  <span class="ps-ic">💰</span>
+                  <span>Preços</span>
+                </div>
+                <div class="ps-nav">
+                  <span class="ps-ic">🏥</span>
+                  <span>Convênios</span>
+                </div>
+                <div class="ps-sec">Recepta</div>
+                <div class="ps-nav">
+                  <span class="ps-ic">💬</span>
+                  <span>Mensagem</span>
+                </div>
+                <div class="ps-nav">
+                  <span class="ps-ic">⚙️</span>
+                  <span>Regras</span>
+                </div>
+                <div class="ps-nav">
+                  <span class="ps-ic">❓</span>
+                  <span>FAQ</span>
+                </div>
+                <div class="ps-nav active">
+                  <span class="ps-ic">🗨️</span>
                   <span>Conversas</span>
-                </button>
-                <button class="ps-nav-item">
-                  <span class="ps-icon">⚙️</span>
-                  <span>Configuração</span>
-                </button>
-              </div>
-              <!-- lista de conversas -->
-              <div class="ps-conv-col">
-                <div class="ps-search">
-                  <div class="ps-search-input">🔍 Buscar paciente...</div>
                 </div>
-                <div class="ps-grupo">
-                  <div class="ps-grupo-hdr">
-                    <span class="ps-grupo-nome">Clínica</span>
-                    <span class="ps-grupo-count">3</span>
-                  </div>
-                  <button class="ps-paciente ativo">
-                    <div class="ps-pac-top">
-                      <span class="ps-pac-tel">(53) 9 8••••-4471</span>
-                      <span class="ps-pac-time">agora</span>
-                    </div>
-                    <div class="ps-pac-prev">Perfeito! Agendado: quinta 14h30</div>
-                  </button>
-                  <button class="ps-paciente">
-                    <div class="ps-pac-top">
-                      <span class="ps-pac-tel">(53) 9 9••••-1820</span>
-                      <span class="ps-pac-time">12 min</span>
-                    </div>
-                    <div class="ps-pac-prev">Bom dia, vocês atendem Unimed?</div>
-                  </button>
-                  <button class="ps-paciente">
-                    <div class="ps-pac-top">
-                      <span class="ps-pac-tel">(53) 9 8••••-9032</span>
-                      <span class="ps-pac-time">1 h</span>
-                    </div>
-                    <div class="ps-pac-prev">Preciso remarcar minha consulta</div>
-                  </button>
+                <div class="ps-sec">Conta</div>
+                <div class="ps-nav">
+                  <span class="ps-ic">⏸️</span>
+                  <span>Pausa</span>
                 </div>
-              </div>
-              <!-- thread da conversa -->
-              <div class="ps-thread-col">
-                <div class="ps-conv-head">
-                  <div class="ps-conv-head-info">
-                    <b>(53) 9 8••••-4471</b>
-                    <span class="ps-sub">Atendimento ativo</span>
-                  </div>
-                  <span class="ps-btn-pausar">Pausar manual</span>
+                <div class="ps-nav">
+                  <span class="ps-ic">👤</span>
+                  <span>Perfil</span>
                 </div>
-                <div class="ps-msgs">
-                  <div class="ps-day-sep">Hoje</div>
-                  <div class="ps-bub in">
-                    Quanto custa o ultrassom abdominal?
-                    <span class="ps-tm">08:12</span>
+                <div class="ps-nav">
+                  <span class="ps-ic">📅</span>
+                  <span>Feriados</span>
+                </div>
+                <div class="ps-nav">
+                  <span class="ps-ic">📊</span>
+                  <span>Status</span>
+                </div>
+              </nav>
+              <div class="ps-content">
+                <div class="ps-content-head">
+                  <b>Monitoramento</b>
+                  <span>Acompanhe as conversas dos pacientes com a Recepta.</span>
+                </div>
+                <div class="ps-content-body">
+                  <div class="ps-toolbar">
+                    <span class="ps-input">Buscar por telefone ou mensagem…</span>
+                    <span class="ps-btn-ghost">📥 Exportar CSV</span>
                   </div>
-                  <div class="ps-bub out">
-                    Bom dia! Fica R$ 180 particular, com jejum de 8h antes do exame. Quer que eu já veja um horário pra você?
-                    <span class="ps-tm">08:12</span>
-                  </div>
-                  <div class="ps-bub in">
-                    Quero, pode ser essa semana
-                    <span class="ps-tm">08:13</span>
-                  </div>
-                  <div class="ps-bub out">
-                    Tenho quinta às 14h30 ou sexta às 9h. Qual fica melhor?
-                    <span class="ps-tm">08:13</span>
-                  </div>
-                  <div class="ps-bub in">
-                    Quinta às 14h30
-                    <span class="ps-tm">08:14</span>
-                  </div>
-                  <div class="ps-bub out">
-                    Perfeito! Agendado: ultrassom abdominal, quinta 14h30. Te mando um lembrete um dia antes 😊
-                    <span class="ps-tm">08:14</span>
+                  <div class="ps-section-card">
+                    <div class="ps-conv-card">
+                      <div class="ps-cc-top">
+                        <b>(53) 9 8••••-4471</b>
+                        <span>29/08 08:14</span>
+                      </div>
+                      <div class="ps-cc-prev">Recepta: Perfeito! Agendado: ultrassom abdominal, quinta 14h30</div>
+                      <div class="ps-cc-count">4 mensagens</div>
+                    </div>
+                    <div class="ps-conv-card">
+                      <div class="ps-cc-top">
+                        <b>(53) 9 9••••-1820</b>
+                        <span>29/08 08:02</span>
+                      </div>
+                      <div class="ps-cc-prev">Paciente: Bom dia, vocês atendem Unimed?</div>
+                      <div class="ps-cc-count">3 mensagens</div>
+                    </div>
+                    <div class="ps-conv-card">
+                      <div class="ps-cc-top">
+                        <b>(53) 9 8••••-9032</b>
+                        <span>29/08 07:15</span>
+                      </div>
+                      <div class="ps-cc-prev">Recepta: Consegui remarcar pra sexta às 9h. Confirmo?</div>
+                      <div class="ps-cc-count">8 mensagens</div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="ps-foot">
-              <span class="ps-badge">Recepta respondendo</span>
-              <span>Mande uma mensagem manual nessa conversa e a Recepta pausa sozinha.</span>
+            <!-- modal: no painel real a conversa abre por cima da lista -->
+            <div class="ps-modal">
+              <div class="ps-modal-box">
+                <div class="ps-chat-head">
+                  <div>
+                    <b>(53) 9 8••••-4471</b>
+                    <span class="ps-chat-sub">4 mensagens</span>
+                  </div>
+                  <span class="ps-chat-close">✕</span>
+                </div>
+                <div class="ps-thread">
+                  <span class="ps-day">Hoje</span>
+                  <div class="ps-row paciente">
+                    <span class="ps-autor">Paciente</span>
+                    <div class="ps-bubble">Quanto custa o ultrassom abdominal?</div>
+                    <span class="ps-hora">08:12</span>
+                  </div>
+                  <div class="ps-row ia">
+                    <span class="ps-autor">Recepta</span>
+                    <div class="ps-bubble">Bom dia! Fica R$ 180 particular, com jejum de 8h antes do exame. Tenho quinta às 14h30 ou sexta às 9h.</div>
+                    <span class="ps-hora">08:12</span>
+                  </div>
+                  <div class="ps-row paciente">
+                    <span class="ps-autor">Paciente</span>
+                    <div class="ps-bubble">Pode ser quinta às 14h30</div>
+                    <span class="ps-hora">08:13</span>
+                  </div>
+                  <div class="ps-row ia">
+                    <span class="ps-autor">Recepta</span>
+                    <div class="ps-bubble">Perfeito! Agendado: ultrassom abdominal, quinta 14h30. Te mando um lembrete um dia antes 😊</div>
+                    <span class="ps-hora">08:14</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
