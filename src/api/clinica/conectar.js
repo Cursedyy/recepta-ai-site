@@ -139,12 +139,34 @@ function normalizarInstancia(dados) {
     inst.status === "connected" ||
     Boolean(conexao.connected && conexao.loggedIn);
 
+  // O numero conectado sai do `jid` do status, nao de `instance.owner`: o jid
+  // e o que o WhatsApp devolveu na sessao ativa, enquanto `owner` no schema da
+  // UazAPI aparece com exemplo de e-mail e nao e confiavel como telefone.
+  // `owner` fica so de reserva para o caso do jid vir nulo.
+  const jidUser = String(conexao.jid?.user || "").replace(/\D/g, "");
+  const owner = String(inst.owner || "").replace(/\D/g, "");
+  const numero = /^\d{10,15}$/.test(jidUser)
+    ? jidUser
+    : /^\d{10,15}$/.test(owner)
+      ? owner
+      : null;
+
   return {
     conectado,
     estado: inst.status || (conectado ? "connected" : "desconhecido"),
     paircode: inst.paircode || null,
     qrcode: inst.qrcode || null,
+    numero,
     perfil_nome: inst.profileName || null,
+    // Só https: a foto vai para um <img> e uma URL http quebraria no CSP.
+    perfil_foto: /^https:\/\//.test(inst.profilePicUrl || "")
+      ? inst.profilePicUrl
+      : null,
+    conta_business:
+      typeof inst.isBusiness === "boolean" ? inst.isBusiness : null,
+    plataforma: inst.plataform || null,
+    desconectado_em: inst.lastDisconnect || null,
+    desconectado_motivo: inst.lastDisconnectReason || null,
   };
 }
 

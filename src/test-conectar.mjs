@@ -90,6 +90,91 @@ assert.equal(
   "paircode repassado",
 );
 
+// ── numero conectado: jid manda, owner e reserva ──────────────────────────
+// `instance.owner` aparece no schema da UazAPI com exemplo de e-mail, entao o
+// telefone confiavel e o `status.jid.user` da sessao ativa. Se a precedencia
+// inverter, a tela passa a mostrar um numero errado como se fosse o do ar.
+assert.equal(
+  normalizarInstancia({
+    status: { jid: { user: "5511912345678" } },
+    instance: { owner: "user@example.com" },
+  }).numero,
+  "5511912345678",
+  "jid tem precedencia sobre owner",
+);
+assert.equal(
+  normalizarInstancia({ instance: { owner: "5511912345678" } }).numero,
+  "5511912345678",
+  "owner numerico serve de reserva",
+);
+assert.equal(
+  normalizarInstancia({ instance: { owner: "user@example.com" } }).numero,
+  null,
+  "owner nao numerico nao vira telefone",
+);
+assert.equal(
+  normalizarInstancia({ status: { jid: null } }).numero,
+  null,
+  "jid nulo nao quebra",
+);
+
+// Foto vai para um <img>: http quebraria no CSP da producao.
+assert.equal(
+  normalizarInstancia({ instance: { profilePicUrl: "https://x.com/a.jpg" } })
+    .perfil_foto,
+  "https://x.com/a.jpg",
+  "foto https passa",
+);
+assert.equal(
+  normalizarInstancia({ instance: { profilePicUrl: "http://x.com/a.jpg" } })
+    .perfil_foto,
+  null,
+  "foto http barrada",
+);
+
+// false e um valor valido de isBusiness e nao pode virar null.
+assert.equal(
+  normalizarInstancia({ instance: { isBusiness: false } }).conta_business,
+  false,
+  "isBusiness false nao pode ser confundido com ausente",
+);
+assert.equal(
+  normalizarInstancia({}).conta_business,
+  null,
+  "isBusiness ausente vira null",
+);
+
+// ── formatarNumeroConectado (pagina): exibicao do numero no ar ────────────
+const paginaNum = readFileSync(
+  new URL("./clinica/conectar/index.html", import.meta.url),
+  "utf8",
+);
+const corpoNumero = paginaNum.match(
+  /function formatarNumeroConectado\(digitos\) \{[\s\S]*?\n {8}\}/,
+);
+assert.ok(corpoNumero, "formatarNumeroConectado deve existir na pagina");
+const { formatarNumeroConectado } = await import(
+  "data:text/javascript," +
+    encodeURIComponent(corpoNumero[0] + "\nexport { formatarNumeroConectado };")
+);
+
+assert.equal(
+  formatarNumeroConectado("5511912345678"),
+  "+55 (11) 91234-5678",
+  "celular BR de 9 digitos",
+);
+assert.equal(
+  formatarNumeroConectado("551133456789"),
+  "+55 (11) 3345-6789",
+  "fixo BR de 8 digitos",
+);
+assert.equal(
+  formatarNumeroConectado("13235551234"),
+  "+13235551234",
+  "numero estrangeiro nao leva mascara BR",
+);
+assert.equal(formatarNumeroConectado(null), null, "sem numero devolve null");
+
 // ── formatarTelefone (pagina): round-trip com o handler de envio ──────────
 // A sugestao vem de clinicas.telefone_operador com ou sem o 55. A pagina
 // exibe no formato nacional e o handler recoloca o 55 quando o numero tem 10
@@ -141,4 +226,4 @@ assert.equal(
   "lixo curto passa e o server recusa",
 );
 
-console.log("OK — conectar.js: 30 checks");
+console.log("OK — conectar.js: 47 checks");

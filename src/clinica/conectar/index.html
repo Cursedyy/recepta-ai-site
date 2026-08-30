@@ -249,6 +249,91 @@
         cursor: not-allowed;
       }
 
+      /* ── Conta conectada ──────────────────────────────────────────────
+         Identidade primeiro (foto + numero grande), metadados depois em
+         letra menor. A hierarquia vem da escala, nao de cor: o numero e a
+         resposta a pergunta "qual WhatsApp esta no ar?". */
+      .conta {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .conta-foto,
+      .conta-avatar {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        flex-shrink: 0;
+        object-fit: cover;
+      }
+      .conta-avatar {
+        display: grid;
+        place-items: center;
+        background: var(--primary-soft);
+        color: var(--primary);
+        font-weight: 700;
+        font-size: 22px;
+      }
+      .conta-id {
+        display: grid;
+        gap: 2px;
+        min-width: 0;
+      }
+      .conta-id strong {
+        font-size: 20px;
+        letter-spacing: -0.3px;
+        font-variant-numeric: tabular-nums;
+      }
+      .conta-id > span:last-child {
+        color: var(--muted);
+        font-size: 13px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .selo {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--green);
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+      }
+      .selo .ponto {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--green);
+      }
+
+      .detalhes {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 8px 20px;
+        margin-top: 20px;
+        padding-top: 18px;
+        border-top: 1px solid var(--border);
+        font-size: 13px;
+      }
+      .detalhes:empty {
+        display: none;
+      }
+      .detalhes dt {
+        color: var(--muted);
+      }
+      .detalhes dd {
+        margin: 0;
+        text-align: right;
+      }
+
+      .conta-nota {
+        color: var(--muted);
+        font-size: 13px;
+        margin-top: 16px;
+      }
+
       .sucesso {
         text-align: center;
         padding: 12px 0;
@@ -308,15 +393,29 @@
 
       <!-- Já conectado -->
       <div class="cartao" id="tela-conectado" hidden>
-        <div class="sucesso">
-          <div class="marca">✅</div>
-          <h2>WhatsApp conectado</h2>
-          <p id="conectado-detalhe">
-            A Recepta já está atendendo neste número.
-          </p>
+        <div class="conta">
+          <img class="conta-foto" id="conectado-foto" alt="" hidden />
+          <div class="conta-avatar" id="conectado-inicial" aria-hidden="true">
+            ?
+          </div>
+          <div class="conta-id">
+            <span class="selo"><span class="ponto"></span> Conectado</span>
+            <strong id="conectado-numero">—</strong>
+            <span id="conectado-nome"></span>
+          </div>
         </div>
-        <div class="acoes" style="justify-content: center">
+
+        <dl class="detalhes" id="conectado-detalhes"></dl>
+
+        <p class="conta-nota" id="conectado-detalhe">
+          A Recepta está atendendo os pacientes por este número.
+        </p>
+
+        <div class="acoes">
           <a class="btn btn-primary" href="/clinica/painel">Ir para o painel</a>
+          <button type="button" class="btn" id="btn-atualizar">
+            Atualizar
+          </button>
           <button type="button" class="btn" id="btn-desconectar">
             Desconectar
           </button>
@@ -567,13 +666,88 @@
           window.location.href = "/clinica/login";
         }
 
+        // Numero no formato internacional: aqui e leitura, nao entrada, entao
+        // o 55 fica visivel — a clinica precisa reconhecer o numero exato que
+        // esta no ar, sem adivinhar o pais.
+        function formatarNumeroConectado(digitos) {
+          var d = String(digitos || "").replace(/\D/g, "");
+          if (!d) return null;
+          if (d.slice(0, 2) === "55" && (d.length === 12 || d.length === 13)) {
+            var nac = d.slice(2);
+            var ddd = nac.slice(0, 2);
+            var resto = nac.slice(2);
+            var meio = resto.length === 9 ? 5 : 4;
+            return (
+              "+55 (" +
+              ddd +
+              ") " +
+              resto.slice(0, meio) +
+              "-" +
+              resto.slice(meio)
+            );
+          }
+          return "+" + d;
+        }
+
+        function linhaDetalhe(lista, rotulo, valor) {
+          if (!valor) return;
+          var dt = document.createElement("dt");
+          dt.textContent = rotulo;
+          var dd = document.createElement("dd");
+          dd.textContent = valor;
+          lista.appendChild(dt);
+          lista.appendChild(dd);
+        }
+
         function mostrarConectado(dados) {
           pararTimers();
-          var alvo = document.getElementById("conectado-detalhe");
-          alvo.textContent =
-            dados && dados.perfil_nome
-              ? "A Recepta já está atendendo em " + dados.perfil_nome + "."
-              : "A Recepta já está atendendo neste número.";
+          dados = dados || {};
+
+          var numero = formatarNumeroConectado(dados.numero);
+          document.getElementById("conectado-numero").textContent =
+            numero || "Número indisponível";
+
+          var nome = document.getElementById("conectado-nome");
+          nome.textContent = dados.perfil_nome || "";
+          nome.hidden = !dados.perfil_nome;
+
+          // Foto quando existe; senao inicial do perfil como fallback, para o
+          // bloco nao ficar com um buraco do tamanho do avatar.
+          var foto = document.getElementById("conectado-foto");
+          var inicial = document.getElementById("conectado-inicial");
+          if (dados.perfil_foto) {
+            foto.src = dados.perfil_foto;
+            foto.hidden = false;
+            inicial.hidden = true;
+            // URL de foto do WhatsApp expira; se falhar, cai na inicial.
+            foto.onerror = function () {
+              foto.hidden = true;
+              inicial.hidden = false;
+            };
+          } else {
+            foto.hidden = true;
+            inicial.hidden = false;
+            inicial.textContent = (dados.perfil_nome || "?")
+              .trim()
+              .charAt(0)
+              .toUpperCase();
+          }
+
+          var lista = document.getElementById("conectado-detalhes");
+          lista.textContent = "";
+          linhaDetalhe(lista, "Nome do perfil", dados.perfil_nome);
+          if (
+            dados.conta_business !== null &&
+            dados.conta_business !== undefined
+          ) {
+            linhaDetalhe(
+              lista,
+              "Tipo de conta",
+              dados.conta_business ? "WhatsApp Business" : "WhatsApp comum",
+            );
+          }
+          linhaDetalhe(lista, "Aparelho", dados.plataforma);
+
           mostrar("conectado");
         }
 
@@ -809,6 +983,21 @@
             });
           },
         );
+
+        document
+          .getElementById("btn-atualizar")
+          .addEventListener("click", async function () {
+            this.disabled = true;
+            var r = await chamar("GET", null, "?acao=status");
+            this.disabled = false;
+            if (r.status === 401) return irParaLogin();
+            if (!r.ok || !r.dados)
+              return window.alert(textoErro(r.dados, r.status));
+            // Desconectou por fora (celular removeu o aparelho): volta pro
+            // inicio em vez de continuar mostrando dados de uma sessao morta.
+            if (!r.dados.conectado) return mostrar("preparar");
+            mostrarConectado(r.dados);
+          });
 
         document
           .getElementById("btn-desconectar")
