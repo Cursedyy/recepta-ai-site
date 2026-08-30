@@ -49,7 +49,7 @@ export default async function handler(req, res) {
   // ── Verificar se a clínica existe ─────────────────────────────────────
   const { data: clinica, error: erroBusca } = await admin
     .from("clinicas")
-    .select("id, clinica")
+    .select("id, clinica, uazapi_token, uazapi_server")
     .eq("id", clinicaId)
     .maybeSingle();
 
@@ -58,6 +58,40 @@ export default async function handler(req, res) {
   }
   if (!clinica) {
     return res.status(404).json({ erro: "clinica_nao_encontrada" });
+  }
+
+  // ── Verificar se a instância já conectou ──────────────────────────────
+  // Se a instância UazAPI já está conectada, o trial foi legitimamente
+  // usado e não pode ser resetado — senão o cliente poderia usar o trial
+  // de graça pra sempre.
+  if (clinica.uazapi_token && clinica.uazapi_server) {
+    try {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 8000);
+      const r = await fetch(clinica.uazapi_server + "/instance/status", {
+        headers: { token: clinica.uazapi_token },
+        signal: ctrl.signal,
+      });
+      clearTimeout(timer);
+      if (r.ok) {
+        const dados = await r.json();
+        const inst = dados?.instance || {};
+        const conexao = dados?.status || {};
+        const conectado =
+          inst.status === "connected" ||
+          Boolean(conexao.connected && conexao.loggedIn);
+        if (conectado) {
+          return res.status(409).json({
+            erro: "instancia_conectada",
+            mensagem:
+              "A instância já está conectada. O trial já foi usado.",
+          });
+        }
+      }
+    } catch {
+      // Se a UazAPI não respondeu, continua com a deleção (melhor
+      // liberar do que travar o cliente por erro de infra).
+    }
   }
 
   // ── Deletar perfis vinculados ─────────────────────────────────────────
