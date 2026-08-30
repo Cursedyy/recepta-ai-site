@@ -255,6 +255,15 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
   .content-body { padding: 16px 18px 100px; }
   .section-card { padding: 16px; }
 }
+/* ── Banner de conexão pendente ── */
+.whatsapp-banner { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-bottom: 1.5px solid #f59e0b; padding: 14px 24px; display: flex; align-items: center; gap: 14px; flex-shrink: 0; animation: fadeDown 0.3s ease; }
+@keyframes fadeDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+.whatsapp-banner .banner-icon { font-size: 22px; flex-shrink: 0; }
+.whatsapp-banner .banner-text { flex: 1; font-size: 13.5px; color: #92400e; line-height: 1.5; }
+.whatsapp-banner .banner-text strong { font-weight: 700; }
+.whatsapp-banner .banner-btn { padding: 8px 18px; border-radius: var(--radius); background: #ea580c; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; border: none; white-space: nowrap; transition: all 0.15s ease; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+.whatsapp-banner .banner-btn:hover { background: #c2410c; transform: translateY(-1px); box-shadow: 0 2px 8px rgba(234,88,12,0.3); }
+.whatsapp-banner.hidden { display: none; }
 </style>
 </head>
 <body>
@@ -268,6 +277,12 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
     <span class="topbar-clinic">${escapeHtml(nomeClinica)}</span>
   </div>
   <button id="btn-sair" type="button">Sair</button>
+</div>
+
+<div id="whatsapp-banner" class="whatsapp-banner hidden">
+  <span class="banner-icon">⚠️</span>
+  <span class="banner-text"><strong>Sua Recepta ainda não está conectada ao WhatsApp.</strong> Os pacientes não estão sendo atendidos.</span>
+  <a href="/clinica/conectar" class="banner-btn">Conectar agora</a>
 </div>
 
 <div class="layout">

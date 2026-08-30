@@ -1430,3 +1430,61 @@ metricasPromise
   .catch(function () {
     document.getElementById("metricas-corpo").textContent = "Falha de conexão.";
   });
+
+// ── Banner de WhatsApp desconectado ──
+// Mostra um aviso persistente no topo do painel enquanto a instancia UazAPI
+// nao estiver conectada. O banner some automaticamente quando a conexao e
+// restaurada, sem precisar recarregar a pagina.
+(function () {
+  var banner = document.getElementById("whatsapp-banner");
+  if (!banner) return;
+
+  var POLL_CONEXAO_MS = 15000;
+  var pollTimer = null;
+
+  function verificarConexao() {
+    fetch("/api/clinica/conectar?acao=status")
+      .then(function (r) {
+        if (!r.ok) return null;
+        return r.json();
+      })
+      .then(function (dados) {
+        if (!dados) return;
+        if (dados.conectado) {
+          banner.classList.add("hidden");
+          if (pollTimer) {
+            clearInterval(pollTimer);
+            pollTimer = null;
+          }
+        } else {
+          banner.classList.remove("hidden");
+        }
+      })
+      .catch(function () {
+        // Em caso de erro, mantem o estado atual do banner.
+      });
+  }
+
+  // Verificacao inicial: so mostra o banner se nao estiver conectado.
+  // Se estiver conectado, o banner fica hidden e o polling para.
+  fetch("/api/clinica/conectar?acao=status")
+    .then(function (r) {
+      if (!r.ok) return null;
+      return r.json();
+    })
+    .then(function (dados) {
+      if (!dados) return;
+      if (dados.conectado) {
+        banner.classList.add("hidden");
+      } else {
+        banner.classList.remove("hidden");
+        // Inicia polling so se nao estiver conectado.
+        pollTimer = setInterval(verificarConexao, POLL_CONEXAO_MS);
+      }
+    })
+    .catch(function () {
+      // Se falhar na verificacao inicial, mostra o banner como prevencao.
+      banner.classList.remove("hidden");
+      pollTimer = setInterval(verificarConexao, POLL_CONEXAO_MS);
+    });
+})();
