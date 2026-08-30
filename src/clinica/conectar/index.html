@@ -1,0 +1,864 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Conectar WhatsApp — Recepta AI</title>
+    <link rel="stylesheet" href="/clinica/painel.css" />
+    <style>
+      html,
+      body {
+        height: auto;
+        overflow: auto;
+      }
+      .wrap {
+        max-width: 660px;
+        margin: 0 auto;
+        padding: 32px 20px 64px;
+      }
+
+      .voltar {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 500;
+        margin-bottom: 20px;
+      }
+      .voltar:hover {
+        color: var(--ink);
+      }
+
+      .cabecalho h1 {
+        font-size: 26px;
+        letter-spacing: -0.6px;
+        margin-bottom: 6px;
+      }
+      .cabecalho p {
+        color: var(--muted);
+        font-size: 14px;
+        max-width: 52ch;
+      }
+
+      .cartao {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+        padding: 24px;
+        margin-top: 20px;
+      }
+
+      /* Passos: numero grande a esquerda, texto a direita. Hierarquia vem da
+     escala do numero, nao de peso de fonte uniforme. */
+      .passos {
+        list-style: none;
+        display: grid;
+        gap: 16px;
+      }
+      .passos li {
+        display: grid;
+        grid-template-columns: 30px 1fr;
+        gap: 14px;
+        align-items: start;
+      }
+      .passos .n {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: var(--primary-soft);
+        color: var(--primary);
+        font-weight: 700;
+        font-size: 13px;
+        display: grid;
+        place-items: center;
+      }
+      .passos strong {
+        display: block;
+        font-weight: 600;
+      }
+      .passos span {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .escolha {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: 1fr 1fr;
+        margin-top: 4px;
+      }
+      @media (max-width: 560px) {
+        .escolha {
+          grid-template-columns: 1fr;
+        }
+      }
+      .opcao {
+        text-align: left;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 16px;
+        cursor: pointer;
+        transition:
+          border-color 0.15s ease,
+          box-shadow 0.15s ease,
+          transform 0.15s ease;
+      }
+      .opcao:hover {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px var(--ring);
+      }
+      .opcao:active {
+        transform: translateY(1px);
+      }
+      .opcao .emoji {
+        font-size: 20px;
+      }
+      .opcao b {
+        display: block;
+        margin: 8px 0 4px;
+        font-size: 14px;
+      }
+      .opcao small {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.5;
+        display: block;
+      }
+
+      .campo {
+        display: grid;
+        gap: 6px;
+        margin-bottom: 14px;
+      }
+      .campo label {
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .campo input {
+        padding: 11px 13px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--surface);
+        color: var(--ink);
+      }
+      .campo input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px var(--ring);
+      }
+      .campo small {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      .codigo {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: clamp(30px, 9vw, 44px);
+        font-weight: 700;
+        letter-spacing: 6px;
+        text-align: center;
+        padding: 22px 12px;
+        background: var(--primary-soft);
+        color: var(--primary);
+        border-radius: var(--radius);
+        user-select: all;
+      }
+
+      .qr {
+        display: block;
+        width: 260px;
+        max-width: 100%;
+        margin: 0 auto;
+        border-radius: var(--radius);
+        background: #fff;
+        padding: 10px;
+        border: 1px solid var(--border);
+      }
+
+      .relogio {
+        text-align: center;
+        margin-top: 14px;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .relogio b {
+        color: var(--ink);
+        font-variant-numeric: tabular-nums;
+      }
+      .relogio.expirado b {
+        color: var(--red);
+      }
+
+      .aviso {
+        display: flex;
+        gap: 10px;
+        padding: 12px 14px;
+        border-radius: var(--radius);
+        font-size: 13px;
+        line-height: 1.5;
+        margin-top: 16px;
+      }
+      .aviso.info {
+        background: var(--accent-soft);
+        color: var(--ink);
+      }
+      .aviso.erro {
+        background: var(--red-bg);
+        color: var(--red);
+      }
+      .aviso.ok {
+        background: var(--green-bg);
+        color: var(--green);
+      }
+
+      .acoes {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 18px;
+      }
+      .btn {
+        padding: 11px 18px;
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        background: var(--surface);
+        color: var(--ink);
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+      .btn:hover:not(:disabled) {
+        background: var(--accent-soft);
+      }
+      .btn-primary {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: #fff;
+      }
+      .btn-primary:hover:not(:disabled) {
+        background: var(--primary-hover);
+      }
+      .btn:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+
+      .sucesso {
+        text-align: center;
+        padding: 12px 0;
+      }
+      .sucesso .marca {
+        font-size: 44px;
+        line-height: 1;
+      }
+      .sucesso h2 {
+        margin: 12px 0 6px;
+        font-size: 20px;
+      }
+      .sucesso p {
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      [hidden] {
+        display: none !important;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          transition: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <a class="voltar" href="/clinica/painel">&larr; Voltar ao painel</a>
+
+      <div class="cabecalho">
+        <h1>Conectar WhatsApp</h1>
+        <p>
+          A Recepta precisa estar ligada ao WhatsApp da clínica para atender
+          seus pacientes.
+        </p>
+      </div>
+
+      <!-- Carregando estado inicial -->
+      <div class="cartao" id="tela-carregando">
+        <p style="color: var(--muted)">Verificando conexão…</p>
+      </div>
+
+      <!-- Erro fatal (sem instância, servidor inválido, API fora) -->
+      <div class="cartao" id="tela-erro" hidden>
+        <div class="aviso erro">
+          <span>⚠️</span><span id="erro-texto"></span>
+        </div>
+        <div class="acoes">
+          <button type="button" class="btn" id="btn-recarregar">
+            Tentar de novo
+          </button>
+        </div>
+      </div>
+
+      <!-- Já conectado -->
+      <div class="cartao" id="tela-conectado" hidden>
+        <div class="sucesso">
+          <div class="marca">✅</div>
+          <h2>WhatsApp conectado</h2>
+          <p id="conectado-detalhe">
+            A Recepta já está atendendo neste número.
+          </p>
+        </div>
+        <div class="acoes" style="justify-content: center">
+          <a class="btn btn-primary" href="/clinica/painel">Ir para o painel</a>
+          <button type="button" class="btn" id="btn-desconectar">
+            Desconectar
+          </button>
+        </div>
+      </div>
+
+      <!-- Passo 1: preparar o celular ANTES de gerar o codigo -->
+      <div id="tela-preparar" hidden>
+        <div class="cartao">
+          <ol class="passos">
+            <li>
+              <span class="n">1</span
+              ><span
+                ><strong>Abra o WhatsApp</strong
+                ><span>No celular que vai atender os pacientes.</span></span
+              >
+            </li>
+            <li>
+              <span class="n">2</span
+              ><span
+                ><strong>Vá em Aparelhos conectados</strong
+                ><span
+                  >Android: menu ⋮ &rsaquo; Aparelhos conectados. iPhone:
+                  Configurações &rsaquo; Aparelhos conectados.</span
+                ></span
+              >
+            </li>
+            <li>
+              <span class="n">3</span
+              ><span
+                ><strong>Toque em “Conectar aparelho”</strong
+                ><span>Deixe essa tela aberta e volte aqui.</span></span
+              >
+            </li>
+          </ol>
+          <div class="aviso info">
+            <span>⏱️</span
+            ><span
+              >Só gere o código depois de chegar nessa tela: ele vale
+              <strong>5 minutos</strong> (o QR, 2 minutos) e esse limite é do
+              WhatsApp, não dá para aumentar.</span
+            >
+          </div>
+          <div class="acoes">
+            <button type="button" class="btn btn-primary" id="btn-pronto">
+              Já estou nessa tela
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Passo 2: escolher metodo -->
+      <div id="tela-metodo" hidden>
+        <div class="cartao">
+          <h2 style="font-size: 16px; margin-bottom: 4px">
+            Como você quer conectar?
+          </h2>
+          <p style="color: var(--muted); font-size: 13px; margin-bottom: 16px">
+            As duas opções fazem a mesma coisa. Escolha a que combina com o
+            aparelho que você tem na mão.
+          </p>
+          <div class="escolha">
+            <button type="button" class="opcao" id="opcao-codigo">
+              <span class="emoji">🔢</span>
+              <b>Código de 8 dígitos</b>
+              <small
+                >Você digita o código no celular. Use se está só com o celular.
+                Vale 5 minutos.</small
+              >
+            </button>
+            <button type="button" class="opcao" id="opcao-qr">
+              <span class="emoji">📷</span>
+              <b>QR Code</b>
+              <small
+                >Você escaneia com o celular. Só funciona se esta página estiver
+                num computador ou num segundo aparelho. Vale 2 minutos.</small
+              >
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Passo 2b: numero, apenas para o codigo -->
+      <div id="tela-telefone" hidden>
+        <div class="cartao">
+          <div class="campo">
+            <label for="input-telefone">Número do WhatsApp da clínica</label>
+            <input
+              id="input-telefone"
+              type="tel"
+              inputmode="numeric"
+              autocomplete="tel"
+              placeholder="11 91234-5678"
+            />
+            <small
+              >Com DDD. É o número que vai receber o pedido de conexão.
+              Preenchemos com o número do cadastro — pode trocar se quiser
+              conectar outro.</small
+            >
+          </div>
+          <div class="aviso erro" id="telefone-erro" hidden>
+            <span>⚠️</span><span>Informe um número válido com DDD.</span>
+          </div>
+          <div class="acoes">
+            <button type="button" class="btn btn-primary" id="btn-gerar-codigo">
+              Gerar código
+            </button>
+            <button type="button" class="btn" data-voltar-metodo>Voltar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Passo 3: resultado -->
+      <div id="tela-resultado" hidden>
+        <div class="cartao">
+          <div id="bloco-codigo" hidden>
+            <p
+              style="color: var(--muted); font-size: 13px; margin-bottom: 12px"
+            >
+              Digite este código na tela do WhatsApp:
+            </p>
+            <div class="codigo" id="valor-codigo">----&nbsp;----</div>
+          </div>
+          <div id="bloco-qr" hidden>
+            <p
+              style="
+                color: var(--muted);
+                font-size: 13px;
+                margin-bottom: 12px;
+                text-align: center;
+              "
+            >
+              Aponte a câmera do WhatsApp para o código:
+            </p>
+            <img
+              class="qr"
+              id="valor-qr"
+              alt="QR Code de conexão do WhatsApp"
+            />
+          </div>
+
+          <div class="relogio" id="relogio">
+            Expira em <b id="relogio-valor">--:--</b>
+          </div>
+
+          <div class="aviso info" id="resultado-dica">
+            <span>💡</span
+            ><span>Esta página detecta a conexão sozinha. Não feche.</span>
+          </div>
+          <div class="aviso erro" id="resultado-erro" hidden>
+            <span>⚠️</span><span id="resultado-erro-texto"></span>
+          </div>
+
+          <div class="acoes">
+            <button type="button" class="btn btn-primary" id="btn-regenerar">
+              Gerar novo código
+            </button>
+            <button type="button" class="btn" data-voltar-metodo>
+              Trocar de método
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        "use strict";
+
+        var API = "/api/clinica/conectar";
+        var POLL_MS = 3000;
+
+        var telas = {
+          carregando: document.getElementById("tela-carregando"),
+          erro: document.getElementById("tela-erro"),
+          conectado: document.getElementById("tela-conectado"),
+          preparar: document.getElementById("tela-preparar"),
+          metodo: document.getElementById("tela-metodo"),
+          telefone: document.getElementById("tela-telefone"),
+          resultado: document.getElementById("tela-resultado"),
+        };
+
+        var estado = { metodo: null, expiraEm: 0, poll: null, tick: null };
+
+        var MENSAGENS = {
+          nao_autenticado: "Sua sessão expirou. Faça login de novo.",
+          sem_permissao: "Sua conta não tem acesso a esta clínica.",
+          instancia_nao_provisionada:
+            "A instância de WhatsApp desta clínica ainda não foi criada. Fale com o suporte.",
+          servidor_invalido:
+            "O servidor de WhatsApp desta clínica está mal configurado. Fale com o suporte.",
+          uazapi_indisponivel:
+            "O serviço de WhatsApp não respondeu. Tente de novo em instantes.",
+          uazapi_ocupada:
+            "O serviço de WhatsApp está sobrecarregado. Aguarde um minuto e tente de novo.",
+          telefone_invalido: "Informe um número válido com DDD.",
+          muitas_requisicoes:
+            "Muitas tentativas seguidas. Aguarde alguns minutos.",
+        };
+
+        function mostrar(nome) {
+          Object.keys(telas).forEach(function (k) {
+            telas[k].hidden = k !== nome;
+          });
+        }
+
+        function textoErro(dados, status) {
+          if (dados && dados.mensagem) return dados.mensagem;
+          if (dados && MENSAGENS[dados.erro]) return MENSAGENS[dados.erro];
+          if (status === 401) return MENSAGENS.nao_autenticado;
+          return "Algo deu errado. Tente de novo.";
+        }
+
+        async function chamar(metodo, corpo, query) {
+          var url = API + (query || "");
+          var opcoes = {
+            method: metodo,
+            credentials: "same-origin",
+            headers: {},
+          };
+          if (corpo) {
+            opcoes.headers["Content-Type"] = "application/json";
+            opcoes.body = JSON.stringify(corpo);
+          }
+          var r = await fetch(url, opcoes);
+          var dados = null;
+          try {
+            dados = await r.json();
+          } catch (e) {
+            dados = null;
+          }
+          return { ok: r.ok, status: r.status, dados: dados };
+        }
+
+        function pararTimers() {
+          if (estado.poll) {
+            clearInterval(estado.poll);
+            estado.poll = null;
+          }
+          if (estado.tick) {
+            clearInterval(estado.tick);
+            estado.tick = null;
+          }
+        }
+
+        function irParaLogin() {
+          pararTimers();
+          window.location.href = "/clinica/login";
+        }
+
+        function mostrarConectado(dados) {
+          pararTimers();
+          var alvo = document.getElementById("conectado-detalhe");
+          alvo.textContent =
+            dados && dados.perfil_nome
+              ? "A Recepta já está atendendo em " + dados.perfil_nome + "."
+              : "A Recepta já está atendendo neste número.";
+          mostrar("conectado");
+        }
+
+        function mostrarErroFatal(texto) {
+          pararTimers();
+          document.getElementById("erro-texto").textContent = texto;
+          mostrar("erro");
+        }
+
+        // ── Contagem regressiva ────────────────────────────────────────────────
+        // A validade e imposta pelo WhatsApp e o servidor e quem manda: isto e so
+        // feedback visual. Quando zera, oferecemos regenerar em vez de deixar o
+        // cliente descobrir sozinho que o codigo morreu.
+        function atualizarRelogio() {
+          var restante = Math.max(
+            0,
+            Math.round((estado.expiraEm - Date.now()) / 1000),
+          );
+          var relogio = document.getElementById("relogio");
+          var valor = document.getElementById("relogio-valor");
+          var m = Math.floor(restante / 60);
+          var s = restante % 60;
+          valor.textContent = m + ":" + (s < 10 ? "0" : "") + s;
+
+          if (restante === 0) {
+            relogio.classList.add("expirado");
+            relogio.firstChild.nodeValue = "Expirou ";
+            valor.textContent = "—";
+            document.getElementById("resultado-dica").hidden = true;
+            if (estado.tick) {
+              clearInterval(estado.tick);
+              estado.tick = null;
+            }
+          }
+        }
+
+        function iniciarRelogio(validadeS) {
+          estado.expiraEm = Date.now() + validadeS * 1000;
+          var relogio = document.getElementById("relogio");
+          relogio.classList.remove("expirado");
+          relogio.firstChild.nodeValue = "Expira em ";
+          document.getElementById("resultado-dica").hidden = false;
+          atualizarRelogio();
+          if (estado.tick) clearInterval(estado.tick);
+          estado.tick = setInterval(atualizarRelogio, 1000);
+        }
+
+        // ── Polling de status ──────────────────────────────────────────────────
+        // O QR do WhatsApp e rotativo: /instance/status devolve o QR atualizado
+        // enquanto a instancia esta em "connecting", entao o mesmo poll que detecta
+        // a conexao tambem mantem a imagem valida.
+        async function verificarStatus() {
+          var r = await chamar("GET", null, "?acao=status");
+          if (r.status === 401) return irParaLogin();
+          if (!r.ok || !r.dados) return;
+
+          if (r.dados.conectado) return mostrarConectado(r.dados);
+
+          if (estado.metodo === "qr" && r.dados.qrcode) {
+            document.getElementById("valor-qr").src = r.dados.qrcode;
+          }
+          if (estado.metodo === "codigo" && r.dados.paircode) {
+            document.getElementById("valor-codigo").textContent =
+              formatarCodigo(r.dados.paircode);
+          }
+        }
+
+        function iniciarPoll() {
+          if (estado.poll) clearInterval(estado.poll);
+          estado.poll = setInterval(verificarStatus, POLL_MS);
+        }
+
+        function formatarCodigo(bruto) {
+          var limpo = String(bruto)
+            .replace(/[^A-Za-z0-9]/g, "")
+            .toUpperCase();
+          if (limpo.length === 8)
+            return limpo.slice(0, 4) + "-" + limpo.slice(4);
+          return limpo;
+        }
+
+        // O banco guarda o telefone com ou sem o 55 na frente. Exibimos sempre
+        // no formato nacional: o 55 e ruido para quem le, e o handler de envio
+        // recoloca quando o numero tem 10 ou 11 digitos.
+        function formatarTelefone(digitos) {
+          var d = String(digitos || "").replace(/\D/g, "");
+          if (d.length > 11 && d.slice(0, 2) === "55") d = d.slice(2);
+          if (d.length === 11)
+            return (
+              "(" + d.slice(0, 2) + ") " + d.slice(2, 7) + "-" + d.slice(7)
+            );
+          if (d.length === 10)
+            return (
+              "(" + d.slice(0, 2) + ") " + d.slice(2, 6) + "-" + d.slice(6)
+            );
+          return d;
+        }
+
+        // ── Gerar conexao ──────────────────────────────────────────────────────
+        async function gerar(metodo, telefone) {
+          var botoes = document.querySelectorAll(
+            "#btn-gerar-codigo, #btn-regenerar, #opcao-qr, #opcao-codigo",
+          );
+          botoes.forEach(function (b) {
+            b.disabled = true;
+          });
+
+          var corpo = { acao: "conectar", metodo: metodo };
+          if (metodo === "codigo") corpo.telefone = telefone;
+
+          var r = await chamar("POST", corpo);
+          botoes.forEach(function (b) {
+            b.disabled = false;
+          });
+
+          if (r.status === 401) return irParaLogin();
+
+          if (!r.ok) {
+            var texto = textoErro(r.dados, r.status);
+            if (
+              r.dados &&
+              (r.dados.erro === "instancia_nao_provisionada" ||
+                r.dados.erro === "servidor_invalido")
+            ) {
+              return mostrarErroFatal(texto);
+            }
+            if (telas.resultado.hidden) {
+              document.getElementById("telefone-erro").hidden = false;
+              document.getElementById(
+                "telefone-erro",
+              ).lastElementChild.textContent = texto;
+              return;
+            }
+            var alvo = document.getElementById("resultado-erro");
+            document.getElementById("resultado-erro-texto").textContent = texto;
+            alvo.hidden = false;
+            return;
+          }
+
+          estado.metodo = metodo;
+          document.getElementById("resultado-erro").hidden = true;
+          document.getElementById("bloco-codigo").hidden = metodo !== "codigo";
+          document.getElementById("bloco-qr").hidden = metodo !== "qr";
+
+          if (metodo === "codigo") {
+            document.getElementById("valor-codigo").textContent = r.dados
+              .paircode
+              ? formatarCodigo(r.dados.paircode)
+              : "gerando…";
+          } else if (r.dados.qrcode) {
+            document.getElementById("valor-qr").src = r.dados.qrcode;
+          }
+
+          mostrar("resultado");
+          iniciarRelogio(r.dados.validade_s);
+          iniciarPoll();
+
+          // A UazAPI as vezes responde ao connect antes de ter o codigo pronto.
+          // Uma verificacao imediata evita o cliente encarando "gerando…" por 3s.
+          if (!r.dados.paircode && !r.dados.qrcode) verificarStatus();
+        }
+
+        // ── Ligacoes de eventos ────────────────────────────────────────────────
+        document
+          .getElementById("btn-recarregar")
+          .addEventListener("click", function () {
+            window.location.reload();
+          });
+
+        document
+          .getElementById("btn-pronto")
+          .addEventListener("click", function () {
+            mostrar("metodo");
+          });
+
+        document
+          .getElementById("opcao-codigo")
+          .addEventListener("click", function () {
+            document.getElementById("telefone-erro").hidden = true;
+            mostrar("telefone");
+            // select() e nao focus(): com o numero ja preenchido, digitar
+            // substitui de uma vez em vez de concatenar no fim.
+            document.getElementById("input-telefone").select();
+          });
+
+        document
+          .getElementById("opcao-qr")
+          .addEventListener("click", function () {
+            gerar("qr", null);
+          });
+
+        document
+          .getElementById("btn-gerar-codigo")
+          .addEventListener("click", function () {
+            var bruto = document
+              .getElementById("input-telefone")
+              .value.replace(/\D/g, "");
+            // Numero digitado sem o codigo do pais: 10 ou 11 digitos e Brasil.
+            var telefone =
+              bruto.length === 10 || bruto.length === 11 ? "55" + bruto : bruto;
+            if (!/^\d{10,15}$/.test(telefone)) {
+              var erro = document.getElementById("telefone-erro");
+              erro.lastElementChild.textContent = MENSAGENS.telefone_invalido;
+              erro.hidden = false;
+              return;
+            }
+            gerar("codigo", telefone);
+          });
+
+        document
+          .getElementById("input-telefone")
+          .addEventListener("keydown", function (ev) {
+            if (ev.key === "Enter")
+              document.getElementById("btn-gerar-codigo").click();
+          });
+
+        document
+          .getElementById("btn-regenerar")
+          .addEventListener("click", function () {
+            if (estado.metodo === "codigo") {
+              document.getElementById("btn-gerar-codigo").click();
+            } else {
+              gerar("qr", null);
+            }
+          });
+
+        Array.prototype.forEach.call(
+          document.querySelectorAll("[data-voltar-metodo]"),
+          function (b) {
+            b.addEventListener("click", function () {
+              pararTimers();
+              mostrar("metodo");
+            });
+          },
+        );
+
+        document
+          .getElementById("btn-desconectar")
+          .addEventListener("click", async function () {
+            if (
+              !window.confirm(
+                "Desconectar o WhatsApp? A Recepta para de atender até você conectar de novo.",
+              )
+            )
+              return;
+            this.disabled = true;
+            var r = await chamar("POST", { acao: "desconectar" });
+            this.disabled = false;
+            if (r.status === 401) return irParaLogin();
+            if (!r.ok) return window.alert(textoErro(r.dados, r.status));
+            mostrar("preparar");
+          });
+
+        // Aba escondida nao precisa de polling.
+        document.addEventListener("visibilitychange", function () {
+          if (document.hidden) {
+            if (estado.poll) {
+              clearInterval(estado.poll);
+              estado.poll = null;
+            }
+          } else if (!telas.resultado.hidden) {
+            verificarStatus();
+            iniciarPoll();
+          }
+        });
+
+        // ── Estado inicial ─────────────────────────────────────────────────────
+        (async function iniciar() {
+          var r = await chamar("GET", null, "?acao=status");
+          if (r.status === 401) return irParaLogin();
+          if (!r.ok || !r.dados)
+            return mostrarErroFatal(textoErro(r.dados, r.status));
+
+          // Sugestao vinda de clinicas.telefone_operador. Fica editavel de
+          // proposito: a clinica pode conectar um numero diferente do cadastro.
+          if (r.dados.telefone_sugerido) {
+            document.getElementById("input-telefone").value = formatarTelefone(
+              r.dados.telefone_sugerido,
+            );
+          }
+
+          if (r.dados.conectado) return mostrarConectado(r.dados);
+          mostrar("preparar");
+        })();
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,47 @@
+name: Security Scan
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  schedule:
+    - cron: '0 8 * * 1'  # Toda segunda-feira às 8h
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        working-directory: src
+        run: npm ci
+      
+      - name: Run npm audit
+        working-directory: src
+        run: npm audit --audit-level=moderate || true
+        continue-on-error: true
+      
+      - name: Check for hardcoded secrets
+        run: |
+          echo "Scanning for potential secrets..."
+          grep -rn "password\s*=\s*['\"]" --include="*.js" --include="*.mjs" --include="*.env*" . | grep -v node_modules | grep -v ".env.example" || echo "✅ No hardcoded passwords found"
+          grep -rn "api_key\s*=\s*['\"]" --include="*.js" --include="*.mjs" --include="*.env*" . | grep -v node_modules | grep -v ".env.example" || echo "✅ No hardcoded API keys found"
+          grep -rn "secret\s*=\s*['\"]" --include="*.js" --include="*.mjs" --include="*.env*" . | grep -v node_modules | grep -v ".env.example" || echo "✅ No hardcoded secrets found"
+      
+      - name: Check security headers
+        run: |
+          echo "Verifying security headers in vercel.json..."
+          if grep -q "X-Content-Type-Options" src/vercel.json && \
+             grep -q "X-Frame-Options" src/vercel.json && \
+             grep -q "Content-Security-Policy" src/vercel.json; then
+            echo "✅ Security headers present"
+          else
+            echo "⚠️ Missing security headers"
+            exit 1
+          fi

@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Blog — Recepta AI | Dicas para clínicas e consultórios</title>
+  <meta name="description" content="Artigos sobre inteligência artificial, atendimento ao paciente, gestão de clínicas e secretarias virtuais para WhatsApp.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://www.receptaai.com.br/blog/">
+  <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/img/favicon-512.png">
+  <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8fafc; --surface: #ffffff; --ink: #0f172a; --muted: #64748b;
+      --border: #e2e8f0; --primary: #4f46e5; --primary-hover: #4338ca;
+      --primary-soft: #eef2ff; --radius: 12px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Inter", -apple-system, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.6; }
+    a { color: inherit; text-decoration: none; }
+
+    .header { background: var(--ink); color: #fff; padding: 20px 24px; }
+    .header-inner { max-width: 900px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-weight: 700; font-size: 18px; display: flex; align-items: center; gap: 8px; }
+    .logo span { color: #818cf8; }
+    .nav a { color: rgba(255,255,255,0.7); font-size: 14px; font-weight: 500; margin-left: 24px; transition: color 0.2s; }
+    .nav a:hover { color: #fff; }
+
+    .hero { text-align: center; padding: 60px 24px 40px; background: linear-gradient(180deg, var(--primary-soft) 0%, var(--bg) 100%); }
+    .hero h1 { font-size: clamp(28px, 5vw, 42px); font-weight: 700; letter-spacing: -0.03em; margin-bottom: 12px; }
+    .hero p { color: var(--muted); font-size: 17px; max-width: 50ch; margin: 0 auto; }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 40px 24px 80px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: box-shadow 0.2s, transform 0.2s; }
+    .card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.08); transform: translateY(-2px); }
+    .card-img { width: 100%; height: 180px; background: linear-gradient(135deg, var(--primary-soft), #ddd6fe); display: flex; align-items: center; justify-content: center; font-size: 48px; }
+    .card-body { padding: 20px; }
+    .card-tag { display: inline-block; font-size: 11px; font-weight: 600; color: var(--primary); background: var(--primary-soft); padding: 3px 10px; border-radius: 99px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .card h2 { font-size: 18px; font-weight: 700; line-height: 1.3; margin-bottom: 8px; letter-spacing: -0.02em; }
+    .card p { color: var(--muted); font-size: 14px; line-height: 1.5; }
+    .card-meta { margin-top: 12px; font-size: 12px; color: var(--muted); }
+
+    .cta { text-align: center; padding: 60px 24px; background: var(--ink); color: #fff; }
+    .cta h2 { font-size: 28px; font-weight: 700; margin-bottom: 12px; }
+    .cta p { color: rgba(255,255,255,0.7); margin-bottom: 24px; }
+    .cta a { display: inline-block; background: var(--primary); color: #fff; padding: 14px 32px; border-radius: 8px; font-weight: 600; transition: background 0.2s; }
+    .cta a:hover { background: var(--primary-hover); }
+
+    footer { text-align: center; padding: 24px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a class="logo" href="/">Recepta <span>AI</span></a>
+      <nav class="nav">
+        <a href="/">Home</a>
+        <a href="/blog/">Blog</a>
+        <a href="/briefing/">Teste grátis</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <h1>Blog Recepta AI</h1>
+    <p>Dicas, guias e novidades sobre inteligência artificial para clínicas e consultórios.</p>
+  </section>
+
+  <main class="container">
+    <div class="grid">
+      <a href="/blog/secretaria-virtual-clinica/" class="card">
+        <div class="card-img">🤖</div>
+        <div class="card-body">
+          <span class="card-tag">Guia</span>
+          <h2>Como configurar uma secretária virtual para sua clínica</h2>
+          <p>Passo a passo completo para ativar uma IA no WhatsApp da sua clínica em menos de 10 minutos.</p>
+          <div class="card-meta">5 min de leitura · 29/08/2026</div>
+        </div>
+      </a>
+
+      <a href="/blog/ia-whatsapp-atendimento/" class="card">
+        <div class="card-img">💬</div>
+        <div class="card-body">
+          <span class="card-tag">Tendência</span>
+          <h2>IA no WhatsApp: como atender pacientes 24 horas</h2>
+          <p>Entenda como a inteligência artificial está transformando o atendimento clínico via WhatsApp.</p>
+          <div class="card-meta">7 min de leitura · 29/08/2026</div>
+        </div>
+      </a>
+
+      <a href="/blog/erros-clinicas-atendimento/" class="card">
+        <div class="card-img">⚠️</div>
+        <div class="card-body">
+          <span class="card-tag">Dicas</span>
+          <h2>5 erros que clínicas cometem no atendimento ao paciente</h2>
+          <p>Os principais problemas que fazem pacientes desistirem e como a tecnologia pode resolver.</p>
+          <div class="card-meta">6 min de leitura · 29/08/2026</div>
+        </div>
+      </a>
+    </div>
+  </main>
+
+  <section class="cta">
+    <h2>Teste grátis por 7 dias</h2>
+    <p>Sem cartão de crédito. Cancele quando quiser.</p>
+    <a href="/briefing/">Começar agora</a>
+  </section>
+
+  <footer>
+    <p>© 2026 Recepta AI — Secretária virtual com IA para clínicas</p>
+  </footer>
+</body>
+</html>

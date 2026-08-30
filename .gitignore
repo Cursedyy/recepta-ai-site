@@ -10,3 +10,6 @@ logo-assets
 
 # saida dos testes (regeravel: test-responsiveness / test-accessibility / CI)
 src/screenshots/
+
+# arquivo de outro projeto (risco XSS)
+support.js

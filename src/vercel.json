@@ -66,6 +66,10 @@
       "destination": "/clinica/esqueci-senha/index.html"
     },
     {
+      "source": "/clinica/conectar",
+      "destination": "/clinica/conectar/index.html"
+    },
+    {
       "source": "/clinica/painel",
       "destination": "/api/clinica/painel-view"
     },

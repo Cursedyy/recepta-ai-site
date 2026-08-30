@@ -18,6 +18,15 @@
         "hooks": [
           {
             "type": "command",
+            "command": "python3 \"C:\\Users\\matheus\\.agentsroom\\hooks\\team-reminder.py\"",
+            "_agentsroomTeamHook": true
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
             "command": "python \"C:\\Users\\matheus\\.agentsroom\\hooks\\notify-agentsroom.py\"",
             "async": true,
             "_agentsroomHook": true

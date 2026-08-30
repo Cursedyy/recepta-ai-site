@@ -1,0 +1,42 @@
+name: Lint
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'src/**/*.js'
+      - 'src/**/*.mjs'
+  pull_request:
+    branches: [master]
+    paths:
+      - 'src/**/*.js'
+      - 'src/**/*.mjs'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: src/package-lock.json
+      
+      - name: Install dependencies
+        working-directory: src
+        run: npm ci
+      
+      - name: Run ESLint
+        working-directory: src
+        run: npx eslint --ext .js,.mjs --max-warnings 50 . || true
+      
+      - name: Check for common issues
+        working-directory: src
+        run: |
+          echo "Checking for console.log in API routes..."
+          grep -r "console\.log" api/ --include="*.js" && echo "⚠️ Found console.log in API routes" || echo "✅ No console.log in API routes"
+          
+          echo "Checking for eval/Function..."
+          grep -rn "eval(\|new Function(" --include="*.js" --include="*.mjs" . | grep -v node_modules | grep -v test- && echo "⚠️ Found eval/Function usage" || echo "✅ No eval/Function usage"
