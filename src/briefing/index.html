@@ -1417,6 +1417,37 @@
         document.getElementById("ppct").textContent = p + "%";
       }
 
+      /* ── CNPJ mask + input restriction ── */
+      function applyCnpjMask(el) {
+        let v = el.value.replace(/\D/g, "");
+        if (v.length > 14) v = v.substring(0, 14);
+        if (v.length === 14) {
+          v = v.substring(0,2) + "." + v.substring(2,5) + "." + v.substring(5,8) + "/" + v.substring(8,12) + "-" + v.substring(12);
+        }
+        el.value = v;
+      }
+      const cnpjEl = document.getElementById("cnpj");
+      if (cnpjEl) {
+        cnpjEl.addEventListener("keydown", function(e) {
+          const allowed = ["Backspace","Delete","Tab","Escape","Enter","ArrowLeft","ArrowRight","ArrowUp","ArrowDown","Home","End"];
+          const isSelectAll = e.key === "a" && (e.ctrlKey || e.metaKey);
+          const isCopy = e.key === "c" && (e.ctrlKey || e.metaKey);
+          const isPaste = e.key === "v" && (e.ctrlKey || e.metaKey);
+          const isCut = e.key === "x" && (e.ctrlKey || e.metaKey);
+          if (allowed.includes(e.key) || isSelectAll || isCopy || isPaste || isCut) return;
+          if (e.key.length === 1 && !/[0-9]/.test(e.key)) {
+            e.preventDefault();
+          }
+        });
+        cnpjEl.addEventListener("input", function() { applyCnpjMask(this); });
+        cnpjEl.addEventListener("paste", function(e) {
+          e.preventDefault();
+          const t = (e.clipboardData || window.clipboardData).getData("text").replace(/\D/g, "");
+          document.execCommand("insertText", false, t.replace(/\D/g, ""));
+          applyCnpjMask(this);
+        });
+      }
+
       /* ── Auto-save ── */
       const flagEl = document.getElementById("saveflag");
       let flagT;
