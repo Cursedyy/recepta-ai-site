@@ -1370,6 +1370,26 @@
         }
         return !!v;
       }
+      /* ── CNPJ check-digit validation ── */
+      function validaCNPJ(v) {
+        var d = v.replace(/\D/g, "");
+        if (d.length !== 14) return "CNPJ deve ter 14 dígitos";
+        if (/^(\d)\1+$/.test(d)) return "CNPJ não pode ser todos os mesmos dígitos";
+        var weights1 = [5,4,3,2,9,8,7,6,5,4,3,2];
+        var weights2 = [6,5,4,3,2,9,8,7,6,5,4,3,2];
+        var sum = 0;
+        for (var i = 0; i < 12; i++) sum += parseInt(d.charAt(i)) * weights1[i];
+        var r = sum % 11;
+        var digit1 = r < 2 ? 0 : 11 - r;
+        if (parseInt(d.charAt(12)) !== digit1) return "CNPJ inválido — dígito verificador incorreto";
+        sum = 0;
+        for (var i = 0; i < 13; i++) sum += parseInt(d.charAt(i)) * weights2[i];
+        r = sum % 11;
+        var digit2 = r < 2 ? 0 : 11 - r;
+        if (parseInt(d.charAt(13)) !== digit2) return "CNPJ inválido — dígito verificador incorreto";
+        return true;
+      }
+
       /* Format validators per field */
       const validators = {
         clinica: (v) => v.length >= 3 || "Nome muito curto (mín. 3 caracteres)",
@@ -1381,12 +1401,7 @@
           const d = v.replace(/\D/g, "");
           return d.length >= 10 || "Número inválido (mín. 10 dígitos, ex: 53 3333-3333)";
         },
-        cnpj: (v) => {
-          const d = v.replace(/\D/g, "");
-          if (d.length < 11) return "CNPJ/CPF inválido (mín. 11 dígitos)";
-          if (/^(\d)\1+$/.test(d)) return "CNPJ/CPF não pode ser todos os mesmos dígitos";
-          return true;
-        },
+        cnpj: (v) => validaCNPJ(v),
         endereco: (v) => v.length >= 10 || "Endereço muito curto (mín. 10 caracteres)",
         servicos: (v) => v.length >= 3 || "Informe pelo menos um serviço",
         convenios: (v) => v.length >= 3 || "Informe pelo menos um convênio",
@@ -1469,6 +1484,59 @@
         salvar();
       });
 
+      /* ── Inline field feedback + button state ── */
+      function showFieldError(el, msg) {
+        clearFieldError(el);
+        var target = el.closest("fieldset.f") || el;
+        target.classList.add("inv");
+        var errEl = document.createElement("p");
+        errEl.className = "field-err show";
+        errEl.textContent = msg;
+        target.parentNode.insertBefore(errEl, target.nextSibling);
+      }
+      function clearFieldError(el) {
+        var target = el.closest("fieldset.f") || el;
+        target.classList.remove("inv");
+        var next = target.nextElementSibling;
+        if (next && next.classList.contains("field-err")) next.remove();
+      }
+      function validateAndShow(f) {
+        var el = document.getElementById(f.i);
+        if (!el) return true;
+        var r = validateField(f);
+        if (r === true) { clearFieldError(el); return true; }
+        showFieldError(el, r);
+        return false;
+      }
+      function allFieldsValid() {
+        return REQ.every(function(f) {
+          var el = document.getElementById(f.i);
+          return el && validateField(f) === true;
+        });
+      }
+      function updateBtnState() {
+        if (btn.textContent === "Enviando\u2026") return;
+        if (step === totalSteps - 1) {
+          btn.disabled = !allFieldsValid();
+        } else {
+          btn.disabled = false;
+        }
+      }
+      REQ.forEach(function(f) {
+        var el = document.getElementById(f.i);
+        if (!el) return;
+        if (f.ty === "check" || f.ty === "radio") {
+          el.addEventListener("change", function() { validateAndShow(f); updateBtnState(); });
+        } else {
+          el.addEventListener("blur", function() { validateAndShow(f); updateBtnState(); });
+          el.addEventListener("input", function() {
+            if (el.classList.contains("inv")) validateAndShow(f);
+            updateBtnState();
+          });
+        }
+      });
+      updateBtnState();
+
       /* ── Wizard logic ── */
       const panels = [...F.children];
       const totalSteps = S.length;
@@ -1538,7 +1606,9 @@
         stepLabel.textContent = S[i].t;
         renderRail();
         errBox.className = "msg";
+        document.querySelectorAll(".inv").forEach(function(e) { clearFieldError(e); });
         prog();
+        updateBtnState();
         const top =
           document.querySelector(".prog").getBoundingClientRect().bottom +
           window.scrollY -
