@@ -14,6 +14,59 @@ var NOME_DIA = DADOS.nomeDia || {};
 if (!CONFIG.regras_ia) CONFIG.regras_ia = "";
 if (!Array.isArray(CONFIG.faq)) CONFIG.faq = [];
 
+// ── Categorias ──
+var CATEGORIA = DADOS.categoria || "geral";
+var CATEGORIA_META = DADOS.categoriaMeta || {};
+var TABS_VISIVEIS = DADOS.tabsVisiveis || [];
+var CAMPOS_EXTRAS = DADOS.camposExtras || [];
+var CAMPOS_SALVOS = (CONFIG.campos_extras || {});
+var REGRAS_CATEGORIA = DADOS.regrasCategoria || "";
+var FAQ_CATEGORIA = DADOS.faqCategoria || [];
+
+// ── Tabs dinâmicas: esconde/mostra nav items conforme a categoria ──
+(function () {
+  // Tabs que a sidebar SEMPRE mostra (não são data-tab, são links)
+  var SEMPRE_VISIVEIS = ["conectar"];
+  // Tabs que a sidebar mostra (data-tab)
+  var TABS_SIDEBAR = [
+    "agenda", "horarios", "precos", "procedimentos", "convenios",
+    "mensagem", "regras", "faq", "conversas",
+    "pausa", "perfil", "feriados", "status",
+  ];
+  // Mapeamento de label por tab
+  var LABELS = {
+    agenda: "Agenda", horarios: "Horários", precos: "Preços",
+    procedimentos: "Dados da clínica", convenios: "Convênios",
+    mensagem: "Mensagem", regras: "Regras", faq: "FAQ",
+    conversas: "Conversas", pausa: "Pausa", perfil: "Perfil",
+    feriados: "Feriados", status: "Status",
+  };
+  var ICONS = {
+    agenda: "📋", horarios: "🕐", precos: "💰", procedimentos: "⚙️",
+    convenios: "🏥", mensagem: "💬", regras: "⚙️", faq: "❓",
+    conversas: "🗨️", pausa: "⏸️", perfil: "👤", feriados: "📅",
+    status: "📊",
+  };
+
+  TABS_SIDEBAR.forEach(function (tab) {
+    var navBtn = document.querySelector('.nav-item[data-tab="' + tab + '"]');
+    if (!navBtn) return;
+    var visivel = TABS_VISIVEIS.indexOf(tab) !== -1;
+    navBtn.style.display = visivel ? "" : "none";
+  });
+
+  // Atualiza label da aba procedimentos
+  var navProc = document.getElementById("nav-procedimentos");
+  var labelProc = document.getElementById("nav-procedimentos-label");
+  if (navProc && CAMPOS_EXTRAS.length > 0) {
+    var temProcedimentos = TABS_VISIVEIS.indexOf("procedimentos") !== -1;
+    navProc.style.display = temProcedimentos ? "" : "none";
+    if (labelProc && CATEGORIA_META.nome) {
+      labelProc.textContent = "Dados da clínica";
+    }
+  }
+})();
+
 // ── Tab navigation ──
 var navItems = document.querySelectorAll(".nav-item[data-tab]");
 navItems.forEach(function (btn) {
@@ -648,6 +701,147 @@ renderPrecos();
 renderConvenios();
 renderHorarios();
 renderFaq();
+renderCamposCategoria();
+
+// ── Procedimentos (campos extras da categoria) ──
+var elCamposCat = document.getElementById("campos-categoria");
+function renderCamposCategoria() {
+  if (!elCamposCat || !CAMPOS_EXTRAS.length) {
+    if (elCamposCat) elCamposCat.innerHTML = '<p class="vazio">Nenhum dado específico para esta categoria.</p>';
+    return;
+  }
+  elCamposCat.innerHTML = "";
+  CAMPOS_EXTRAS.forEach(function (campo) {
+    var section = document.createElement("div");
+    section.className = "section-card";
+
+    var lbl = document.createElement("label");
+    lbl.className = "field-label";
+    lbl.textContent = campo.label;
+    section.appendChild(lbl);
+
+    if (campo.desc) {
+      var desc = document.createElement("div");
+      desc.className = "field-desc";
+      desc.textContent = campo.desc;
+      section.appendChild(desc);
+    }
+
+    var valor = CAMPOS_SALVOS[campo.id];
+
+    if (campo.tipo === "tags") {
+      // Tags: input + lista de tags
+      var tagWrap = document.createElement("div");
+      tagWrap.className = "tags-wrap";
+      tagWrap.style.cssText = "display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px";
+      var tagArr = Array.isArray(valor) ? valor : [];
+      function renderTags() {
+        tagWrap.innerHTML = "";
+        tagArr.forEach(function (t, i) {
+          var tag = document.createElement("span");
+          tag.className = "badge";
+          tag.style.cssText = "background:var(--primary-soft);color:var(--primary);padding:4px 10px;border-radius:999px;font-size:12px;display:inline-flex;align-items:center;gap:4px";
+          tag.textContent = t;
+          var rm = document.createElement("button");
+          rm.type = "button";
+          rm.textContent = "×";
+          rm.style.cssText = "background:none;border:none;color:var(--primary);cursor:pointer;font-size:14px;padding:0 2px";
+          rm.addEventListener("click", function () {
+            tagArr.splice(i, 1);
+            CAMPOS_SALVOS[campo.id] = tagArr;
+            renderTags();
+          });
+          tag.appendChild(rm);
+          tagWrap.appendChild(tag);
+        });
+      }
+      renderTags();
+      section.appendChild(tagWrap);
+      var tagInput = document.createElement("input");
+      tagInput.type = "text";
+      tagInput.className = "field-input";
+      tagInput.placeholder = campo.placeholder || "Digite e pressione Enter";
+      tagInput.addEventListener("keydown", function (ev) {
+        if (ev.key === "Enter") {
+          ev.preventDefault();
+          var v = tagInput.value.trim();
+          if (v && tagArr.indexOf(v) === -1) {
+            tagArr.push(v);
+            CAMPOS_SALVOS[campo.id] = tagArr;
+            renderTags();
+          }
+          tagInput.value = "";
+        }
+      });
+      section.appendChild(tagInput);
+
+    } else if (campo.tipo === "select") {
+      var sel = document.createElement("select");
+      sel.className = "field-input";
+      sel.innerHTML = '<option value="">Selecione…</option>';
+      (campo.opcoes || []).forEach(function (op) {
+        var opt = document.createElement("option");
+        opt.value = op;
+        opt.textContent = op;
+        if (valor === op) opt.selected = true;
+        sel.appendChild(opt);
+      });
+      sel.addEventListener("change", function () {
+        CAMPOS_SALVOS[campo.id] = sel.value;
+      });
+      section.appendChild(sel);
+
+    } else if (campo.tipo === "check") {
+      var checkWrap = document.createElement("label");
+      checkWrap.style.cssText = "display:flex;align-items:center;gap:8px;cursor:pointer";
+      var cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.checked = !!valor;
+      cb.addEventListener("change", function () {
+        CAMPOS_SALVOS[campo.id] = cb.checked;
+      });
+      checkWrap.appendChild(cb);
+      var cbLabel = document.createElement("span");
+      cbLabel.style.cssText = "font-size:13px";
+      cbLabel.textContent = campo.label;
+      checkWrap.appendChild(cbLabel);
+      section.innerHTML = "";
+      if (campo.desc) {
+        var desc2 = document.createElement("div");
+        desc2.className = "field-desc";
+        desc2.textContent = campo.desc;
+        section.appendChild(desc2);
+      }
+      section.appendChild(checkWrap);
+
+    } else if (campo.tipo === "textarea") {
+      var ta = document.createElement("textarea");
+      ta.className = "field-input";
+      ta.rows = "3";
+      ta.maxLength = "1000";
+      ta.placeholder = campo.placeholder || "";
+      ta.value = valor || "";
+      ta.addEventListener("input", function () {
+        CAMPOS_SALVOS[campo.id] = ta.value;
+      });
+      section.appendChild(ta);
+
+    } else {
+      // text (padrão)
+      var inp = document.createElement("input");
+      inp.type = "text";
+      inp.className = "field-input";
+      inp.placeholder = campo.placeholder || "";
+      inp.value = valor || "";
+      inp.addEventListener("input", function () {
+        CAMPOS_SALVOS[campo.id] = inp.value;
+      });
+      section.appendChild(inp);
+    }
+
+    elCamposCat.appendChild(section);
+  });
+}
 
 // ── Save ──
 var elStatusSalvar = document.getElementById("status-salvar");
@@ -666,6 +860,9 @@ elBtnSalvar.addEventListener("click", function () {
       mensagem_identidade: elMsg.value,
       regras_ia: elRegras.value,
       faq: CONFIG.faq,
+      campos_extras: CAMPOS_SALVOS,
+      categoria: CATEGORIA,
+      regras_categoria: REGRAS_CATEGORIA,
     }),
   })
     .then(function (r) {
@@ -682,10 +879,12 @@ elBtnSalvar.addEventListener("click", function () {
         return;
       }
       CONFIG = res.corpo.config;
+      CAMPOS_SALVOS = CONFIG.campos_extras || {};
       renderPrecos();
       renderConvenios();
       renderHorarios();
       renderFaq();
+      renderCamposCategoria();
       elRegras.value = CONFIG.regras_ia || "";
       elContRegras.textContent = elRegras.value.length;
       elStatusSalvar.innerHTML =

@@ -886,13 +886,46 @@
         .summary-value {
           text-align: left;
         }
+      }      @media (prefers-reduced-motion: reduce) {
+        *
+          {
+            animation-duration: 0.01ms !important;
+            transition-duration: 0.01ms !important;
+          }
       }
-      @media (prefers-reduced-motion: reduce) {
-        * {
-          animation-duration: 0.01ms !important;
-          transition-duration: 0.01ms !important;
-        }
-      }
+
+      /* ── Category Search ── */
+      .cat-search-wrap { position: relative; }
+      .cat-search-input { padding-left: 42px !important; font-size: 16px !important; height: 52px !important; }
+      .cat-search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 18px; color: var(--muted); pointer-events: none; }
+      .cat-clear { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 28px; height: 28px; border-radius: 50%; border: none; background: var(--line); color: var(--muted); font-size: 14px; cursor: pointer; display: none; align-items: center; justify-content: center; transition: all 0.15s; }
+      .cat-clear:hover { background: var(--err-soft); color: var(--err); }
+      .cat-clear.show { display: flex; }
+      .cat-dropdown { position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: var(--surface); border: 1.5px solid var(--line); border-radius: var(--radius-sm); box-shadow: var(--shadow-lg); max-height: 380px; overflow-y: auto; z-index: 100; display: none; }
+      .cat-dropdown.open { display: block; animation: dropIn 0.2s ease; }
+      @keyframes dropIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+      .cat-group-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); padding: 12px 14px 6px; background: var(--bg); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 1; }
+      .cat-option { display: flex; align-items: center; gap: 12px; padding: 10px 14px; cursor: pointer; transition: all 0.12s; border-bottom: 1px solid #f3f4f6; }
+      .cat-option:last-child { border-bottom: none; }
+      .cat-option:hover { background: var(--accent-soft); }
+      .cat-option.selected { background: var(--accent-soft); border-left: 3px solid var(--accent); }
+      .cat-option-icon { font-size: 22px; flex-shrink: 0; width: 32px; text-align: center; }
+      .cat-option-text { flex: 1; min-width: 0; }
+      .cat-option-name { font-size: 14px; font-weight: 600; color: var(--ink); }
+      .cat-option-desc { font-size: 12px; color: var(--muted); line-height: 1.3; }
+      .cat-option-parent { font-size: 10px; color: var(--accent); font-weight: 600; background: var(--accent-soft); padding: 1px 6px; border-radius: 99px; margin-left: 6px; }
+      .cat-no-results { padding: 20px 14px; text-align: center; color: var(--muted); font-size: 13px; }
+      .cat-no-results b { color: var(--ink); }
+      .cat-custom-hint { padding: 12px 14px; border-top: 1px solid var(--line); background: var(--accent-soft); font-size: 12px; color: var(--accent); cursor: pointer; display: flex; align-items: center; gap: 8px; }
+      .cat-custom-hint:hover { background: #dde5ff; }
+      .cat-selected { display: none; margin-top: 16px; padding: 16px 20px; border: 1.5px solid var(--accent); border-radius: var(--radius-sm); background: var(--accent-soft); animation: stepIn 0.25s ease; }
+      .cat-selected.show { display: flex; align-items: center; gap: 14px; }
+      .cat-selected-icon { font-size: 28px; }
+      .cat-selected-info { flex: 1; }
+      .cat-selected-name { font-size: 15px; font-weight: 700; }
+      .cat-selected-desc { font-size: 12px; color: var(--muted); }
+      .cat-selected-change { padding: 6px 12px; border-radius: 8px; border: 1.5px solid var(--accent); background: transparent; color: var(--accent); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+      .cat-selected-change:hover { background: var(--accent); color: #fff; }
     </style>
     <link rel="stylesheet" href="/page-transition.css?v=2" />
     <link rel="stylesheet" href="/loading-screen.css" />
@@ -1063,6 +1096,48 @@
           ],
         },
         {
+          t: "Tipo de clínica",
+          d: "Qual o segmento da sua clínica? Isso ajuda a personalizar seu painel e as respostas da secretária virtual.",
+          f: [
+            {
+              i: "categoria",
+              l: "Buscar segmento",
+              r: 1,
+              ty: "categoria",
+              h: "Digite o nome da área ou especialidade. Se não encontrar, crie uma personalizada.",
+            },
+          ],
+        },
+        {
+          t: "Serviços",
+          d: "Quais consultas, exames ou procedimentos a Recepta deve agendar?",
+          f: [
+            {
+              i: "servicos",
+              l: "Exames / consultas / procedimentos oferecidos",
+              r: 1,
+              ty: "ta",
+              p: "Ultrassonografia abdominal\nRaio-X de tórax\nMamografia",
+              h: "Um por linha. A Recepta só agenda o que estiver nesta lista.",
+            },
+            {
+              i: "convenios",
+              l: "Convênios aceitos",
+              r: 1,
+              ty: "ta",
+              p: "Unimed\nIpê Saúde\nParticular",
+              h: 'Um por linha. Se atende particular, escreva "Particular" na lista.',
+            },
+            {
+              i: "horario_func",
+              l: "Horário de funcionamento",
+              r: 1,
+              ty: "ta",
+              p: "Seg a sex 8h-18h, sáb 8h-12h",
+            },
+          ],
+        },
+        {
           t: "Confirmação",
           d: "Marque tudo e envie. Leva 10 segundos.",
           f: [
@@ -1080,8 +1155,67 @@
         },
       ];
 
+      /* ── Categorias (lista completa com herança) ── */
+      const CATS = [
+        { id: "estetica", n: "Estética", i: "✨", d: "Clínicas de estética,美容, procedimentos estéticos", p: null },
+        { id: "estetica_facial", n: "Estética Facial", i: "✨", d: "Procedimentos faciais, skincare", p: "estetica" },
+        { id: "estetica_corporal", n: "Estética Corporal", i: "✨", d: "Contorno corporal, celulite, gordura localizada", p: "estetica" },
+        { id: "depilacao", n: "Depilação", i: "✨", d: "Depilação a laser, cera, luz pulsada", p: "estetica" },
+        { id: "maquiagem", n: "Maquiagem / Design de Sobrancelhas", i: "💄", d: "Maquiagem profissional, design, permanente", p: "estetica" },
+        { id: "sobrancelhas", n: "Sobrancelhas / Cílios", i: "👁️", d: "Design, alongamento, lamination", p: "estetica" },
+        { id: "odontologia", n: "Odontologia", i: "🦷", d: "Clínicas dentárias, ortodontia, implantes", p: null },
+        { id: "ortodontia", n: "Ortodontia", i: "🦷", d: "Aparelhos, alinhadores, ortodontia", p: "odontologia" },
+        { id: "implantes", n: "Implantes Dentários", i: "🦷", d: "Implantes, próteses, reabilitação oral", p: "odontologia" },
+        { id: "endodontia", n: "Endodontia", i: "🦷", d: "Tratamento de canal, endodontia", p: "odontologia" },
+        { id: "odontopediatria", n: "Odontopediatria", i: "👶", d: "Dentista儿童, primeira consulta", p: "odontologia" },
+        { id: "estetica_dental", n: "Estética Dental", i: "🦷", d: "Clareamento, facetas, lentes de contato dental", p: "odontologia" },
+        { id: "periodontia", n: "Periodontia", i: "🦷", d: "Gengiva, implante periodontal, raspagem", p: "odontologia" },
+        { id: "psicologia", n: "Psicologia", i: "🧠", d: "Psicólogos, terapeutas, psiquiatria", p: null },
+        { id: "psicanalise", n: "Psicanálise", i: "🧠", d: "Psicanálise, Freud, Lacan", p: "psicologia" },
+        { id: "tcc", n: "Terapia Cognitivo-Comportamental", i: "🧠", d: "TCC, terapia breve, ansiedade, depressão", p: "psicologia" },
+        { id: "terapia_casal", n: "Terapia de Casal / Família", i: "👨‍👩‍👧", d: "Terapia sistêmica, casal, família", p: "psicologia" },
+        { id: "neuropsicologia", n: "Neuropsicologia", i: "🧠", d: "Avaliação neuropsicológica, TDAH, TEA", p: "psicologia" },
+        { id: "psiquiatria", n: "Psiquiatria", i: "💊", d: "Psiquiatria, medicação, transtornos", p: "psicologia" },
+        { id: "terapia_infantil", n: "Psicologia Infantil", i: "🧒", d: "Crianças, adolescentes, brinquedoterapia", p: "psicologia" },
+        { id: "nutricao", n: "Nutrição", i: "🥗", d: "Nutricionistas, dietistas", p: null },
+        { id: "nutri_esportiva", n: "Nutrição Esportiva", i: "💪", d: "Atletas, performance, hipertrofia", p: "nutricao" },
+        { id: "nutri_clinica", n: "Nutrição Clínica", i: "🏥", d: "Doenças crônicas, diabetes, hipertensão", p: "nutricao" },
+        { id: "emagrecimento", n: "Emagrecimento", i: "⚖️", d: "Perda de peso, reeducação alimentar", p: "nutricao" },
+        { id: "nutri_gestante", n: "Nutrição Gestante", i: "🤰", d: "Gestantes, amamentação, pré-natal", p: "nutricao" },
+        { id: "nutri_infantil", n: "Nutrição Infantil", i: "👶", d: "Crianças, pediatria, alimentação complementar", p: "nutricao" },
+        { id: "fisioterapia", n: "Fisioterapia", i: "🏃", d: "Fisioterapeutas, reabilitação", p: null },
+        { id: "fisio_ortopedica", n: "Fisioterapia Ortopédica", i: "🦴", d: "Artroplastia, fratura, coluna", p: "fisioterapia" },
+        { id: "fisio_respiratoria", n: "Fisioterapia Respiratória", i: "🫁", d: "Pulmão, asma, DPOC, COVID", p: "fisioterapia" },
+        { id: "fisio_neurologica", n: "Fisioterapia Neurológica", i: "🧠", d: "AVC, Parkinson, esclerose, neurologia", p: "fisioterapia" },
+        { id: "fisio_pelvica", n: "Fisioterapia Pélvica", i: "🏥", d: "Assoalho pélvico, incontinência, gestante", p: "fisioterapia" },
+        { id: "fisio_esportiva", n: "Fisioterapia Esportiva", i: "⚽", d: "Atletas, lesões esportivas, prevenção", p: "fisioterapia" },
+        { id: "pilates", n: "Pilates", i: "🧘", d: "Pilates terapêutico, reabilitação", p: "fisioterapia" },
+        { id: "acupuntura", n: "Acupuntura", i: "📍", d: "Medicina tradicional chinesa, acupuntura", p: "fisioterapia" },
+        { id: "geral", n: "Medicina Geral", i: "🏥", d: "Clínicas gerais, consultórios médicos", p: null },
+        { id: "clinica_geral", n: "Clínica Geral", i: "🩺", d: "Consultas gerais, check-up, preventivo", p: "geral" },
+        { id: "pediatria", n: "Pediatria", i: "👶", d: "Crianças, vacinas, desenvolvimento", p: "geral" },
+        { id: "cardiologia", n: "Cardiologia", i: "❤️", d: "Coração, hipertensão, arritmia", p: "geral" },
+        { id: "dermatologia", n: "Dermatologia", i: "🩹", d: "Pele, acne, cabelo, unha", p: "geral" },
+        { id: "ginecologia", n: "Ginecologia", i: "♀️", d: "Mulher, pré-natal, contraceptivo", p: "geral" },
+        { id: "oftalmologia", n: "Oftalmologia", i: "👁️", d: "Olhos, visão, lentes, cirurgia", p: "geral" },
+        { id: "otorrino", n: "Otorrinolaringologia", i: "👂", d: "Ouvido, nariz, garganta, sinusite", p: "geral" },
+        { id: "urologia", n: "Urologia", i: "♂️", d: "Homem, próstata, rins, vias urinárias", p: "geral" },
+        { id: "ortopedia", n: "Ortopedia", i: "🦴", d: "Ossos, articulações, coluna, joelho", p: "geral" },
+        { id: "endocrinologia", n: "Endocrinologia", i: "🧪", d: "Hormônios, diabetes, tireoide", p: "geral" },
+        { id: "gastro", n: "Gastroenterologia", i: "🫄", d: "Estômago, intestino, fígado, refluxo", p: "geral" },
+        { id: "veterinaria", n: "Veterinária", i: "🐾", d: "Clínicas veterinárias, pet shop", p: null },
+        { id: "farmacia", n: "Farmácia / Drogaria", i: "💊", d: "Farmácias, drogarias, manipulação", p: null },
+        { id: "salao", n: "Salão de Beleza", i: "💇", d: "Cabelo, unha, estética geral", p: null },
+        { id: "academia", n: "Academia / Personal", i: "🏋️", d: "Personal trainer, musculação, functional", p: null },
+        { id: "escritorio", n: "Escritório / Advocacia", i: "⚖️", d: "Advocacia, consultoria, contabilidade", p: null },
+        { id: "consultoria", n: "Consultoria", i: "💼", d: "Consultoria empresarial, RH, gestão", p: null },
+        { id: "educacao", n: "Educação / Cursos", i: "📚", d: "Escolas, cursinhos, treinamentos", p: null },
+      ];
+      const CAT_MAP = {};
+      CATS.forEach(function (c) { CAT_MAP[c.id] = c; });
+
       const F = document.getElementById("form"),
-        K = "briefing_recepta_v1";
+        K = "briefing_recepta_v2";
       let saved = {};
       try {
         saved = JSON.parse(localStorage.getItem(K) || "{}");
@@ -1172,6 +1306,23 @@
                 )
                 .join("") +
               "</div>";
+          } else if (f.ty === "categoria") {
+            h +=
+              '<div class="cat-search-wrap">' +
+              '<span class="cat-search-icon">🔍</span>' +
+              '<input type="text" id="cat-search" class="cat-search-input" placeholder="Ex: Odontologia, Psicologia, Estética..." autocomplete="off">' +
+              '<button type="button" class="cat-clear" id="cat-clear" title="Limpar seleção">✕</button>' +
+              '<div class="cat-dropdown" id="cat-dropdown"></div>' +
+              '</div>' +
+              '<div class="cat-selected" id="cat-selected">' +
+              '<span class="cat-selected-icon" id="cat-selected-icon"></span>' +
+              '<div class="cat-selected-info">' +
+              '<div class="cat-selected-name" id="cat-selected-name"></div>' +
+              '<div class="cat-selected-desc" id="cat-selected-desc"></div>' +
+              '</div>' +
+              '<button type="button" class="cat-selected-change" id="cat-change">Trocar</button>' +
+              '</div>' +
+              '<input type="hidden" id="categoria" value="' + esc(v) + '">';
           } else {
             const ac =
               (f.ty === 'email'
@@ -1379,6 +1530,7 @@
         const d = data();
         const fields = [
           { label: "Clínica", key: "clinica" },
+          { label: "Categoria", key: "categoria", format: function (v) { var c = CAT_MAP[v]; return c ? c.i + " " + c.n : v; } },
           { label: "WhatsApp", key: "whats_resp" },
           { label: "Número", key: "numero" },
           { label: "CNPJ", key: "cnpj" },
@@ -1394,7 +1546,7 @@
               '<div class="summary-row"><span class="summary-label">' +
               f.label +
               '</span><span class="summary-value">' +
-              esc(d[f.key]).replace(/\n/g, "<br>") +
+              esc(f.format ? f.format(d[f.key]) : d[f.key]).replace(/\n/g, "<br>") +
               "</span></div>",
           )
           .join("");
@@ -1492,6 +1644,135 @@
             "Não conseguimos enviar agora. Seus dados estão salvos neste navegador — tente de novo em instantes.";
         }
       });
+
+      /* ── Category autocomplete ── */
+      (function () {
+        var searchEl = document.getElementById("cat-search");
+        var dd = document.getElementById("cat-dropdown");
+        var clearBtn = document.getElementById("cat-clear");
+        var selEl = document.getElementById("cat-selected");
+        var hiddenEl = document.getElementById("categoria");
+        var wrap = searchEl ? searchEl.closest(".cat-search-wrap") : null;
+        if (!searchEl) return;
+
+        function renderDD(q) {
+          q = (q || "").toLowerCase().trim();
+          var filtered = q
+            ? CATS.filter(function (c) {
+                return (
+                  c.n.toLowerCase().indexOf(q) !== -1 ||
+                  c.d.toLowerCase().indexOf(q) !== -1 ||
+                  (c.p && c.p.indexOf(q) !== -1)
+                );
+              })
+            : CATS;
+          var groups = {};
+          filtered.forEach(function (c) {
+            var k = c.p || c.id;
+            if (!groups[k]) groups[k] = { pai: c.p ? CAT_MAP[c.p] : null, items: [] };
+            groups[k].items.push(c);
+          });
+          var html = "";
+          Object.keys(groups).forEach(function (k) {
+            var g = groups[k];
+            html += '<div class="cat-group-label">' + (g.pai ? g.pai.i + " " + g.pai.n : "📋 Categorias") + "</div>";
+            g.items.forEach(function (c) {
+              var parentTag = c.p ? '<span class="cat-option-parent">' + (CAT_MAP[c.p] ? CAT_MAP[c.p].n : c.p) + "</span>" : "";
+              html +=
+                '<div class="cat-option" data-id="' +
+                c.id +
+                '"><span class="cat-option-icon">' +
+                c.i +
+                '</span><div class="cat-option-text"><div class="cat-option-name">' +
+                esc(c.n) +
+                parentTag +
+                '</div><div class="cat-option-desc">' +
+                esc(c.d) +
+                "</div></div></div>";
+            });
+          });
+          if (!filtered.length) {
+            html =
+              '<div class="cat-no-results">Nenhum resultado para "<b>' +
+              esc(q) +
+              '"</b></div>' +
+              '<div class="cat-custom-hint" id="cat-custom">✏️ Usar "<b>' +
+              esc(q) +
+              '"</b> como categoria personalizada</div>';
+          }
+          dd.innerHTML = html;
+          dd.classList.add("open");
+          dd.querySelectorAll(".cat-option").forEach(function (opt) {
+            opt.addEventListener("click", function () {
+              selectCat(opt.dataset.id);
+            });
+          });
+          var ch = document.getElementById("cat-custom");
+          if (ch)
+            ch.addEventListener("click", function () {
+              selectCustom(searchEl.value);
+            });
+        }
+        function selectCat(id) {
+          var c = CAT_MAP[id];
+          if (!c) return;
+          hiddenEl.value = c.id;
+          searchEl.value = "";
+          dd.classList.remove("open");
+          clearBtn.classList.add("show");
+          document.getElementById("cat-selected-icon").textContent = c.i;
+          document.getElementById("cat-selected-name").textContent = c.n;
+          var pai = c.p && CAT_MAP[c.p] ? " · " + CAT_MAP[c.p].n : "";
+          document.getElementById("cat-selected-desc").textContent = c.d + pai;
+          selEl.classList.add("show");
+          wrap.style.display = "none";
+          prog();
+          salvar();
+        }
+        function selectCustom(txt) {
+          hiddenEl.value = txt;
+          searchEl.value = "";
+          dd.classList.remove("open");
+          clearBtn.classList.add("show");
+          document.getElementById("cat-selected-icon").textContent = "📌";
+          document.getElementById("cat-selected-name").textContent = txt;
+          document.getElementById("cat-selected-desc").textContent = "Categoria personalizada";
+          selEl.classList.add("show");
+          wrap.style.display = "none";
+          prog();
+          salvar();
+        }
+        function clearCat() {
+          hiddenEl.value = "";
+          clearBtn.classList.remove("show");
+          selEl.classList.remove("show");
+          wrap.style.display = "";
+          searchEl.focus();
+          prog();
+          salvar();
+        }
+        searchEl.addEventListener("input", function () {
+          renderDD(searchEl.value);
+        });
+        searchEl.addEventListener("focus", function () {
+          renderDD(searchEl.value);
+        });
+        document.addEventListener("click", function (e) {
+          if (!e.target.closest(".cat-search-wrap") && !e.target.closest(".cat-dropdown"))
+            dd.classList.remove("open");
+        });
+        clearBtn.addEventListener("click", clearCat);
+        var chBtn = document.getElementById("cat-change");
+        if (chBtn) chBtn.addEventListener("click", clearCat);
+
+        /* Se ja tinha valor salvo, restaurar visual */
+        var savedVal = hiddenEl.value;
+        if (savedVal && CAT_MAP[savedVal]) {
+          selectCat(savedVal);
+        } else if (savedVal) {
+          selectCustom(savedVal);
+        }
+      })();
 
       showStep(firstIncompleteStep());
     </script>

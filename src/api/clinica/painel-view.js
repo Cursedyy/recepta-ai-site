@@ -1,5 +1,6 @@
 import { autenticarClinica } from "../_lib/auth-clinica.js";
 import { configEditavelPadrao, DIAS } from "../_lib/config-editavel.js";
+import { getCategoriaConfig, getCategoriaMeta } from "../../_lib/categorias.js";
 
 const NOME_DIA = {
   segunda: "Segunda",
@@ -33,7 +34,7 @@ function jsonParaScript(obj) {
     .replace(/\//g, "\\u002f");
 }
 
-function paginaPainel(nomeClinica, config, tempoPausaAtual, assinatura) {
+function paginaPainel(nomeClinica, config, tempoPausaAtual, assinatura, categoriaDados) {
   return `<!doctype html>
 <html lang="pt-BR">
 <head>
@@ -291,6 +292,7 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
     <button class="nav-item active" data-tab="agenda"><span class="icon">📋</span><span>Agenda</span></button>
     <button class="nav-item" data-tab="horarios"><span class="icon">🕐</span><span>Horários</span></button>
     <button class="nav-item" data-tab="precos"><span class="icon">💰</span><span>Preços</span></button>
+    <button class="nav-item" data-tab="procedimentos" id="nav-procedimentos" style="display:none"><span class="icon">⚙️</span><span id="nav-procedimentos-label">Procedimentos</span></button>
     <button class="nav-item" data-tab="convenios"><span class="icon">🏥</span><span>Convênios</span></button>
     <div class="sidebar-section">Recepta</div>
     <a class="nav-item" href="/clinica/conectar"><span class="icon">📱</span><span>Conectar WhatsApp</span></a>
@@ -342,6 +344,14 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
           <div id="lista-precos"></div>
           <button type="button" class="btn btn-ghost btn-sm" id="add-preco" style="margin-top:4px">+ Adicionar preço</button>
         </div>
+      </div>
+    </div>
+
+    <!-- ── PROCEDIMENTOS (dinâmico por categoria) ── -->
+    <div class="tab-panel" id="tab-procedimentos">
+      <div class="content-header"><h1>Dados da clínica</h1><p>Informações específicas do segmento da sua clínica.</p></div>
+      <div class="content-body">
+        <div id="campos-categoria"></div>
       </div>
     </div>
 
@@ -490,7 +500,13 @@ window.__PAINEL__ = {
   config: ${jsonParaScript(config)},
   dias: ${jsonParaScript(DIAS)},
   nomeDia: ${jsonParaScript(NOME_DIA)},
-  assinatura: ${jsonParaScript(assinatura)}
+  assinatura: ${jsonParaScript(assinatura)},
+  categoria: ${jsonParaScript(categoriaDados.categoria)},
+  categoriaMeta: ${jsonParaScript(categoriaDados.categoriaMeta)},
+  tabsVisiveis: ${jsonParaScript(categoriaDados.tabsVisiveis)},
+  camposExtras: ${jsonParaScript(categoriaDados.camposExtras)},
+  regrasCategoria: ${jsonParaScript(categoriaDados.regrasCategoria)},
+  faqCategoria: ${jsonParaScript(categoriaDados.faqCategoria)}
 };
 </script>
 <script src="/clinica/painel.js"></script>
@@ -517,10 +533,14 @@ export default async function handler(req, res) {
   const { data: clinicaRow } = await admin
     .from("clinicas")
     .select(
-      "clinica,config_editavel,tempo_pausa_minutos,status,trial_fim,plano,stripe_customer_id,criado_em",
+      "clinica,config_editavel,tempo_pausa_minutos,status,trial_fim,plano,stripe_customer_id,criado_em,categoria",
     )
     .eq("id", perfil.clinica_id)
     .maybeSingle();
+
+  const categoriaId = clinicaRow?.categoria || "geral";
+  const catConfig = getCategoriaConfig(categoriaId);
+  const catMeta = getCategoriaMeta(categoriaId);
 
   const nomeClinica = clinicaRow?.clinica || perfil.nome || "sua clínica";
   const padrao = configEditavelPadrao();
@@ -542,6 +562,14 @@ export default async function handler(req, res) {
         ? configSalvo.regras_ia
         : padrao.regras_ia,
     faq: Array.isArray(configSalvo.faq) ? configSalvo.faq : padrao.faq,
+    campos_extras:
+      configSalvo.campos_extras && typeof configSalvo.campos_extras === "object"
+        ? configSalvo.campos_extras
+        : {},
+    regras_categoria:
+      typeof configSalvo.regras_categoria === "string"
+        ? configSalvo.regras_categoria
+        : "",
   };
 
   const tempoPausaAtual =
@@ -560,5 +588,12 @@ export default async function handler(req, res) {
   res.setHeader("Content-Type", "text/html; charset=utf-8");
   return res
     .status(200)
-    .send(paginaPainel(nomeClinica, config, tempoPausaAtual, assinatura));
+    .send(paginaPainel(nomeClinica, config, tempoPausaAtual, assinatura, {
+      categoria: categoriaId,
+      categoriaMeta: catMeta,
+      tabsVisiveis: catConfig.tabs,
+      camposExtras: catConfig.camposExtras,
+      regrasCategoria: catConfig.regrasPadrao || "",
+      faqCategoria: catConfig.faqPadrao || [],
+    }));
 }

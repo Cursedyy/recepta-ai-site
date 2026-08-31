@@ -21,6 +21,7 @@ export function configEditavelPadrao() {
     mensagem_identidade: "",
     regras_ia: "",
     faq: [],
+    campos_extras: {},
   };
 }
 
@@ -103,6 +104,25 @@ export function validarConfigEditavel(input) {
     }
   }
 
+  // campos_extras: objeto opcional (chave-valor) para dados da categoria
+  const camposExtrasInput = input.campos_extras;
+  var camposExtrasLimpo = {};
+  if (camposExtrasInput && typeof camposExtrasInput === "object" && !Array.isArray(camposExtrasInput)) {
+    for (const [chave, valor] of Object.entries(camposExtrasInput)) {
+      if (typeof chave !== "string" || !chave.trim()) continue;
+      // Normalizar: arrays viram arrays de strings, booleanos ficam, números ficam, strings ficam
+      if (Array.isArray(valor)) {
+        camposExtrasLimpo[chave] = valor.filter(function (v) { return typeof v === "string" && v.trim(); }).map(function (v) { return v.trim(); });
+      } else if (typeof valor === "boolean") {
+        camposExtrasLimpo[chave] = valor;
+      } else if (typeof valor === "number" && Number.isFinite(valor)) {
+        camposExtrasLimpo[chave] = valor;
+      } else if (typeof valor === "string") {
+        camposExtrasLimpo[chave] = valor.trim();
+      }
+    }
+  }
+
   const limpo = {
     precos: precos.map((p) => ({
       nome: p.nome.trim(),
@@ -121,6 +141,9 @@ export function validarConfigEditavel(input) {
       pergunta: item.pergunta.trim(),
       resposta: item.resposta.trim(),
     })),
+    campos_extras: camposExtrasLimpo,
+    categoria: typeof input.categoria === "string" ? input.categoria.trim() : "geral",
+    regras_categoria: typeof input.regras_categoria === "string" ? input.regras_categoria.trim() : "",
   };
 
   return { ok: true, limpo };
