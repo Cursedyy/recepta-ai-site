@@ -1535,8 +1535,6 @@
           });
         }
       });
-      updateBtnState();
-
       /* ── Wizard logic ── */
       const panels = [...F.children];
       const totalSteps = S.length;
@@ -1550,6 +1548,7 @@
       ).matches;
       const btn = document.getElementById("btn"),
         errBox = document.getElementById("err");
+      updateBtnState();
 
       function stepReq(i) {
         return S[i].f.filter((f) => f.r);
