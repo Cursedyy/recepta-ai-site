@@ -411,6 +411,11 @@
           A Recepta está atendendo os pacientes por este número.
         </p>
 
+        <div class="aviso ok" id="teste-bloco" style="margin-top:16px;display:none;">
+          <span>🎉</span>
+          <span>Sua Recepta está no ar! Teste agora: mande uma mensagem para <b id="teste-numero"></b> e veja ela responder.</span>
+        </div>
+
         <div class="acoes">
           <a class="btn btn-primary" href="/clinica/painel">Ir para o painel</a>
           <button type="button" class="btn" id="btn-atualizar">
@@ -747,6 +752,14 @@
             );
           }
           linhaDetalhe(lista, "Aparelho", dados.plataforma);
+
+          /* Bloco de teste */
+          var testeBloco = document.getElementById("teste-bloco");
+          var testeNumero = document.getElementById("teste-numero");
+          if (numero) {
+            testeNumero.textContent = numero;
+            testeBloco.style.display = "";
+          }
 
           mostrar("conectado");
         }

@@ -193,7 +193,7 @@ async function handlePost(req, res, auth) {
       .insert({
         clinica: nome,
         status: "trial",
-        trial_fim: new Date(Date.now() + 14 * 86400000).toISOString(),
+        trial_fim: new Date(Date.now() + 7 * 86400000).toISOString(),
       })
       .select("id,clinica")
       .maybeSingle();

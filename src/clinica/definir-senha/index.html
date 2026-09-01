@@ -282,11 +282,18 @@
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email: email, senha: senha }),
-              }).then(function () {
-                // Verifica se a instancia UazAPI esta conectada antes de
-                // decidir pra onde redirecionar. Se nao estiver, manda pro
-                // fluxo de conexao em vez do painel.
-                return fetch("/api/clinica/conectar?acao=status")
+              }).then(function (r) {
+                if (!r.ok) {
+                  elErro.textContent = "E-mail ou senha inválidos.";
+                  elBtn.disabled = false;
+                  elBtn.textContent = "Definir senha e entrar";
+                  return;
+                }
+                return r.json().then(function () {
+                  // Verifica se a instancia UazAPI esta conectada antes de
+                  // decidir pra onde redirecionar. Se nao estiver, manda pro
+                  // fluxo de conexao em vez do painel.
+                  return fetch("/api/clinica/conectar?acao=status")
                   .then(function (r) { return r.ok ? r.json() : null; })
                   .then(function (dados) {
                     if (dados && dados.conectado) {
