@@ -905,9 +905,9 @@
       .cat-clear { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 28px; height: 28px; border-radius: 50%; border: none; background: var(--line); color: var(--muted); font-size: 14px; cursor: pointer; display: none; align-items: center; justify-content: center; transition: all 0.15s; }
       .cat-clear:hover { background: var(--err-soft); color: var(--err); }
       .cat-clear.show { display: flex; }
-      .cat-dropdown { position: fixed; background: var(--surface); border: 1.5px solid var(--line); border-radius: var(--radius-sm); box-shadow: var(--shadow-lg); max-height: 380px; overflow-y: auto; z-index: 99999; display: none; }
+      .cat-dropdown { position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: var(--surface); border: 1.5px solid var(--line); border-radius: var(--radius-sm); box-shadow: var(--shadow-lg); max-height: 380px; overflow-y: auto; z-index: 9999; display: none; }
       .cat-dropdown.open { display: block; animation: dropIn 0.2s ease; }
-      @keyframes dropIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+      @keyframes dropIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
       .cat-group-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); padding: 12px 14px 6px; background: var(--bg); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 1; }
       .cat-option { display: flex; align-items: center; gap: 12px; padding: 10px 14px; cursor: pointer; transition: all 0.12s; border-bottom: 1px solid #f3f4f6; }
       .cat-option:last-child { border-bottom: none; }
@@ -1759,14 +1759,6 @@
         var wrap = searchEl ? searchEl.closest(".cat-search-wrap") : null;
         if (!searchEl) return;
 
-        function positionDD() {
-          var r = searchEl.getBoundingClientRect();
-          dd.style.width = r.width + "px";
-          dd.style.left = r.left + "px";
-          dd.style.top = "";
-          dd.style.bottom = (window.innerHeight - r.top + 6) + "px";
-        }
-
         function renderDD(q) {
           q = (q || "").toLowerCase().trim();
           var filtered = q
@@ -1814,7 +1806,6 @@
           }
           dd.innerHTML = html;
           dd.classList.add("open");
-          positionDD();
           dd.querySelectorAll(".cat-option").forEach(function (opt) {
             opt.addEventListener("click", function () {
               selectCat(opt.dataset.id);
@@ -1877,10 +1868,6 @@
         clearBtn.addEventListener("click", clearCat);
         var chBtn = document.getElementById("cat-change");
         if (chBtn) chBtn.addEventListener("click", clearCat);
-
-        /* Manter posicao do dropdown atualizada */
-        window.addEventListener("scroll", function () { if (dd.classList.contains("open")) positionDD(); }, true);
-        window.addEventListener("resize", function () { if (dd.classList.contains("open")) positionDD(); });
 
         /* Se ja tinha valor salvo, restaurar visual */
         var savedVal = hiddenEl.value;
