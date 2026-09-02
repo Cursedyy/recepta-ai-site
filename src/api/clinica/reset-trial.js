@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { rateLimit } from "../_lib/rate-limit.js";
+import { apiKeyValida } from "../_lib/api-key.js";
 
 /**
  * POST /api/clinica/reset-trial
@@ -118,8 +119,7 @@ export default async function handler(req, res) {
       .status(500)
       .json({ erro: "RESET_TRIAL_KEY nao configurado no servidor" });
   }
-  const chave = req.headers["x-api-key"];
-  if (!chave || chave !== apiKey) {
+  if (!apiKeyValida(req.headers["x-api-key"], apiKey)) {
     return res.status(401).json({ erro: "chave_invalida" });
   }
 

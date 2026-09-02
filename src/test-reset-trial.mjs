@@ -7,6 +7,7 @@ import {
   bloqueioCadastral,
   bloqueioDeInstancia,
 } from "./api/clinica/reset-trial.js";
+import { apiKeyValida } from "./api/_lib/api-key.js";
 
 // --- Cadastro: quem virou cliente nunca pode ser apagado ---
 
@@ -48,6 +49,29 @@ assert.equal(
   bloqueioDeInstancia(null)?.erro,
   "status_indisponivel",
   "FAIL-CLOSED: UazAPI fora do ar nao pode virar permissao para apagar",
+);
+
+// --- A chave: comparacao em tempo constante, e nada de truthy solto ---
+// Antes o handler fazia `chave !== apiKey`, que vaza quantos bytes batem pelo
+// tempo de resposta. Esta rota APAGA clinica: a chave e o unico portao.
+
+assert.equal(apiKeyValida("segredo", "segredo"), true, "chave igual passa");
+assert.equal(apiKeyValida("segredo", "segred0"), false, "chave errada barra");
+assert.equal(
+  apiKeyValida("seg", "segredo"),
+  false,
+  "prefixo correto nao vale chave",
+);
+assert.equal(
+  apiKeyValida("", ""),
+  true,
+  "vazio == vazio, o handler barra antes com !apiKey",
+);
+assert.equal(apiKeyValida(undefined, "segredo"), false, "header ausente barra");
+assert.equal(
+  apiKeyValida(["segredo"], "segredo"),
+  false,
+  "header repetido vira array e barra",
 );
 
 console.log("reset-trial guards: OK");
