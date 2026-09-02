@@ -218,11 +218,9 @@
       </section>
     </main>
     <script>
-      function pegarToken() {
-        var partes = window.location.pathname.split("/").filter(Boolean);
-        return partes[partes.length - 1] || "";
-      }
-      var token = pegarToken();
+    (function () {
+      var partes = window.location.pathname.split("/").filter(Boolean);
+      var token = partes[partes.length - 1] || "";
 
       var elForm = document.getElementById("form-senha");
       var elErro = document.getElementById("erro");
@@ -231,69 +229,68 @@
       if (!token || token === "definir-senha") {
         elForm.style.display = "none";
         document.getElementById("estado-invalido").style.display = "block";
-      } else {
-        elForm.addEventListener("submit", function (ev) {
-          ev.preventDefault();
-          elErro.textContent = "";
+        return;
+      }
 
-          var email = document.getElementById("email").value;
-          var senha = document.getElementById("senha").value;
-          var confirmar = document.getElementById("confirmar").value;
+      elForm.addEventListener("submit", function (ev) {
+        ev.preventDefault();
+        elErro.textContent = "";
 
-          if (senha !== confirmar) {
-            elErro.textContent = "As senhas não conferem.";
-            return;
-          }
-          if (senha.length < 8) {
-            elErro.textContent = "A senha precisa ter pelo menos 8 caracteres.";
-            return;
-          }
+        var email = document.getElementById("email").value;
+        var senha = document.getElementById("senha").value;
+        var confirmar = document.getElementById("confirmar").value;
 
-          elBtn.disabled = true;
-          elBtn.textContent = "Salvando…";
+        if (senha !== confirmar) {
+          elErro.textContent = "As senhas não conferem.";
+          return;
+        }
+        if (senha.length < 8) {
+          elErro.textContent = "A senha precisa ter pelo menos 8 caracteres.";
+          return;
+        }
 
-          fetch("/api/clinica/definir-senha", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ token: token, email: email, senha: senha }),
+        elBtn.disabled = true;
+        elBtn.textContent = "Salvando…";
+
+        fetch("/api/clinica/definir-senha", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: token, email: email, senha: senha }),
+        })
+          .then(function (r) {
+            return r.json().then(function (j) {
+              return { ok: r.ok, corpo: j };
+            });
           })
-            .then(function (r) {
-              return r.json().then(function (j) {
-                return { ok: r.ok, corpo: j };
-              });
-            })
-            .then(function (res) {
-              if (!res.ok) {
-                var msgs = {
-                  convite_invalido: "Link de convite inválido.",
-                  convite_usado: "Este convite já foi usado.",
-                  convite_expirado: "Este convite expirou. Peça um novo.",
-                  email_ja_cadastrado: "Já existe uma conta com esse e-mail.",
-                  senha_curta: "A senha precisa ter pelo menos 8 caracteres.",
-                };
-                elErro.textContent =
-                  msgs[res.corpo && res.corpo.erro] ||
-                  "Não foi possível concluir. Tenta de novo.";
+          .then(function (res) {
+            if (!res.ok) {
+              var msgs = {
+                convite_invalido: "Link de convite inválido.",
+                convite_usado: "Este convite já foi usado.",
+                convite_expirado: "Este convite expirou. Peça um novo.",
+                email_ja_cadastrado: "Já existe uma conta com esse e-mail.",
+                senha_curta: "A senha precisa ter pelo menos 8 caracteres.",
+              };
+              elErro.textContent =
+                msgs[res.corpo && res.corpo.erro] ||
+                "Não foi possível concluir. Tenta de novo.";
+              elBtn.disabled = false;
+              elBtn.textContent = "Definir senha e entrar";
+              return;
+            }
+            return fetch("/api/clinica/login", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email: email, senha: senha }),
+            }).then(function (r) {
+              if (!r.ok) {
+                elErro.textContent = "E-mail ou senha inválidos.";
                 elBtn.disabled = false;
                 elBtn.textContent = "Definir senha e entrar";
                 return;
               }
-              return fetch("/api/clinica/login", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email: email, senha: senha }),
-              }).then(function (r) {
-                if (!r.ok) {
-                  elErro.textContent = "E-mail ou senha inválidos.";
-                  elBtn.disabled = false;
-                  elBtn.textContent = "Definir senha e entrar";
-                  return;
-                }
-                return r.json().then(function () {
-                  // Verifica se a instancia UazAPI esta conectada antes de
-                  // decidir pra onde redirecionar. Se nao estiver, manda pro
-                  // fluxo de conexao em vez do painel.
-                  return fetch("/api/clinica/conectar?acao=status")
+              return r.json().then(function () {
+                return fetch("/api/clinica/conectar?acao=status")
                   .then(function (r) { return r.ok ? r.json() : null; })
                   .then(function (dados) {
                     if (dados && dados.conectado) {
@@ -303,20 +300,18 @@
                     }
                   })
                   .catch(function () {
-                    // Em caso de erro na verificacao, manda pro painel
-                    // (evita travar o cliente).
                     window.location.href = "/clinica/painel";
                   });
               });
-            })
-            .catch(function () {
-              elErro.textContent = "Falha de conexão. Tenta de novo.";
-              elBtn.disabled = false;
-              elBtn.textContent = "Definir senha e entrar";
             });
-            })
-        });
-      }
+          })
+          .catch(function () {
+            elErro.textContent = "Falha de conexão. Tenta de novo.";
+            elBtn.disabled = false;
+            elBtn.textContent = "Definir senha e entrar";
+          });
+      });
+    })();
     </script>
     <script src="https://unpkg.com/lenis@latest/dist/lenis.min.js"></script>
     <script src="/smooth-scroll.js"></script>
