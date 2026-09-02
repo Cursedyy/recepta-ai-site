@@ -188,12 +188,15 @@ async function handlePost(req, res, auth) {
   if (body?.acao === "criar_clinica") {
     const nome = typeof body?.nome === "string" ? body.nome.trim() : "";
     if (!nome) return res.status(400).json({ erro: "nome_obrigatorio" });
+    const now = new Date();
+    const trialFim = new Date(now.getTime() + 7 * 86400000);
     const { data, error } = await admin
       .from("clinicas")
       .insert({
         clinica: nome,
-        status: "trial",
-        trial_fim: new Date(Date.now() + 7 * 86400000).toISOString(),
+        status: "ativo",
+        trial_inicio: now.toISOString(),
+        trial_fim: trialFim.toISOString(),
       })
       .select("id,clinica")
       .maybeSingle();
