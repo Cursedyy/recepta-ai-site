@@ -95,19 +95,45 @@ var FAQ_CATEGORIA = DADOS.faqCategoria || [];
 })();
 
 // ── Tab navigation ──
+// Guarda a aba ativa no localStorage pra sobreviver a um F5: sem isso o
+// reload sempre volta pra Agenda (default do HTML servido pelo servidor).
+var CHAVE_TAB_ATIVA = "painel_tab_ativa";
 var navItems = document.querySelectorAll(".nav-item[data-tab]");
+function ativarTab(tab, opts) {
+  var btn = document.querySelector('.nav-item[data-tab="' + tab + '"]');
+  var painel = document.getElementById("tab-" + tab);
+  if (!btn || !painel || btn.style.display === "none") return false;
+  navItems.forEach(function (b) {
+    b.classList.remove("active");
+  });
+  document.querySelectorAll(".tab-panel").forEach(function (p) {
+    p.classList.remove("active");
+  });
+  btn.classList.add("active");
+  painel.classList.add("active");
+  if (!opts || opts.salvar !== false) {
+    try {
+      localStorage.setItem(CHAVE_TAB_ATIVA, tab);
+    } catch (e) {
+      // localStorage indisponível (aba privada etc) — sem persistência, sem quebrar o painel
+    }
+  }
+  return true;
+}
 navItems.forEach(function (btn) {
   btn.addEventListener("click", function () {
-    navItems.forEach(function (b) {
-      b.classList.remove("active");
-    });
-    document.querySelectorAll(".tab-panel").forEach(function (p) {
-      p.classList.remove("active");
-    });
-    btn.classList.add("active");
-    document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
+    ativarTab(btn.dataset.tab);
   });
 });
+(function restaurarTabAtiva() {
+  var salva = null;
+  try {
+    salva = localStorage.getItem(CHAVE_TAB_ATIVA);
+  } catch (e) {
+    // sem localStorage, mantém o default (agenda) já ativo no HTML
+  }
+  if (salva) ativarTab(salva, { salvar: false });
+})();
 
 // ── Helpers ──
 // escapeHtml era chamado em renderConversas e renderFeriados mas so existia no
