@@ -19,7 +19,7 @@ var CATEGORIA = DADOS.categoria || "geral";
 var CATEGORIA_META = DADOS.categoriaMeta || {};
 var TABS_VISIVEIS = DADOS.tabsVisiveis || [];
 var CAMPOS_EXTRAS = DADOS.camposExtras || [];
-var CAMPOS_SALVOS = (CONFIG.campos_extras || {});
+var CAMPOS_SALVOS = CONFIG.campos_extras || {};
 var REGRAS_CATEGORIA = DADOS.regrasCategoria || "";
 var FAQ_CATEGORIA = DADOS.faqCategoria || [];
 
@@ -29,22 +29,49 @@ var FAQ_CATEGORIA = DADOS.faqCategoria || [];
   var SEMPRE_VISIVEIS = ["conectar"];
   // Tabs que a sidebar mostra (data-tab)
   var TABS_SIDEBAR = [
-    "agenda", "horarios", "precos", "procedimentos", "convenios",
-    "mensagem", "regras", "faq", "conversas",
-    "pausa", "perfil", "feriados", "status",
+    "agenda",
+    "horarios",
+    "precos",
+    "procedimentos",
+    "convenios",
+    "mensagem",
+    "regras",
+    "faq",
+    "conversas",
+    "pausa",
+    "perfil",
+    "feriados",
+    "status",
   ];
   // Mapeamento de label por tab
   var LABELS = {
-    agenda: "Agenda", horarios: "Horários", precos: "Preços",
-    procedimentos: "Dados da clínica", convenios: "Convênios",
-    mensagem: "Mensagem", regras: "Regras", faq: "FAQ",
-    conversas: "Conversas", pausa: "Pausa", perfil: "Perfil",
-    feriados: "Feriados", status: "Status",
+    agenda: "Agenda",
+    horarios: "Horários",
+    precos: "Preços",
+    procedimentos: "Dados da clínica",
+    convenios: "Convênios",
+    mensagem: "Mensagem",
+    regras: "Regras",
+    faq: "FAQ",
+    conversas: "Conversas",
+    pausa: "Pausa",
+    perfil: "Perfil",
+    feriados: "Feriados",
+    status: "Status",
   };
   var ICONS = {
-    agenda: "📋", horarios: "🕐", precos: "💰", procedimentos: "⚙️",
-    convenios: "🏥", mensagem: "💬", regras: "⚙️", faq: "❓",
-    conversas: "🗨️", pausa: "⏸️", perfil: "👤", feriados: "📅",
+    agenda: "📋",
+    horarios: "🕐",
+    precos: "💰",
+    procedimentos: "⚙️",
+    convenios: "🏥",
+    mensagem: "💬",
+    regras: "⚙️",
+    faq: "❓",
+    conversas: "🗨️",
+    pausa: "⏸️",
+    perfil: "👤",
+    feriados: "📅",
     status: "📊",
   };
 
@@ -696,18 +723,13 @@ document.getElementById("add-faq").addEventListener("click", function () {
   renderFaq();
 });
 
-// ── Render all ──
-renderPrecos();
-renderConvenios();
-renderHorarios();
-renderFaq();
-renderCamposCategoria();
-
 // ── Procedimentos (campos extras da categoria) ──
 var elCamposCat = document.getElementById("campos-categoria");
 function renderCamposCategoria() {
   if (!elCamposCat || !CAMPOS_EXTRAS.length) {
-    if (elCamposCat) elCamposCat.innerHTML = '<p class="vazio">Nenhum dado específico para esta categoria.</p>';
+    if (elCamposCat)
+      elCamposCat.innerHTML =
+        '<p class="vazio">Nenhum dado específico para esta categoria.</p>';
     return;
   }
   elCamposCat.innerHTML = "";
@@ -733,19 +755,22 @@ function renderCamposCategoria() {
       // Tags: input + lista de tags
       var tagWrap = document.createElement("div");
       tagWrap.className = "tags-wrap";
-      tagWrap.style.cssText = "display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px";
+      tagWrap.style.cssText =
+        "display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px";
       var tagArr = Array.isArray(valor) ? valor : [];
       function renderTags() {
         tagWrap.innerHTML = "";
         tagArr.forEach(function (t, i) {
           var tag = document.createElement("span");
           tag.className = "badge";
-          tag.style.cssText = "background:var(--primary-soft);color:var(--primary);padding:4px 10px;border-radius:999px;font-size:12px;display:inline-flex;align-items:center;gap:4px";
+          tag.style.cssText =
+            "background:var(--primary-soft);color:var(--primary);padding:4px 10px;border-radius:999px;font-size:12px;display:inline-flex;align-items:center;gap:4px";
           tag.textContent = t;
           var rm = document.createElement("button");
           rm.type = "button";
           rm.textContent = "×";
-          rm.style.cssText = "background:none;border:none;color:var(--primary);cursor:pointer;font-size:14px;padding:0 2px";
+          rm.style.cssText =
+            "background:none;border:none;color:var(--primary);cursor:pointer;font-size:14px;padding:0 2px";
           rm.addEventListener("click", function () {
             tagArr.splice(i, 1);
             CAMPOS_SALVOS[campo.id] = tagArr;
@@ -774,7 +799,6 @@ function renderCamposCategoria() {
         }
       });
       section.appendChild(tagInput);
-
     } else if (campo.tipo === "select") {
       var sel = document.createElement("select");
       sel.className = "field-input";
@@ -790,10 +814,10 @@ function renderCamposCategoria() {
         CAMPOS_SALVOS[campo.id] = sel.value;
       });
       section.appendChild(sel);
-
     } else if (campo.tipo === "check") {
       var checkWrap = document.createElement("label");
-      checkWrap.style.cssText = "display:flex;align-items:center;gap:8px;cursor:pointer";
+      checkWrap.style.cssText =
+        "display:flex;align-items:center;gap:8px;cursor:pointer";
       var cb = document.createElement("input");
       cb.type = "checkbox";
       cb.checked = !!valor;
@@ -813,7 +837,6 @@ function renderCamposCategoria() {
         section.appendChild(desc2);
       }
       section.appendChild(checkWrap);
-
     } else if (campo.tipo === "textarea") {
       var ta = document.createElement("textarea");
       ta.className = "field-input";
@@ -825,7 +848,6 @@ function renderCamposCategoria() {
         CAMPOS_SALVOS[campo.id] = ta.value;
       });
       section.appendChild(ta);
-
     } else {
       // text (padrão)
       var inp = document.createElement("input");
@@ -842,6 +864,13 @@ function renderCamposCategoria() {
     elCamposCat.appendChild(section);
   });
 }
+
+// ── Render all ──
+renderPrecos();
+renderConvenios();
+renderHorarios();
+renderFaq();
+renderCamposCategoria();
 
 // ── Save ──
 var elStatusSalvar = document.getElementById("status-salvar");
@@ -1230,10 +1259,11 @@ function renderConversas(msgs) {
     });
     var badgePausa = isPausada
       ? '<span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:999px;font-size:10px;margin-left:6px">Pausada</span>'
-      : '';
+      : "";
     div.innerHTML =
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><b style="font-size:14px">' +
-      escapeHtml(telFmt) + badgePausa +
+      escapeHtml(telFmt) +
+      badgePausa +
       '</b><span style="font-size:11px;color:var(--muted)">' +
       escapeHtml(dt) +
       '</span></div><div style="font-size:12.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' +
@@ -1241,62 +1271,69 @@ function renderConversas(msgs) {
       escapeHtml(corpo).replace(/\n/g, " ") +
       '</div><div style="font-size:11px;color:var(--muted);margin-top:2px;display:flex;justify-content:space-between;align-items:center"><span>' +
       conv.msgs.length +
-      ' mensagens</span></div>';
+      " mensagens</span></div>";
     // Botão pausar/retomar
-    var btnWrap = div.querySelector('div:last-child');
-    var btnPausa = document.createElement('button');
-    btnPausa.type = 'button';
-    btnPausa.className = 'btn btn-ghost btn-sm';
-    btnPausa.style.cssText = 'font-size:11px;padding:2px 8px;min-height:auto';
-    btnPausa.textContent = isPausada ? '▶ Retomar' : '⏸ Pausar';
-    btnPausa.setAttribute('aria-label', isPausada ? 'Retomar conversa' : 'Pausar conversa');
-    btnPausa.addEventListener('click', function (ev) {
+    var btnWrap = div.querySelector("div:last-child");
+    var btnPausa = document.createElement("button");
+    btnPausa.type = "button";
+    btnPausa.className = "btn btn-ghost btn-sm";
+    btnPausa.style.cssText = "font-size:11px;padding:2px 8px;min-height:auto";
+    btnPausa.textContent = isPausada ? "▶ Retomar" : "⏸ Pausar";
+    btnPausa.setAttribute(
+      "aria-label",
+      isPausada ? "Retomar conversa" : "Pausar conversa",
+    );
+    btnPausa.addEventListener("click", function (ev) {
       ev.stopPropagation();
-      var acao = isPausada ? 'retomar_conversa' : 'pausar_conversa';
+      var acao = isPausada ? "retomar_conversa" : "pausar_conversa";
       var msg = isPausada
-        ? 'Retomar automação para este paciente?'
-        : 'Pausar automação? Você precisará responder manualmente no WhatsApp.';
+        ? "Retomar automação para este paciente?"
+        : "Pausar automação? Você precisará responder manualmente no WhatsApp.";
       if (!confirm(msg)) return;
       btnPausa.disabled = true;
-      btnPausa.textContent = '…';
-      fetch('/api/clinica/painel-acoes', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      btnPausa.textContent = "…";
+      fetch("/api/clinica/painel-acoes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           acao: acao,
           telefone: conv.telefone,
-          clinica: DADOS.nomeClinica || '',
+          clinica: DADOS.nomeClinica || "",
         }),
       })
-        .then(function (r) { return r.json(); })
+        .then(function (r) {
+          return r.json();
+        })
         .then(function (res) {
           if (res.erro) {
-            alert('Erro: ' + res.erro);
+            alert("Erro: " + res.erro);
             btnPausa.disabled = false;
-            btnPausa.textContent = isPausada ? '▶ Retomar' : '⏸ Pausar';
+            btnPausa.textContent = isPausada ? "▶ Retomar" : "⏸ Pausar";
             return;
           }
           // Atualizar cache local
           if (isPausada) {
-            pausadasCache = pausadasCache.filter(function (t) { return t !== conv.telefone; });
+            pausadasCache = pausadasCache.filter(function (t) {
+              return t !== conv.telefone;
+            });
           } else {
             pausadasCache.push(conv.telefone);
           }
           renderConversas(convCache);
         })
         .catch(function () {
-          alert('Falha de conexão.');
+          alert("Falha de conexão.");
           btnPausa.disabled = false;
-          btnPausa.textContent = isPausada ? '▶ Retomar' : '⏸ Pausar';
+          btnPausa.textContent = isPausada ? "▶ Retomar" : "⏸ Pausar";
         });
     });
     btnWrap.appendChild(btnPausa);
-    div.setAttribute('aria-label', 'Abrir conversa com ' + telFmt);
-    div.addEventListener('click', function () {
+    div.setAttribute("aria-label", "Abrir conversa com " + telFmt);
+    div.addEventListener("click", function () {
       abrirConversa(conv);
     });
-    div.addEventListener('keydown', function (ev) {
-      if (ev.key === 'Enter' || ev.key === ' ') {
+    div.addEventListener("keydown", function (ev) {
+      if (ev.key === "Enter" || ev.key === " ") {
         ev.preventDefault();
         abrirConversa(conv);
       }
