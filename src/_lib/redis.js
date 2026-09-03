@@ -1,5 +1,5 @@
 /**
- * Upstash Redis client via REST API.
+ * Upstash Redis client via @upstash/redis (official SDK).
  *
  * Usado por rate-limit.js para rate limiting global entre instâncias Vercel.
  * Sem esta configuração, o rate limit fica em memória (só protege uma instância).
@@ -10,71 +10,28 @@
  */
 
 let client = null;
+let loading = false;
 
-function getClient() {
+async function getClient() {
   if (client) return client;
+  if (loading) return null;
 
   const url = process.env.UPSTASH_REDIS_REST_URL;
   const token = process.env.UPSTASH_REDIS_REST_TOKEN;
 
   if (!url || !token) return null;
 
-  client = {
-    pipeline() {
-      const cmds = [];
-      return {
-        incr(key) {
-          cmds.push({ cmd: "INCR", args: [key] });
-          return this;
-        },
-        ttl(key) {
-          cmds.push({ cmd: "TTL", args: [key] });
-          return this;
-        },
-        async exec() {
-          const results = [];
-          for (const { cmd, args } of cmds) {
-            const res = await fetch(url + "/pipeline", {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify([{ cmd, args }]),
-            });
-            const data = await res.json();
-            results.push(data?.result?.[0] ?? null);
-          }
-          return results;
-        },
-      };
-    },
-
-    async incr(key) {
-      const res = await fetch(url + "/incr/" + encodeURIComponent(key), {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      return data?.result;
-    },
-
-    async ttl(key) {
-      const res = await fetch(url + "/ttl/" + encodeURIComponent(key), {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      return data?.result;
-    },
-
-    async expire(key, seconds) {
-      const res = await fetch(url + "/expire/" + encodeURIComponent(key) + "/" + seconds, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      return res.ok;
-    },
-  };
-
-  return client;
+  loading = true;
+  try {
+    const { Redis } = await import("@upstash/redis");
+    client = new Redis({ url, token });
+    return client;
+  } catch {
+    return null;
+  } finally {
+    loading = false;
+  }
 }
 
+// Exporta uma Promise que resolve para o cliente ou null
 export const redis = getClient();

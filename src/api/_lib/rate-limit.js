@@ -51,7 +51,8 @@ async function getRedis() {
   }
   try {
     const { redis } = await import("./redis.js");
-    redisClient = redis;
+    // redis é uma Promise (lazy init) — resolver antes de cachear
+    redisClient = await redis;
     return redisClient;
   } catch {
     return null;
