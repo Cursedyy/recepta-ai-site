@@ -246,7 +246,7 @@ async function acaoRetomarConversa(admin, perfil, body) {
 }
 
 // Normaliza para E.164 sem "+", o formato que a tabela conversas ja usa
-// ("5553991635302"). O telefone importa: o cron de lembretes manda WhatsApp
+// ("5511999999999"). O telefone importa: o cron de lembretes manda WhatsApp
 // para paciente_telefone, entao um numero digitado errado vira mensagem para
 // um estranho. Retorna null quando nao da para confiar no que foi digitado.
 export function normalizarTelefone(bruto) {

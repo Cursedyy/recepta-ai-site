@@ -306,7 +306,7 @@ function horaInputBR(dt) {
 var ERROS_AGENDA = {
   data_invalida: "Data e horario precisam estar no futuro.",
   telefone_invalido:
-    "Telefone invalido. Use DDD + numero, ex: (53) 99163-5302.",
+    "Telefone invalido. Use DDD + numero, ex: (11) 99999-9999.",
   nome_muito_longo: "Nome longo demais (maximo 120 caracteres).",
   observacao_muito_longa: "Descricao longa demais (maximo 500 caracteres).",
   horario_ocupado: "Ja existe um agendamento nesse horario.",
@@ -349,7 +349,7 @@ function abrirModalAgendamento(item) {
     ]);
     iTel = el("input", {
       type: "tel",
-      placeholder: "(53) 99163-5302",
+      placeholder: "(11) 99999-9999",
       autocomplete: "off",
     });
     lTel.appendChild(iTel);
@@ -1368,7 +1368,7 @@ function renderConversas(msgs) {
   });
 }
 // Telefone no formato que a clinica reconhece: o banco guarda E.164
-// ("5553991635302"), o painel mostra "(53) 991635302". Estava inline dentro do
+// ("5511999999999"), o painel mostra "(11) 999999999". Estava inline dentro do
 // card; o modal precisa do mesmo rotulo, entao virou funcao.
 function telefoneBonito(tel) {
   var d = String(tel || "").replace(/\D/g, "");

@@ -5,19 +5,19 @@ import { normalizarTelefone } from "./api/clinica/painel-acoes.js";
 
 const casos = [
   // [entrada, esperado]
-  ["(53) 99163-5302", "5553991635302"], // celular digitado com mascara
-  ["53991635302", "5553991635302"], // celular sem mascara
-  ["5553991635302", "5553991635302"], // ja em E.164, nao duplica o 55
-  ["+55 53 99163-5302", "5553991635302"], // com + e espacos
-  ["5332221100", "555332221100"], // fixo 10 digitos
-  ["553332221100", "553332221100"], // fixo ja com 55
+  ["(11) 99999-9999", "5511999999999"], // celular digitado com mascara
+  ["11999999999", "5511999999999"], // celular sem mascara
+  ["5511999999999", "5511999999999"], // ja em E.164, nao duplica o 55
+  ["+55 11 99999-9999", "5511999999999"], // com + e espacos
+  ["1132221100", "551132221100"], // fixo 10 digitos
+  ["551132221100", "551132221100"], // fixo ja com 55
   ["", null], // vazio
   [null, null], // ausente
-  ["991635302", null], // sem DDD
+  ["999999999", null], // sem DDD
   ["1234", null], // curto demais
-  ["55539916353021234", null], // longo demais
-  ["0153991635302", null], // 13 digitos mas nao comeca com 55
-  ["5503991635302", null], // DDD 03 nao existe
+  ["55119999999991234", null], // longo demais
+  ["0119999999999", null], // 13 digitos mas nao comeca com 55
+  ["5503999999999", null], // DDD 03 nao existe
   ["abc", null], // sem digito nenhum
 ];
 
