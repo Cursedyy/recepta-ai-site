@@ -1173,6 +1173,7 @@ var metricasPromise = fetch("/api/clinica/painel-acoes?acao=metricas")
 // anonima. Telefone e mensagens de pacientes de TODAS as clinicas ficavam a um
 // fetch de distancia. Filtro por tenant e' responsabilidade do servidor.
 var convCache = [];
+var pausadasCache = [];
 function carregarConversas() {
   fetch("/api/clinica/painel-acoes?acao=conversas")
     .then(function (r) {
@@ -1185,6 +1186,7 @@ function carregarConversas() {
         return;
       }
       convCache = res.conversas || [];
+      pausadasCache = res.pausadas || [];
       renderConversas(convCache);
     })
     .catch(function () {
@@ -1210,6 +1212,8 @@ function renderConversas(msgs) {
   Object.values(porTel).forEach(function (conv) {
     var div = document.createElement("div");
     div.className = "conv-card";
+    var isPausada = pausadasCache.indexOf(conv.telefone) !== -1;
+    if (isPausada) div.className += " conv-pausada";
     div.setAttribute("role", "button");
     div.setAttribute("tabindex", "0");
     var telFmt = telefoneBonito(conv.telefone);
@@ -1224,23 +1228,75 @@ function renderConversas(msgs) {
       hour: "2-digit",
       minute: "2-digit",
     });
+    var badgePausa = isPausada
+      ? '<span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:999px;font-size:10px;margin-left:6px">Pausada</span>'
+      : '';
     div.innerHTML =
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><b style="font-size:14px">' +
-      escapeHtml(telFmt) +
+      escapeHtml(telFmt) + badgePausa +
       '</b><span style="font-size:11px;color:var(--muted)">' +
       escapeHtml(dt) +
       '</span></div><div style="font-size:12.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' +
       role +
       escapeHtml(corpo).replace(/\n/g, " ") +
-      '</div><div style="font-size:11px;color:var(--muted);margin-top:2px">' +
+      '</div><div style="font-size:11px;color:var(--muted);margin-top:2px;display:flex;justify-content:space-between;align-items:center"><span>' +
       conv.msgs.length +
-      " mensagens</div>";
-    div.setAttribute("aria-label", "Abrir conversa com " + telFmt);
-    div.addEventListener("click", function () {
+      ' mensagens</span></div>';
+    // Botão pausar/retomar
+    var btnWrap = div.querySelector('div:last-child');
+    var btnPausa = document.createElement('button');
+    btnPausa.type = 'button';
+    btnPausa.className = 'btn btn-ghost btn-sm';
+    btnPausa.style.cssText = 'font-size:11px;padding:2px 8px;min-height:auto';
+    btnPausa.textContent = isPausada ? '▶ Retomar' : '⏸ Pausar';
+    btnPausa.setAttribute('aria-label', isPausada ? 'Retomar conversa' : 'Pausar conversa');
+    btnPausa.addEventListener('click', function (ev) {
+      ev.stopPropagation();
+      var acao = isPausada ? 'retomar_conversa' : 'pausar_conversa';
+      var msg = isPausada
+        ? 'Retomar automação para este paciente?'
+        : 'Pausar automação? Você precisará responder manualmente no WhatsApp.';
+      if (!confirm(msg)) return;
+      btnPausa.disabled = true;
+      btnPausa.textContent = '…';
+      fetch('/api/clinica/painel-acoes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          acao: acao,
+          telefone: conv.telefone,
+          clinica: DADOS.nomeClinica || '',
+        }),
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (res) {
+          if (res.erro) {
+            alert('Erro: ' + res.erro);
+            btnPausa.disabled = false;
+            btnPausa.textContent = isPausada ? '▶ Retomar' : '⏸ Pausar';
+            return;
+          }
+          // Atualizar cache local
+          if (isPausada) {
+            pausadasCache = pausadasCache.filter(function (t) { return t !== conv.telefone; });
+          } else {
+            pausadasCache.push(conv.telefone);
+          }
+          renderConversas(convCache);
+        })
+        .catch(function () {
+          alert('Falha de conexão.');
+          btnPausa.disabled = false;
+          btnPausa.textContent = isPausada ? '▶ Retomar' : '⏸ Pausar';
+        });
+    });
+    btnWrap.appendChild(btnPausa);
+    div.setAttribute('aria-label', 'Abrir conversa com ' + telFmt);
+    div.addEventListener('click', function () {
       abrirConversa(conv);
     });
-    div.addEventListener("keydown", function (ev) {
-      if (ev.key === "Enter" || ev.key === " ") {
+    div.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Enter' || ev.key === ' ') {
         ev.preventDefault();
         abrirConversa(conv);
       }

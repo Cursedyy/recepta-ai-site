@@ -491,7 +491,24 @@ async function acaoConversas(admin, perfil) {
     .limit(CONVERSAS_LIMITE);
 
   if (error) return { status: 500, corpo: { erro: "falha_buscar" } };
-  return { status: 200, corpo: { ok: true, conversas: data || [] } };
+
+  // Buscar telefones pausados para marcar na UI
+  const { data: pausadas } = await admin
+    .from("conversas_pausadas")
+    .select("telefone")
+    .eq("clinica", nomeClinica)
+    .eq("pausada", true);
+
+  const pausadasSet = new Set((pausadas || []).map((p) => p.telefone));
+
+  return {
+    status: 200,
+    corpo: {
+      ok: true,
+      conversas: data || [],
+      pausadas: Array.from(pausadasSet),
+    },
+  };
 }
 
 async function acaoListarFeriados(admin, perfil) {

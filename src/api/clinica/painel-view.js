@@ -236,6 +236,8 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
 .conv-card { border: 1.5px solid var(--border); border-radius: var(--radius); padding: 12px 16px; margin-bottom: 8px; cursor: pointer; background: var(--surface); transition: box-shadow 0.2s ease, border-color 0.2s ease; }
 .conv-card:hover { box-shadow: var(--shadow); border-color: #c7d2fe; }
 .conv-card:focus-visible { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
+.conv-pausada { border-color: #fbbf24; background: #fffbeb; }
+.conv-pausada:hover { border-color: #f59e0b; }
 @media (max-width: 768px) {
   .modal-chat { max-height: 92vh; }
   .chat-row { max-width: 88%; }
