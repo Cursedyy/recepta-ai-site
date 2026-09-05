@@ -1,0 +1,35 @@
+$sidebar-width-open: 240px;
+$sidebar-width-closed: 50px;
+$sidebar-color: #ffffff;
+$base-dark-gray: #6b859e;
+$base-middle-gray: #c7d0d9;
+$base-light-gray: #f7f8fb;
+$white: #fff;
+$font-weight-bold: 700;
+$font-weight-normal: 400;
+$font-weight-semi-bold: 600;
+$font-size-lg: 18px;
+$headline-large: 28px;
+
+.helpers {
+  // Re-export helpers from the Sofia React design system where applicable.
+}
+
+@function breakpoint-max($size) {
+  @if $size == xs {
+    @return 576px;
+  }
+  @if $size == sm {
+    @return 767px;
+  }
+  @if $size == md {
+    @return 991px;
+  }
+  @if $size == lg {
+    @return 1199px;
+  }
+  @if $size == xl {
+    @return 1399px;
+  }
+  @return 9999px;
+}

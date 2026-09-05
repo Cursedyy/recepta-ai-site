@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { createSupabaseServerClient } from "../_lib/supabase-server.js";
 import { autenticarClinica } from "../_lib/auth-clinica.js";
+import { configEditavelPadrao } from "../_lib/config-editavel.js";
 import { rateLimit } from "../_lib/rate-limit.js";
 
 const MIN_MINUTOS = 1;
@@ -597,6 +598,58 @@ async function acaoAtualizarPerfil(admin, user, body) {
   return { status: 200, corpo: { ok: true } };
 }
 
+async function acaoConfig(admin, perfil) {
+  const { data: clinicaRow } = await admin
+    .from("clinicas")
+    .select("clinica,config_editavel,tempo_pausa_minutos,status,trial_fim,plano,criado_em")
+    .eq("id", perfil.clinica_id)
+    .maybeSingle();
+
+  if (!clinicaRow) {
+    return { status: 404, corpo: { erro: "clinica_nao_encontrada" } };
+  }
+
+  const padrao = configEditavelPadrao();
+  const configSalvo = clinicaRow.config_editavel || {};
+
+  const config = {
+    precos: Array.isArray(configSalvo.precos)
+      ? configSalvo.precos
+      : padrao.precos,
+    horarios: { ...padrao.horarios, ...(configSalvo.horarios || {}) },
+    convenios: Array.isArray(configSalvo.convenios)
+      ? configSalvo.convenios
+      : padrao.convenios,
+    mensagem_identidade:
+      typeof configSalvo.mensagem_identidade === "string"
+        ? configSalvo.mensagem_identidade
+        : padrao.mensagem_identidade,
+    regras_ia:
+      typeof configSalvo.regras_ia === "string"
+        ? configSalvo.regras_ia
+        : padrao.regras_ia,
+    faq: Array.isArray(configSalvo.faq) ? configSalvo.faq : padrao.faq,
+    campos_extras:
+      configSalvo.campos_extras && typeof configSalvo.campos_extras === "object"
+        ? configSalvo.campos_extras
+        : {},
+  };
+
+  return {
+    status: 200,
+    corpo: {
+      ok: true,
+      nome: clinicaRow.clinica || perfil.nome || "sua clínica",
+      config,
+      tempo_pausa_minutos: clinicaRow.tempo_pausa_minutos || 10,
+      status: clinicaRow.status || null,
+      trial_fim: clinicaRow.trial_fim || null,
+      plano: clinicaRow.plano || null,
+      criado_em: clinicaRow.criado_em || null,
+    },
+  };
+}
+
 async function acaoMetricas(admin, perfil) {
   const { data: clinicaRow } = await admin
     .from("clinicas")
@@ -650,6 +703,10 @@ export default async function handler(req, res) {
 
   if (req.method === "GET") {
     const acao = req.query?.acao;
+    if (acao === "config") {
+      const resultado = await acaoConfig(admin, perfil);
+      return res.status(resultado.status).json(resultado.corpo);
+    }
     if (acao === "metricas") {
       const resultado = await acaoMetricas(admin, perfil);
       return res.status(resultado.status).json(resultado.corpo);

@@ -1,0 +1,35 @@
+@use '../../../styles/helpers' as *;
+
+.auth-page {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: $base-light-gray;
+}
+
+.widget-auth {
+  width: 448px;
+  box-shadow: 4px 4px 16px 0 rgba(77, 83, 224, 0.2);
+
+  @media (max-width: breakpoint-max(xs)) {
+    width: 100vw;
+  }
+}
+
+.auth-header {
+  font-size: $headline-large;
+  font-weight: $font-weight-semi-bold;
+}
+
+.logo-block {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  p {
+    margin-left: 12px;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-bold;
+  }
+}

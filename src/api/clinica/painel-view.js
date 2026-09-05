@@ -47,12 +47,12 @@ function paginaPainel(nomeClinica, config, tempoPausaAtual, assinatura, categori
 <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/clinica/painel.css">
 <style>
 :root {
   --bg: #f8fafc; --surface: #ffffff; --ink: #0f172a; --muted: #64748b;
-  --border: #e2e8f0; --accent: #0f172a; --accent-soft: #f1f5f9;
+  --border: #e2e8f0;  --accent: #151749; --accent-soft: #f1f5f9;
   --primary: #4f46e5; --primary-hover: #4338ca; --primary-soft: #eef2ff;
   --green: #059669; --green-bg: #ecfdf5; --red: #dc2626; --red-bg: #fef2f2;
   --orange: #ea580c; --orange-bg: #fff7ed;
@@ -65,7 +65,7 @@ function paginaPainel(nomeClinica, config, tempoPausaAtual, assinatura, categori
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; overflow: hidden; }
-body { font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: var(--ink); font-size: 14px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+body { font-family: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: var(--bg); color: var(--ink); font-size: 14px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
 button, input, textarea, select { font: inherit; }
 
 /* ── Topbar ── */
@@ -87,7 +87,8 @@ button, input, textarea, select { font: inherit; }
 .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 14px; border-radius: var(--radius); cursor: pointer; font-size: 13px; font-weight: 500; color: var(--muted); transition: all 0.15s ease; border: none; background: none; width: 100%; text-align: left; text-decoration: none; }
 .nav-item:hover { background: var(--accent-soft); color: var(--ink); }
 .nav-item.active { background: var(--primary); color: #fff; box-shadow: 0 2px 8px rgba(79,70,229,0.3); }
-.nav-item .icon { width: 20px; text-align: center; font-size: 15px; flex-shrink: 0; }
+.nav-item .icon { width: 20px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 15px; }
+.nav-item .icon svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; fill: none; }
 .sidebar-footer { margin-top: auto; padding: 12px; border-top: 1px solid var(--border); }
 
 /* ── Content ── */
@@ -163,6 +164,13 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
 .ag-obs { font-size: 12px; color: var(--muted); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ag-actions { display: flex; gap: 6px; }
 .vazio { color: var(--muted); font-size: 13px; font-style: italic; padding: 12px 0; }
+
+/* ── Empty states ── */
+.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 48px 24px; }
+.empty-state-icon { width: 40px; height: 40px; color: var(--border); margin-bottom: 16px; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; fill: none; }
+.empty-state-title { font-size: 15px; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+.empty-state-desc { font-size: 13px; color: var(--muted); max-width: 320px; line-height: 1.5; margin-bottom: 16px; }
+.empty-state .btn { font-size: 13px; }
 
 /* ── FAQ items ── */
 .faq-item { border: 1.5px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 10px; background: var(--surface); transition: border-color 0.2s; }
@@ -291,22 +299,22 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
 <div class="layout">
   <nav class="sidebar">
     <div class="sidebar-section">Clínica</div>
-    <button class="nav-item active" data-tab="agenda"><span class="icon">📋</span><span>Agenda</span></button>
-    <button class="nav-item" data-tab="horarios"><span class="icon">🕐</span><span>Horários</span></button>
-    <button class="nav-item" data-tab="precos"><span class="icon">💰</span><span>Preços</span></button>
-    <button class="nav-item" data-tab="procedimentos" id="nav-procedimentos" style="display:none"><span class="icon">⚙️</span><span id="nav-procedimentos-label">Procedimentos</span></button>
-    <button class="nav-item" data-tab="convenios"><span class="icon">🏥</span><span>Convênios</span></button>
+    <button class="nav-item active" data-tab="agenda"><span class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span>Agenda</span></button>
+    <button class="nav-item" data-tab="horarios"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span><span>Horários</span></button>
+    <button class="nav-item" data-tab="precos"><span class="icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span>Preços</span></button>
+    <button class="nav-item" data-tab="procedimentos" id="nav-procedimentos" style="display:none"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span id="nav-procedimentos-label">Procedimentos</span></button>
+    <button class="nav-item" data-tab="convenios"><span class="icon"><svg viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9v.01"/><path d="M9 12v.01"/><path d="M9 15v.01"/><path d="M9 18v.01"/></svg></span><span>Convênios</span></button>
     <div class="sidebar-section">Recepta</div>
-    <a class="nav-item" href="/clinica/conectar"><span class="icon">📱</span><span>Conectar WhatsApp</span></a>
-    <button class="nav-item" data-tab="mensagem"><span class="icon">💬</span><span>Mensagem</span></button>
-    <button class="nav-item" data-tab="regras"><span class="icon">⚙️</span><span>Regras</span></button>
-    <button class="nav-item" data-tab="faq"><span class="icon">❓</span><span>FAQ</span></button>
-    <button class="nav-item" data-tab="conversas"><span class="icon">🗨️</span><span>Conversas</span></button>
+    <a class="nav-item" href="/clinica/conectar"><span class="icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span><span>Conectar WhatsApp</span></a>
+    <button class="nav-item" data-tab="mensagem"><span class="icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span>Mensagem</span></button>
+    <button class="nav-item" data-tab="regras"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span>Regras</span></button>
+    <button class="nav-item" data-tab="faq"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><span>FAQ</span></button>
+    <button class="nav-item" data-tab="conversas"><span class="icon"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span><span>Conversas</span></button>
     <div class="sidebar-section">Conta</div>
-    <button class="nav-item" data-tab="pausa"><span class="icon">⏸️</span><span>Pausa</span></button>
-    <button class="nav-item" data-tab="perfil"><span class="icon">👤</span><span>Perfil</span></button>
-    <button class="nav-item" data-tab="feriados"><span class="icon">📅</span><span>Feriados</span></button>
-    <button class="nav-item" data-tab="status"><span class="icon">📊</span><span>Status</span></button>
+    <button class="nav-item" data-tab="pausa"><span class="icon"><svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg></span><span>Pausa</span></button>
+    <button class="nav-item" data-tab="perfil"><span class="icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span><span>Perfil</span></button>
+    <button class="nav-item" data-tab="feriados"><span class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="10" y1="14" x2="14" y2="14"/></svg></span><span>Feriados</span></button>
+    <button class="nav-item" data-tab="status"><span class="icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span><span>Status</span></button>
   </nav>
 
   <div class="content">

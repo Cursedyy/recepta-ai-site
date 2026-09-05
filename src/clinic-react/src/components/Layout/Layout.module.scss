@@ -1,0 +1,27 @@
+@use '../../styles/helpers' as *;
+
+.root {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: $sidebar-width-open;
+  background: $sidebar-color;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.main {
+  margin-left: $sidebar-width-open;
+  flex: 1;
+  padding: 24px;
+}
+
+@media (max-width: breakpoint-max(sm)) {
+  .main {
+    margin-left: 0;
+  }
+}

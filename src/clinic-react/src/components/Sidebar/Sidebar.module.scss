@@ -1,0 +1,69 @@
+@use '../styles/helpers' as *;
+
+.root {
+  width: $sidebar-width-open;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  padding-left: 16px;
+  background-color: $sidebar-color;
+  overflow-y: auto;
+
+  &:global(.sidebar-hide) {
+    display: none;
+  }
+
+  @media (max-width: breakpoint-max(sm)) {
+    position: static !important;
+    width: auto;
+    margin: 12px 24px 0;
+    border-radius: 8px;
+    padding: 0;
+    height: 0;
+    transform: none;
+
+    .logo,
+    .sidebarAlerts,
+    .sidebarLabels,
+    .navTitle {
+      display: none;
+    }
+  }
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  margin: 16px 0 24px;
+  width: 100%;
+}
+
+.logo .title {
+  margin-left: 12px;
+  font-size: 20px;
+  font-weight: $font-weight-bold;
+  text-transform: uppercase;
+}
+
+.nav {
+  padding-bottom: 10px;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  li > a > span {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.navTitle {
+  margin: 32px 0 8px;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-normal;
+  color: $base-dark-gray;
+  text-transform: uppercase;
+}

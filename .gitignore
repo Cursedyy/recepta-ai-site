@@ -13,3 +13,4 @@ src/screenshots/
 
 # arquivo de outro projeto (risco XSS)
 support.js
+.agentsroom/fork-context-*.txt
