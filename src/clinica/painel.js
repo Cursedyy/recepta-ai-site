@@ -1388,6 +1388,48 @@ function telefoneBonito(tel) {
 
 // Midia chega como JSON com mimetype, nao como texto. Sem isso o balao mostra
 // o JSON cru (com o base64 junto, quando a midia vem inline).
+function detectarMidia(t) {
+  try {
+    var o = JSON.parse(t);
+    if (!o || typeof o !== "object") return null;
+    var m = o.mimetype || o.mimeType;
+    var u = o.URL || o.url;
+    if (!m && !u) return null;
+    var r = {};
+    if (m) {
+      if (m.indexOf("audio") === 0) { r.tipo = "audio"; r.icone = "🎤"; r.label = "Áudio" + (o.seconds ? " · " + Math.round(o.seconds) + "s" : ""); }
+      else if (o.isSticker === true || m === "image/webp") { r.tipo = "sticker"; r.icone = "🏷"; r.label = "Sticker"; }
+      else if (m.indexOf("image") === 0) { r.tipo = "imagem"; r.icone = "🖼"; r.label = "Imagem"; }
+      else if (m.indexOf("video") === 0) { r.tipo = "video"; r.icone = "🎬"; r.label = "Vídeo"; }
+      else { r.tipo = "documento"; r.icone = "📎"; r.label = "Documento"; }
+    } else { r.tipo = "documento"; r.icone = "📎"; r.label = "Mídia"; }
+    if (u) r.url = u;
+    return r;
+  } catch (e) { return null; }
+}
+
+function criarMidiaElement(midia) {
+  if (midia.tipo === "imagem" && midia.url) {
+    var wrap = el("div", { style: "margin-bottom:4px" });
+    wrap.appendChild(el("img", { src: midia.url, alt: "Imagem", style: "max-width:260px;max-height:300px;border-radius:8px;display:block" }));
+    wrap.appendChild(el("span", { class: "chip-midia", text: midia.icone + " " + midia.label }));
+    return wrap;
+  }
+  if (midia.tipo === "video" && midia.url) {
+    var vw = el("div", { style: "margin-bottom:4px" });
+    vw.appendChild(el("video", { src: midia.url, muted: true, preload: "metadata", style: "max-width:260px;max-height:300px;border-radius:8px;display:block" }));
+    vw.appendChild(el("span", { class: "chip-midia", text: midia.icone + " " + midia.label }));
+    return vw;
+  }
+  if (midia.tipo === "audio" && midia.url) {
+    var aw = el("div", { style: "margin-bottom:4px" });
+    aw.appendChild(el("audio", { src: midia.url, controls: true, preload: "metadata", style: "width:100%;max-width:260px;display:block" }));
+    aw.appendChild(el("span", { class: "chip-midia", text: midia.icone + " " + midia.label }));
+    return aw;
+  }
+  return el("span", { class: "chip-midia", text: midia.icone + " " + midia.label });
+}
+
 function textoMensagem(bruto) {
   var corpo = bruto || "";
   try {
@@ -1398,7 +1440,9 @@ function textoMensagem(bruto) {
           ? "🎤 Áudio"
           : o.mimetype.indexOf("image") >= 0
             ? "🖼 Imagem"
-            : "📎 Documento";
+            : o.mimetype.indexOf("video") >= 0
+              ? "🎬 Vídeo"
+              : "📎 Documento";
   } catch (e) {}
   return corpo;
 }
@@ -1461,7 +1505,7 @@ function abrirConversa(conv) {
             class: "chat-autor",
             text: ehIa ? "Recepta" : "Paciente",
           }),
-          el("div", { class: "chat-bubble", text: textoMensagem(m.mensagem) }),
+          (function(){ var midia=detectarMidia(m.mensagem||""); if(midia) return el("div",{class:"chat-bubble"},[criarMidiaElement(midia)]); return el("div",{class:"chat-bubble",text:textoMensagem(m.mensagem)}); })(),
           el("span", {
             class: "chat-hora",
             text: d.toLocaleTimeString("pt-BR", {
