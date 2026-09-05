@@ -3,7 +3,28 @@ import { fetchConversas } from '../../api/painel';
 import s from '../admin/Admin.module.scss';
 
 /* ── Media detection (ported from vanilla JS panel) ── */
-function detectarMidia(text) {
+function detectarMidia(text, mediaJson) {
+  // First check dedicated media column (new format)
+  if (mediaJson && typeof mediaJson === 'object') {
+    const m = mediaJson.mimetype || mediaJson.mimeType;
+    const u = mediaJson.URL || mediaJson.url;
+    if (m || u) {
+      if (String(m).startsWith('audio')) {
+        return { tipo: 'audio', icone: '🎤', label: 'Áudio' + (mediaJson.seconds ? ' · ' + Math.round(mediaJson.seconds) + 's' : ''), url: u || null };
+      }
+      if (mediaJson.isSticker === true || String(m) === 'image/webp') {
+        return { tipo: 'sticker', icone: '🏷️', label: 'Sticker', url: u || null };
+      }
+      if (String(m).startsWith('image')) {
+        return { tipo: 'imagem', icone: '🖼️', label: 'Imagem', url: u || null };
+      }
+      if (String(m).startsWith('video')) {
+        return { tipo: 'video', icone: '🎬', label: 'Vídeo', url: u || null };
+      }
+      return { tipo: 'documento', icone: '📎', label: 'Documento', url: u || null };
+    }
+  }
+  // Fallback: parse JSON from mensagem text (legacy format)
   try {
     const o = JSON.parse(text);
     if (!o || typeof o !== 'object') return null;
@@ -116,7 +137,7 @@ function EditableName({ telefone, nomeInicial, onSave }) {
 
 /* ── Chat Bubble ── */
 function ChatBubble({ msg }) {
-  const midia = detectarMidia(msg.mensagem);
+  const midia = detectarMidia(msg.mensagem, msg.mensagem_media);
   const isIa = msg.role === 'ia';
 
   return (
@@ -256,7 +277,7 @@ export default function Conversas() {
   function getPreview(msgs) {
     const ultima = msgs[msgs.length - 1];
     if (!ultima) return '—';
-    const midia = detectarMidia(ultima.mensagem);
+    const midia = detectarMidia(ultima.mensagem, ultima.mensagem_media);
     if (midia) return midia.icone + ' ' + midia.label;
     return ultima.mensagem || '—';
   }

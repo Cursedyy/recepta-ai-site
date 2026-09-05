@@ -1283,7 +1283,8 @@ function renderConversas(msgs) {
     var telFmt = telefoneBonito(conv.telefone);
     var ult = conv.msgs[0];
     var role = ult.role === "ia" ? "Recepta: " : "Paciente: ";
-    var corpo = textoMensagem(ult.mensagem);
+    var corpoMidia = detectarMidia(ult.mensagem, ult.mensagem_media);
+    var corpo = corpoMidia ? corpoMidia.icone + ' ' + corpoMidia.label : textoMensagem(ult.mensagem);
     if (corpo.length > 80) corpo = corpo.slice(0, 80) + "…";
     var dt = new Date(ult.criado_em).toLocaleString("pt-BR", {
       timeZone: "America/Sao_Paulo",
@@ -1388,7 +1389,23 @@ function telefoneBonito(tel) {
 
 // Midia chega como JSON com mimetype, nao como texto. Sem isso o balao mostra
 // o JSON cru (com o base64 junto, quando a midia vem inline).
-function detectarMidia(t) {
+function detectarMidia(t, mediaJson) {
+  if (mediaJson && typeof mediaJson === "object") {
+    var m = mediaJson.mimetype || mediaJson.mimeType;
+    var u = mediaJson.URL || mediaJson.url;
+    if (m || u) {
+      var r = {};
+      if (m) {
+        if (m.indexOf("audio") === 0) { r.tipo = "audio"; r.icone = "🎤"; r.label = "Áudio" + (mediaJson.seconds ? " · " + Math.round(mediaJson.seconds) + "s" : ""); }
+        else if (mediaJson.isSticker === true || m === "image/webp") { r.tipo = "sticker"; r.icone = "🏷"; r.label = "Sticker"; }
+        else if (m.indexOf("image") === 0) { r.tipo = "imagem"; r.icone = "🖼"; r.label = "Imagem"; }
+        else if (m.indexOf("video") === 0) { r.tipo = "video"; r.icone = "🎬"; r.label = "Vídeo"; }
+        else { r.tipo = "documento"; r.icone = "📎"; r.label = "Documento"; }
+      } else { r.tipo = "documento"; r.icone = "📎"; r.label = "Mídia"; }
+      if (u) r.url = u;
+      return r;
+    }
+  }
   try {
     var o = JSON.parse(t);
     if (!o || typeof o !== "object") return null;
@@ -1411,20 +1428,29 @@ function detectarMidia(t) {
 function criarMidiaElement(midia) {
   if (midia.tipo === "imagem" && midia.url) {
     var wrap = el("div", { style: "margin-bottom:4px" });
-    wrap.appendChild(el("img", { src: midia.url, alt: "Imagem", style: "max-width:260px;max-height:300px;border-radius:8px;display:block" }));
-    wrap.appendChild(el("span", { class: "chip-midia", text: midia.icone + " " + midia.label }));
+    var img = el("img", { src: midia.url, alt: "Imagem", style: "max-width:260px;max-height:300px;border-radius:8px;display:block" });
+    var chip = el("span", { class: "chip-midia", text: midia.icone + " " + midia.label });
+    img.onerror = function() { this.style.display = 'none'; chip.textContent = '⏰ Mídia expirada'; };
+    wrap.appendChild(img);
+    wrap.appendChild(chip);
     return wrap;
   }
   if (midia.tipo === "video" && midia.url) {
     var vw = el("div", { style: "margin-bottom:4px" });
-    vw.appendChild(el("video", { src: midia.url, muted: true, preload: "metadata", style: "max-width:260px;max-height:300px;border-radius:8px;display:block" }));
-    vw.appendChild(el("span", { class: "chip-midia", text: midia.icone + " " + midia.label }));
+    var vid = el("video", { src: midia.url, muted: true, preload: "metadata", style: "max-width:260px;max-height:300px;border-radius:8px;display:block" });
+    var vchip = el("span", { class: "chip-midia", text: midia.icone + " " + midia.label });
+    vid.onerror = function() { this.style.display = 'none'; vchip.textContent = '⏰ Mídia expirada'; };
+    vw.appendChild(vid);
+    vw.appendChild(vchip);
     return vw;
   }
   if (midia.tipo === "audio" && midia.url) {
     var aw = el("div", { style: "margin-bottom:4px" });
-    aw.appendChild(el("audio", { src: midia.url, controls: true, preload: "metadata", style: "width:100%;max-width:260px;display:block" }));
-    aw.appendChild(el("span", { class: "chip-midia", text: midia.icone + " " + midia.label }));
+    var aud = el("audio", { src: midia.url, controls: true, preload: "metadata", style: "width:100%;max-width:260px;display:block" });
+    var achip = el("span", { class: "chip-midia", text: midia.icone + " " + midia.label });
+    aud.onerror = function() { this.style.display = 'none'; achip.textContent = '⏰ Mídia expirada'; };
+    aw.appendChild(aud);
+    aw.appendChild(achip);
     return aw;
   }
   return el("span", { class: "chip-midia", text: midia.icone + " " + midia.label });
@@ -1505,7 +1531,7 @@ function abrirConversa(conv) {
             class: "chat-autor",
             text: ehIa ? "Recepta" : "Paciente",
           }),
-          (function(){ var midia=detectarMidia(m.mensagem||""); if(midia) return el("div",{class:"chat-bubble"},[criarMidiaElement(midia)]); return el("div",{class:"chat-bubble",text:textoMensagem(m.mensagem)}); })(),
+          (function(){ var midia=detectarMidia(m.mensagem||"",m.mensagem_media); if(midia) return el("div",{class:"chat-bubble"},[criarMidiaElement(midia)]); return el("div",{class:"chat-bubble",text:textoMensagem(m.mensagem)}); })(),
           el("span", {
             class: "chat-hora",
             text: d.toLocaleTimeString("pt-BR", {

@@ -486,7 +486,7 @@ async function acaoConversas(admin, perfil) {
 
   const { data, error } = await admin
     .from("conversas")
-    .select("id,telefone,clinica,role,mensagem,criado_em,nome_cliente")
+    .select("id,telefone,clinica,role,mensagem,mensagem_media,criado_em,nome_cliente")
     .eq("clinica", nomeClinica)
     .order("criado_em", { ascending: false })
     .limit(CONVERSAS_LIMITE);
