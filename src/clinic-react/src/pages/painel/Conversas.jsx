@@ -61,12 +61,14 @@ function formatarHora(iso) {
 }
 
 /* ── Inline Editable Name ── */
-function EditableName({ telefone, onSave }) {
+function EditableName({ telefone, nomeInicial, onSave }) {
   const [editing, setEditing] = useState(false);
-  const [name, setName] = useState(() => {
-    try { return localStorage.getItem(`conv-name-${telefone}`) || ''; } catch { return ''; }
-  });
+  const [name, setName] = useState(nomeInicial || '');
   const inputRef = useRef(null);
+
+  useEffect(() => {
+    setName(nomeInicial || '');
+  }, [nomeInicial]);
 
   useEffect(() => {
     if (editing && inputRef.current) {
@@ -77,13 +79,6 @@ function EditableName({ telefone, onSave }) {
 
   const save = () => {
     const trimmed = name.trim();
-    try {
-      if (trimmed) {
-        localStorage.setItem(`conv-name-${telefone}`, trimmed);
-      } else {
-        localStorage.removeItem(`conv-name-${telefone}`);
-      }
-    } catch {}
     setEditing(false);
     onSave?.(trimmed);
   };
@@ -99,7 +94,7 @@ function EditableName({ telefone, onSave }) {
         onBlur={save}
         onKeyDown={(e) => {
           if (e.key === 'Enter') save();
-          if (e.key === 'Escape') { setName(name); setEditing(false); }
+          if (e.key === 'Escape') { setName(nomeInicial || ''); setEditing(false); }
         }}
         placeholder="Nome do paciente…"
         maxLength={60}
@@ -134,17 +129,17 @@ function ChatBubble({ msg }) {
           <div className={s.midiaChip}>
             {midia.tipo === 'imagem' && midia.url ? (
               <a href={midia.url} target="_blank" rel="noopener noreferrer" className={s.midiaLink}>
-                <img src={midia.url} alt="Imagem" className={s.midiaThumb} />
+                <img src={midia.url} alt="Imagem" className={s.midiaThumb} onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.textContent = '⏰ Mídia expirada'; }} />
                 <span className={s.midiaLabel}>{midia.icone} {midia.label}</span>
               </a>
             ) : midia.tipo === 'video' && midia.url ? (
               <a href={midia.url} target="_blank" rel="noopener noreferrer" className={s.midiaLink}>
-                <video src={midia.url} className={s.midiaThumb} muted preload="metadata" />
+                <video src={midia.url} className={s.midiaThumb} muted preload="metadata" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.textContent = '⏰ Mídia expirada'; }} />
                 <span className={s.midiaLabel}>{midia.icone} {midia.label}</span>
               </a>
             ) : midia.tipo === 'audio' && midia.url ? (
               <div className={s.midiaAudio}>
-                <audio src={midia.url} controls className={s.audioPlayer} preload="metadata" />
+                <audio src={midia.url} controls className={s.audioPlayer} preload="metadata" onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.textContent = '⏰ Mídia expirada'; }} />
                 <span className={s.midiaLabel}>{midia.icone} {midia.label}</span>
               </div>
             ) : (
@@ -190,15 +185,11 @@ export default function Conversas() {
     return () => { mounted = false; };
   }, []);
 
-  // Load custom names from localStorage
+  // Build name map from nome_cliente in the conversation data
   useEffect(() => {
-    const tels = [...new Set(conversas.map(c => c.telefone))];
     const nomes = {};
-    tels.forEach(tel => {
-      try {
-        const n = localStorage.getItem(`conv-name-${tel}`);
-        if (n) nomes[tel] = n;
-      } catch {}
+    conversas.forEach(c => {
+      if (c.nome_cliente) nomes[c.telefone] = c.nome_cliente;
     });
     setNomesCustomizados(nomes);
   }, [conversas]);
@@ -208,7 +199,7 @@ export default function Conversas() {
     const q = busca.toLowerCase();
     return conversas.filter(
       (c) => {
-        const nome = nomesCustomizados[c.telefone] || '';
+        const nome = c.nome_cliente || nomesCustomizados[c.telefone] || '';
         return c.telefone?.includes(q) ||
           c.mensagem?.toLowerCase().includes(q) ||
           nome.toLowerCase().includes(q);
@@ -242,12 +233,24 @@ export default function Conversas() {
   }, [telefoneSelecionado, thread.length]);
 
   const handleNameSave = useCallback((tel, newName) => {
-    setNomesCustomizados(prev => {
-      const next = { ...prev };
-      if (newName) next[tel] = newName;
-      else delete next[tel];
-      return next;
-    });
+    fetch('/api/clinica/painel-acoes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ acao: 'salvar_nome_cliente', telefone: tel, nome: newName }),
+    }).then(r => r.json()).then(res => {
+      if (res.ok) {
+        setNomesCustomizados(prev => {
+          const next = { ...prev };
+          if (newName) next[tel] = newName;
+          else delete next[tel];
+          return next;
+        });
+        // Refresh to get updated nome_cliente from backend
+        fetchConversas().then(result => {
+          if (result.ok) setConversas(result.body.conversas || []);
+        });
+      }
+    }).catch(() => {});
   }, []);
 
   function getPreview(msgs) {
@@ -288,7 +291,7 @@ export default function Conversas() {
           ) : (
             porTelefone.map(([tel, msgs]) => {
               const isPausada = pausadas.includes(tel);
-              const nomeCustom = nomesCustomizados[tel];
+              const nomeCustom = msgs[msgs.length - 1]?.nome_cliente || nomesCustomizados[tel] || '';
               return (
                 <div
                   key={tel}
@@ -302,7 +305,8 @@ export default function Conversas() {
                     <div style={{ minWidth: 0 }}>
                       <div style={{ fontWeight: 600, fontSize: '13px', display: 'flex', alignItems: 'center', gap: 6 }}>
                         {nomeCustom && <span style={{ fontSize: '11px' }}>👤</span>}
-                        {nomeCustom || formatarTelefone(tel)}
+                        <span>{nomeCustom || formatarTelefone(tel)}</span>
+                        {nomeCustom && <span style={{ fontWeight: 400, fontSize: '12px', color: '#94a3b8' }}> · {formatarTelefone(tel)}</span>}
                       </div>
                       <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px', maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {getPreview(msgs)}
@@ -330,6 +334,7 @@ export default function Conversas() {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <EditableName
                   telefone={telefoneSelecionado}
+                  nomeInicial={nomesCustomizados[telefoneSelecionado] || ''}
                   onSave={(name) => handleNameSave(telefoneSelecionado, name)}
                 />
                 <p className="modal-sub">{thread.length} mensagens</p>

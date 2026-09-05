@@ -486,7 +486,7 @@ async function acaoConversas(admin, perfil) {
 
   const { data, error } = await admin
     .from("conversas")
-    .select("id,telefone,clinica,role,mensagem,criado_em")
+    .select("id,telefone,clinica,role,mensagem,criado_em,nome_cliente")
     .eq("clinica", nomeClinica)
     .order("criado_em", { ascending: false })
     .limit(CONVERSAS_LIMITE);
@@ -596,6 +596,67 @@ async function acaoAtualizarPerfil(admin, user, body) {
   if (erros.length)
     return { status: 400, corpo: { erro: "erros", detalhes: erros } };
   return { status: 200, corpo: { ok: true } };
+}
+
+const MAX_NOME_CLIENTE = 120;
+
+async function acaoSalvarNomeCliente(admin, perfil, body) {
+  const telefone = body?.telefone;
+  const nome = body?.nome;
+  if (!telefone)
+    return { status: 400, corpo: { erro: "telefone_obrigatorio" } };
+
+  const nomeTrim = typeof nome === "string" ? nome.trim() : "";
+  if (nomeTrim.length > MAX_NOME_CLIENTE)
+    return { status: 400, corpo: { erro: "nome_muito_longo" } };
+
+  const nomeClinica = await resolverNomeClinica(admin, perfil);
+  if (!nomeClinica)
+    return { status: 403, corpo: { erro: "sem_permissao" } };
+
+  const valorNome = nomeTrim || null;
+
+  // Atualizar todas as mensagens dessa conversa com o nome do paciente
+  const { error } = await admin
+    .from("conversas")
+    .update({ nome_cliente: valorNome })
+    .eq("telefone", telefone)
+    .eq("clinica", nomeClinica);
+
+  if (error) {
+    console.error("salvar_nome_cliente_erro", error.message);
+    return { status: 500, corpo: { erro: "falha_salvar" } };
+  }
+
+  return { status: 200, corpo: { ok: true, nome: valorNome } };
+}
+
+async function acaoBuscarSugestaoNome(admin, perfil, query) {
+  const telefone = query?.telefone;
+  if (!telefone)
+    return { status: 400, corpo: { erro: "telefone_obrigatorio" } };
+
+  // Buscar nome mais recente na tabela agendamentos
+  const { data, error } = await admin
+    .from("agendamentos")
+    .select("paciente_nome")
+    .eq("clinica_id", perfil.clinica_id)
+    .eq("paciente_telefone", telefone)
+    .not("paciente_nome", "is", null)
+    .neq("paciente_nome", "")
+    .order("criado_em", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) {
+    console.error("buscar_sugestao_nome_erro", error.message);
+    return { status: 500, corpo: { erro: "falha_buscar" } };
+  }
+
+  return {
+    status: 200,
+    corpo: { ok: true, nome: data?.paciente_nome || null },
+  };
 }
 
 async function acaoConfig(admin, perfil) {
@@ -723,6 +784,10 @@ export default async function handler(req, res) {
       const resultado = await acaoConversas(admin, perfil);
       return res.status(resultado.status).json(resultado.corpo);
     }
+    if (acao === "sugestao_nome") {
+      const resultado = await acaoBuscarSugestaoNome(admin, perfil, req.query);
+      return res.status(resultado.status).json(resultado.corpo);
+    }
     if (acao === "feriados") {
       const resultado = await acaoListarFeriados(admin, perfil);
       return res.status(resultado.status).json(resultado.corpo);
@@ -793,6 +858,10 @@ export default async function handler(req, res) {
     }
     if (body?.acao === "atualizar_perfil") {
       const resultado = await acaoAtualizarPerfil(admin, perfil, body);
+      return res.status(resultado.status).json(resultado.corpo);
+    }
+    if (body?.acao === "salvar_nome_cliente") {
+      const resultado = await acaoSalvarNomeCliente(admin, perfil, body);
       return res.status(resultado.status).json(resultado.corpo);
     }
     return res.status(400).json({ erro: "acao_invalida" });
