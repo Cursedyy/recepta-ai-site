@@ -1,19 +1,17 @@
 # Plano — Agenda via Google Sheets + n8n
 
-> **DESATUALIZADO — corrigido em 2026-08-25 por auditoria ao vivo na instância n8n.**
-> O texto abaixo diz que "nada disso foi implementado ainda". Isso é falso desde 16/08.
-> Estado real, conferido via API:
-> - `Criar Agendamento` (`DxCGAEmTMS6sU1qK`), `Cancelar Agendamento` (`elFchoRzp2dzbweH`)
->   e `Lembretes de Consulta` (`sJzrlremPGkjZDxO`) **existem e estão ativos**.
-> - **`Verificar Disponibilidade` NÃO existe.** O `Verificar Conflito` dentro do
->   Criar Agendamento só checa colisão no insert; não lista nem oferece horário livre.
-> - O workflow de Atendimento **não tem nenhum node de tool** (é `Montar Prompt` ->
->   HTTP `Chamar Claude`). Criar/Cancelar só têm `executeWorkflowTrigger` e **nada os
->   invoca**: são código vivo que ninguém chama.
-> - Conclusão: o modo "Recepta confirma o horário sozinha" **não é executável hoje** — falta
->   wiring e falta listagem de disponibilidade, não falta planilha.
+> **⚠️ SUPERSEDED — a integração de agenda está EM PRODUÇÃO desde esta semana (início de setembro/2026).**
+> Não usar este documento como referência de estado. Estado atual, implantado e testado:
+> - O workflow **Atendimento** (`cxn5FxUNMJmlJ1WJ`) chama **Criar Agendamento** (`DxCGAEmTMS6sU1qK`),
+>   que checa conflito, valida data no passado, grava em `agendamentos`
+>   (com `paciente_nome` e `observacao`) e escreve na planilha.
+> - Lembretes de 24h e 3h funcionam com timezone correto.
+> - O banner anterior deste arquivo ("corrigido em 2026-08-25", que dizia que os workflows
+>   "não são invocados por nada" e que o modo "Recepta confirma sozinha" não era executável)
+>   ficou desatualizado: esse modo está no ar.
 >
-> Ler o restante como histórico de planejamento, não como estado atual.
+> Ler o restante como histórico de planejamento, nunca como estado atual.
+> Estado real do sistema: verificar no n8n e no Supabase, não em PRD.
 
 Schema Supabase já existe (`003_agenda.sql`): `clinicas.spreadsheet_id`, `clinicas.config_agenda`, tabela `agendamentos`. Este plano cobre o resto: planilha, service account, workflows n8n. Nada disso foi implementado ainda — é plano, pra revisão antes de construir.
 
