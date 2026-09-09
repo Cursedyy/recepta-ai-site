@@ -954,7 +954,7 @@
       .cat-clear { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 28px; height: 28px; border-radius: 50%; border: none; background: var(--line); color: var(--muted); font-size: 14px; cursor: pointer; display: none; align-items: center; justify-content: center; transition: all 0.15s; }
       .cat-clear:hover { background: var(--err-soft); color: var(--err); }
       .cat-clear.show { display: flex; }
-      .cat-dropdown { position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: var(--surface); border: 1.5px solid var(--line); border-radius: var(--radius-sm); box-shadow: var(--shadow-lg); max-height: 380px; overflow-y: auto; z-index: 9999; display: none; }
+      .cat-dropdown { position: fixed; background: var(--surface); border: 1.5px solid var(--line); border-radius: var(--radius-sm); box-shadow: var(--shadow-lg); max-height: 380px; overflow-y: auto; z-index: 9999; display: none; }
       .cat-dropdown.open { display: block; animation: dropIn 0.2s ease; }
       @keyframes dropIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
       .cat-group-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); padding: 12px 14px 6px; background: var(--bg); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 1; }
@@ -1796,6 +1796,30 @@
         var hiddenEl = document.getElementById("categoria");
         var wrap = searchEl ? searchEl.closest(".cat-search-wrap") : null;
         if (!searchEl) return;
+        document.body.appendChild(dd);
+
+        var DD_GAP = 6;
+        var DD_MARGIN = 12;
+        var DD_MAX = 380;
+        var DD_MIN = 140;
+        function placeDD() {
+          if (!dd.classList.contains("open")) return;
+          var r = searchEl.getBoundingClientRect();
+          var below = window.innerHeight - r.bottom - DD_GAP - DD_MARGIN;
+          var above = r.top - DD_GAP - DD_MARGIN;
+          var flip = below < DD_MIN && above > below;
+          dd.style.left = r.left + "px";
+          dd.style.width = r.width + "px";
+          dd.style.maxHeight = Math.max(DD_MIN, Math.min(DD_MAX, flip ? above : below)) + "px";
+          if (flip) {
+            dd.style.top = "auto";
+            dd.style.bottom = window.innerHeight - r.top + DD_GAP + "px";
+          } else {
+            dd.style.bottom = "auto";
+            dd.style.top = r.bottom + DD_GAP + "px";
+          }
+        }
+        window.addEventListener("resize", placeDD);
 
         function renderDD(q) {
           q = (q || "").toLowerCase().trim();
@@ -1844,6 +1868,7 @@
           }
           dd.innerHTML = html;
           dd.classList.add("open");
+          placeDD();
           dd.querySelectorAll(".cat-option").forEach(function (opt) {
             opt.addEventListener("click", function () {
               selectCat(opt.dataset.id);
