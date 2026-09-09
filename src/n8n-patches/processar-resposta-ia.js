@@ -1,28 +1,24 @@
-// ══════════════════════════════════════════════════════════════
-// Processar Resposta IA — n8n Code node (ATUALIZADO)
-// ══════════════════════════════════════════════════════════════
-//
-// COLE ESTE CÓDIGO no node "Processar Resposta IA" do workflow
-// cxn5FxUNMJmlJ1WJ. Substitui o código atual.
-//
-// Mudança: inclui mensagem_media no supabase_insert.
-//
-// ══════════════════════════════════════════════════════════════
-
+// processar-resposta-ia.js — CÓDIGO CANÔNICO do node "Processar Resposta IA"
+// (workflow Atendimento cxn5FxUNMJmlJ1WJ). Fonte: código LIVE do n8n
+// (atualizado em 2026-09-08: debounce/identidade, is_agendamento, mensagem_media,
+//  fuso BRT→UTC no [AGENDAMENTO]). deploy-media-fix.mjs copia este arquivo verbatim
+// para o node — NÃO edite sem re-deploy e re-teste. Contrato de saída:
+// partes, precisa_escalar, texto_final, telefone, clinica, clinica_id,
+// mensagem_paciente, supabase_insert, agendamento, is_agendamento.
 const resp = $input.first().json;
 const blocks = resp.content || [];
-let texto = blocks.map((b) => b.text || '').join('\\n').trim();
+let texto = blocks.map((b) => b.text || '').join('\n').trim();
 
-const precisaEscalar = /\\[HANDOFF\\]/i.test(texto);
-texto = texto.replace(/\\[HANDOFF\\]/gi, '').trim();
+const precisaEscalar = /\[HANDOFF\]/i.test(texto);
+texto = texto.replace(/\[HANDOFF\]/gi, '').trim();
 
 // ── Parse [AGENDAMENTO] tag ──
 let agendamento = null;
-const agendamentoMatch = texto.match(/\\[AGENDAMENTO\\]\\n([\\s\\S]*?)(?:\\nFIM|$)/i);
+const agendamentoMatch = texto.match(/\[AGENDAMENTO\]\n([\s\S]*?)(?:\nFIM|$)/i);
 if (agendamentoMatch) {
   const bloco = agendamentoMatch[1];
   const extrair = (campo) => {
-    const m = bloco.match(new RegExp(campo + ':\\\\s*(.+)'));
+    const m = bloco.match(new RegExp(campo + ':\\s*(.+)'));
     return m ? m[1].trim() : null;
   };
   const nome = extrair('NOME');
@@ -33,18 +29,18 @@ if (agendamentoMatch) {
 
   if (nome && servico && data && hora && telefone) {
     // Parse DD/MM/AAAA → ISO
-    const partesData = data.match(/(\\\\d{2})\\\\/(\\\\d{2})\\\\/(\\\\d{4})/);
-    const partesHora = hora.match(/(\\\\d{2}):(\\\\d{2})/);
+    const partesData = data.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+    const partesHora = hora.match(/(\d{2}):(\d{2})/);
     if (partesData && partesHora) {
-      const iso = \\`\\${partesData[3]}-\\${partesData[2]}-\\${partesData[1]}T\\${partesHora[1]}:\\${partesHora[2]}:00.000Z\\`;
+      const iso = new Date(`${partesData[3]}-${partesData[2]}-${partesData[1]}T${partesHora[1]}:${partesHora[2]}:00-03:00`).toISOString();
       agendamento = { nome, servico, data_hora: iso, telefone };
     }
   }
   // Remove the tag from displayed text
-  texto = texto.replace(/\\[AGENDAMENTO\\][\\s\\S]*?(?:\\nFIM|$)/gi, '').trim();
+  texto = texto.replace(/\[AGENDAMENTO\][\s\S]*?(?:\nFIM|$)/gi, '').trim();
 }
 
-const partes = texto.split(/\\n\\s*\\n/).map((p) => p.trim()).filter((p) => p.length > 0);
+const partes = texto.split(/\n\s*\n/).map((p) => p.trim()).filter((p) => p.length > 0);
 const partesFinal = partes.length > 0 ? partes : [texto];
 
 const clinica = $('Configuração da Clínica').first().json.clinica;
@@ -67,6 +63,7 @@ const supabaseInsert = [
     clinica,
     role: 'ia',
     mensagem: texto,
+    mensagem_media: null,
     escalado: precisaEscalar,
   },
 ];
@@ -83,6 +80,7 @@ return [
       mensagem_paciente: mensagemPaciente,
       supabase_insert: supabaseInsert,
       agendamento,
+      is_agendamento: agendamento !== null,
     },
   },
 ];

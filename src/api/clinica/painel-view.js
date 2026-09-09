@@ -12,6 +12,13 @@ const NOME_DIA = {
   domingo: "Domingo",
 };
 
+// Payment Links do Stripe — os MESMOS que o n8n usa (workflow "Verificação de
+// Trial", node "Config Fixa": stripe_link_mensal / stripe_link_anual). Se o
+// preço mudar, trocar lá E aqui. O sufixo ?client_reference_id=<clinica_id>
+// é o que faz o checkout.session.completed vincular a clínica sozinho.
+const LINK_MENSAL = "https://buy.stripe.com/28E4gz8iv3HU97Tcv7gbm01";
+const LINK_ANUAL = "https://buy.stripe.com/dRm28r42fa6i97T9iVgbm02";
+
 function escapeHtml(valor) {
   return String(valor).replace(
     /[&<>\"']/g,
@@ -34,7 +41,14 @@ function jsonParaScript(obj) {
     .replace(/\//g, "\\u002f");
 }
 
-function paginaPainel(nomeClinica, config, tempoPausaAtual, assinatura, categoriaDados) {
+function paginaPainel(
+  nomeClinica,
+  config,
+  tempoPausaAtual,
+  assinatura,
+  categoriaDados,
+  telefoneAlerta = "",
+) {
   return `<!doctype html>
 <html lang="pt-BR">
 <head>
@@ -266,6 +280,23 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
   .content-body { padding: 16px 18px 100px; }
   .section-card { padding: 16px; }
 }
+/* ── Gate de assinatura expirada ── */
+.gate-overlay { position: fixed; inset: 0; z-index: 200; background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; padding: 20px; }
+.gate-overlay.hidden { display: none; }
+.gate-card { background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); max-width: 460px; width: 100%; padding: 28px; text-align: center; animation: fadeUp 0.25s ease; }
+.gate-card h2 { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; margin: 12px 0 6px; }
+.gate-card .gate-lead { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
+.gate-card .gate-lead strong { color: var(--ink); }
+.gate-plano { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+.gate-btn { display: block; width: 100%; padding: 11px 16px; border-radius: var(--radius); border: none; cursor: pointer; font-size: 13px; font-weight: 600; text-decoration: none; transition: all 0.15s ease; }
+.gate-btn strong { font-size: 13.5px; }
+.gate-btn small { display: block; font-size: 11.5px; font-weight: 400; opacity: 0.85; }
+.gate-btn-mensal { background: var(--primary); color: #fff; }
+.gate-btn-mensal:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(79,70,229,0.3); }
+.gate-btn-anual { background: var(--primary-soft); color: var(--primary); border: 1.5px solid #c7d2fe; }
+.gate-btn-anual:hover { background: #e0e7ff; }
+.gate-nota { font-size: 11.5px; color: var(--muted); line-height: 1.5; }
+
 /* ── Banner de conexão pendente ── */
 .whatsapp-banner { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-bottom: 1.5px solid #f59e0b; padding: 14px 24px; display: flex; align-items: center; gap: 14px; flex-shrink: 0; animation: fadeDown 0.3s ease; }
 @keyframes fadeDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
@@ -288,6 +319,26 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
     <span class="topbar-clinic">${escapeHtml(nomeClinica)}</span>
   </div>
   <button id="btn-sair" type="button">Sair</button>
+</div>
+
+<div id="gate-overlay" class="gate-overlay${assinatura.gate?.ativo ? "" : " hidden"}">
+  <div class="gate-card">
+    <div style="font-size:30px">🔒</div>
+    <h2>Assinatura expirada</h2>
+    <p class="gate-lead">Sua assinatura da Recepta não está ativa. A Recepta <strong>parou de atender no WhatsApp</strong> e o painel está bloqueado enquanto durar a pendência.</p>
+    <div class="gate-plano">
+      <a id="gate-link-mensal" class="gate-btn gate-btn-mensal" target="_blank" rel="noopener" href="#">
+        <strong>Assinar plano mensal</strong>
+        <small>R$ 497/mês, sem fidelidade</small>
+      </a>
+      <a id="gate-link-anual" class="gate-btn gate-btn-anual" target="_blank" rel="noopener" href="#">
+        <strong>Assinar plano anual</strong>
+        <small>R$ 347/mês, cobrado à vista no ano (R$ 4.164)</small>
+      </a>
+      <button type="button" class="btn btn-ghost btn-sm" id="gate-btn-verificar" style="width:100%">Já paguei — verificar agora</button>
+    </div>
+    <p class="gate-nota">O painel volta sozinho após a confirmação do pagamento — se demorar mais que 1 minuto, clique em "verificar agora".</p>
+  </div>
 </div>
 
 <div id="whatsapp-banner" class="whatsapp-banner hidden">
@@ -429,7 +480,7 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
 
     <!-- ── PAUSA ── -->
     <div class="tab-panel" id="tab-pausa">
-      <div class="content-header"><h1>Pausa da Recepta</h1><p>Tempo que a Recepta fica em silêncio após uma resposta manual sua.</p></div>
+      <div class="content-header"><h1>Pausa e alertas</h1><p>Quanto tempo a Recepta fica em silêncio e para onde ela chama um humano.</p></div>
       <div class="content-body">
         <div class="section-card">
           <div class="field">
@@ -440,6 +491,17 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
               <span style="font-size:13px;color:var(--muted)">minutos</span>
               <button type="button" class="btn btn-primary btn-sm" id="btn-salvar-pausa">Salvar</button>
               <span id="status-pausa"></span>
+            </div>
+          </div>
+        </div>
+        <div class="section-card">
+          <div class="field">
+            <label class="field-label">WhatsApp que recebe os alertas</label>
+            <div class="field-desc">Quando a Recepta precisa de um humano, ela avisa neste número. Comece pelo DDD.</div>
+            <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
+              <input type="tel" id="telefone-alerta" class="field-input" maxlength="20" placeholder="53 99999-9999" value="${escapeHtml(telefoneAlerta)}" style="width:200px" />
+              <button type="button" class="btn btn-primary btn-sm" id="btn-salvar-alerta">Salvar</button>
+              <span id="status-alerta"></span>
             </div>
           </div>
         </div>
@@ -507,6 +569,7 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
 
 <script>
 window.__PAINEL__ = {
+  gate: ${jsonParaScript(assinatura.gate || { ativo: false })},
   config: ${jsonParaScript(config)},
   dias: ${jsonParaScript(DIAS)},
   nomeDia: ${jsonParaScript(NOME_DIA)},
@@ -518,6 +581,25 @@ window.__PAINEL__ = {
   regrasCategoria: ${jsonParaScript(categoriaDados.regrasCategoria)},
   faqCategoria: ${jsonParaScript(categoriaDados.faqCategoria)}
 };
+
+// ── Gate de assinatura: wiring do overlay ──
+// Roda ANTES do painel.js: o overlay já vem visível pelo servidor quando
+// gate.ativo, aqui só conecto os links reais e o botão de verificar.
+(function () {
+  var g = window.__PAINEL__.gate;
+  if (!g || !g.ativo) return;
+  var m = document.getElementById("gate-link-mensal");
+  var a = document.getElementById("gate-link-anual");
+  if (m) m.href = g.link_mensal;
+  if (a) a.href = g.link_anual;
+  var v = document.getElementById("gate-btn-verificar");
+  if (v)
+    v.addEventListener("click", function () {
+      v.disabled = true;
+      v.textContent = "Verificando…";
+      window.location.reload();
+    });
+})();
 </script>
 <script src="/clinica/painel.js"></script>
 <link rel="stylesheet" href="/page-transition.css" />
@@ -543,7 +625,7 @@ export default async function handler(req, res) {
   const { data: clinicaRow } = await admin
     .from("clinicas")
     .select(
-      "clinica,config_editavel,tempo_pausa_minutos,status,trial_fim,plano,stripe_customer_id,criado_em,categoria",
+      "clinica,config_editavel,tempo_pausa_minutos,telefone_alerta,status,trial_fim,plano,stripe_customer_id,criado_em,categoria",
     )
     .eq("id", perfil.clinica_id)
     .maybeSingle();
@@ -595,15 +677,37 @@ export default async function handler(req, res) {
     tem_stripe: !!clinicaRow?.stripe_customer_id,
   };
 
+  // ── Gate de assinatura expirada ──
+  // Status vem do n8n (único dono do vocabulário 'ativo'/'expirado'). Com a
+  // clínica expirada o painel renderiza o overlay de bloqueio e as rotas de
+  // escrita devolvem 402 (painel-acoes/config-salvar). Os links carregam
+  // client_reference_id para o checkout religar a clínica automaticamente.
+  // gate vai SEMPRE no __PAINEL__ (links incluídos mesmo com ativo:false):
+  // o painel.js usa os hrefs quando um 402 chega no meio da sessão.
+  assinatura.gate = {
+    ativo: assinatura.status === "expirado",
+    link_mensal: LINK_MENSAL + "?client_reference_id=" + perfil.clinica_id,
+    link_anual: LINK_ANUAL + "?client_reference_id=" + perfil.clinica_id,
+  };
+
   res.setHeader("Content-Type", "text/html; charset=utf-8");
-  return res
-    .status(200)
-    .send(paginaPainel(nomeClinica, config, tempoPausaAtual, assinatura, {
-      categoria: categoriaId,
-      categoriaMeta: catMeta,
-      tabsVisiveis: catConfig.tabs,
-      camposExtras: catConfig.camposExtras,
-      regrasCategoria: catConfig.regrasPadrao || "",
-      faqCategoria: catConfig.faqPadrao || [],
-    }));
+  return res.status(200).send(
+    paginaPainel(
+      nomeClinica,
+      config,
+      tempoPausaAtual,
+      assinatura,
+      {
+        categoria: categoriaId,
+        categoriaMeta: catMeta,
+        tabsVisiveis: catConfig.tabs,
+        camposExtras: catConfig.camposExtras,
+        regrasCategoria: catConfig.regrasPadrao || "",
+        faqCategoria: catConfig.faqPadrao || [],
+      },
+      clinicaRow?.telefone_alerta || "",
+    ),
+  );
 }
+
+export { paginaPainel };

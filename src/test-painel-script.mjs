@@ -21,6 +21,9 @@ function carregarTemplate(arquivo) {
   const src = fs
     .readFileSync(arquivo, "utf8")
     .replace(/^import\s[\s\S]*?;$/gm, "")
+    // painel-view.js ja exporta paginaPainel; sem tirar o export daqui o
+    // modulo temporario fica com export duplicado e nem carrega.
+    .replace("export { paginaPainel };", "")
     .concat("\nexport { paginaPainel };\n");
   const tmp = path.join(os.tmpdir(), `painel-view-check-${process.pid}.mjs`);
   const prelude =

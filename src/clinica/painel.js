@@ -166,18 +166,29 @@ function el(tag, attrs, filhos) {
 
 // ── Empty state helper ──
 var EMPTY_SVG = {
-  calendar: '<svg viewBox="0 0 24 24" class="empty-state-icon"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
-  dollar: '<svg viewBox="0 0 24 24" class="empty-state-icon"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
-  building: '<svg viewBox="0 0 24 24" class="empty-state-icon"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9v.01"/><path d="M9 12v.01"/><path d="M9 15v.01"/><path d="M9 18v.01"/></svg>',
+  calendar:
+    '<svg viewBox="0 0 24 24" class="empty-state-icon"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+  dollar:
+    '<svg viewBox="0 0 24 24" class="empty-state-icon"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
+  building:
+    '<svg viewBox="0 0 24 24" class="empty-state-icon"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9v.01"/><path d="M9 12v.01"/><path d="M9 15v.01"/><path d="M9 18v.01"/></svg>',
   help: '<svg viewBox="0 0 24 24" class="empty-state-icon"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
   chat: '<svg viewBox="0 0 24 24" class="empty-state-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
   info: '<svg viewBox="0 0 24 24" class="empty-state-icon"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
 };
 function emptyStateHtml(icon, title, desc, ctaHtml) {
-  return '<div class="empty-state">' + EMPTY_SVG[icon] +
-    '<div class="empty-state-title">' + title + '</div>' +
-    '<div class="empty-state-desc">' + desc + '</div>' +
-    (ctaHtml || '') + '</div>';
+  return (
+    '<div class="empty-state">' +
+    EMPTY_SVG[icon] +
+    '<div class="empty-state-title">' +
+    title +
+    "</div>" +
+    '<div class="empty-state-desc">' +
+    desc +
+    "</div>" +
+    (ctaHtml || "") +
+    "</div>"
+  );
 }
 
 // ── Agenda ──
@@ -505,7 +516,11 @@ function renderAgenda(agendamentos) {
   elProx.innerHTML = "";
   elAnt.innerHTML = "";
   if (!agendamentos.length) {
-    elStatus.innerHTML = emptyStateHtml('calendar', 'Agenda vazia', 'Agendamentos feitos pela Recepta ou pela clínica aparecem aqui.');
+    elStatus.innerHTML = emptyStateHtml(
+      "calendar",
+      "Agenda vazia",
+      "Agendamentos feitos pela Recepta ou pela clínica aparecem aqui.",
+    );
     elStatus.style.display = "";
     return;
   }
@@ -523,7 +538,11 @@ function renderAgenda(agendamentos) {
     });
   } else {
     elStatus.style.display = "";
-    elStatus.innerHTML = emptyStateHtml('calendar', 'Sem agendamentos futuros', 'Agendamentos feitos pela Recepta ou pela clínica aparecem aqui.');
+    elStatus.innerHTML = emptyStateHtml(
+      "calendar",
+      "Sem agendamentos futuros",
+      "Agendamentos feitos pela Recepta ou pela clínica aparecem aqui.",
+    );
   }
   if (anteriores.length) {
     elAntW.style.display = "";
@@ -564,7 +583,12 @@ var elPrecos = document.getElementById("lista-precos");
 function renderPrecos() {
   elPrecos.innerHTML = "";
   if (!CONFIG.precos.length) {
-    elPrecos.innerHTML = emptyStateHtml('dollar', 'Nenhum preço cadastrado', 'Adicione os serviços e valores que a Recepta usa para informar pacientes.', '<button type="button" class="btn btn-primary" onclick="document.getElementById(\'add-preco\').click()">+ Adicionar preço</button>');
+    elPrecos.innerHTML = emptyStateHtml(
+      "dollar",
+      "Nenhum preço cadastrado",
+      "Adicione os serviços e valores que a Recepta usa para informar pacientes.",
+      '<button type="button" class="btn btn-primary" onclick="document.getElementById(\'add-preco\').click()">+ Adicionar preço</button>',
+    );
     return;
   }
   CONFIG.precos.forEach(function (item, i) {
@@ -609,7 +633,12 @@ var elConv = document.getElementById("lista-convenios");
 function renderConvenios() {
   elConv.innerHTML = "";
   if (!CONFIG.convenios.length) {
-    elConv.innerHTML = emptyStateHtml('building', 'Nenhum convênio cadastrado', 'Adicione os convênios que a clínica aceita para informar os pacientes.', '<button type="button" class="btn btn-primary" onclick="document.getElementById(\'add-convenio\').click()">+ Adicionar convênio</button>');
+    elConv.innerHTML = emptyStateHtml(
+      "building",
+      "Nenhum convênio cadastrado",
+      "Adicione os convênios que a clínica aceita para informar os pacientes.",
+      '<button type="button" class="btn btn-primary" onclick="document.getElementById(\'add-convenio\').click()">+ Adicionar convênio</button>',
+    );
     return;
   }
   CONFIG.convenios.forEach(function (nome, i) {
@@ -717,7 +746,11 @@ var elFaq = document.getElementById("lista-faq");
 function renderFaq() {
   elFaq.innerHTML = "";
   if (!CONFIG.faq.length) {
-    elFaq.innerHTML = emptyStateHtml('help', 'Nenhuma pergunta cadastrada', 'Adicione perguntas frequentes que a Recepta usa para responder pacientes.');
+    elFaq.innerHTML = emptyStateHtml(
+      "help",
+      "Nenhuma pergunta cadastrada",
+      "Adicione perguntas frequentes que a Recepta usa para responder pacientes.",
+    );
     return;
   }
   CONFIG.faq.forEach(function (item, i) {
@@ -764,7 +797,11 @@ var elCamposCat = document.getElementById("campos-categoria");
 function renderCamposCategoria() {
   if (!elCamposCat || !CAMPOS_EXTRAS.length) {
     if (elCamposCat)
-      elCamposCat.innerHTML = emptyStateHtml('info', 'Nenhum dado específico', 'Esta categoria não possui campos adicionais no momento.');
+      elCamposCat.innerHTML = emptyStateHtml(
+        "info",
+        "Nenhum dado específico",
+        "Esta categoria não possui campos adicionais no momento.",
+      );
     return;
   }
   elCamposCat.innerHTML = "";
@@ -1003,6 +1040,46 @@ document
       });
   });
 
+// ── Telefone que recebe os alertas de escalonamento ──
+var elTelAlerta = document.getElementById("telefone-alerta");
+if (elTelAlerta && elTelAlerta.value) {
+  // O banco guarda E.164 sem "+", a tela mostra "(53) 991635302".
+  elTelAlerta.value = telefoneBonito(elTelAlerta.value);
+}
+
+document
+  .getElementById("btn-salvar-alerta")
+  .addEventListener("click", function () {
+    var elSA = document.getElementById("status-alerta");
+    var v = document.getElementById("telefone-alerta").value;
+    elSA.innerHTML = "";
+    if (String(v).replace(/\D/g, "").length < 10) {
+      elSA.innerHTML = '<span class="badge badge-red">Número inválido</span>';
+      return;
+    }
+    fetch("/api/clinica/painel-acoes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ acao: "telefone_alerta", telefone_alerta: v }),
+    })
+      .then(function (r) {
+        return r.json();
+      })
+      .then(function (res) {
+        if (res.ok) {
+          document.getElementById("telefone-alerta").value = telefoneBonito(
+            res.telefone_alerta,
+          );
+          elSA.innerHTML = '<span class="badge badge-green">Salvo!</span>';
+        } else {
+          elSA.innerHTML = '<span class="badge badge-red">Erro</span>';
+        }
+      })
+      .catch(function () {
+        elSA.innerHTML = '<span class="badge badge-red">Falha</span>';
+      });
+  });
+
 // ── Assinatura ──
 var ASSINATURA = DADOS.assinatura || {};
 
@@ -1070,14 +1147,21 @@ function linhaDetalhe(rotulo, valor, alerta) {
   var elA = document.getElementById("assinatura-acao");
 
   // ── Badge: sai do banco, aparece de imediato, sem esperar o Stripe ──
-  var ehTrial = ASSINATURA.status === "trial";
+  // clinicas.status so conhece 'ativo' e 'expirado' (vocabulario do n8n) —
+  // nao existe status 'trial'. Clinica em teste = status ativo + trial_fim no
+  // futuro (o checkout zera trial_fim, entao pagante nunca cai aqui).
   var ehAtivo = ASSINATURA.status === "ativo";
-  elS.textContent = ehAtivo
-    ? "Assinatura ativa"
-    : ehTrial
-      ? "Periodo de teste"
+  var ehTrial =
+    ehAtivo &&
+    !!ASSINATURA.trial_fim &&
+    new Date(ASSINATURA.trial_fim).getTime() > Date.now();
+  elS.textContent = ehTrial
+    ? "Periodo de teste"
+    : ehAtivo
+      ? "Assinatura ativa"
       : ASSINATURA.status || "Desconhecido";
-  elS.className = ehAtivo ? "badge badge-green" : "badge badge-muted";
+  elS.className =
+    ehTrial || !ehAtivo ? "badge badge-muted" : "badge badge-green";
 
   // ── Detalhes do banco ──
   var lista = el("div", { class: "det-lista" });
@@ -1262,7 +1346,11 @@ function renderConversas(msgs) {
   var elLi = document.getElementById("conv-lista");
   elLi.innerHTML = "";
   if (!msgs.length) {
-    elSt.innerHTML = emptyStateHtml('chat', 'Nenhuma conversa ainda', 'Conversas com pacientes aparecem aqui depois que a Recepta começar a atender.');
+    elSt.innerHTML = emptyStateHtml(
+      "chat",
+      "Nenhuma conversa ainda",
+      "Conversas com pacientes aparecem aqui depois que a Recepta começar a atender.",
+    );
     elSt.style.display = "";
     return;
   }
@@ -1284,7 +1372,9 @@ function renderConversas(msgs) {
     var ult = conv.msgs[0];
     var role = ult.role === "ia" ? "Recepta: " : "Paciente: ";
     var corpoMidia = detectarMidia(ult.mensagem, ult.mensagem_media);
-    var corpo = corpoMidia ? corpoMidia.icone + ' ' + corpoMidia.label : textoMensagem(ult.mensagem);
+    var corpo = corpoMidia
+      ? corpoMidia.icone + " " + corpoMidia.label
+      : textoMensagem(ult.mensagem);
     if (corpo.length > 80) corpo = corpo.slice(0, 80) + "…";
     var dt = new Date(ult.criado_em).toLocaleString("pt-BR", {
       timeZone: "America/Sao_Paulo",
@@ -1396,12 +1486,36 @@ function detectarMidia(t, mediaJson) {
     if (m || u) {
       var r = {};
       if (m) {
-        if (m.indexOf("audio") === 0) { r.tipo = "audio"; r.icone = "🎤"; r.label = "Áudio" + (mediaJson.seconds ? " · " + Math.round(mediaJson.seconds) + "s" : ""); }
-        else if (mediaJson.isSticker === true || m === "image/webp") { r.tipo = "sticker"; r.icone = "🏷"; r.label = "Sticker"; }
-        else if (m.indexOf("image") === 0) { r.tipo = "imagem"; r.icone = "🖼"; r.label = "Imagem"; }
-        else if (m.indexOf("video") === 0) { r.tipo = "video"; r.icone = "🎬"; r.label = "Vídeo"; }
-        else { r.tipo = "documento"; r.icone = "📎"; r.label = "Documento"; }
-      } else { r.tipo = "documento"; r.icone = "📎"; r.label = "Mídia"; }
+        if (m.indexOf("audio") === 0) {
+          r.tipo = "audio";
+          r.icone = "🎤";
+          r.label =
+            "Áudio" +
+            (mediaJson.seconds
+              ? " · " + Math.round(mediaJson.seconds) + "s"
+              : "");
+        } else if (mediaJson.isSticker === true || m === "image/webp") {
+          r.tipo = "sticker";
+          r.icone = "🏷";
+          r.label = "Sticker";
+        } else if (m.indexOf("image") === 0) {
+          r.tipo = "imagem";
+          r.icone = "🖼";
+          r.label = "Imagem";
+        } else if (m.indexOf("video") === 0) {
+          r.tipo = "video";
+          r.icone = "🎬";
+          r.label = "Vídeo";
+        } else {
+          r.tipo = "documento";
+          r.icone = "📎";
+          r.label = "Documento";
+        }
+      } else {
+        r.tipo = "documento";
+        r.icone = "📎";
+        r.label = "Mídia";
+      }
       if (u) r.url = u;
       return r;
     }
@@ -1414,46 +1528,104 @@ function detectarMidia(t, mediaJson) {
     if (!m && !u) return null;
     var r = {};
     if (m) {
-      if (m.indexOf("audio") === 0) { r.tipo = "audio"; r.icone = "🎤"; r.label = "Áudio" + (o.seconds ? " · " + Math.round(o.seconds) + "s" : ""); }
-      else if (o.isSticker === true || m === "image/webp") { r.tipo = "sticker"; r.icone = "🏷"; r.label = "Sticker"; }
-      else if (m.indexOf("image") === 0) { r.tipo = "imagem"; r.icone = "🖼"; r.label = "Imagem"; }
-      else if (m.indexOf("video") === 0) { r.tipo = "video"; r.icone = "🎬"; r.label = "Vídeo"; }
-      else { r.tipo = "documento"; r.icone = "📎"; r.label = "Documento"; }
-    } else { r.tipo = "documento"; r.icone = "📎"; r.label = "Mídia"; }
+      if (m.indexOf("audio") === 0) {
+        r.tipo = "audio";
+        r.icone = "🎤";
+        r.label =
+          "Áudio" + (o.seconds ? " · " + Math.round(o.seconds) + "s" : "");
+      } else if (o.isSticker === true || m === "image/webp") {
+        r.tipo = "sticker";
+        r.icone = "🏷";
+        r.label = "Sticker";
+      } else if (m.indexOf("image") === 0) {
+        r.tipo = "imagem";
+        r.icone = "🖼";
+        r.label = "Imagem";
+      } else if (m.indexOf("video") === 0) {
+        r.tipo = "video";
+        r.icone = "🎬";
+        r.label = "Vídeo";
+      } else {
+        r.tipo = "documento";
+        r.icone = "📎";
+        r.label = "Documento";
+      }
+    } else {
+      r.tipo = "documento";
+      r.icone = "📎";
+      r.label = "Mídia";
+    }
     if (u) r.url = u;
     return r;
-  } catch (e) { return null; }
+  } catch (e) {
+    return null;
+  }
 }
 
 function criarMidiaElement(midia) {
   if (midia.tipo === "imagem" && midia.url) {
     var wrap = el("div", { style: "margin-bottom:4px" });
-    var img = el("img", { src: midia.url, alt: "Imagem", style: "max-width:260px;max-height:300px;border-radius:8px;display:block" });
-    var chip = el("span", { class: "chip-midia", text: midia.icone + " " + midia.label });
-    img.onerror = function() { this.style.display = 'none'; chip.textContent = '⏰ Mídia expirada'; };
+    var img = el("img", {
+      src: midia.url,
+      alt: "Imagem",
+      style: "max-width:260px;max-height:300px;border-radius:8px;display:block",
+    });
+    var chip = el("span", {
+      class: "chip-midia",
+      text: midia.icone + " " + midia.label,
+    });
+    img.onerror = function () {
+      this.style.display = "none";
+      chip.textContent = "⏰ Mídia expirada";
+    };
     wrap.appendChild(img);
     wrap.appendChild(chip);
     return wrap;
   }
   if (midia.tipo === "video" && midia.url) {
     var vw = el("div", { style: "margin-bottom:4px" });
-    var vid = el("video", { src: midia.url, muted: true, preload: "metadata", style: "max-width:260px;max-height:300px;border-radius:8px;display:block" });
-    var vchip = el("span", { class: "chip-midia", text: midia.icone + " " + midia.label });
-    vid.onerror = function() { this.style.display = 'none'; vchip.textContent = '⏰ Mídia expirada'; };
+    var vid = el("video", {
+      src: midia.url,
+      muted: true,
+      preload: "metadata",
+      style: "max-width:260px;max-height:300px;border-radius:8px;display:block",
+    });
+    var vchip = el("span", {
+      class: "chip-midia",
+      text: midia.icone + " " + midia.label,
+    });
+    vid.onerror = function () {
+      this.style.display = "none";
+      vchip.textContent = "⏰ Mídia expirada";
+    };
     vw.appendChild(vid);
     vw.appendChild(vchip);
     return vw;
   }
   if (midia.tipo === "audio" && midia.url) {
     var aw = el("div", { style: "margin-bottom:4px" });
-    var aud = el("audio", { src: midia.url, controls: true, preload: "metadata", style: "width:100%;max-width:260px;display:block" });
-    var achip = el("span", { class: "chip-midia", text: midia.icone + " " + midia.label });
-    aud.onerror = function() { this.style.display = 'none'; achip.textContent = '⏰ Mídia expirada'; };
+    var aud = el("audio", {
+      src: midia.url,
+      controls: true,
+      preload: "metadata",
+      style: "width:100%;max-width:260px;display:block",
+    });
+    var achip = el("span", {
+      class: "chip-midia",
+      text: midia.icone + " " + midia.label,
+    });
+    aud.onerror = function () {
+      this.style.display = "none";
+      achip.textContent = "⏰ Mídia expirada";
+    };
     aw.appendChild(aud);
     aw.appendChild(achip);
     return aw;
   }
-  return el("span", { class: "chip-midia", text: midia.icone + " " + midia.label });
+  return el("span", {
+    class: "chip-midia",
+    text: midia.icone + " " + midia.label,
+  });
 }
 
 function textoMensagem(bruto) {
@@ -1531,7 +1703,17 @@ function abrirConversa(conv) {
             class: "chat-autor",
             text: ehIa ? "Recepta" : "Paciente",
           }),
-          (function(){ var midia=detectarMidia(m.mensagem||"",m.mensagem_media); if(midia) return el("div",{class:"chat-bubble"},[criarMidiaElement(midia)]); return el("div",{class:"chat-bubble",text:textoMensagem(m.mensagem)}); })(),
+          (function () {
+            var midia = detectarMidia(m.mensagem || "", m.mensagem_media);
+            if (midia)
+              return el("div", { class: "chat-bubble" }, [
+                criarMidiaElement(midia),
+              ]);
+            return el("div", {
+              class: "chat-bubble",
+              text: textoMensagem(m.mensagem),
+            });
+          })(),
           el("span", {
             class: "chat-hora",
             text: d.toLocaleTimeString("pt-BR", {
@@ -1697,7 +1879,11 @@ function renderFeriados() {
   var elLi = document.getElementById("feriados-lista");
   elLi.innerHTML = "";
   if (!feriadosDados.length) {
-    elLi.innerHTML = emptyStateHtml('calendar', 'Nenhum feriado cadastrado', 'Adicione feriados para a Recepta não agendar nesses dias.');
+    elLi.innerHTML = emptyStateHtml(
+      "calendar",
+      "Nenhum feriado cadastrado",
+      "Adicione feriados para a Recepta não agendar nesses dias.",
+    );
     return;
   }
   feriadosDados.forEach(function (f) {
@@ -1884,4 +2070,58 @@ metricasPromise
       banner.classList.remove("hidden");
       pollTimer = setInterval(verificarConexao, POLL_CONEXAO_MS);
     });
+})();
+
+// ── Gate de assinatura expirada (tratamento do 402) ──
+// O overlay server-rendered já cobre a tela quando status="expirado". Este
+// bloco cobre o caso de corrida: clinica ativa quando a página carregou,
+// n8n expira no meio da sessão. Toda resposta 402 "assinatura_expirada"
+// vira o overlay com os links de pagamento (renderizados escondidos pelo
+// servidor, aqui só preencho os href e mostro).
+(function () {
+  function montarGate402() {
+    var overlay = document.getElementById("gate-overlay");
+    if (!overlay) return;
+    var ids = ["gate-link-mensal", "gate-link-anual"];
+    var precisaLinks = ids.some(function (id) {
+      var a = document.getElementById(id);
+      return (
+        !a ||
+        !(a.getAttribute("href") || "").startsWith("https://buy.stripe.com")
+      );
+    });
+    if (precisaLinks) {
+      var g = (window.__PAINEL__ || {}).gate;
+      if (g && g.link_mensal && g.link_anual) {
+        var mm = document.getElementById("gate-link-mensal");
+        var aa = document.getElementById("gate-link-anual");
+        if (mm) mm.href = g.link_mensal;
+        if (aa) aa.href = g.link_anual;
+      }
+    }
+    overlay.classList.remove("hidden");
+  }
+
+  var postOriginal = window.fetch;
+  window.fetch = function (input, init) {
+    var url = typeof input === "string" ? input : input && input.url;
+    var method = ((init && init.method) || "GET").toUpperCase();
+    return postOriginal.apply(this, arguments).then(function (resposta) {
+      if (
+        resposta.status === 402 &&
+        method !== "GET" &&
+        url &&
+        url.indexOf("/api/clinica/") === 0
+      ) {
+        resposta
+          .clone()
+          .json()
+          .then(function (corpo) {
+            if (corpo && corpo.erro === "assinatura_expirada") montarGate402();
+          })
+          .catch(function () {});
+      }
+      return resposta;
+    });
+  };
 })();

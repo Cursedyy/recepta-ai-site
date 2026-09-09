@@ -20,6 +20,16 @@ const MAX_NOME = 120;
 const MAX_OBSERVACAO = 500;
 const JANELA_MUTACOES_MS = 60 * 1000;
 
+// Pausa por conversa: painel e n8n usam a MESMA tabela, `pausas_ia`.
+// O workflow de Atendimento ("Checar Pausa Ativa") so pergunta
+// `pausado_ate > now()`, entao a pausa manual do painel e' simplesmente uma
+// data absurdamente no futuro. Retomar apaga a linha.
+// A pausa automatica (operador respondeu no WhatsApp -> now + N minutos)
+// escreve na mesma linha; o trigger `pausas_ia_nunca_encurta` (migration 014)
+// impede que ela rebaixe uma pausa manual para 10 minutos.
+const PAUSA_MANUAL_ATE = "2999-12-31T00:00:00.000Z";
+const PAUSA_MANUAL_LIMIAR = "2900-01-01T00:00:00.000Z";
+
 async function acaoTempoPausa(admin, perfil, body) {
   const valor = Number(body?.tempo_pausa_minutos);
   if (!Number.isInteger(valor) || valor < MIN_MINUTOS || valor > MAX_MINUTOS) {
@@ -34,6 +44,23 @@ async function acaoTempoPausa(admin, perfil, body) {
   if (erroUpdate) return { status: 500, corpo: { erro: "falha_salvar" } };
 
   return { status: 200, corpo: { ok: true, tempo_pausa_minutos: valor } };
+}
+
+// O alerta de escalonamento sai da instancia UazAPI da clinica para este
+// numero. Ate 2026-09-09 ele nascia hardcoded no node "Config Fixa" do
+// Onboarding com o celular pessoal do dono do produto, para toda clinica nova.
+async function acaoTelefoneAlerta(admin, perfil, body) {
+  const numero = normalizarTelefone(body?.telefone_alerta);
+  if (!numero) return { status: 400, corpo: { erro: "telefone_invalido" } };
+
+  const { error: erroUpdate } = await admin
+    .from("clinicas")
+    .update({ telefone_alerta: numero })
+    .eq("id", perfil.clinica_id);
+
+  if (erroUpdate) return { status: 500, corpo: { erro: "falha_salvar" } };
+
+  return { status: 200, corpo: { ok: true, telefone_alerta: numero } };
 }
 
 async function acaoPortalSessao(admin, perfil) {
@@ -168,6 +195,29 @@ async function resolverNomeClinica(admin, perfil) {
   return data?.clinica || null;
 }
 
+// Status de vida da clinica ('ativo' | 'expirado' — vocabulario do n8n, que
+// e quem grava o campo). O vocabulario vive no n8n: NAO introduzir novos
+// valores aqui.
+async function statusClinica(admin, perfil) {
+  const { data } = await admin
+    .from("clinicas")
+    .select("status")
+    .eq("id", perfil.clinica_id)
+    .maybeSingle();
+  return data?.status || null;
+}
+
+// Acoes que continuam abertas com a assinatura expirada:
+// - portal_sessao: e justamente o caminho para regularizar a cobranca;
+// - atualizar_perfil: trocar senha nunca pode depender de pagamento.
+// As leituras (GET) tambem ficam abertas de proposito: ler configuracao nao
+// gera custo, e manter a aba Status acessivel ajuda o cliente a entender o
+// que fazer. O bloqueio de escrita e o overlay sao camadas independentes:
+// o overlay e a interface do gate, o 402 e o gate em si.
+function acaoBloqueadaExpirado(acao) {
+  return acao !== "portal_sessao" && acao !== "atualizar_perfil";
+}
+
 async function acaoPausarConversa(admin, perfil, body) {
   const telefone = body?.telefone;
   const clinicaBody = body?.clinica;
@@ -190,26 +240,18 @@ async function acaoPausarConversa(admin, perfil, body) {
   if (!conversa)
     return { status: 404, corpo: { erro: "conversa_nao_encontrada" } };
 
-  const { error } = await admin.from("conversas_pausadas").upsert(
+  const { error } = await admin.from("pausas_ia").upsert(
     {
       telefone,
       clinica: nomeClinica,
-      pausada: true,
-      pausada_em: new Date().toISOString(),
+      pausado_ate: PAUSA_MANUAL_ATE,
     },
     { onConflict: "telefone,clinica" },
   );
 
   if (error) {
     console.error("pausar_conversa_erro", error.message);
-    return {
-      status: 500,
-      corpo: {
-        erro: "falha_pausar",
-        detalhe:
-          "Tabela conversas_pausadas não existe. Execute o SQL de migração.",
-      },
-    };
+    return { status: 500, corpo: { erro: "falha_pausar" } };
   }
 
   return { status: 200, corpo: { ok: true, pausada: true } };
@@ -225,22 +267,17 @@ async function acaoRetomarConversa(admin, perfil, body) {
   if (!nomeClinica || nomeClinica !== clinicaBody)
     return { status: 403, corpo: { erro: "sem_permissao" } };
 
+  // Apaga a linha inteira: retomar tambem cancela uma pausa automatica em
+  // curso, que e' o que a clinica espera ao clicar em "Retomar".
   const { error } = await admin
-    .from("conversas_pausadas")
+    .from("pausas_ia")
     .delete()
     .eq("telefone", telefone)
     .eq("clinica", nomeClinica);
 
   if (error) {
     console.error("retomar_conversa_erro", error.message);
-    return {
-      status: 500,
-      corpo: {
-        erro: "falha_retomar",
-        detalhe:
-          "Tabela conversas_pausadas não existe. Execute o SQL de migração.",
-      },
-    };
+    return { status: 500, corpo: { erro: "falha_retomar" } };
   }
 
   return { status: 200, corpo: { ok: true, pausada: false } };
@@ -486,19 +523,23 @@ async function acaoConversas(admin, perfil) {
 
   const { data, error } = await admin
     .from("conversas")
-    .select("id,telefone,clinica,role,mensagem,mensagem_media,criado_em,nome_cliente")
+    .select(
+      "id,telefone,clinica,role,mensagem,mensagem_media,criado_em,nome_cliente",
+    )
     .eq("clinica", nomeClinica)
     .order("criado_em", { ascending: false })
     .limit(CONVERSAS_LIMITE);
 
   if (error) return { status: 500, corpo: { erro: "falha_buscar" } };
 
-  // Buscar telefones pausados para marcar na UI
+  // Telefones com pausa MANUAL, para o badge da UI. A pausa automatica de
+  // N minutos tambem mora em `pausas_ia`, mas e' transitoria e nao vira badge:
+  // o limiar de data separa as duas.
   const { data: pausadas } = await admin
-    .from("conversas_pausadas")
+    .from("pausas_ia")
     .select("telefone")
     .eq("clinica", nomeClinica)
-    .eq("pausada", true);
+    .gte("pausado_ate", PAUSA_MANUAL_LIMIAR);
 
   const pausadasSet = new Set((pausadas || []).map((p) => p.telefone));
 
@@ -611,8 +652,7 @@ async function acaoSalvarNomeCliente(admin, perfil, body) {
     return { status: 400, corpo: { erro: "nome_muito_longo" } };
 
   const nomeClinica = await resolverNomeClinica(admin, perfil);
-  if (!nomeClinica)
-    return { status: 403, corpo: { erro: "sem_permissao" } };
+  if (!nomeClinica) return { status: 403, corpo: { erro: "sem_permissao" } };
 
   const valorNome = nomeTrim || null;
 
@@ -662,7 +702,9 @@ async function acaoBuscarSugestaoNome(admin, perfil, query) {
 async function acaoConfig(admin, perfil) {
   const { data: clinicaRow } = await admin
     .from("clinicas")
-    .select("clinica,config_editavel,tempo_pausa_minutos,status,trial_fim,plano,criado_em")
+    .select(
+      "clinica,config_editavel,tempo_pausa_minutos,status,trial_fim,plano,criado_em",
+    )
     .eq("id", perfil.clinica_id)
     .maybeSingle();
 
@@ -820,8 +862,23 @@ export default async function handler(req, res) {
       return res.status(400).json({ erro: "payload_invalido" });
     }
 
+    // Gate de assinatura: com a clinica "expirado" nenhuma mutacao passa,
+    // mesmo que o cliente contorne o overlay do painel chamando a API direto.
+    if (acaoBloqueadaExpirado(body?.acao)) {
+      const status = await statusClinica(admin, perfil);
+      if (status === "expirado") {
+        return res
+          .status(402)
+          .json({ erro: "assinatura_expirada", acao: body?.acao || null });
+      }
+    }
+
     if (body?.acao === "tempo_pausa") {
       const resultado = await acaoTempoPausa(admin, perfil, body);
+      return res.status(resultado.status).json(resultado.corpo);
+    }
+    if (body?.acao === "telefone_alerta") {
+      const resultado = await acaoTelefoneAlerta(admin, perfil, body);
       return res.status(resultado.status).json(resultado.corpo);
     }
     if (body?.acao === "portal_sessao") {
