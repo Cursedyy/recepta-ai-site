@@ -1,0 +1,8 @@
+{
+  "name": "recepta-ai-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "health": "node scripts/health.mjs"
+  }
+}
