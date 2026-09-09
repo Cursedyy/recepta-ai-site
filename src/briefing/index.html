@@ -1198,6 +1198,12 @@
         },
       ];
 
+      const PHASES = [
+        { t: "Sua clínica", first: 0, last: 1 },
+        { t: "Atendimento", first: 2, last: 3 },
+        { t: "Confirmação", first: 4, last: 5 },
+      ];
+
       /* ── Categorias (lista completa com herança) ── */
       const CATS = [
         { id: "estetica", n: "Estética", i: "✨", d: "Clínicas de estética, procedimentos estéticos", p: null },
@@ -1603,27 +1609,32 @@
         return S.length - 1;
       }
 
+      function phaseForStep(i) {
+        return PHASES.findIndex((phase) => i >= phase.first && i <= phase.last);
+      }
+
       function renderRail() {
-        rail.innerHTML = S.map((s, i) => {
-          const cls = i === step ? "active" : i < step ? "done" : "";
-          const locked = i > maxVisited;
-          const checkIcon = i < step
+        const activePhase = phaseForStep(step);
+        rail.innerHTML = PHASES.map((phase, i) => {
+          const cls = i === activePhase ? "active" : i < activePhase ? "done" : "";
+          const locked = phase.first > maxVisited;
+          const checkIcon = i < activePhase
             ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
             : (i + 1);
           return (
             '<button type="button" class="step-dot ' +
             cls +
             '" data-step="' +
-            i +
+            phase.first +
             '"' +
             (locked ? " disabled" : "") +
             '><span class="dot-n">' +
             checkIcon +
             '</span><span class="dot-l">' +
-            esc(s.t) +
+            esc(phase.t) +
             "</span></button>" +
-            (i < S.length - 1
-              ? '<div class="step-connector' + (i < step ? " filled" : "") + '"></div>'
+            (i < PHASES.length - 1
+              ? '<div class="step-connector' + (i < activePhase ? " filled" : "") + '"></div>'
               : "")
           );
         }).join("");
@@ -1642,7 +1653,7 @@
           i === totalSteps - 1
             ? "Enviar briefing e liberar meu teste"
             : "Continuar →";
-        stepLabel.textContent = S[i].t;
+        stepLabel.textContent = PHASES[phaseForStep(i)].t;
         renderRail();
         errBox.className = "msg";
         document.querySelectorAll(".inv").forEach(function(e) { clearFieldError(e); });
