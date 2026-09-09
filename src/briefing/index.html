@@ -76,14 +76,23 @@
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
       }
+      html,
+      body {
+        height: 100%;
+        overflow: hidden;
+      }
+      body {
+        min-height: 100dvh;
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
+      }
       a {
         color: inherit;
       }
 
       /* ── Header ── */
       header.top {
-        position: sticky;
-        top: 0;
+        position: relative;
         z-index: 100;
         background: var(--header-bg);
         border-bottom: 1px solid rgba(255, 255, 255, 0.08);
@@ -120,13 +129,22 @@
       /* ── Wrap ── */
       .wrap {
         max-width: 720px;
+        width: 100%;
+        min-height: 0;
         margin: 0 auto;
-        padding: 36px 20px 140px;
+        padding: 14px 20px;
+      }
+      main {
+        height: 100%;
+        min-height: 0;
+        display: grid;
+        grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+        gap: 10px;
       }
 
       /* ── Intro ── */
-      header.intro {
-        margin-bottom: 28px;
+      .intro {
+        display: none;
       }
       .badge {
         display: inline-flex;
@@ -201,15 +219,15 @@
 
       /* ── Progress Stepper (inspirado 21st.dev Wizard) ── */
       .prog {
-        position: sticky;
-        top: 56px;
+        position: relative;
+        top: auto;
         z-index: 90;
         background: rgba(248, 249, 252, 0.88);
         backdrop-filter: blur(16px) saturate(1.5);
         -webkit-backdrop-filter: blur(16px) saturate(1.5);
         border-bottom: 1px solid var(--line);
-        margin: 0 -20px 28px;
-        padding: 18px 20px 14px;
+        margin: 0 -20px;
+        padding: 12px 20px 10px;
       }
       .steps-rail {
         position: relative;
@@ -390,6 +408,8 @@
       #form > section.active {
         display: block;
         position: relative;
+        height: 100%;
+        overflow: hidden;
         animation: stepIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
       }
       #form > section.active.back {
@@ -471,7 +491,7 @@
 
       /* ── Form Fields ── */
       .f {
-        margin-bottom: 20px;
+        margin-bottom: 14px;
       }
       .f:last-child {
         margin-bottom: 0;
@@ -522,7 +542,7 @@
         }
       }
       textarea {
-        min-height: 90px;
+        min-height: 64px;
         resize: vertical;
         line-height: 1.55;
       }
@@ -636,7 +656,7 @@
         padding: 14px 16px;
         font-size: 13px;
         color: #4b5563;
-        margin-bottom: 22px;
+        margin-bottom: 0;
         line-height: 1.5;
         display: flex;
         gap: 10px;
@@ -656,7 +676,7 @@
 
       /* ── Footer / Navigation ── */
       footer {
-        margin-top: 28px;
+        margin-top: 0;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -863,15 +883,34 @@
       /* ── Responsive ── */
       @media (max-width: 520px) {
         .wrap {
-          padding: 24px 14px 100px;
+          padding: 8px 14px;
         }
         .prog {
-          margin: 0 -14px 24px;
-          padding: 16px 14px 12px;
+          margin: 0 -14px;
+          padding: 8px 14px;
         }
         h1 {
-          font-size: 26px;
+          font-size: 23px;
         }
+        .badge { margin-bottom: 6px; }
+        .sub, .meta, .note, .sd { display: none; }
+        .steps-rail { margin-bottom: 8px; }
+        .prog-bottom { margin-top: 6px; }
+        .saveflag { display: none; }
+        .step-dot { flex: 0 0 32px; min-width: 0; }
+        .step-connector { flex: 1 1 0; width: 0; min-width: 0; max-width: none; }
+        .sh { gap: 10px; }
+        .num { flex-basis: 28px; width: 28px; height: 28px; }
+        .sh h2 { font-size: 18px; }
+        .sd { font-size: 12px; margin: 3px 0 12px 38px; }
+        .f { margin-bottom: 10px; }
+        label.l { margin-bottom: 4px; font-size: 13px; }
+        .help { display: none; }
+        textarea { min-height: 54px; }
+        #form > section { padding: 14px; }
+        footer { min-height: 56px; }
+        #btn, #prevBtn { padding: 11px 16px; min-height: 44px; }
+        #btn { min-width: 0; flex: 1; }
         .meta {
           gap: 6px;
         }
@@ -889,7 +928,17 @@
         .summary-value {
           text-align: left;
         }
-      }      @media (prefers-reduced-motion: reduce) {
+      }
+      @media (max-height: 700px) {
+        .sub, .meta, .note { display: none; }
+        .badge { margin-bottom: 6px; }
+        .intro h1 { font-size: 24px; }
+        .prog { padding-top: 8px; padding-bottom: 8px; }
+        .steps-rail { margin-bottom: 8px; }
+        .prog-bottom { margin-top: 6px; }
+        .sd { margin-bottom: 12px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
         *
           {
             animation-duration: 0.01ms !important;
@@ -962,7 +1011,7 @@
         <span class="badge">Teste grátis · 7 dias</span>
         <h1>Configure sua <em>secretária virtual</em></h1>
         <p class="sub">
-          São 3 passos rápidos. É só o necessário pra sua Recepta atender
+          São passos rápidos, em telas curtas. É só o necessário pra sua Recepta atender
           certo desde a primeira mensagem — nada de cadastro longo.
         </p>
         <div class="meta">
@@ -1052,6 +1101,12 @@
               p: "53 99999-9999",
               h: "WhatsApp do responsável. A Recepta te chama quando precisar de um humano.",
             },
+          ],
+        },
+        {
+          t: "Canais da clínica",
+          d: "Precisamos do número que os pacientes usarão e do CNPJ para liberar seu teste.",
+          f: [
             {
               i: "numero",
               l: "Número da Recepta (com DDD)",
@@ -1068,6 +1123,12 @@
               p: "00.000.000/0000-00",
               h: "Usado apenas para travar teste grátis repetido no mesmo CNPJ.",
             },
+          ],
+        },
+        {
+          t: "Seu atendimento",
+          d: "Conte onde atende e quais serviços sua Recepta pode oferecer.",
+          f: [
             {
               i: "endereco",
               l: "Endereço completo da clínica",
@@ -1083,6 +1144,12 @@
               p: "Ultrassonografia abdominal\nRaio-X de tórax\nMamografia",
               h: "Um por linha. A Recepta só agenda o que estiver nesta lista.",
             },
+          ],
+        },
+        {
+          t: "Horários e convênios",
+          d: "Essas informações ajudam a IA a orientar cada paciente corretamente.",
+          f: [
             {
               i: "convenios",
               l: "Convênios aceitos",
@@ -1519,9 +1586,6 @@
       const rail = document.getElementById("stepsRail"),
         stepLabel = document.getElementById("stepLabel");
       const prevBtn = document.getElementById("prevBtn");
-      const semMotion = window.matchMedia(
-        "(prefers-reduced-motion: reduce)",
-      ).matches;
       const btn = document.getElementById("btn"),
         errBox = document.getElementById("err");
       updateBtnState();
@@ -1584,12 +1648,6 @@
         document.querySelectorAll(".inv").forEach(function(e) { clearFieldError(e); });
         prog();
         updateBtnState();
-        const top =
-          document.querySelector(".prog").getBoundingClientRect().bottom +
-          window.scrollY -
-          16;
-        if (window.scrollY > top)
-          window.scrollTo({ top, behavior: semMotion ? "auto" : "smooth" });
       }
 
       rail.addEventListener("click", (e) => {
@@ -1660,7 +1718,6 @@
           const el = document.querySelector(
             '[data-id="' + missStep[0].i + '"]',
           );
-          if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
           return;
         }
         if (step < totalSteps - 1) {
@@ -1679,7 +1736,6 @@
             (typeof errMsg2 === "string" ? errMsg2 : "Campo obrigatório") +
             (missAll.length > 1 ? " (+" + (missAll.length - 1) + " outros)" : "");
           const el = document.querySelector('[data-id="' + missAll[0].i + '"]');
-          if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
           return;
         }
         errBox.className = "msg";
@@ -1711,7 +1767,6 @@
           });
           buildSummary();
           document.getElementById("completion").classList.add("active");
-          window.scrollTo({ top: 0, behavior: "smooth" });
         } catch (e) {
           btn.disabled = false;
           btn.textContent = "Enviar briefing e liberar meu teste";
@@ -1852,7 +1907,5 @@
 
       showStep(firstIncompleteStep());
     </script>
-    <script src="https://unpkg.com/lenis@latest/dist/lenis.min.js"></script>
-    <script src="/smooth-scroll.js"></script>
   </body>
 </html>
