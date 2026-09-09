@@ -70,8 +70,13 @@ Produção: `https://www.receptaai.com.br`.
   o caminho e publica **site vazio** — já causou apagão duas vezes.
 - **`npx vercel --prod` NÃO move os domínios** (verificado 2026-09-08). O deploy
   vira Production mas os domínios continuam no deployment anterior. Sempre
-  rodar depois:
-  `npx vercel alias set <novo-deployment>-site-magic.vercel.app www.receptaai.com.br receptaai.com.br briefing-recepta.vercel.app`
+  rodar depois — **um domínio por vez**, porque `vercel alias set` aceita no
+  máximo dois argumentos (verificado 2026-09-09, CLI 59.9.1):
+  ```
+  for d in www.receptaai.com.br receptaai.com.br briefing-recepta.vercel.app; do
+    npx vercel alias set <novo-deployment>-site-magic.vercel.app "$d"
+  done
+  ```
   Depois **prove com marker**: `curl .../painel.js | grep -c <marker>`.
   "Ready/Production" no CLI **não é evidência** de que o site mudou.
 - Deploy quebrou o site? **Rollback primeiro, investigar depois.**
