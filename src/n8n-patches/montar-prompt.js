@@ -70,6 +70,11 @@ IMPORTANTE:
 - O bloco [AGENDAMENTO] só deve aparecer quando TODOS os 5 campos estão completos.`;
 systemPrompt += agendamentoBloco;
 
+const agendamentoDeterministico = `
+
+[AGENDAMENTO — GATE DETERMINÍSTICO]: O NOME, SERVICO, DATA e HORA podem estar na mensagem atual ou no histórico. Quando os quatro estiverem disponíveis, use o TELEFONE DO PACIENTE acima como quinto campo e emita obrigatoriamente o bloco [AGENDAMENTO]. Não peça confirmação adicional de modalidade (particular/convênio), disponibilidade, nome, serviço, data ou horário; o workflow valida a disponibilidade. A modalidade não é campo do bloco [AGENDAMENTO]. Em caso de conflito no histórico, use a informação mais recente do paciente.`;
+systemPrompt += agendamentoDeterministico;
+
 const pastDateInstr = "\n\n[VALIDAÇÃO DE DATA]: NUNCA inclua o bloco [AGENDAMENTO] para datas ou horários que já passaram. Se o paciente pedir um horário no passado, informe que aquele horário já passou e sugira horários futuros. O sistema rejeitará agendamentos no passado, mas é melhor prevenir no prompt.";
 systemPrompt += pastDateInstr;
 
@@ -205,7 +210,7 @@ let messages = historico.map((h) => ({
 }));
 messages.push({ role: 'user', content: mensagemAtual });
 
-const consolidacaoRule = "\n[REGRA DE CONSOLIDAÇÃO DE INTENÇÃO]\nSempre use a informação MAIS RECENTE do paciente. Se houver contradições no histórico (ex: paciente disse \"sexta\" antes, mas depois disse \"hoje\"),.Ignore as informações anteriores e use a última declaração. NÃO repita perguntas sobre dados que o paciente já forneceu. Se o paciente já confirmou nome, telefone, serviço, data e horário, NÃO peça confirmação novamente — apenas confirme e prossiga.";
+const consolidacaoRule = "\n[REGRA DE CONSOLIDAÇÃO DE INTENÇÃO]\nSempre use a informação MAIS RECENTE do paciente. Se houver contradições no histórico (ex: paciente disse \"sexta\" antes, mas depois disse \"hoje\"), ignore as informações anteriores e use a última declaração. NÃO repita perguntas sobre dados que o paciente já forneceu. Se o paciente já confirmou nome, telefone, serviço, data e horário, NÃO peça confirmação novamente — emita o bloco [AGENDAMENTO] conforme o gate determinístico.";
 const systemWithConsolidation = systemPrompt + consolidacaoRule;
 
 

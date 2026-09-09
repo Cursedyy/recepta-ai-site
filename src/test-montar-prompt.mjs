@@ -105,6 +105,14 @@ checar(
   prompt.includes("REGRAS DO SEGMENTO"),
   "bloco de regras_categoria intacto",
 );
+checar(
+  prompt.includes("AGENDAMENTO — GATE DETERMINÍSTICO"),
+  "gate determinístico de agendamento presente",
+);
+checar(
+  prompt.includes("A modalidade não é campo do bloco [AGENDAMENTO]"),
+  "modalidade não bloqueia a tag de agendamento",
+);
 
 // config_editavel vazio nao pode gerar bloco fantasma nem quebrar.
 contexto["Configuração da Clínica"].config_editavel = {};

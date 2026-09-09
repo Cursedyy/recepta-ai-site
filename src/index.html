@@ -3025,7 +3025,8 @@
       .stat-text {
         font-size: 16px;
         line-height: 1.5;
-        color: rgba(255,255,255,0.9);
+        /* Texto normal sobre #151749 precisa permanecer >= 4.5:1. */
+        color: #fff !important;
       }
       .stat-text strong {
         color: #fff;
@@ -3034,7 +3035,7 @@
       }
       .stat-source {
         font-size: 12px;
-        color: rgba(255,255,255,0.45);
+        color: rgba(255,255,255,0.55);
         margin-top: 4px;
       }
       .stat-cta {
@@ -3239,9 +3240,12 @@
       .wa-bub .wa-tm {
         display: block;
         font-size: 11px;
-        color: rgba(0,0,0,0.4);
+        color: #767676;
         text-align: right;
         margin-top: 2px;
+      }
+      .wa-bub.out .wa-tm {
+        color: #526348;
       }
       .wa-tail-in, .wa-tail-out {
         position: absolute;
