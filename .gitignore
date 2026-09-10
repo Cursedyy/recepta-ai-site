@@ -42,5 +42,3 @@ uploads/
 .thumbnail
 dy
 
-# arquivo de outro projeto (risco XSS) — ver AGENTS.md "Armadilhas do repo"
-support.js

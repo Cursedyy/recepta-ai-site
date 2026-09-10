@@ -44,7 +44,7 @@ Produção: `https://www.receptaai.com.br`.
 | Migrations          | `supabase-migrations/*.sql`                                                                 |
 | Health check        | `scripts/health.mjs` (`npm run health` na raiz)                                             |
 
-**Não é fonte:** `archive/` (código descontinuado), `support.js`, `tmp*/`,
+**Não é fonte:** `archive/` (código descontinuado), `tmp*/`,
 `src/screenshots/`, `docs/prd/` (planos antigos, não estado).
 
 ## Armadilhas do repo
@@ -58,9 +58,6 @@ Produção: `https://www.receptaai.com.br`.
   agora 404. Sem decisão de retomada — **não edite nada aí achando que corrige
   o painel.** Detalhe: `archive/clinic-react-descontinuado/LEIA-ME.md` e memória
   `repo-artifacts-e-deploy`.
-- `support.js` (raiz, 69 KB) é de outro projeto, marcado com risco de XSS.
-  Está no `.gitignore` mas foi commitado antes, então ainda é rastreado e
-  aparece em toda busca. Ignore-o.
 - `docs/prd/*` são planos, vários já superados. Ler runbook/memória, não PRD.
 
 ## DEPLOY — ler antes de publicar
