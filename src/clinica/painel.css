@@ -97,18 +97,20 @@ html[data-theme="dark"] .topbar {
   align-items: center;
   gap: 8px;
 }
-.theme-toggle {
+.topbar button.theme-toggle {
   display: inline-grid;
   place-items: center;
   width: 34px;
   height: 34px;
   padding: 0;
   flex: 0 0 auto;
+  overflow: hidden;
 }
-.theme-toggle svg {
+.topbar button.theme-toggle svg {
   width: 17px;
   height: 17px;
   display: block;
+  margin: 0;
 }
 /* Um ícone por tema: sol quando está escuro (o clique leva pra claro) e
    lua quando está claro. Trocar por CSS evita repintar via JS. */
