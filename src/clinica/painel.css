@@ -4,6 +4,7 @@
 :root {
   --bg: #f8fafc;
   --surface: #ffffff;
+  --surface-raised: #ffffff;
   --ink: #0f172a;
   --muted: #64748b;
   --border: #e2e8f0;
@@ -19,16 +20,16 @@
   --orange: #ea580c;
   --orange-bg: #fff7ed;
   --ring: rgba(79, 70, 229, 0.15);
-  --radius: 10px;
-  --radius-lg: 14px;
+  --radius: 12px;
+  --radius-lg: 18px;
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.03);
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
   --shadow:
     0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
   --shadow-lg:
     0 10px 15px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
-  --sidebar-w: 240px;
-  --topbar-h: 56px;
+  --sidebar-w: 260px;
+  --topbar-h: 64px;
 
   /* Tokens de superfície que antes eram cor fixa no meio das regras.
      Existem para que o tema escuro troque tudo num lugar só. */
@@ -50,8 +51,9 @@
    O atributo é escrito em <html> por um script inline no <head>, antes de
    qualquer pintura, para não piscar branco ao recarregar. */
 html[data-theme="dark"] {
-  --bg: #0b1120;
-  --surface: #131c2e;
+  --bg: #08101f;
+  --surface: #111c2f;
+  --surface-raised: #162238;
   --ink: #e8edf7;
   --muted: #94a3b8;
   --border: #253349;
@@ -252,7 +254,7 @@ select {
   align-items: center;
   justify-content: space-between;
   height: var(--topbar-h);
-  padding: 0 24px;
+  padding: 0 28px;
   background: var(--accent);
   color: #fff;
 }
@@ -263,7 +265,7 @@ select {
 }
 .topbar-logo {
   font-weight: 700;
-  font-size: 16px;
+  font-size: 17px;
   letter-spacing: -0.4px;
   display: flex;
   align-items: center;
@@ -292,12 +294,15 @@ select {
   cursor: pointer;
   font-size: 13px;
   font-weight: 500;
-  transition: all 0.2s;
-  backdrop-filter: blur(8px);
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease;
 }
 .topbar button:hover {
   background: rgba(255, 255, 255, 0.15);
   border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
 }
 
 /* ── Layout ── */
@@ -314,8 +319,8 @@ select {
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  padding: 16px 10px;
-  gap: 2px;
+  padding: 20px 12px;
+  gap: 4px;
 }
 .sidebar-section {
   font-size: 10px;
@@ -323,19 +328,23 @@ select {
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  padding: 16px 14px 8px;
+  padding: 18px 14px 7px;
 }
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 9px 14px;
+  gap: 12px;
+  min-height: 42px;
+  padding: 10px 14px;
   border-radius: var(--radius);
   cursor: pointer;
   font-size: 13px;
   font-weight: 500;
   color: var(--muted);
-  transition: all 0.15s ease;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    transform 0.15s ease;
   border: none;
   background: none;
   width: 100%;
@@ -345,11 +354,12 @@ select {
 .nav-item:hover {
   background: var(--accent-soft);
   color: var(--ink);
+  transform: translateX(2px);
 }
 .nav-item.active {
-  background: var(--primary);
-  color: #fff;
-  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
+  background: var(--primary-soft);
+  color: var(--primary);
+  box-shadow: inset 3px 0 0 var(--primary);
 }
 .nav-item .icon {
   width: 20px;
@@ -382,25 +392,31 @@ select {
   flex-direction: column;
 }
 .content-header {
-  padding: 20px 28px 16px;
+  padding: 26px 32px 22px;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
 }
 .content-header h1 {
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 700;
   letter-spacing: -0.4px;
   color: var(--ink);
 }
 .content-header p {
-  font-size: 13px;
+  font-size: 13.5px;
   color: var(--muted);
   margin-top: 4px;
 }
 .content-body {
   flex: 1 1 auto;
   overflow-y: auto;
-  padding: 24px 28px 100px;
+  padding: 28px 32px 112px;
+}
+.content-body > * {
+  width: 100%;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
 }
 .content-body::-webkit-scrollbar {
   width: 5px;
@@ -488,12 +504,12 @@ textarea.field-input {
 
 /* ── Cards / Sections ── */
 .section-card {
-  background: var(--surface);
+  background: var(--surface-raised);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 20px 24px;
-  margin-bottom: 16px;
-  box-shadow: var(--shadow-xs);
+  padding: 24px 26px;
+  margin-bottom: 18px;
+  box-shadow: var(--shadow-sm);
 }
 .section-card-header {
   display: flex;
@@ -502,8 +518,8 @@ textarea.field-input {
   margin-bottom: 16px;
 }
 .section-card-title {
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700;
 }
 .section-card-desc {
   font-size: 12px;
@@ -1132,8 +1148,8 @@ textarea.field-input {
 /* ── Floating save ── */
 .save-bar {
   position: fixed;
-  bottom: 20px;
-  right: 24px;
+  bottom: 24px;
+  right: 32px;
   z-index: 50;
   display: flex;
   align-items: center;
@@ -1141,7 +1157,7 @@ textarea.field-input {
   background: var(--surface);
   border: 1.5px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 10px 18px;
+  padding: 11px 12px 11px 18px;
   box-shadow: var(--shadow-lg);
 }
 

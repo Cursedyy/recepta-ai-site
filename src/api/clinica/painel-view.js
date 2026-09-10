@@ -80,7 +80,6 @@ function paginaPainel(
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
-<link rel="stylesheet" href="/clinica/painel.css">
 <style>
 :root {
   --bg: #f8fafc; --surface: #ffffff; --ink: #0f172a; --muted: #64748b;
@@ -325,6 +324,7 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
 .whatsapp-banner .banner-btn:hover { background: #c2410c; transform: translateY(-1px); box-shadow: 0 2px 8px rgba(234,88,12,0.3); }
 .whatsapp-banner.hidden { display: none; }
 </style>
+<link rel="stylesheet" href="/clinica/painel.css?v=20260910-visual">
 </head>
 <body>
 <div class="topbar">
@@ -629,7 +629,7 @@ window.__PAINEL__ = {
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/l10n/pt.js"></script>
-<script src="/clinica/painel.js"></script>
+<script src="/clinica/painel.js?v=20260910-visual"></script>
 <link rel="stylesheet" href="/page-transition.css" />
 <link rel="stylesheet" href="/loading-screen.css" />
 <script src="/page-transition.js"></script>

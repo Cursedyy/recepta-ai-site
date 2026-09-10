@@ -104,7 +104,9 @@ try {
   );
 
   checar(
-    html.includes('<script src="/clinica/painel.js"></script>'),
+    html.includes(
+      '<script src="/clinica/painel.js?v=20260910-visual"></script>',
+    ),
     "HTML carrega /clinica/painel.js",
   );
   checar(scriptDados !== undefined, "script inline define window.__PAINEL__");
