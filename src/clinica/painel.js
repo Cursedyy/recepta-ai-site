@@ -1002,6 +1002,24 @@ elBtnSalvar.addEventListener("click", function () {
     });
 });
 
+// ── Tema claro/escuro ──
+// O tema inicial já foi aplicado por um script inline no <head> (evita o
+// flash branco). Aqui só fica a troca por clique e a persistência.
+document.getElementById("btn-tema").addEventListener("click", function () {
+  var escuroAgora =
+    document.documentElement.getAttribute("data-theme") === "dark";
+  if (escuroAgora) {
+    document.documentElement.removeAttribute("data-theme");
+  } else {
+    document.documentElement.setAttribute("data-theme", "dark");
+  }
+  try {
+    localStorage.setItem("recepta-tema", escuroAgora ? "light" : "dark");
+  } catch (e) {
+    // Navegador com armazenamento bloqueado: o tema vale só nesta aba.
+  }
+});
+
 // ── Logout ──
 document.getElementById("btn-sair").addEventListener("click", function () {
   fetch("/api/clinica/painel-acoes?acao=logout", { method: "GET" }).then(

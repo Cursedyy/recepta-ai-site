@@ -56,6 +56,23 @@ function paginaPainel(
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Painel da clínica · Recepta AI</title>
 <meta name="robots" content="noindex,nofollow">
+<script>
+/* Tema: roda ANTES de qualquer CSS pintar, senão o painel pisca branco a
+   cada carregamento pra quem usa escuro. Sem preferência salva, segue o
+   sistema operacional. try/catch porque localStorage joga exceção em
+   navegador com dados de site bloqueados. */
+(function () {
+  try {
+    var salvo = localStorage.getItem("recepta-tema");
+    var escuro = salvo
+      ? salvo === "dark"
+      : window.matchMedia("(prefers-color-scheme: dark)").matches;
+    if (escuro) document.documentElement.setAttribute("data-theme", "dark");
+  } catch (e) {
+    /* segue no tema claro */
+  }
+})();
+</script>
 <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32.png">
 <link rel="icon" type="image/png" sizes="512x512" href="/img/favicon-512.png">
 <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
@@ -318,7 +335,13 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
     <span class="topbar-sep">|</span>
     <span class="topbar-clinic">${escapeHtml(nomeClinica)}</span>
   </div>
-  <button id="btn-sair" type="button">Sair</button>
+  <div class="topbar-right">
+    <button id="btn-tema" class="theme-toggle" type="button" title="Alternar tema claro e escuro" aria-label="Alternar tema claro e escuro">
+      <svg class="icon-lua" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <svg class="icon-sol" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v2M12 20.5v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1.5 12h2M20.5 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>
+    </button>
+    <button id="btn-sair" type="button">Sair</button>
+  </div>
 </div>
 
 <div id="gate-overlay" class="gate-overlay${assinatura.gate?.ativo ? "" : " hidden"}">
