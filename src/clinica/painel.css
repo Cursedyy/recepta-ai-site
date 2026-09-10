@@ -10,9 +10,9 @@
   --border: #e2e8f0;
   --accent: #151749;
   --accent-soft: #f1f5f9;
-  --primary: #4f46e5;
-  --primary-hover: #4338ca;
-  --primary-soft: #eef2ff;
+  --primary: #5b5bd6;
+  --primary-hover: #4b4bc4;
+  --primary-soft: #eeeeff;
   --green: #059669;
   --green-bg: #ecfdf5;
   --red: #dc2626;
@@ -20,16 +20,16 @@
   --orange: #ea580c;
   --orange-bg: #fff7ed;
   --ring: rgba(79, 70, 229, 0.15);
-  --radius: 12px;
-  --radius-lg: 18px;
+  --radius: 8px;
+  --radius-lg: 12px;
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.03);
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.03);
   --shadow:
     0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
   --shadow-lg:
     0 10px 15px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
-  --sidebar-w: 260px;
-  --topbar-h: 64px;
+  --sidebar-w: 232px;
+  --topbar-h: 56px;
 
   /* Tokens de superfície que antes eram cor fixa no meio das regras.
      Existem para que o tema escuro troque tudo num lugar só. */
@@ -51,17 +51,17 @@
    O atributo é escrito em <html> por um script inline no <head>, antes de
    qualquer pintura, para não piscar branco ao recarregar. */
 html[data-theme="dark"] {
-  --bg: #08101f;
-  --surface: #111c2f;
-  --surface-raised: #162238;
-  --ink: #e8edf7;
-  --muted: #94a3b8;
-  --border: #253349;
-  --accent: #0b1120;
-  --accent-soft: #1b2740;
-  --primary: #7c8cff;
-  --primary-hover: #96a3ff;
-  --primary-soft: #1e2545;
+  --bg: #151f2c;
+  --surface: #182433;
+  --surface-raised: #1d2b3b;
+  --ink: #f1f5f9;
+  --muted: #9aa8b8;
+  --border: #2b3a4b;
+  --accent: #111927;
+  --accent-soft: #202f40;
+  --primary: #8585f2;
+  --primary-hover: #9a9af7;
+  --primary-soft: #29294b;
   --green: #34d399;
   --green-bg: #0d2b22;
   --red: #f87171;
@@ -254,7 +254,7 @@ select {
   align-items: center;
   justify-content: space-between;
   height: var(--topbar-h);
-  padding: 0 28px;
+  padding: 0 20px;
   background: var(--accent);
   color: #fff;
 }
@@ -265,7 +265,7 @@ select {
 }
 .topbar-logo {
   font-weight: 700;
-  font-size: 17px;
+  font-size: 16px;
   letter-spacing: -0.4px;
   display: flex;
   align-items: center;
@@ -302,7 +302,6 @@ select {
 .topbar button:hover {
   background: rgba(255, 255, 255, 0.15);
   border-color: rgba(255, 255, 255, 0.2);
-  transform: translateY(-1px);
 }
 
 /* ── Layout ── */
@@ -319,8 +318,8 @@ select {
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  padding: 20px 12px;
-  gap: 4px;
+  padding: 12px 10px;
+  gap: 2px;
 }
 .sidebar-section {
   font-size: 10px;
@@ -328,14 +327,14 @@ select {
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  padding: 18px 14px 7px;
+  padding: 14px 12px 6px;
 }
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  min-height: 42px;
-  padding: 10px 14px;
+  gap: 10px;
+  min-height: 38px;
+  padding: 8px 12px;
   border-radius: var(--radius);
   cursor: pointer;
   font-size: 13px;
@@ -343,8 +342,7 @@ select {
   color: var(--muted);
   transition:
     background 0.15s ease,
-    color 0.15s ease,
-    transform 0.15s ease;
+    color 0.15s ease;
   border: none;
   background: none;
   width: 100%;
@@ -354,7 +352,6 @@ select {
 .nav-item:hover {
   background: var(--accent-soft);
   color: var(--ink);
-  transform: translateX(2px);
 }
 .nav-item.active {
   background: var(--primary-soft);
@@ -392,29 +389,29 @@ select {
   flex-direction: column;
 }
 .content-header {
-  padding: 26px 32px 22px;
+  padding: 20px 28px 16px;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
 }
 .content-header h1 {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 700;
   letter-spacing: -0.4px;
   color: var(--ink);
 }
 .content-header p {
-  font-size: 13.5px;
+  font-size: 13px;
   color: var(--muted);
   margin-top: 4px;
 }
 .content-body {
   flex: 1 1 auto;
   overflow-y: auto;
-  padding: 28px 32px 112px;
+  padding: 24px 28px 88px;
 }
 .content-body > * {
   width: 100%;
-  max-width: 1280px;
+  max-width: 1200px;
   margin-left: auto;
   margin-right: auto;
 }
@@ -507,9 +504,9 @@ textarea.field-input {
   background: var(--surface-raised);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 24px 26px;
-  margin-bottom: 18px;
-  box-shadow: var(--shadow-sm);
+  padding: 20px 22px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-xs);
 }
 .section-card-header {
   display: flex;
@@ -518,8 +515,8 @@ textarea.field-input {
   margin-bottom: 16px;
 }
 .section-card-title {
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 600;
 }
 .section-card-desc {
   font-size: 12px;
@@ -1145,20 +1142,21 @@ textarea.field-input {
   }
 }
 
-/* ── Floating save ── */
+/* ── Barra de ações integrada ── */
 .save-bar {
   position: fixed;
-  bottom: 24px;
-  right: 32px;
+  left: var(--sidebar-w);
+  right: 0;
+  bottom: 0;
   z-index: 50;
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 12px;
   background: var(--surface);
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 11px 12px 11px 18px;
-  box-shadow: var(--shadow-lg);
+  border-top: 1px solid var(--border);
+  padding: 12px 28px;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
 }
 
 /* ── Responsive ── */
@@ -1166,6 +1164,10 @@ textarea.field-input {
   .sidebar {
     width: 60px;
     padding: 10px 6px;
+  }
+  .save-bar {
+    left: 60px;
+    padding-right: 18px;
   }
   .sidebar-section {
     display: none;

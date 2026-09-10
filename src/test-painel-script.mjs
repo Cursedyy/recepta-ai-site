@@ -105,7 +105,7 @@ try {
 
   checar(
     html.includes(
-      '<script src="/clinica/painel.js?v=20260910-visual"></script>',
+      '<script src="/clinica/painel.js?v=20260910-tabler"></script>',
     ),
     "HTML carrega /clinica/painel.js",
   );
