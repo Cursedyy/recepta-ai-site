@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Briefing — Recepta AI | Teste grátis de 7 dias</title>
+    <title>Comece o teste grátis de 7 dias | Recepta AI</title>
     <meta
       name="description"
       content="Formulário de configuração da sua secretária virtual com Recepta."
@@ -1012,7 +1012,7 @@
         <h1>Configure sua <em>secretária virtual</em></h1>
         <p class="sub">
           São passos rápidos, em telas curtas. É só o necessário pra sua Recepta atender
-          certo desde a primeira mensagem — nada de cadastro longo.
+          certo desde a primeira mensagem. Nada de cadastro longo.
         </p>
         <div class="meta">
           <span class="pill">~2 min</span
@@ -1430,12 +1430,12 @@
         for (var i = 0; i < 12; i++) sum += parseInt(d.charAt(i)) * weights1[i];
         var r = sum % 11;
         var digit1 = r < 2 ? 0 : 11 - r;
-        if (parseInt(d.charAt(12)) !== digit1) return "CNPJ inválido — dígito verificador incorreto";
+        if (parseInt(d.charAt(12)) !== digit1) return "CNPJ inválido: confira os números";
         sum = 0;
         for (var i = 0; i < 13; i++) sum += parseInt(d.charAt(i)) * weights2[i];
         r = sum % 11;
         var digit2 = r < 2 ? 0 : 11 - r;
-        if (parseInt(d.charAt(13)) !== digit2) return "CNPJ inválido — dígito verificador incorreto";
+        if (parseInt(d.charAt(13)) !== digit2) return "CNPJ inválido: confira os números";
         return true;
       }
 
@@ -1783,7 +1783,7 @@
           btn.textContent = "Enviar briefing e liberar meu teste";
           errBox.className = "msg err";
           errBox.textContent =
-            "Não conseguimos enviar agora. Seus dados estão salvos neste navegador — tente de novo em instantes.";
+            "Não conseguimos enviar agora. Seus dados estão salvos neste navegador, tente de novo em instantes.";
         }
       });
 
