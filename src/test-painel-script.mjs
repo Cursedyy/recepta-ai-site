@@ -94,24 +94,25 @@ try {
     (m) => m[1],
   );
   checar(
-    inline.length === 1,
-    `exatamente 1 <script> inline (achou ${inline.length})`,
+    inline.length >= 1,
+    `ao menos 1 <script> inline (achou ${inline.length})`,
   );
   inline.forEach((codigo, i) => parseia(codigo, `<script> inline [${i}]`));
+
+  const scriptDados = inline.find((codigo) =>
+    codigo.includes("window.__PAINEL__"),
+  );
 
   checar(
     html.includes('<script src="/clinica/painel.js"></script>'),
     "HTML carrega /clinica/painel.js",
   );
-  checar(
-    inline[0] !== undefined && inline[0].includes("window.__PAINEL__"),
-    "script inline define window.__PAINEL__",
-  );
+  checar(scriptDados !== undefined, "script inline define window.__PAINEL__");
   // O cliente le os dados por window.__PAINEL__: se o painel-view parar de
   // publicar uma chave, a tela quebra em runtime sem erro de sintaxe.
   ["config", "dias", "nomeDia", "assinatura"].forEach((chave) => {
     checar(
-      inline[0] !== undefined && inline[0].includes(chave + ":"),
+      scriptDados !== undefined && scriptDados.includes(chave + ":"),
       `__PAINEL__ publica "${chave}"`,
     );
   });

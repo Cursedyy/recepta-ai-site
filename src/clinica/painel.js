@@ -60,19 +60,19 @@ var FAQ_CATEGORIA = DADOS.faqCategoria || [];
     status: "Status",
   };
   var ICONS = {
-    agenda: "📋",
-    horarios: "🕐",
-    precos: "💰",
-    procedimentos: "⚙️",
-    convenios: "🏥",
-    mensagem: "💬",
-    regras: "⚙️",
-    faq: "❓",
-    conversas: "🗨️",
-    pausa: "⏸️",
-    perfil: "👤",
-    feriados: "📅",
-    status: "📊",
+    agenda: "calendar-days",
+    horarios: "clock-3",
+    precos: "badge-dollar-sign",
+    procedimentos: "sliders-horizontal",
+    convenios: "building-2",
+    mensagem: "message-square-text",
+    regras: "list-checks",
+    faq: "circle-help",
+    conversas: "messages-square",
+    pausa: "pause-circle",
+    perfil: "user-round",
+    feriados: "calendar-off",
+    status: "chart-no-axes-column-increasing",
   };
 
   TABS_SIDEBAR.forEach(function (tab) {
@@ -80,7 +80,19 @@ var FAQ_CATEGORIA = DADOS.faqCategoria || [];
     if (!navBtn) return;
     var visivel = TABS_VISIVEIS.indexOf(tab) !== -1;
     navBtn.style.display = visivel ? "" : "none";
+    var icon = navBtn.querySelector(".icon");
+    if (icon && ICONS[tab] && window.lucide) {
+      icon.innerHTML = '<i data-lucide="' + ICONS[tab] + '"></i>';
+    }
   });
+
+  var conectarIcon = document.querySelector(
+    '.nav-item[href="/clinica/conectar"] .icon',
+  );
+  if (conectarIcon && window.lucide) {
+    conectarIcon.innerHTML = '<i data-lucide="message-circle-more"></i>';
+  }
+  if (window.lucide) window.lucide.createIcons();
 
   // Atualiza label da aba procedimentos
   var navProc = document.getElementById("nav-procedimentos");
@@ -505,7 +517,32 @@ function abrirModalAgendamento(item) {
     if (e.target === modal) modal.remove();
   });
   document.body.appendChild(modal);
-  (novo ? iTel : iData).focus();
+  if (window.flatpickr) {
+    var localePt = window.flatpickr.l10ns && window.flatpickr.l10ns.pt;
+    window.flatpickr(iData, {
+      locale: localePt || "default",
+      minDate: "today",
+      dateFormat: "Y-m-d",
+      altInput: true,
+      altFormat: "d/m/Y",
+      disableMobile: true,
+    });
+    window.flatpickr(iHora, {
+      locale: localePt || "default",
+      enableTime: true,
+      noCalendar: true,
+      dateFormat: "H:i",
+      time_24hr: true,
+      minuteIncrement: 5,
+      disableMobile: true,
+    });
+  }
+  var focoInicial = novo
+    ? iTel
+    : iData._flatpickr && iData._flatpickr.altInput
+      ? iData._flatpickr.altInput
+      : iData;
+  focoInicial.focus();
 }
 
 function renderAgenda(agendamentos) {
@@ -1018,6 +1055,7 @@ document.getElementById("btn-tema").addEventListener("click", function () {
   } catch (e) {
     // Navegador com armazenamento bloqueado: o tema vale só nesta aba.
   }
+  atualizarTemaGrafico();
 });
 
 // ── Logout ──
@@ -1977,6 +2015,32 @@ document
 carregarFeriados();
 
 // ── Métricas ──
+var metricasChart = null;
+function coresDoGrafico() {
+  var css = getComputedStyle(document.documentElement);
+  return {
+    texto: css.getPropertyValue("--muted").trim(),
+    borda: css.getPropertyValue("--surface").trim(),
+    grade: css.getPropertyValue("--border").trim(),
+    cores: [
+      css.getPropertyValue("--primary").trim(),
+      css.getPropertyValue("--green").trim(),
+      css.getPropertyValue("--orange").trim(),
+    ],
+  };
+}
+
+function atualizarTemaGrafico() {
+  if (!metricasChart) return;
+  var tema = coresDoGrafico();
+  metricasChart.data.datasets[0].backgroundColor = tema.cores;
+  metricasChart.data.datasets[0].borderColor = tema.borda;
+  metricasChart.options.scales.x.ticks.color = tema.texto;
+  metricasChart.options.scales.x.grid.color = tema.grade;
+  metricasChart.options.scales.y.ticks.color = tema.texto;
+  metricasChart.update("none");
+}
+
 metricasPromise
   .then(function (res) {
     var elC = document.getElementById("metricas-corpo");
@@ -1986,9 +2050,8 @@ metricasPromise
     }
     elC.className = "";
     elC.innerHTML = "";
-    var grid = el("div", {
-      style: "display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px",
-    });
+    var layout = el("div", { class: "metricas-layout" });
+    var grid = el("div", { class: "metricas-grid" });
     var items = [
       {
         val: res.total_conversas || 0,
@@ -2007,26 +2070,79 @@ metricasPromise
       },
     ];
     items.forEach(function (item) {
-      var card = el(
-        "div",
-        {
-          style:
-            "text-align:center;padding:14px 12px;background:var(--accent-soft);border-radius:var(--radius)",
-        },
-        [
-          el("div", {
-            style: "font-size:28px;font-weight:700;color:" + item.color,
-            text: String(item.val),
-          }),
-          el("div", {
-            style: "font-size:12px;color:var(--muted);margin-top:2px",
-            text: item.lbl,
-          }),
-        ],
-      );
+      var card = el("div", { class: "metrica-card" }, [
+        el("div", {
+          class: "metrica-valor",
+          style: "color:" + item.color,
+          text: String(item.val),
+        }),
+        el("div", {
+          class: "metrica-label",
+          text: item.lbl,
+        }),
+      ]);
       grid.appendChild(card);
     });
-    elC.appendChild(grid);
+    layout.appendChild(grid);
+    if (window.Chart) {
+      var grafico = el("div", {
+        class: "metricas-grafico",
+        role: "img",
+        "aria-label": "Comparação visual das métricas da clínica",
+      });
+      var canvas = el("canvas", { "aria-hidden": "true" });
+      grafico.appendChild(canvas);
+      layout.appendChild(grafico);
+      var tema = coresDoGrafico();
+      metricasChart = new window.Chart(canvas, {
+        type: "bar",
+        data: {
+          labels: items.map(function (item) {
+            return item.lbl;
+          }),
+          datasets: [
+            {
+              data: items.map(function (item) {
+                return item.val;
+              }),
+              backgroundColor: tema.cores,
+              borderColor: tema.borda,
+              borderWidth: 0,
+              borderRadius: 6,
+              barThickness: 24,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          indexAxis: "y",
+          animation: window.matchMedia("(prefers-reduced-motion: reduce)")
+            .matches
+            ? false
+            : { duration: 180 },
+          plugins: {
+            legend: {
+              display: false,
+            },
+          },
+          scales: {
+            x: {
+              beginAtZero: true,
+              ticks: { color: tema.texto, precision: 0 },
+              grid: { color: tema.grade },
+              border: { display: false },
+            },
+            y: {
+              ticks: { color: tema.texto },
+              grid: { display: false },
+              border: { display: false },
+            },
+          },
+        },
+      });
+    }
+    elC.appendChild(layout);
   })
   .catch(function () {
     document.getElementById("metricas-corpo").textContent = "Falha de conexão.";

@@ -119,6 +119,95 @@ html[data-theme="dark"] .theme-toggle .icon-sol {
 html[data-theme="dark"] .theme-toggle .icon-lua {
   display: none;
 }
+
+/* Bibliotecas visuais: mantêm Chart.js e flatpickr dentro do design system. */
+.metricas-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.72fr);
+  gap: 16px;
+  align-items: stretch;
+}
+.metricas-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.metrica-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 138px;
+  padding: 16px 12px;
+  text-align: center;
+  background: var(--accent-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.metrica-valor {
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.15;
+  font-variant-numeric: tabular-nums;
+}
+.metrica-label {
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.metricas-grafico {
+  position: relative;
+  min-height: 180px;
+  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.flatpickr-calendar {
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+}
+.flatpickr-day,
+.flatpickr-months .flatpickr-month,
+.flatpickr-current-month .flatpickr-monthDropdown-months,
+.flatpickr-weekday,
+span.flatpickr-weekday {
+  color: var(--ink);
+  background: var(--surface);
+}
+.flatpickr-day:hover,
+.flatpickr-day:focus {
+  background: var(--accent-soft);
+  border-color: var(--accent-soft);
+}
+.flatpickr-day.selected,
+.flatpickr-day.selected:hover {
+  color: #fff;
+  background: var(--primary);
+  border-color: var(--primary);
+}
+.flatpickr-day.prevMonthDay,
+.flatpickr-day.nextMonthDay {
+  color: var(--muted);
+}
+.flatpickr-time input,
+.flatpickr-time .flatpickr-am-pm {
+  color: var(--ink);
+  background: var(--surface);
+}
+
+@media (max-width: 760px) {
+  .metricas-layout {
+    grid-template-columns: 1fr;
+  }
+  .metricas-grid {
+    grid-template-columns: 1fr;
+  }
+  .metrica-card {
+    min-height: 96px;
+  }
+}
 @media (prefers-reduced-motion: no-preference) {
   .theme-toggle svg {
     transition: transform 0.2s ease;
