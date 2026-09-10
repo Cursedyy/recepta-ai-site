@@ -114,13 +114,13 @@ html[data-theme="dark"] .topbar {
 }
 /* Um ícone por tema: sol quando está escuro (o clique leva pra claro) e
    lua quando está claro. Trocar por CSS evita repintar via JS. */
-.theme-toggle .icon-sol {
+.topbar button.theme-toggle .icon-sol {
   display: none;
 }
-html[data-theme="dark"] .theme-toggle .icon-sol {
+html[data-theme="dark"] .topbar button.theme-toggle .icon-sol {
   display: block;
 }
-html[data-theme="dark"] .theme-toggle .icon-lua {
+html[data-theme="dark"] .topbar button.theme-toggle .icon-lua {
   display: none;
 }
 

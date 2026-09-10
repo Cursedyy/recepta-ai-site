@@ -324,7 +324,7 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
 .whatsapp-banner .banner-btn:hover { background: #c2410c; transform: translateY(-1px); box-shadow: 0 2px 8px rgba(234,88,12,0.3); }
 .whatsapp-banner.hidden { display: none; }
 </style>
-<link rel="stylesheet" href="/clinica/painel.css?v=20260910-theme-icon">
+<link rel="stylesheet" href="/clinica/painel.css?v=20260910-theme-toggle">
 </head>
 <body>
 <div class="topbar">
