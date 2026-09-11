@@ -2,6 +2,8 @@ import { createClient } from "@supabase/supabase-js";
 import { createSupabaseServerClient } from "../_lib/supabase-server.js";
 import { getClientIp } from "../_lib/rate-limit.js";
 
+const TIERS_VALIDOS = new Set(["essencial", "completo"]);
+
 // ── Auth helper ──
 async function autenticarAdmin(req, res) {
   const supabase = createSupabaseServerClient(req, res);
@@ -60,7 +62,7 @@ async function handleGet(req, res, auth) {
     const { data, error } = await admin
       .from("clinicas")
       .select(
-        "id,clinica,status,trial_fim,plano,stripe_customer_id,tempo_pausa_minutos,criado_em",
+        "id,clinica,status,trial_fim,plano,tier,stripe_customer_id,tempo_pausa_minutos,criado_em",
       )
       .order("criado_em", { ascending: false });
     if (error) return res.status(500).json({ erro: "falha_buscar" });
@@ -197,6 +199,7 @@ async function handlePost(req, res, auth) {
         status: "ativo",
         trial_inicio: now.toISOString(),
         trial_fim: trialFim.toISOString(),
+        tier: "completo",
       })
       .select("id,clinica")
       .maybeSingle();
@@ -221,6 +224,12 @@ async function handlePost(req, res, auth) {
     if (typeof body?.status === "string") updates.status = body.status;
     if (body?.trial_fim !== undefined) updates.trial_fim = body.trial_fim;
     if (typeof body?.plano === "string") updates.plano = body.plano;
+    if (body?.tier !== undefined) {
+      if (typeof body.tier !== "string" || !TIERS_VALIDOS.has(body.tier)) {
+        return res.status(400).json({ erro: "tier_invalido" });
+      }
+      updates.tier = body.tier;
+    }
     if (typeof body?.tempo_pausa_minutos === "number")
       updates.tempo_pausa_minutos = body.tempo_pausa_minutos;
     if (!Object.keys(updates).length)
@@ -235,6 +244,39 @@ async function handlePost(req, res, auth) {
       ip,
     );
     return res.status(200).json({ ok: true });
+  }
+
+  // ── Trocar somente o tier de recursos ──
+  if (body?.acao === "alterar_tier") {
+    const id = body?.id;
+    const tier = body?.tier;
+    if (!id) return res.status(400).json({ erro: "id_obrigatorio" });
+    if (typeof tier !== "string" || !TIERS_VALIDOS.has(tier))
+      return res.status(400).json({ erro: "tier_invalido" });
+
+    const { data: atual, error: erroBusca } = await admin
+      .from("clinicas")
+      .select("id,tier")
+      .eq("id", id)
+      .maybeSingle();
+    if (erroBusca || !atual)
+      return res.status(404).json({ erro: "clinica_nao_encontrada" });
+    if (atual.tier === tier)
+      return res.status(200).json({ ok: true, tier, alterado: false });
+
+    const { error } = await admin
+      .from("clinicas")
+      .update({ tier })
+      .eq("id", id);
+    if (error) return res.status(500).json({ erro: "falha_atualizar_tier" });
+    await registrarLog(
+      admin,
+      userId,
+      "alterar_tier",
+      { clinica_id: id, de: atual.tier || "essencial", para: tier },
+      ip,
+    );
+    return res.status(200).json({ ok: true, tier, alterado: true });
   }
 
   // ── Gerar convite para clínica ──

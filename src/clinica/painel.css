@@ -45,6 +45,7 @@
   --chat-dot: rgba(38, 32, 92, 0.08);
   --bubble-paciente: #ffffff;
   --bubble-ia-border: #c9c3f2;
+  --chat-day-bg: rgba(255, 255, 255, 0.92);
 }
 
 /* ══ Tema escuro ══════════════════════════════════════════════════════
@@ -82,6 +83,7 @@ html[data-theme="dark"] {
   --chat-dot: rgba(255, 255, 255, 0.05);
   --bubble-paciente: #1a2438;
   --bubble-ia-border: #4a4383;
+  --chat-day-bg: #182433;
   /* Sombra clara não existe no escuro: o que dá profundidade é o preto. */
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.3);
@@ -1068,7 +1070,7 @@ textarea.field-input {
   font-size: 11px;
   font-weight: 600;
   color: var(--muted);
-  background: rgba(255, 255, 255, 0.92);
+  background: var(--chat-day-bg);
   border: 1px solid var(--border);
   padding: 3px 12px;
   border-radius: 999px;
@@ -1228,5 +1230,125 @@ textarea.field-input {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* Ajustes finais de uso diário. Mantém a interface compacta e consistente
+   sem alterar os contratos dos componentes renderizados pelo painel. */
+.content-header {
+  position: relative;
+  padding-bottom: 18px;
+}
+.content-header::after {
+  content: "";
+  position: absolute;
+  left: 28px;
+  bottom: -1px;
+  width: 34px;
+  height: 3px;
+  border-radius: 999px;
+  background: var(--lilac);
+}
+.section-card {
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+.section-card:focus-within,
+.section-card:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-sm);
+}
+.nav-item.active {
+  font-weight: 650;
+}
+.nav-item:active,
+.btn:active,
+.btn-icon:active {
+  transform: translateY(1px);
+}
+.btn-primary:focus-visible,
+.btn-danger:focus-visible {
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 5px var(--ring);
+}
+.ag-item {
+  min-height: 66px;
+}
+.ag-actions {
+  flex-shrink: 0;
+}
+.vazio {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  font-style: normal;
+}
+.vazio::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--lilac);
+}
+#fila-lista .item-row {
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+#fila-lista .item-row > div {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+#fila-lista .item-row .btn {
+  flex: 0 0 auto;
+}
+.save-bar #status-salvar {
+  margin-right: auto;
+}
+@media (max-width: 768px) {
+  .content-header::after {
+    left: 18px;
+  }
+  .save-bar {
+    gap: 8px;
+  }
+  .save-bar .btn {
+    min-height: 40px;
+  }
+}
+@media (max-width: 480px) {
+  .content-header {
+    padding: 12px 16px 15px;
+  }
+  .content-header::after {
+    left: 16px;
+  }
+  .content-body {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .section-card {
+    padding: 14px;
+  }
+  .ag-item {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    padding: 12px;
+  }
+  .ag-date {
+    min-width: 52px;
+  }
+  .ag-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+  #fila-lista .item-row .btn {
+    min-height: 36px;
+  }
+  .save-bar {
+    padding: 10px 12px;
   }
 }

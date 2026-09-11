@@ -22,6 +22,7 @@ var CAMPOS_EXTRAS = DADOS.camposExtras || [];
 var CAMPOS_SALVOS = CONFIG.campos_extras || {};
 var REGRAS_CATEGORIA = DADOS.regrasCategoria || "";
 var FAQ_CATEGORIA = DADOS.faqCategoria || [];
+var TIER_RECURSOS = (DADOS.assinatura || {}).tier || "essencial";
 
 // ── Tabs dinâmicas: esconde/mostra nav items conforme a categoria ──
 (function () {
@@ -30,6 +31,7 @@ var FAQ_CATEGORIA = DADOS.faqCategoria || [];
   // Tabs que a sidebar mostra (data-tab)
   var TABS_SIDEBAR = [
     "agenda",
+    "fila",
     "horarios",
     "precos",
     "procedimentos",
@@ -58,6 +60,7 @@ var FAQ_CATEGORIA = DADOS.faqCategoria || [];
     perfil: "Perfil",
     feriados: "Feriados",
     status: "Status",
+    fila: "Fila de espera",
   };
   var ICONS = {
     agenda: "calendar-days",
@@ -73,12 +76,14 @@ var FAQ_CATEGORIA = DADOS.faqCategoria || [];
     perfil: "user-round",
     feriados: "calendar-off",
     status: "chart-no-axes-column-increasing",
+    fila: "list-ordered",
   };
 
   TABS_SIDEBAR.forEach(function (tab) {
     var navBtn = document.querySelector('.nav-item[data-tab="' + tab + '"]');
     if (!navBtn) return;
     var visivel = TABS_VISIVEIS.indexOf(tab) !== -1;
+    if (tab === "fila") visivel = TIER_RECURSOS === "completo";
     navBtn.style.display = visivel ? "" : "none";
     var icon = navBtn.querySelector(".icon");
     if (icon && ICONS[tab] && window.lucide) {
@@ -103,6 +108,48 @@ var FAQ_CATEGORIA = DADOS.faqCategoria || [];
     if (labelProc && CATEGORIA_META.nome) {
       labelProc.textContent = "Dados da clínica";
     }
+  }
+  // ── Fila de espera (tier Completo, API server-side) ──
+  function carregarFilaPainel() {
+    var status = document.getElementById("fila-status"), lista = document.getElementById("fila-lista");
+    if (!status || !lista) return;
+    fetch("/api/clinica/fila").then(function (r) { return r.json().then(function (j) { return { r: r, j: j }; }); }).then(function (x) {
+      if (x.r.status === 403) { status.textContent = "A fila de espera está disponível somente no plano Completo."; lista.innerHTML = ""; return; }
+      if (!x.j.ok) { status.textContent = "Não foi possível carregar a fila."; return; }
+      var itens = x.j.entradas || []; lista.innerHTML = "";
+      if (!itens.length) { status.style.display = ""; status.textContent = "Fila vazia."; return; }
+      status.style.display = "none";
+      itens.forEach(function (item) {
+        var row = document.createElement("div"); row.className = "item-row";
+        var horario = item.status === "ofertado" ? item.oferta_inicio : item.janela_inicio;
+        var janela = horario ? new Date(horario).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }) : "Horário incompleto";
+        row.innerHTML = "<div><strong>" + escapeHtml(item.paciente_nome || item.paciente_telefone) + "</strong><br><small>" + escapeHtml(item.servico || "") + " · " + janela + " · " + escapeHtml(item.status) + (item.oferta_expira_em ? " · expira " + new Date(item.oferta_expira_em).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }) : "") + "</small></div>";
+        if (["aguardando", "ofertado"].indexOf(item.status) >= 0) { var b = document.createElement("button"); b.className = "btn btn-danger btn-sm"; b.textContent = "Cancelar"; b.onclick = function () { responderFila("cancelar", item.id, b); }; row.appendChild(b); }
+        if (item.status === "ofertado") { [ ["Aceitar", "aceitar"], ["Recusar", "recusar"] ].forEach(function (pair) { var x = document.createElement("button"); x.className = "btn btn-sm"; x.textContent = pair[0]; x.onclick = function () { responderFila(pair[1], item.id, x); }; row.appendChild(x); }); }
+        lista.appendChild(row);
+      });
+    }).catch(function () { status.textContent = "Falha de conexão."; });
+  }
+  function responderFila(acao, id, botao) {
+    var status = document.getElementById("fila-status");
+    if (["cancelar", "recusar"].indexOf(acao) >= 0 && !window.confirm(acao === "cancelar" ? "Cancelar esta entrada da fila?" : "Recusar esta oferta?")) return;
+    if (botao) { botao.disabled = true; botao.setAttribute("aria-busy", "true"); }
+    status.style.display = "";
+    status.textContent = "Atualizando fila...";
+    fetch("/api/clinica/fila", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ acao: acao, id: id }) })
+      .then(function (r) { return r.json().then(function (j) {
+        if (!r.ok || !j.ok) {
+          status.style.display = "";
+          status.textContent = j.mensagem || (j.erro === "horario_ocupado" ? "Esse horário já está ocupado. Escolha outra oferta." : "Não foi possível atualizar a oferta.");
+          return;
+        }
+        carregarFilaPainel();
+      }); })
+      .catch(function () { status.style.display = ""; status.textContent = "Falha de conexão. Tente novamente."; })
+      .finally(function () { if (botao) { botao.disabled = false; botao.removeAttribute("aria-busy"); } });
+  }
+  if (TIER_RECURSOS === "completo") {
+    document.querySelectorAll('[data-tab="fila"]').forEach(function (b) { b.addEventListener("click", carregarFilaPainel); });
   }
 })();
 
@@ -1227,6 +1274,11 @@ function linhaDetalhe(rotulo, valor, alerta) {
     lista.appendChild(linhaDetalhe(rotulo, valor, alerta));
     temLinha = true;
   }
+
+  addLinha(
+    "Recursos",
+    ASSINATURA.tier === "completo" ? "Completo" : "Essencial",
+  );
 
   addLinha(
     "Plano",
