@@ -78,6 +78,10 @@
       "destination": "/api/painel/admin"
     },
     {
+      "source": "/api/painel/reset-admin",
+      "destination": "/api/painel/admin"
+    },
+    {
       "source": "/api/clinica/convite",
       "destination": "/api/painel/admin"
     }
