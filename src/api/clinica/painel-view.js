@@ -82,12 +82,12 @@ function paginaPainel(
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
 <style>
 :root {
-  --bg: #f8fafc; --surface: #ffffff; --ink: #0f172a; --muted: #64748b;
-  --border: #e2e8f0;  --accent: #151749; --accent-soft: #f1f5f9;
-  --primary: #4f46e5; --primary-hover: #4338ca; --primary-soft: #eef2ff;
-  --green: #059669; --green-bg: #ecfdf5; --red: #dc2626; --red-bg: #fef2f2;
+  --bg: #f8f7ff; --surface: #ffffff; --ink: #26205c; --muted: #696580;
+  --border: #dedbf5; --border-input: #8b82c4; --accent: #26205c; --accent-soft: #f0eefb;
+  --primary: #26205c; --primary-hover: #352d78; --primary-soft: #eeedfd;
+  --green: #047857; --green-bg: #ecfdf5; --red: #dc2626; --red-bg: #fef2f2;
   --orange: #ea580c; --orange-bg: #fff7ed;
-  --ring: rgba(79,70,229,0.15); --radius: 10px; --radius-lg: 14px;
+  --ring: rgba(175, 168, 235, 0.55); --radius: 10px; --radius-lg: 14px;
   --shadow-xs: 0 1px 2px rgba(0,0,0,0.03);
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
   --shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03);
@@ -117,7 +117,7 @@ button, input, textarea, select { font: inherit; }
 .sidebar-section { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; padding: 16px 14px 8px; }
 .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 14px; border-radius: var(--radius); cursor: pointer; font-size: 13px; font-weight: 500; color: var(--muted); transition: all 0.15s ease; border: none; background: none; width: 100%; text-align: left; text-decoration: none; }
 .nav-item:hover { background: var(--accent-soft); color: var(--ink); }
-.nav-item.active { background: var(--primary); color: #fff; box-shadow: 0 2px 8px rgba(79,70,229,0.3); }
+.nav-item.active { background: var(--primary); color: #fff; box-shadow: 0 2px 8px rgba(38,32,92,0.3); }
 .nav-item .icon { width: 20px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 15px; }
 .nav-item .icon svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; fill: none; }
 .sidebar-footer { margin-top: auto; padding: 12px; border-top: 1px solid var(--border); }
@@ -131,7 +131,7 @@ button, input, textarea, select { font: inherit; }
 .content-body::-webkit-scrollbar { width: 5px; }
 .content-body::-webkit-scrollbar-track { background: transparent; }
 .content-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
-.content-body::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+.content-body::-webkit-scrollbar-thumb:hover { background: #c4bfe8; }
 
 /* ── Tab panels ── */
 .tab-panel { display: none; flex: 1 1 auto; min-height: 0; overflow: hidden; }
@@ -144,7 +144,7 @@ button, input, textarea, select { font: inherit; }
 .field-desc { font-size: 12px; color: var(--muted); margin-bottom: 8px; line-height: 1.5; }
 .field-input { width: 100%; padding: 9px 14px; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: 13px; background: var(--surface); transition: all 0.2s ease; color: var(--ink); }
 .field-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
-.field-input::placeholder { color: #94a3b8; }
+.field-input::placeholder { color: #8e89a8; }
 textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
 .field-counter { font-size: 11px; color: var(--muted); text-align: right; margin-top: 4px; }
 
@@ -165,11 +165,11 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
 
 /* ── Buttons ── */
 .btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: var(--radius); font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s ease; }
-.btn-primary { background: var(--primary); color: #fff; box-shadow: 0 1px 3px rgba(79,70,229,0.25); }
-.btn-primary:hover { background: var(--primary-hover); box-shadow: 0 4px 12px rgba(79,70,229,0.3); transform: translateY(-1px); }
+.btn-primary { background: var(--primary); color: #fff; box-shadow: 0 1px 3px rgba(38,32,92,0.25); }
+.btn-primary:hover { background: var(--primary-hover); box-shadow: 0 4px 12px rgba(38,32,92,0.3); transform: translateY(-1px); }
 .btn-primary:disabled { opacity: 0.5; cursor: default; transform: none; box-shadow: none; }
 .btn-ghost { background: var(--surface); border: 1.5px solid var(--border); color: var(--ink); }
-.btn-ghost:hover { background: var(--accent-soft); border-color: #cbd5e1; }
+.btn-ghost:hover { background: var(--accent-soft); border-color: #c4bfe8; }
 .btn-danger { background: transparent; border: 1.5px solid var(--border); color: var(--red); }
 .btn-danger:hover { background: var(--red-bg); border-color: var(--red); }
 .btn-sm { padding: 6px 12px; font-size: 12px; }
@@ -184,7 +184,7 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
 
 /* ── Agenda ── */
 .ag-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 1.5px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; font-size: 13px; transition: all 0.2s ease; background: var(--surface); }
-.ag-item:hover { box-shadow: var(--shadow); border-color: #cbd5e1; }
+.ag-item:hover { box-shadow: var(--shadow); border-color: #c4bfe8; }
 .ag-date { font-weight: 700; min-width: 60px; font-size: 13px; color: var(--ink); }
 .ag-time { font-size: 12px; color: var(--muted); font-weight: 500; }
 /* O bloco central do item cresce; nome e observacao truncam em vez de
@@ -205,7 +205,7 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
 
 /* ── FAQ items ── */
 .faq-item { border: 1.5px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 10px; background: var(--surface); transition: border-color 0.2s; }
-.faq-item:hover { border-color: #cbd5e1; }
+.faq-item:hover { border-color: #c4bfe8; }
 .faq-header { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
 .faq-header input { flex: 1; min-width: 0; padding: 8px 12px; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: 13px; transition: all 0.2s; }
 .faq-header input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
@@ -220,7 +220,7 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
 .day-header .closed { color: var(--muted); font-size: 12px; background: var(--accent-soft); padding: 2px 10px; border-radius: 999px; }
 
 /* ── Modal ── */
-.modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.5); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; animation: fadeIn 0.15s ease; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(38,32,92,0.5); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; animation: fadeIn 0.15s ease; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 .modal-content { background: var(--surface); border-radius: var(--radius-lg); padding: 28px; max-width: 380px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); animation: slideUp 0.2s ease; }
 @keyframes slideUp { from { opacity: 0; transform: translateY(10px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
@@ -252,7 +252,7 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
    Fundo do thread: canvas slate-100 com dot-grid discreto (padrao dos chats do
    21st.dev). Existe para os baloes brancos terem borda visivel contra o fundo:
    sobre o branco do modal o balao do paciente sumia. Contraste do texto:
-   --ink (#0f172a) sobre #fff = 17.8:1 e sobre --primary-soft (#eef2ff) = 16.4:1,
+   --ink (#26205c) sobre #fff = 14.6:1 e sobre --primary-soft (#eeedfd) = 12.6:1,
    os dois passam WCAG AAA. */
 .modal-chat { max-width: 640px; padding: 0; display: flex; flex-direction: column; max-height: 86vh; overflow: hidden; }
 .chat-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 18px 22px; border-bottom: 1px solid var(--border); background: var(--surface); }
@@ -260,9 +260,9 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
 .chat-close { width: 30px; height: 30px; flex: 0 0 auto; border-radius: 8px; border: 1.5px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; font-size: 15px; line-height: 1; transition: all 0.2s ease; }
 .chat-close:hover { background: var(--accent-soft); color: var(--ink); }
 .chat-close:focus-visible { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
-.chat-thread { flex: 1; overflow-y: auto; padding: 20px 22px; display: flex; flex-direction: column; gap: 10px; background-color: #f1f5f9; background-image: radial-gradient(circle at 1px 1px, rgba(15,23,42,0.07) 1px, transparent 0); background-size: 18px 18px; }
+.chat-thread { flex: 1; overflow-y: auto; padding: 20px 22px; display: flex; flex-direction: column; gap: 10px; background-color: #f0eefb; background-image: radial-gradient(circle at 1px 1px, rgba(38,32,92,0.08) 1px, transparent 0); background-size: 18px 18px; }
 .chat-thread::-webkit-scrollbar { width: 8px; }
-.chat-thread::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+.chat-thread::-webkit-scrollbar-thumb { background: #c4bfe8; border-radius: 10px; }
 .chat-day { align-self: center; margin: 6px 0; font-size: 11px; font-weight: 600; color: var(--muted); background: rgba(255,255,255,0.92); border: 1px solid var(--border); padding: 3px 12px; border-radius: 999px; }
 .chat-row { display: flex; flex-direction: column; max-width: 78%; }
 .chat-row.ia { align-self: flex-end; align-items: flex-end; }
@@ -270,10 +270,10 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
 .chat-autor { font-size: 10.5px; font-weight: 600; color: var(--muted); margin-bottom: 3px; padding: 0 4px; text-transform: uppercase; letter-spacing: 0.4px; }
 .chat-bubble { padding: 9px 13px; border-radius: 14px; font-size: 13.5px; line-height: 1.55; color: var(--ink); white-space: pre-wrap; overflow-wrap: anywhere; box-shadow: var(--shadow-sm); }
 .chat-row.paciente .chat-bubble { background: #ffffff; border: 1px solid var(--border); border-bottom-left-radius: 4px; }
-.chat-row.ia .chat-bubble { background: var(--primary-soft); border: 1px solid #c7d2fe; border-bottom-right-radius: 4px; }
+.chat-row.ia .chat-bubble { background: var(--primary-soft); border: 1px solid #c9c3f2; border-bottom-right-radius: 4px; }
 .chat-hora { font-size: 10.5px; color: var(--muted); margin-top: 3px; padding: 0 4px; }
 .conv-card { border: 1.5px solid var(--border); border-radius: var(--radius); padding: 12px 16px; margin-bottom: 8px; cursor: pointer; background: var(--surface); transition: box-shadow 0.2s ease, border-color 0.2s ease; }
-.conv-card:hover { box-shadow: var(--shadow); border-color: #c7d2fe; }
+.conv-card:hover { box-shadow: var(--shadow); border-color: #c9c3f2; }
 .conv-card:focus-visible { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
 .conv-pausada { border-color: #fbbf24; background: #fffbeb; }
 .conv-pausada:hover { border-color: #f59e0b; }
@@ -298,7 +298,7 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
   .section-card { padding: 16px; }
 }
 /* ── Gate de assinatura expirada ── */
-.gate-overlay { position: fixed; inset: 0; z-index: 200; background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; padding: 20px; }
+.gate-overlay { position: fixed; inset: 0; z-index: 200; background: rgba(38, 32, 92, 0.55); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; padding: 20px; }
 .gate-overlay.hidden { display: none; }
 .gate-card { background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); max-width: 460px; width: 100%; padding: 28px; text-align: center; animation: fadeUp 0.25s ease; }
 .gate-card h2 { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; margin: 12px 0 6px; }
@@ -309,9 +309,9 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
 .gate-btn strong { font-size: 13.5px; }
 .gate-btn small { display: block; font-size: 11.5px; font-weight: 400; opacity: 0.85; }
 .gate-btn-mensal { background: var(--primary); color: #fff; }
-.gate-btn-mensal:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(79,70,229,0.3); }
-.gate-btn-anual { background: var(--primary-soft); color: var(--primary); border: 1.5px solid #c7d2fe; }
-.gate-btn-anual:hover { background: #e0e7ff; }
+.gate-btn-mensal:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(38,32,92,0.3); }
+.gate-btn-anual { background: var(--primary-soft); color: var(--primary); border: 1.5px solid #c9c3f2; }
+.gate-btn-anual:hover { background: #e3e0f9; }
 .gate-nota { font-size: 11.5px; color: var(--muted); line-height: 1.5; }
 
 /* ── Banner de conexão pendente ── */

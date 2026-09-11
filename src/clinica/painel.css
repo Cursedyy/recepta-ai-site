@@ -2,24 +2,29 @@
 /* Última atualização: 2026-08-29 */
 
 :root {
-  --bg: #f8fafc;
+  --bg: #f8f7ff;
   --surface: #ffffff;
   --surface-raised: #ffffff;
-  --ink: #0f172a;
-  --muted: #64748b;
-  --border: #e2e8f0;
-  --accent: #151749;
-  --accent-soft: #f1f5f9;
-  --primary: #5b5bd6;
-  --primary-hover: #4b4bc4;
-  --primary-soft: #eeeeff;
-  --green: #059669;
+  --ink: #26205c;
+  --muted: #696580;
+  --border: #dedbf5;
+  /* Borda de campo de formulario: 3.45:1 sobre branco (WCAG 1.4.11).
+     --border acima fica no claro porque em card/divisoria e decorativa. */
+  --border-input: #8b82c4;
+  --accent: #26205c;
+  --accent-soft: #f0eefb;
+  --primary: #26205c;
+  --primary-hover: #352d78;
+  --primary-soft: #eeedfd;
+  --lilac: #afa8eb;
+  --lilac-hover: #9b93dc;
+  --green: #047857;
   --green-bg: #ecfdf5;
   --red: #dc2626;
   --red-bg: #fef2f2;
   --orange: #ea580c;
   --orange-bg: #fff7ed;
-  --ring: rgba(79, 70, 229, 0.15);
+  --ring: rgba(175, 168, 235, 0.55);
   --radius: 8px;
   --radius-lg: 12px;
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.03);
@@ -33,13 +38,13 @@
 
   /* Tokens de superfície que antes eram cor fixa no meio das regras.
      Existem para que o tema escuro troque tudo num lugar só. */
-  --border-strong: #cbd5e1;
-  --placeholder: #94a3b8;
-  --overlay: rgba(15, 23, 42, 0.5);
-  --chat-bg: #f1f5f9;
-  --chat-dot: rgba(15, 23, 42, 0.07);
+  --border-strong: #c4bfe8;
+  --placeholder: #726d8c;
+  --overlay: rgba(38, 32, 92, 0.5);
+  --chat-bg: #f0eefb;
+  --chat-dot: rgba(38, 32, 92, 0.08);
   --bubble-paciente: #ffffff;
-  --bubble-ia-border: #c7d2fe;
+  --bubble-ia-border: #c9c3f2;
 }
 
 /* ══ Tema escuro ══════════════════════════════════════════════════════
@@ -54,28 +59,29 @@ html[data-theme="dark"] {
   --bg: #151f2c;
   --surface: #182433;
   --surface-raised: #1d2b3b;
-  --ink: #f1f5f9;
+  --ink: #f0eefb;
   --muted: #9aa8b8;
   --border: #2b3a4b;
+  --border-input: #6d7f9b;
   --accent: #111927;
   --accent-soft: #202f40;
-  --primary: #8585f2;
-  --primary-hover: #9a9af7;
-  --primary-soft: #29294b;
+  --primary: #afa8eb;
+  --primary-hover: #c0bbf0;
+  --primary-soft: #2e2957;
   --green: #34d399;
   --green-bg: #0d2b22;
   --red: #f87171;
   --red-bg: #341417;
   --orange: #fb923c;
   --orange-bg: #33210f;
-  --ring: rgba(124, 140, 255, 0.25);
+  --ring: rgba(175, 168, 235, 0.35);
   --border-strong: #35486a;
-  --placeholder: #64748b;
+  --placeholder: #696580;
   --overlay: rgba(2, 6, 16, 0.72);
   --chat-bg: #0e1626;
   --chat-dot: rgba(255, 255, 255, 0.05);
   --bubble-paciente: #1a2438;
-  --bubble-ia-border: #33407a;
+  --bubble-ia-border: #4a4383;
   /* Sombra clara não existe no escuro: o que dá profundidade é o preto. */
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.3);
@@ -474,7 +480,7 @@ select {
 .field-input {
   width: 100%;
   padding: 9px 14px;
-  border: 1.5px solid var(--border);
+  border: 1.5px solid var(--border-input);
   border-radius: var(--radius);
   font-size: 13px;
   background: var(--surface);
@@ -536,7 +542,7 @@ textarea.field-input {
   flex: 1;
   min-width: 0;
   padding: 8px 12px;
-  border: 1.5px solid var(--border);
+  border: 1.5px solid var(--border-input);
   border-radius: var(--radius);
   font-size: 13px;
   background: var(--surface);
@@ -550,7 +556,7 @@ textarea.field-input {
 .item-row input[type="number"] {
   width: 110px;
   padding: 8px 12px;
-  border: 1.5px solid var(--border);
+  border: 1.5px solid var(--border-input);
   border-radius: var(--radius);
   font-size: 13px;
   background: var(--surface);
@@ -563,7 +569,7 @@ textarea.field-input {
 }
 .item-row input[type="time"] {
   padding: 8px 12px;
-  border: 1.5px solid var(--border);
+  border: 1.5px solid var(--border-input);
   border-radius: var(--radius);
   font-size: 13px;
   background: var(--surface);
@@ -591,11 +597,11 @@ textarea.field-input {
 .btn-primary {
   background: var(--primary);
   color: #fff;
-  box-shadow: 0 1px 3px rgba(79, 70, 229, 0.25);
+  box-shadow: 0 1px 3px rgba(38, 32, 92, 0.25);
 }
 .btn-primary:hover {
   background: var(--primary-hover);
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+  box-shadow: 0 4px 12px rgba(38, 32, 92, 0.3);
   transform: translateY(-1px);
 }
 .btn-primary:disabled {
@@ -792,7 +798,7 @@ textarea.field-input {
   flex: 1;
   min-width: 0;
   padding: 8px 12px;
-  border: 1.5px solid var(--border);
+  border: 1.5px solid var(--border-input);
   border-radius: var(--radius);
   font-size: 13px;
   transition: all 0.2s;
@@ -806,7 +812,7 @@ textarea.field-input {
   width: 100%;
   min-height: 52px;
   padding: 8px 12px;
-  border: 1.5px solid var(--border);
+  border: 1.5px solid var(--border-input);
   border-radius: var(--radius);
   font-size: 13px;
   resize: vertical;
@@ -912,7 +918,7 @@ textarea.field-input {
 .modal-field textarea {
   width: 100%;
   padding: 9px 12px;
-  border: 1.5px solid var(--border);
+  border: 1.5px solid var(--border-input);
   border-radius: var(--radius);
   font-size: 13px;
   background: var(--surface);
@@ -1195,5 +1201,32 @@ textarea.field-input {
   }
   .section-card {
     padding: 16px;
+  }
+}
+
+/* ══ Foco visível global ══════════════════════════════════════════════
+   `:where()` tem especificidade zero: as regras de foco já existentes
+   (.field-input, .conv-card…) continuam ganhando. Isto só cobre o que
+   não tinha nada — botões, links e selects.
+   O halo branco (--surface) é o que torna o anel visível em cima da
+   topbar roxa; o traço --primary é o que o torna visível sobre branco. */
+:where(a, button, select, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  box-shadow:
+    0 0 0 2px var(--surface),
+    0 0 0 5px var(--ring);
+}
+
+/* Motion reduzido: o painel anima em vários pontos (modais, banners,
+   toggle de tema). Uma regra só desliga tudo para quem pediu. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

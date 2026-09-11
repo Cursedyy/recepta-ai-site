@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "health": "node scripts/health.mjs"
+    "health": "node scripts/health.mjs",
+    "contraste": "node scripts/contraste-paleta.mjs"
   }
 }

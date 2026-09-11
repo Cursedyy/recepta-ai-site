@@ -1,11 +1,14 @@
 :root {
-  --auth-bg: #f7f7fb;
+  --auth-bg: #f8f7ff;
   --auth-surface: #ffffff;
-  --auth-ink: #17172a;
-  --auth-muted: #6c6b80;
-  --auth-line: #e7e7ef;
+  --auth-ink: #26205c;
+  --auth-muted: #696580;
+  --auth-line: #dedbf5;
+  /* Borda do campo: 3.45:1 sobre branco (WCAG 1.4.11). --auth-line segue
+     claro porque so desenha divisorias. */
+  --auth-border-input: #8b82c4;
   --auth-accent: #26205c;
-  --auth-accent-hover: #383080;
+  --auth-accent-hover: #352d78;
   --auth-danger: #b42318;
 }
 
@@ -38,7 +41,7 @@ body {
   justify-content: space-between;
   overflow: hidden;
   padding: clamp(28px, 4vw, 56px);
-  background: #151749;
+  background: #26205c;
   color: #fff;
 }
 
@@ -57,8 +60,8 @@ body {
   right: -38%;
   background: radial-gradient(
     circle,
-    rgba(180, 163, 255, 0.52),
-    rgba(180, 163, 255, 0)
+    rgba(175, 168, 235, 0.52),
+    rgba(175, 168, 235, 0)
   );
 }
 
@@ -85,7 +88,7 @@ body {
 }
 
 .auth-wordmark b {
-  color: #b8b0ff;
+  color: #afa8eb;
 }
 
 .auth-mark {
@@ -114,7 +117,7 @@ body {
   align-items: center;
   gap: 8px;
   margin-bottom: 20px;
-  color: #d4d0ff;
+  color: #d7d3f5;
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -186,7 +189,7 @@ body {
   color: var(--auth-accent);
 }
 .auth-mobile-brand b {
-  color: #756bd0;
+  color: #352d78;
 }
 
 form,
@@ -226,7 +229,7 @@ input {
   min-height: 47px;
   margin-bottom: 16px;
   padding: 12px 13px;
-  border: 1px solid var(--auth-line);
+  border: 1px solid var(--auth-border-input);
   border-radius: 9px;
   background: var(--auth-surface);
   color: var(--auth-ink);
@@ -234,11 +237,11 @@ input {
 }
 
 input::placeholder {
-  color: #a3a2b2;
+  color: #726d8c;
 }
 input:focus {
-  border-color: #7971c5;
-  outline: 3px solid rgba(121, 113, 197, 0.15);
+  border-color: #26205c;
+  outline: 3px solid rgba(175, 168, 235, 0.55);
   outline-offset: 0;
 }
 
@@ -257,7 +260,7 @@ button:hover {
 }
 button:focus-visible,
 a:focus-visible {
-  outline: 3px solid rgba(121, 113, 197, 0.4);
+  outline: 3px solid rgba(175, 168, 235, 0.7);
   outline-offset: 3px;
 }
 
@@ -328,5 +331,16 @@ a:focus-visible {
   }
   form h1 {
     font-size: 27px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
