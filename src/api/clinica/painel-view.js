@@ -85,8 +85,8 @@ function paginaPainel(
   --bg: #f8f7ff; --surface: #ffffff; --ink: #26205c; --muted: #696580;
   --border: #dedbf5; --border-input: #8b82c4; --accent: #26205c; --accent-soft: #f0eefb;
   --primary: #26205c; --primary-hover: #352d78; --primary-soft: #eeedfd;
-  --green: #047857; --green-bg: #ecfdf5; --red: #dc2626; --red-bg: #fef2f2;
-  --orange: #ea580c; --orange-bg: #fff7ed;
+  --green: #047857; --green-bg: #ecfdf5; --red: #c81e1e; --red-bg: #fef2f2;
+  --orange: #c2410c; --orange-bg: #fff7ed;
   --ring: rgba(175, 168, 235, 0.55); --radius: 10px; --radius-lg: 14px;
   --shadow-xs: 0 1px 2px rgba(0,0,0,0.03);
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
@@ -320,8 +320,8 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
 .whatsapp-banner .banner-icon { font-size: 22px; flex-shrink: 0; }
 .whatsapp-banner .banner-text { flex: 1; font-size: 13.5px; color: #92400e; line-height: 1.5; }
 .whatsapp-banner .banner-text strong { font-weight: 700; }
-.whatsapp-banner .banner-btn { padding: 8px 18px; border-radius: var(--radius); background: #ea580c; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; border: none; white-space: nowrap; transition: all 0.15s ease; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
-.whatsapp-banner .banner-btn:hover { background: #c2410c; transform: translateY(-1px); box-shadow: 0 2px 8px rgba(234,88,12,0.3); }
+.whatsapp-banner .banner-btn { padding: 8px 18px; border-radius: var(--radius); background: #c2410c; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; border: none; white-space: nowrap; transition: all 0.15s ease; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+.whatsapp-banner .banner-btn:hover { background: #9a3412; transform: translateY(-1px); box-shadow: 0 2px 8px rgba(234,88,12,0.3); }
 .whatsapp-banner.hidden { display: none; }
 </style>
 <link rel="stylesheet" href="/clinica/painel.css?v=20260910-theme-toggle">
