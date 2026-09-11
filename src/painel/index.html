@@ -242,8 +242,34 @@
         background: #352d78;
         transform: translateY(-1px);
       }
+      #form-recovery {
+        display: none;
+      }
+      #gate.recovery #form-login {
+        display: none;
+      }
+      #gate.recovery #form-recovery {
+        display: block;
+      }
+      .link-recovery {
+        display: block;
+        margin-top: 14px;
+        color: var(--accent);
+        background: none;
+        border: 0;
+        cursor: pointer;
+        font-size: 12px;
+        text-align: center;
+        width: 100%;
+      }
       .erro {
         color: #c81e1e;
+        font-size: 13px;
+        margin-bottom: 12px;
+        min-height: 18px;
+      }
+      .sucesso {
+        color: var(--green);
         font-size: 13px;
         margin-bottom: 12px;
         min-height: 18px;
@@ -2041,6 +2067,7 @@
               id: id,
               nome: document.getElementById("m-nome").value,
               status: document.getElementById("m-status").value,
+              tier: document.getElementById("m-tier").value,
               plano: document.getElementById("m-plano").value || null,
               tempo_pausa_minutos: parseInt(
                 document.getElementById("m-pausa").value,
@@ -2415,7 +2442,24 @@
         document.getElementById("app").classList.remove("show");
         document.getElementById("app").classList.remove("conversa-aberta");
         document.getElementById("gate").style.display = "flex";
+        document.getElementById("gate").classList.remove("recovery");
+        document.getElementById("form-recovery").style.display = "none";
+        document.getElementById("form-nova-senha").style.display = "none";
         document.getElementById("login-erro").textContent = msg || "";
+      }
+      function mostrarRecuperacao() {
+        document.getElementById("app").classList.remove("show");
+        document.getElementById("gate").style.display = "flex";
+        document.getElementById("gate").classList.add("recovery");
+        document.getElementById("form-recovery").style.display = "block";
+        document.getElementById("form-nova-senha").style.display = "none";
+      }
+      function mostrarNovaSenha() {
+        document.getElementById("app").classList.remove("show");
+        document.getElementById("gate").style.display = "flex";
+        document.getElementById("gate").classList.add("recovery");
+        document.getElementById("form-recovery").style.display = "none";
+        document.getElementById("form-nova-senha").style.display = "block";
       }
       function mostrarApp() {
         document.getElementById("gate").style.display = "none";
@@ -2466,6 +2510,43 @@
               carregarPerfilEIniciar(res.data.session.user);
             });
         });
+      document.getElementById("btn-esqueci-senha").addEventListener("click", mostrarRecuperacao);
+      document.getElementById("btn-voltar-login").addEventListener("click", mostrarGate);
+      document.getElementById("form-recovery").addEventListener("submit", function (ev) {
+        ev.preventDefault();
+        var erro = document.getElementById("recovery-erro");
+        var ok = document.getElementById("recovery-ok");
+        erro.textContent = "";
+        ok.textContent = "";
+        fetch("/api/painel/reset-admin", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: document.getElementById("recovery-email").value }),
+        }).then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
+          .then(function (r) {
+            if (!r.ok) { erro.textContent = r.data.mensagem || "Não foi possível enviar o link."; return; }
+            ok.textContent = r.data.mensagem || "Verifique seu e-mail.";
+          })
+          .catch(function () { erro.textContent = "Não foi possível enviar o link."; });
+      });
+      document.getElementById("form-nova-senha").addEventListener("submit", function (ev) {
+        ev.preventDefault();
+        var erro = document.getElementById("nova-senha-erro");
+        var senha = document.getElementById("nova-senha").value;
+        var confirmacao = document.getElementById("nova-senha-confirmacao").value;
+        erro.textContent = "";
+        if (senha.length < 8 || senha !== confirmacao) {
+          erro.textContent = senha.length < 8 ? "A senha precisa ter 8 caracteres." : "As senhas não conferem.";
+          return;
+        }
+        supabase.auth.updateUser({ password: senha }).then(function (res) {
+          if (res.error) { erro.textContent = "Não foi possível alterar a senha."; return; }
+          supabase.auth.signOut().then(function () {
+            window.history.replaceState({}, "", "/painel");
+            mostrarGate("Senha alterada. Entre com a nova senha.");
+          });
+        });
+      });
       document
         .getElementById("btn-tema")
         .addEventListener("click", function () {
@@ -2509,11 +2590,17 @@
           supabase = createClient(cfg.url, cfg.anonKey);
           supabase.auth.onAuthStateChange(function (e) {
             if (e === "SIGNED_OUT") mostrarGate();
+            if (e === "PASSWORD_RECOVERY") mostrarNovaSenha();
           });
           return supabase.auth.getSession();
         })
         .then(function (res) {
           var s = res && res.data && res.data.session;
+          if (window.location.search.indexOf("recovery=1") !== -1 || window.location.hash.indexOf("type=recovery") !== -1) {
+            if (s) mostrarNovaSenha();
+            else mostrarRecuperacao();
+            return;
+          }
           if (!s) {
             mostrarGate();
             return;
