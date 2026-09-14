@@ -21,6 +21,9 @@
  *   5. UazAPI: instância recepta-alertas (alertas admin) conectada — sem ela
  *      nenhum alerta nem link de onboarding é enviado
  *   6. Lixo de QA: instâncias zz-teste-* sobrando
+ *   7. Price pin: os 4 price IDs do node "Config Stripe Webhook" batem com a
+ *      auditoria da API do Stripe de 2026-09-13 (fase F1)
+ *   8. Cron de cobrança: alguma execução com sucesso nas últimas 25h
  *
  * Não faz nenhuma operação de escrita/deleção. Só lê.
  */
@@ -244,6 +247,103 @@ async function checkUazapi() {
 }
 
 // ---------------------------------------------------------------------------
+// 7. Stripe price pin + cron de cobrança
+// ---------------------------------------------------------------------------
+// Preços auditados na API do Stripe em 2026-09-14 (valor unit_amount, livemode
+// true): essencial mensal R$497, essencial anual R$4.164, completo mensal
+// R$997, completo anual R$8.364. Se o node "Config Stripe Webhook" divergir
+// daqui, "Determinar Plano" (fail-closed) pode nunca ativar um pagante.
+const PRICE_PIN = {
+  STRIPE_PRICE_ESSENCIAL_MENSAL: "price_1U35F9HkvKNdqMufd58XEIq2",
+  STRIPE_PRICE_ESSENCIAL_ANUAL: "price_1U35FAHkvKNdqMuf7dtT8vrs",
+  STRIPE_PRICE_COMPLETO_MENSAL: "price_1UEIx6HkvKNdqMufqV6xA1s7",
+  STRIPE_PRICE_COMPLETO_ANUAL: "price_1UEIx8HkvKNdqMufg0iqXerD",
+};
+// Gancho exclusivamente local para a prova negativa do F1. Ele altera a fonte
+// esperada somente neste processo e nunca escreve no n8n, Stripe ou Vercel.
+const PRICE_PIN_CHECK = process.env.HEALTH_PRICE_PIN_OVERRIDE_ESSENCIAL_MENSAL
+  ? {
+      ...PRICE_PIN,
+      STRIPE_PRICE_ESSENCIAL_MENSAL:
+        process.env.HEALTH_PRICE_PIN_OVERRIDE_ESSENCIAL_MENSAL,
+    }
+  : PRICE_PIN;
+const WF_BILLING = "cf1An4BYT9A0LuHi";
+
+async function checkStripePin() {
+  const key = process.env.N8N_API_KEY;
+  if (!key) {
+    row("n8n: price pin", "ERRO", "N8N_API_KEY ausente no ambiente");
+    return;
+  }
+  try {
+    const res = await fetchSafe(`${N8N_BASE_URL}/api/v1/workflows/${WF_BILLING}`, {
+      headers: { "X-N8N-API-KEY": key },
+    });
+    if (!res.ok) {
+      row("n8n: price pin", "ERRO", `GET workflow falhou (HTTP ${res.status})`);
+      return;
+    }
+    const wf = await res.json().catch(() => null);
+    const cfg = wf?.nodes?.find((n) => n.name === "Config Stripe Webhook");
+    const assignments = cfg?.parameters?.assignments?.assignments || [];
+    if (!assignments.length) {
+      row("n8n: price pin", "ERRO", "node Config Stripe Webhook não encontrado ou vazio");
+      return;
+    }
+    const divergentes = [];
+    for (const [nome, esperado] of Object.entries(PRICE_PIN_CHECK)) {
+      const a = assignments.find((x) => x.name === nome);
+      if (!a) divergentes.push(`${nome}: AUSENTE`);
+      else if (a.value !== esperado) divergentes.push(`${nome}: ${a.value}`);
+    }
+    if (divergentes.length) {
+      row("n8n: price pin", "ERRO", `DRIFT: ${divergentes.join(" | ")} — conferir com a API do Stripe antes de ativar checkout`);
+    } else {
+      row("n8n: price pin", "OK", "4/4 price IDs batem com auditoria Stripe de 2026-09-14");
+    }
+  } catch (err) {
+    row("n8n: price pin", "ERRO", `falha de rede: ${err.message}`);
+  }
+}
+
+async function checkCronBilling() {
+  const key = process.env.N8N_API_KEY;
+  if (!key) {
+    row("n8n: cron billing", "ERRO", "N8N_API_KEY ausente no ambiente");
+    return;
+  }
+  try {
+    const res = await fetchSafe(
+      `${N8N_BASE_URL}/api/v1/executions?workflowId=${WF_BILLING}&status=success&limit=5`,
+      { headers: { "X-N8N-API-KEY": key } },
+    );
+    if (!res.ok) {
+      row("n8n: cron billing", "ERRO", `GET executions falhou (HTTP ${res.status})`);
+      return;
+    }
+    const body = await res.json().catch(() => null);
+    const list = Array.isArray(body?.data) ? body.data : [];
+    if (!list.length) {
+      row("n8n: cron billing", "ERRO", "nenhuma execução com sucesso no histórico recente — cron quebrado");
+      return;
+    }
+    const ultima = list
+      .map((e) => new Date(e.startedAt || e.stoppedAt).getTime())
+      .filter((t) => !Number.isNaN(t))
+      .sort((a, b) => b - a)[0];
+    const horas = ultima ? (Date.now() - ultima) / 3600000 : Infinity;
+    if (horas > 25) {
+      row("n8n: cron billing", "ERRO", `última execução com sucesso há ${horas.toFixed(0)}h — rodar npm run health amanhã 9h+ ou investigar`);
+    } else {
+      row("n8n: cron billing", "OK", `última execução com sucesso há ${horas.toFixed(1)}h`);
+    }
+  } catch (err) {
+    row("n8n: cron billing", "ERRO", `falha de rede: ${err.message}`);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Saída
 // ---------------------------------------------------------------------------
 function printTable() {
@@ -266,7 +366,14 @@ function printTable() {
 }
 
 const t0 = Date.now();
-await Promise.all([checkN8n(), checkSupabase(), checkSite(), checkUazapi()]);
+await Promise.all([
+  checkN8n(),
+  checkSupabase(),
+  checkSite(),
+  checkUazapi(),
+  checkStripePin(),
+  checkCronBilling(),
+]);
 printTable();
 
 const erros = results.filter((r) => r.status === "ERRO").length;
