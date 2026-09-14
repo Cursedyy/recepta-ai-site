@@ -12,6 +12,8 @@
  *   SUPABASE_SERVICE_ROLE_KEY    (obrigatório)
  *   UAZAPI_ADMIN_TOKEN           (obrigatório p/ checagem UazAPI)
  *   UAZAPI_BASE_URL              (default https://sitemagic1.uazapi.com)
+ *   VERCEL_TOKEN                 (obrigatório p/ o price pin do lado Vercel)
+ *   VERCEL_PROJECT_ID/ORG_ID     (default: lidos de .vercel/project.json)
  *
  * Verifica:
  *   1. n8n responde e os 5 workflows críticos estão ativos
@@ -21,12 +23,16 @@
  *   5. UazAPI: instância recepta-alertas (alertas admin) conectada — sem ela
  *      nenhum alerta nem link de onboarding é enviado
  *   6. Lixo de QA: instâncias zz-teste-* sobrando
- *   7. Price pin: os 4 price IDs do node "Config Stripe Webhook" batem com a
- *      auditoria da API do Stripe de 2026-09-13 (fase F1)
+ *   7. Price pin: os 4 price IDs batem com a auditoria da API do Stripe de
+ *      2026-09-14 (fase F1) nos DOIS lados que os consomem — o node "Config
+ *      Stripe Webhook" do n8n e as env vars de Production da Vercel.
+ *      `npm run health -- --pin` imprime os 4 pares resolvidos lado a lado.
  *   8. Cron de cobrança: alguma execução com sucesso nas últimas 25h
  *
  * Não faz nenhuma operação de escrita/deleção. Só lê.
  */
+
+import { readFileSync } from "node:fs";
 
 const N8N_BASE_URL = (process.env.N8N_BASE_URL || "https://n8n.zapscout.com.br").replace(/\/$/, "");
 const SUPABASE_URL = (process.env.SUPABASE_URL || "").replace(/\/$/, "");
@@ -251,24 +257,72 @@ async function checkUazapi() {
 // ---------------------------------------------------------------------------
 // Preços auditados na API do Stripe em 2026-09-14 (valor unit_amount, livemode
 // true): essencial mensal R$497, essencial anual R$4.164, completo mensal
-// R$997, completo anual R$8.364. Se o node "Config Stripe Webhook" divergir
-// daqui, "Determinar Plano" (fail-closed) pode nunca ativar um pagante.
+// R$997, completo anual R$8.364. Dois lados consomem esses IDs e os dois são
+// checados aqui: o node "Config Stripe Webhook" do n8n (onde "Determinar Plano"
+// é fail-closed: lado errado = pagante que nunca é ativado, em silêncio) e as
+// env vars de Production da Vercel, que /api/checkout lê.
 const PRICE_PIN = {
   STRIPE_PRICE_ESSENCIAL_MENSAL: "price_1U35F9HkvKNdqMufd58XEIq2",
   STRIPE_PRICE_ESSENCIAL_ANUAL: "price_1U35FAHkvKNdqMuf7dtT8vrs",
   STRIPE_PRICE_COMPLETO_MENSAL: "price_1UEIx6HkvKNdqMufqV6xA1s7",
   STRIPE_PRICE_COMPLETO_ANUAL: "price_1UEIx8HkvKNdqMufg0iqXerD",
 };
-// Gancho exclusivamente local para a prova negativa do F1. Ele altera a fonte
-// esperada somente neste processo e nunca escreve no n8n, Stripe ou Vercel.
-const PRICE_PIN_CHECK = process.env.HEALTH_PRICE_PIN_OVERRIDE_ESSENCIAL_MENSAL
-  ? {
-      ...PRICE_PIN,
-      STRIPE_PRICE_ESSENCIAL_MENSAL:
-        process.env.HEALTH_PRICE_PIN_OVERRIDE_ESSENCIAL_MENSAL,
-    }
-  : PRICE_PIN;
 const WF_BILLING = "cf1An4BYT9A0LuHi";
+
+// Gancho exclusivamente local para a prova negativa: envenena o valor OBSERVADO
+// de UM lado só, dentro deste processo, sem nunca escrever no n8n, no Stripe ou
+// na Vercel. Formato: HEALTH_DRIFT_PROBE="<n8n|vercel>:<CHAVE>=<valor>".
+function parseDriftProbe() {
+  const raw = process.env.HEALTH_DRIFT_PROBE;
+  if (!raw) return null;
+  const m = /^(n8n|vercel):([A-Z0-9_]+)=(.*)$/.exec(raw.trim());
+  if (!m) {
+    throw new Error(
+      'HEALTH_DRIFT_PROBE inválido: use "<n8n|vercel>:<CHAVE>=<valor>"',
+    );
+  }
+  return { lado: m[1], chave: m[2], valor: m[3] };
+}
+const DRIFT_PROBE = parseDriftProbe();
+
+function aplicarProbe(lado, observados) {
+  if (!DRIFT_PROBE || DRIFT_PROBE.lado !== lado) return observados;
+  return { ...observados, [DRIFT_PROBE.chave]: DRIFT_PROBE.valor };
+}
+
+// `npm run health -- --pin` imprime os 4 pares resolvidos de cada lado: o
+// resumo "4/4" diz que bateu, não contra o quê.
+const PIN_DETALHE = process.argv.includes("--pin");
+const pinLinhas = [];
+
+// Compara os 4 pares tier × ciclo contra PRICE_PIN e emite a linha da tabela.
+function compararPin(check, observados, fonte) {
+  const divergentes = [];
+  for (const [nome, esperado] of Object.entries(PRICE_PIN)) {
+    const atual = observados[nome];
+    if (atual === undefined) divergentes.push(`${nome}: AUSENTE`);
+    else if (atual !== esperado) divergentes.push(`${nome}: ${atual}`);
+    if (PIN_DETALHE) {
+      const marca = atual === esperado ? "=" : "x";
+      pinLinhas.push(
+        `  ${marca} ${check.padEnd(18)} ${nome.padEnd(30)} ${atual ?? "AUSENTE"}`,
+      );
+    }
+  }
+  if (divergentes.length) {
+    row(
+      check,
+      "ERRO",
+      `DRIFT: ${divergentes.join(" | ")} — conferir com a API do Stripe antes de ativar checkout`,
+    );
+  } else {
+    row(
+      check,
+      "OK",
+      `4/4 price IDs batem com auditoria Stripe de 2026-09-14 (${fonte})`,
+    );
+  }
+}
 
 async function checkStripePin() {
   const key = process.env.N8N_API_KEY;
@@ -291,19 +345,113 @@ async function checkStripePin() {
       row("n8n: price pin", "ERRO", "node Config Stripe Webhook não encontrado ou vazio");
       return;
     }
-    const divergentes = [];
-    for (const [nome, esperado] of Object.entries(PRICE_PIN_CHECK)) {
+    const observados = {};
+    for (const nome of Object.keys(PRICE_PIN)) {
       const a = assignments.find((x) => x.name === nome);
-      if (!a) divergentes.push(`${nome}: AUSENTE`);
-      else if (a.value !== esperado) divergentes.push(`${nome}: ${a.value}`);
+      if (a) observados[nome] = a.value;
     }
-    if (divergentes.length) {
-      row("n8n: price pin", "ERRO", `DRIFT: ${divergentes.join(" | ")} — conferir com a API do Stripe antes de ativar checkout`);
-    } else {
-      row("n8n: price pin", "OK", "4/4 price IDs batem com auditoria Stripe de 2026-09-14");
-    }
+    compararPin(
+      "n8n: price pin",
+      aplicarProbe("n8n", observados),
+      "node Config Stripe Webhook",
+    );
   } catch (err) {
     row("n8n: price pin", "ERRO", `falha de rede: ${err.message}`);
+  }
+}
+
+// O lado que originou o bug B3: as env vars de Production que /api/checkout lê.
+// São type "Config" (visibility "config") de propósito — price ID é
+// identificador público (aparece na URL do Checkout), não segredo, e só sendo
+// legível dá para auditá-lo. Marcada "Sensitive" ela não volta decifrada e isso
+// vira ERRO aqui: sem leitura não existe guarda.
+const VERCEL_API = "https://api.vercel.com";
+
+function vercelProjectRef() {
+  let projectId = process.env.VERCEL_PROJECT_ID || "";
+  let teamId = process.env.VERCEL_ORG_ID || "";
+  if (!projectId || !teamId) {
+    try {
+      const j = JSON.parse(
+        readFileSync(
+          new URL("../.vercel/project.json", import.meta.url),
+          "utf8",
+        ),
+      );
+      projectId = projectId || j.projectId;
+      teamId = teamId || j.orgId;
+    } catch {
+      /* sem .vercel local: exige VERCEL_PROJECT_ID/VERCEL_ORG_ID */
+    }
+  }
+  return { projectId, teamId };
+}
+
+async function checkVercelPin() {
+  const token = process.env.VERCEL_TOKEN;
+  if (!token) {
+    row("vercel: price pin", "ERRO", "VERCEL_TOKEN ausente no ambiente");
+    return;
+  }
+  const { projectId, teamId } = vercelProjectRef();
+  if (!projectId || !teamId) {
+    row(
+      "vercel: price pin",
+      "ERRO",
+      "projectId/orgId não resolvidos (.vercel/project.json ou VERCEL_PROJECT_ID/VERCEL_ORG_ID)",
+    );
+    return;
+  }
+  const headers = { Authorization: `Bearer ${token}` };
+  try {
+    const res = await fetchSafe(
+      `${VERCEL_API}/v9/projects/${projectId}/env?teamId=${teamId}`,
+      { headers },
+    );
+    if (!res.ok) {
+      row("vercel: price pin", "ERRO", `GET env falhou (HTTP ${res.status})`);
+      return;
+    }
+    const envs = (await res.json().catch(() => null))?.envs || [];
+    const observados = {};
+    const opacas = [];
+    await Promise.all(
+      Object.keys(PRICE_PIN).map(async (nome) => {
+        const e = envs.find(
+          (x) => x.key === nome && (x.target || []).includes("production"),
+        );
+        if (!e) return; // compararPin reporta AUSENTE
+        if (e.visibility === "sensitive" || e.type === "sensitive") {
+          opacas.push(nome);
+          return;
+        }
+        // O valor só volta decifrado no endpoint de env individual.
+        const r = await fetchSafe(
+          `${VERCEL_API}/v1/projects/${projectId}/env/${e.id}?teamId=${teamId}`,
+          { headers },
+        );
+        if (!r.ok) return;
+        const det = await r.json().catch(() => null);
+        if (det?.decrypted && typeof det.value === "string") {
+          observados[nome] = det.value;
+        }
+      }),
+    );
+    if (opacas.length) {
+      row(
+        "vercel: price pin",
+        "ERRO",
+        `não auditável: ${opacas.join(", ")} marcada(s) Sensitive — rebaixar para Config (price ID é público)`,
+      );
+      return;
+    }
+    compararPin(
+      "vercel: price pin",
+      aplicarProbe("vercel", observados),
+      "env Production de briefing-recepta",
+    );
+  } catch (err) {
+    row("vercel: price pin", "ERRO", `falha de rede: ${err.message}`);
   }
 }
 
@@ -372,9 +520,17 @@ await Promise.all([
   checkSite(),
   checkUazapi(),
   checkStripePin(),
+  checkVercelPin(),
   checkCronBilling(),
 ]);
 printTable();
+if (PIN_DETALHE) {
+  console.log("\nPrice pin — os 4 pares tier x ciclo, lado a lado:");
+  for (const [nome, esperado] of Object.entries(PRICE_PIN)) {
+    console.log(`  . esperado (Stripe)  ${nome.padEnd(30)} ${esperado}`);
+  }
+  for (const l of pinLinhas.sort()) console.log(l);
+}
 
 const erros = results.filter((r) => r.status === "ERRO").length;
 const avisos = results.filter((r) => r.status === "AVISO").length;
