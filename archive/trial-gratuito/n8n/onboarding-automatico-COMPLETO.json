@@ -1,0 +1,1229 @@
+{
+  "_origem": {
+    "id": "voEwbw5fzNnn6bQq",
+    "nome": "Recepta AI - Onboarding Automático de Clínica",
+    "ativo": true,
+    "capturadoEm": "2026-09-13T00:17:46.236Z",
+    "aviso": "Segredos substituidos por <REDACTED>. Restaurar pela credencial/env, nunca colando valor."
+  },
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "recepta/onboarding",
+        "authentication": "headerAuth",
+        "options": {}
+      },
+      "id": "24477f98-f9f0-4d42-a5b2-a76596531e07",
+      "name": "Webhook Onboarding",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -9120,
+        5952
+      ],
+      "webhookId": "recepta-onboarding",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "4zaHsNSDG0FPIvQK",
+          "name": "Recepta - Secret recepta/onboarding"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cf1",
+              "name": "uazapi_server",
+              "type": "string",
+              "value": "https://sitemagic1.uazapi.com"
+            },
+            {
+              "id": "cf2",
+              "name": "supabase_url",
+              "type": "string",
+              "value": "https://vfyubktlmqytkcewicse.supabase.co"
+            },
+            {
+              "id": "cf3",
+              "name": "admin_connected_token",
+              "type": "string",
+              "value": "e1605bf5-9aa2-46a4-a2fe-ce8d0d4d222e"
+            },
+            {
+              "id": "cf4",
+              "name": "telefone_alerta",
+              "type": "string",
+              "value": "5553991635302"
+            },
+            {
+              "id": "cf5",
+              "name": "n8n_webhook_in",
+              "type": "string",
+              "value": "https://n8n.zapscout.com.br/webhook/recepta/in/188316d5ae26373e3eb619086e10fcbcd38"
+            },
+            {
+              "id": "cf6",
+              "name": "n8n_webhook_out",
+              "type": "string",
+              "value": "https://n8n.zapscout.com.br/webhook/recepta/out"
+            },
+            {
+              "id": "cf7",
+              "name": "mensagem_audio_padrao",
+              "type": "string",
+              "value": "Recebi seu áudio, mas por aqui eu leio melhor em texto. Pode escrever a mesma coisa pra mim?"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "7d085942-9d14-401d-8c72-141152bbf454",
+      "name": "Config Fixa",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -8896,
+        5952
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "mc1",
+              "name": "clinica",
+              "type": "string",
+              "value": "={{ $json.body.clinica }}"
+            },
+            {
+              "id": "mc2",
+              "name": "telefone_operador",
+              "type": "string",
+              "value": "={{ $json.body.whatsapp_responsavel }}"
+            },
+            {
+              "id": "mc4",
+              "name": "clinica_slug",
+              "type": "string",
+              "value": "={{ ($json.body.clinica || '').toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'') }}"
+            },
+            {
+              "id": "mc5",
+              "name": "briefing_raw",
+              "type": "object",
+              "value": "={{ $json.body.briefing }}"
+            },
+            {
+              "id": "mc3",
+              "name": "cnpj",
+              "type": "string",
+              "value": "={{ $json.body.cnpj }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b2697b62-0a1b-4212-8c5d-20e413ed598b",
+      "name": "Mapear Campos Briefing",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -8672,
+        5952
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.clinica }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "c2",
+              "leftValue": "={{ $json.telefone_operador }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "c3",
+              "leftValue": "={{ (function() { var d = String($json.cnpj || '').replace(/\\D/g, ''); if (d.length !== 14) return false; if (/^(\\d)\\1+$/.test(d)) return false; var w1=[5,4,3,2,9,8,7,6,5,4,3,2]; var w2=[6,5,4,3,2,9,8,7,6,5,4,3,2]; var s=0; for(var i=0;i<12;i++) s+=parseInt(d[i])*w1[i]; var r=s%11; var d1=r<2?0:11-r; if(parseInt(d[12])!==d1) return false; s=0; for(var i=0;i<13;i++) s+=parseInt(d[i])*w2[i]; r=s%11; var d2=r<2?0:11-r; return parseInt(d[13])===d2; })() }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a473d31e-bd6e-42c5-8d89-c94bd89ee36a",
+      "name": "Campos Obrigatórios OK?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -8448,
+        5952
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config Fixa').item.json.uazapi_server }}/send/text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "token",
+              "value": "={{ $('Config Fixa').item.json.admin_connected_token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ number: $('Config Fixa').item.json.telefone_alerta, text: 'Onboarding Recepta AI: briefing incompleto, NADA foi criado.\\n\\nclinica=' + ($json.clinica || '(vazio)') + '\\ntelefone_operador=' + ($json.telefone_operador || '(vazio)') + '\\ncnpj=' + ($json.cnpj || '(vazio)') + '\\ntoken=' + ($('Webhook Onboarding').item.json.body.token || '(sem token)') + '\\n\\nNinguem falou com o cliente: o contato e seu.' }) }}",
+        "options": {}
+      },
+      "id": "05d72063-0d71-43a8-9f5c-66c82ad29081",
+      "name": "Alerta: Campos Faltando",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -8224,
+        6048
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Config Fixa').item.json.supabase_url }}/rest/v1/clinicas",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "select",
+              "value": "id"
+            },
+            {
+              "name": "limit",
+              "value": "1"
+            },
+            {
+              "name": "clinica",
+              "value": "=eq.{{ $json.clinica }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "32c6e564-cc9b-4fb1-9af4-90c15c043ca8",
+      "name": "Supabase Buscar Clínica Existente",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -8224,
+        5856
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "G0RXYRaUhbQwZTyn",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows = $input.all().map(i => i.json).filter(r => r && r.id); return [{ json: { ja_existe: rows.length > 0, clinica_existente: rows[0] || null } }];"
+      },
+      "id": "a03f6a0f-07c3-44d4-8198-405d6fd26a14",
+      "name": "Normalizar Busca Supabase",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -8000,
+        5856
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "e1",
+              "leftValue": "={{ $json.ja_existe }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "8c659002-1fae-4079-b9d1-d00f97819cfb",
+      "name": "Já Existe?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -7776,
+        5856
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-haiku-4-5-20251001",
+          "mode": "list",
+          "cachedResultName": "Claude Haiku 4.5"
+        },
+        "options": {}
+      },
+      "id": "21ebb269-321b-4afe-8c10-d2cc2c5f008d",
+      "name": "Anthropic Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        -7312,
+        6080
+      ],
+      "credentials": {
+        "anthropicApi": {
+          "id": "yZ5GgXk5ZCBeue3l",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"persona\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"nome_ia\": { \"type\": \"string\" },\n        \"tom\": { \"type\": \"string\" },\n        \"tratamento_paciente\": { \"type\": \"string\" },\n        \"uso_emoji\": { \"type\": \"string\" },\n        \"saudacao_abertura\": { \"type\": \"string\" },\n        \"pode_revelar_que_e_ia\": { \"type\": \"string\" },\n        \"resposta_identidade\": { \"type\": \"string\" },\n        \"vocabulario_preferido\": { \"type\": \"string\" },\n        \"vocabulario_evitar\": { \"type\": \"string\" }\n      },\n      \"required\": [\"nome_ia\", \"tom\", \"saudacao_abertura\"]\n    },\n    \"conhecimento\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"servicos_oferecidos\": {\n          \"type\": \"array\",\n          \"items\": { \"type\": \"string\" }\n        },\n        \"servicos_mais_procurados\": {\n          \"type\": \"array\",\n          \"items\": { \"type\": \"string\" }\n        },\n        \"nao_realiza\": { \"type\": \"string\" },\n        \"convenios\": { \"type\": \"string\" },\n        \"atende_particular\": { \"type\": \"string\" },\n        \"pode_informar_preco\": { \"type\": \"string\" },\n        \"tabela_precos\": { \"type\": \"string\" },\n        \"formas_pagamento\": { \"type\": \"string\" },\n        \"preparo_exames\": { \"type\": \"string\" },\n        \"documentos_levar\": { \"type\": \"string\" },\n        \"antecedencia_chegada\": { \"type\": \"string\" },\n        \"regras_acompanhante\": { \"type\": \"string\" }\n      }\n    },\n    \"agendamento\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"sistema_usado\": { \"type\": \"string\" },\n        \"papel_da_ia\": { \"type\": \"string\" },\n        \"dados_obrigatorios\": {\n          \"type\": \"array\",\n          \"items\": { \"type\": \"string\" }\n        },\n        \"horarios_disponiveis\": { \"type\": \"string\" },\n        \"duracao_atendimento\": { \"type\": \"string\" },\n        \"antecedencia_minima\": { \"type\": \"string\" },\n        \"regras_remarcacao_cancelamento\": { \"type\": \"string\" },\n        \"fila_espera\": { \"type\": \"string\" }\n      }\n    },\n    \"faq\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"pergunta\": { \"type\": \"string\" },\n          \"resposta\": { \"type\": \"string\" }\n        }\n      }\n    },\n    \"escalonamento\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"nunca_fazer\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n        \"sempre_escalar_para_humano\": {\n          \"type\": \"array\",\n          \"items\": { \"type\": \"string\" }\n        },\n        \"whatsapp_alerta\": { \"type\": \"string\" },\n        \"horario_humano_disponivel\": { \"type\": \"string\" },\n        \"mensagem_fora_do_horario\": { \"type\": \"string\" },\n        \"resposta_emergencia_medica\": { \"type\": \"string\" }\n      }\n    },\n    \"system_prompt\": { \"type\": \"string\" }\n  },\n  \"required\": [\n    \"persona\",\n    \"conhecimento\",\n    \"agendamento\",\n    \"escalonamento\",\n    \"system_prompt\"\n  ]\n}"
+      },
+      "id": "050010f9-3f78-4636-8375-6b5db7558332",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -7184,
+        6080
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Você é um gerador de configuração. A partir do briefing de uma clínica, produza o campo system_prompt que será usado por uma atendente de WhatsApp.\n\nRetorne SOMENTE JSON válido, sem markdown, sem comentários.\n\nO system_prompt que você escrever deve instruir a atendente a escrever como uma recepcionista real digitando no celular. Não como software.\n\nREGRAS DE ESTILO (transcreva-as adaptadas ao briefing):\n\n1. TAMANHO\n   - 1 a 3 linhas por mensagem. O padrão é curto.\n   - Nunca use listas numeradas, bullets, negrito, títulos ou \"Opções:\".\n   - Se a informação for longa (ex.: preparo de exame com 5 passos), mande em 2 ou 3 mensagens curtas em vez de um bloco só.\n   - Para quebrar em mensagens, use a marca ⏎⏎ entre elas. Nada mais.\n\n2. LINGUAGEM\n   - Contrações e fala corrente: \"tá\", \"pra\", \"tô vendo aqui\", \"só um minuto\".\n   - Formalidade calibrada pelo briefing, mas nunca corporativa.\n   - Pode hesitar de forma natural: \"deixa eu confirmar aqui\".\n   - IMPERFEIÇÃO SÓ NO TOM, NUNCA NO DADO. Preço, horário, endereço, preparo de exame e orientação clínica saem sempre exatos ou não saem. Na dúvida sobre um dado, não invente: escale.\n\n3. VARIAÇÃO\n   - Não repita a mesma saudação. Alterne, ou simplesmente não cumprimente quando a conversa já está em andamento.\n   - Não encerre toda mensagem com a mesma fórmula.\n   - Não comece toda resposta pelo nome do paciente.\n\n4. IDENTIDADE\n   - Não se apresente como IA, assistente virtual, robô, sistema ou automação. Não mencione isso espontaneamente em nenhum momento.\n   - Se o paciente perguntar DIRETAMENTE se é robô/IA/atendimento automático, responda de forma curta e honesta e siga ajudando na mesma mensagem. Não negue, não desconverse, não ignore a pergunta. Use o texto do campo resposta_identidade.\n   - Depois de responder isso, volte imediatamente ao assunto.\n\n5. O QUE NUNCA FAZER\n   - Não use emoji além do que o briefing autorizar (padrão: no máximo 1).\n   - Não diga \"Entendi!\" ou \"Claro!\" como abertura automática.\n   - Não repita a pergunta do paciente antes de responder.\n   - Não dê diagnóstico, não interprete exame, não sugira medicação.\n\nESCALONAMENTO\nQuando precisar de um humano, a resposta começa com [HANDOFF] na PRIMEIRA mensagem, antes de qualquer texto, e a tag nunca é mencionada ao paciente. Se a resposta for quebrada em várias mensagens, [HANDOFF] aparece uma única vez, no início da primeira.\nEscale quando: dúvida clínica, reclamação, pedido fora do escopo do briefing, dado que você não tem, ou paciente irritado.\n\nAo preencher persona:\n- saudacao_abertura: defina, mas instrua a IA a não repetir em toda mensagem — só na abertura real da conversa.\n- pode_revelar_que_e_ia: padrão \"não, exceto se perguntado diretamente\".\n- resposta_identidade: frase curta pra usar SE o paciente perguntar diretamente se é robô/IA. Reconhece + retoma o assunto. Exemplo: \"Sou eu que cuido do atendimento aqui, com ajuda de um sistema — mas pode falar comigo normal que eu resolvo. O que você precisa?\" Adapte o tom ao briefing, mantendo a estrutura.\n\nBriefing da clínica (JSON):\n{{ JSON.stringify($('Mapear Campos Briefing').item.json.briefing_raw) }}",
+        "hasOutputParser": true
+      },
+      "id": "ab0ff5b9-d363-4c47-ad3b-f4a61acf8d70",
+      "name": "Gerar ia_config",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.6,
+      "position": [
+        -7328,
+        5856
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ei1",
+              "name": "ia_config",
+              "type": "object",
+              "value": "={{ $json.output }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e115998f-2c3d-4b7a-8328-6b05f61c872d",
+      "name": "Extrair ia_config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -6976,
+        5856
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config Fixa').item.json.uazapi_server }}/instance/create",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ name: $('Mapear Campos Briefing').item.json.clinica_slug }) }}",
+        "options": {}
+      },
+      "id": "9d5cd0dc-7af0-4649-965c-b939d8885859",
+      "name": "UazAPI Criar Instância",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -6752,
+        5856
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "PXVRc6a3b5pu77fa",
+          "name": "UazAPI - Admin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "i1",
+              "leftValue": "={{ $json.token }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "bc68c4f1-f132-4853-98ae-20703389912c",
+      "name": "Instância Criada OK?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -6528,
+        5856
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config Fixa').item.json.uazapi_server }}/send/text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "token",
+              "value": "={{ $('Config Fixa').item.json.admin_connected_token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ number: $('Config Fixa').item.json.telefone_alerta, text: 'Onboarding Recepta AI: falha ao criar instância na UazAPI pra ' + $('Mapear Campos Briefing').item.json.clinica + '. Nenhuma instância foi criada, nada órfão. Resposta: ' + JSON.stringify($json).slice(0,300) }) }}",
+        "options": {}
+      },
+      "id": "86490ce4-dffb-4631-83b8-425142afa6d1",
+      "name": "Alerta: Falha ao Criar Instância",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -6304,
+        5952
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config Fixa').item.json.uazapi_server }}/webhook",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "token",
+              "value": "={{ $('UazAPI Criar Instância').first().json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ action: 'add', enabled: true, url: $('Config Fixa').item.json.n8n_webhook_in, events: ['messages'], excludeMessages: ['wasSentByApi','fromMeYes','isGroupYes'] }) }}",
+        "options": {}
+      },
+      "id": "6f815cf2-c1b2-41ed-99c2-b90d94bf4593",
+      "name": "UazAPI Configurar Webhook IN",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -6304,
+        5760
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config Fixa').item.json.uazapi_server }}/webhook",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "token",
+              "value": "={{ $('UazAPI Criar Instância').first().json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ action: 'add', enabled: true, url: $('Config Fixa').item.json.n8n_webhook_out, events: ['messages'], excludeMessages: ['wasSentByApi','fromMeNo'] }) }}",
+        "options": {}
+      },
+      "id": "0ded1ad7-41ed-440c-b7a9-d48f26402514",
+      "name": "UazAPI Configurar Webhook OUT",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -6080,
+        5696
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config Fixa').item.json.supabase_url }}/rest/v1/clinicas",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "13feccdc-cca4-4dc1-a289-fc7a977d1e15",
+      "name": "Supabase Inserir Clínica",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -5632,
+        5616
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "G0RXYRaUhbQwZTyn",
+          "name": "Supabase account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config Fixa').item.json.uazapi_server }}/instance/connect",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "token",
+              "value": "={{ $('UazAPI Criar Instância').first().json.token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ phone: $('Mapear Campos Briefing').item.json.telefone_operador }) }}",
+        "options": {}
+      },
+      "id": "70db2524-3469-421e-8a2e-49d9873a0aec",
+      "name": "UazAPI Gerar Código Pareamento",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -5184,
+        5456
+      ],
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "mp1",
+              "name": "paircode",
+              "type": "string",
+              "value": "={{ $json.instance.paircode }}"
+            },
+            {
+              "id": "mp2",
+              "name": "mensagem_pareamento",
+              "type": "string",
+              "value": "={{ $('Gerar Convite Painel').item.json.url }}\n \nPara ativar a Recepta AI no WhatsApp da sua clínica, acesse o link acima e defina sua senha de acesso."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d7d8eea1-2af4-43d4-be57-ef55071ee2cb",
+      "name": "Montar Mensagem Pareamento",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -4960,
+        5376
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config Fixa').item.json.uazapi_server }}/send/text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "token",
+              "value": "={{ $('Config Fixa').item.json.admin_connected_token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ number: $('Mapear Campos Briefing').item.json.telefone_operador, text: $json.mensagem_pareamento }) }}",
+        "options": {}
+      },
+      "id": "2ce824a7-5b55-4e96-a5b2-44a1d8e55217",
+      "name": "Enviar Código Pareamento",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -4736,
+        5376
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config Fixa').item.json.uazapi_server }}/send/text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "token",
+              "value": "={{ $('Config Fixa').item.json.admin_connected_token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ number: $('Config Fixa').item.json.telefone_alerta, text: 'Onboarding concluído: ' + $('Mapear Campos Briefing').item.json.clinica + '. Instância: ' + $('UazAPI Criar Instância').first().json.token + '. Código de pareamento enviado pro operador (' + $('Mapear Campos Briefing').item.json.telefone_operador + ').' }) }}",
+        "options": {}
+      },
+      "id": "54daec19-50b3-452e-93d7-8dec464457f2",
+      "name": "Alerta: Sucesso",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -4512,
+        5328
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config Fixa').item.json.uazapi_server }}/send/text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "token",
+              "value": "={{ $('Config Fixa').item.json.admin_connected_token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ number: $('Config Fixa').item.json.telefone_alerta, text: 'ATENÇÃO — instância órfã. Clínica: ' + $('Mapear Campos Briefing').item.json.clinica + '. Token: ' + $('UazAPI Criar Instância').first().json.token + '. Falhou na etapa: ' + $prevNode.name + '. Erro: ' + (($json.error && $json.error.message) || 'desconhecido') + '. Limpe a instância na mão se necessário.' }) }}",
+        "options": {}
+      },
+      "id": "999cd2f9-2370-464e-998b-35c2272cf0a5",
+      "name": "Alerta: Falha Pós-Criação (Instância Órfã)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -4512,
+        5856
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://www.receptaai.com.br/api/clinica/convite",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ clinica_id: $json.id }) }}",
+        "options": {}
+      },
+      "id": "gerar-convite-painel-node-001",
+      "name": "Gerar Convite Painel",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -5408,
+        5552
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "PzbsQIt5E8ABPJnB",
+          "name": "clinicaConviteApi"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Config Fixa').item.json.uazapi_server }}/send/text",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "token",
+              "value": "={{ $('Config Fixa').item.json.admin_connected_token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ number: $('Config Fixa').item.json.telefone_alerta, text: 'Falha ao gerar convite do painel para clinica: ' + $('Mapear Campos Briefing').item.json.clinica + ' (id: ' + $('Supabase Inserir Clínica').item.json.id + '). Horario: ' + new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }) + '. Gere manual pelo painel admin.' }) }}",
+        "options": {}
+      },
+      "id": "alerta-falha-convite-painel-node-001",
+      "name": "Alerta: Falha Convite Painel",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -5184,
+        5648
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Config Fixa').item.json.supabase_url }}/rest/v1/clinicas?uazapi_token=eq.{{ $('UazAPI Criar Instância').first().json.token }}&select=id",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/vnd.pgrst.object+json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "verificar-instancia-ja-salva-001",
+      "name": "Verificar Se Instância Já Salva",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -4960,
+        5792
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "G0RXYRaUhbQwZTyn",
+          "name": "Supabase account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "DELETE",
+        "url": "={{ $('Config Fixa').item.json.uazapi_server }}/instance",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "token",
+              "value": "={{ $('UazAPI Criar Instância').first().json.token }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "deletar-instancia-orfa-001",
+      "name": "Deletar Instância Órfã UazAPI",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -4736,
+        5696
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {},
+      "id": "limit-webhook-out-001",
+      "name": "Limitar Resposta Webhook OUT",
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        -5856,
+        5616
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const clinicaId = .clinica_existente?.id;\nif (!clinicaId) return .all();\ntry {\n  const r = await fetch('https://www.receptaai.com.br/api/clinica/reset-trial', {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json', 'X-Api-Key': '<REDACTED>' },\n    body: JSON.stringify({ clinica_id: clinicaId })\n  });\n  if (r.status === 409) {\n    throw new Error('Instancia ja conectada. Trial ja foi usado.');\n  }\n} catch (e) {\n  if (e.message.includes('Instancia ja conectada')) throw e;\n}\nreturn .all();"
+      },
+      "id": "71cc8018-883d-48e8-8328-1330f9f828fb",
+      "name": "Reset Trial",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -7552,
+        5936
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Montar body do INSERT no Supabase\nconst mapData = $(\"Mapear Campos Briefing\").first().json;\nconst configData = $(\"Config Fixa\").first().json;\nconst instData = $(\"UazAPI Criar Instância\").first().json;\nconst extrairData = $(\"Extrair ia_config\").first().json;\n\n// O alerta de escalonamento ([HANDOFF]) vai para o WhatsApp do responsavel\n// informado no briefing (whats_resp -> telefone_operador), nao mais para um\n// numero fixo. Ele chega com mascara (\"53 99999-9999\"), e a UazAPI espera\n// E.164 sem \"+\", entao normaliza aqui. Sem numero confiavel no briefing,\n// cai no fallback da Config Fixa (numero do dono) em vez de ficar sem alerta.\nconst normalizarTelefone = (bruto) => {\n  const d = String(bruto || \"\").replace(/\\D/g, \"\");\n  if (d.length === 13 && d.startsWith(\"55\")) return d;\n  if (d.length === 12 && d.startsWith(\"55\"))\n    return d.slice(0, 4) + \"9\" + d.slice(4);\n  if (d.length === 11) return \"55\" + d;\n  if (d.length === 10) return \"55\" + d.slice(0, 2) + \"9\" + d.slice(2);\n  return \"\";\n};\nconst alertaDoBriefing = normalizarTelefone(mapData.telefone_operador);\n\nreturn [\n  {\n    json: {\n      clinica: mapData.clinica,\n      cnpj: mapData.cnpj,\n      uazapi_token: instData.token,\n      uazapi_server: configData.uazapi_server,\n      telefone_alerta: alertaDoBriefing || configData.telefone_alerta,\n      telefone_operador: mapData.telefone_operador,\n      mensagem_audio_padrao: configData.mensagem_audio_padrao,\n      ia_config: extrairData.ia_config,\n      categoria:\n        mapData.briefing_raw && mapData.briefing_raw.categoria\n          ? mapData.briefing_raw.categoria\n          : \"geral\",\n      status: \"ativo\",\n      trial_inicio: null,\n      trial_fim: null,\n      tier:\n        mapData.briefing_raw && mapData.briefing_raw.tier === \"essencial\"\n          ? \"essencial\"\n          : \"completo\",\n    },\n  },\n];\n"
+      },
+      "name": "Montar JSON Body",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -5744,
+        5816
+      ],
+      "id": "f2fb9ece-355c-4ca2-af96-17da31e80f2d"
+    }
+  ],
+  "connections": {
+    "Webhook Onboarding": {
+      "main": [
+        [
+          {
+            "node": "Config Fixa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config Fixa": {
+      "main": [
+        [
+          {
+            "node": "Mapear Campos Briefing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mapear Campos Briefing": {
+      "main": [
+        [
+          {
+            "node": "Campos Obrigatórios OK?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Campos Obrigatórios OK?": {
+      "main": [
+        [
+          {
+            "node": "Supabase Buscar Clínica Existente",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Alerta: Campos Faltando",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Buscar Clínica Existente": {
+      "main": [
+        [
+          {
+            "node": "Normalizar Busca Supabase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalizar Busca Supabase": {
+      "main": [
+        [
+          {
+            "node": "Já Existe?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Já Existe?": {
+      "main": [
+        [
+          {
+            "node": "Reset Trial",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Gerar ia_config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Gerar ia_config",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Gerar ia_config",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gerar ia_config": {
+      "main": [
+        [
+          {
+            "node": "Extrair ia_config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extrair ia_config": {
+      "main": [
+        [
+          {
+            "node": "UazAPI Criar Instância",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UazAPI Criar Instância": {
+      "main": [
+        [
+          {
+            "node": "Instância Criada OK?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Instância Criada OK?": {
+      "main": [
+        [
+          {
+            "node": "UazAPI Configurar Webhook IN",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Alerta: Falha ao Criar Instância",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UazAPI Configurar Webhook IN": {
+      "main": [
+        [
+          {
+            "node": "UazAPI Configurar Webhook OUT",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Alerta: Falha Pós-Criação (Instância Órfã)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UazAPI Configurar Webhook OUT": {
+      "main": [
+        [
+          {
+            "node": "Limitar Resposta Webhook OUT",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Alerta: Falha Pós-Criação (Instância Órfã)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Inserir Clínica": {
+      "main": [
+        [
+          {
+            "node": "Gerar Convite Painel",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Verificar Se Instância Já Salva",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "UazAPI Gerar Código Pareamento": {
+      "main": [
+        [
+          {
+            "node": "Montar Mensagem Pareamento",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Alerta: Falha Pós-Criação (Instância Órfã)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Montar Mensagem Pareamento": {
+      "main": [
+        [
+          {
+            "node": "Enviar Código Pareamento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar Código Pareamento": {
+      "main": [
+        [
+          {
+            "node": "Alerta: Sucesso",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Alerta: Falha Pós-Criação (Instância Órfã)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gerar Convite Painel": {
+      "main": [
+        [
+          {
+            "node": "UazAPI Gerar Código Pareamento",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "UazAPI Gerar Código Pareamento",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Alerta: Falha Convite Painel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verificar Se Instância Já Salva": {
+      "main": [
+        [
+          {
+            "node": "Alerta: Falha Pós-Criação (Instância Órfã)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Deletar Instância Órfã UazAPI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deletar Instância Órfã UazAPI": {
+      "main": [
+        [
+          {
+            "node": "Alerta: Falha Pós-Criação (Instância Órfã)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Alerta: Falha Pós-Criação (Instância Órfã)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limitar Resposta Webhook OUT": {
+      "main": [
+        [
+          {
+            "node": "Montar JSON Body",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reset Trial": {
+      "main": [
+        [
+          {
+            "node": "Gerar ia_config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Montar JSON Body": {
+      "main": [
+        [
+          {
+            "node": "Supabase Inserir Clínica",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true,
+    "errorWorkflow": "2ZvOhRWcQNO3WZ8C"
+  }
+}
