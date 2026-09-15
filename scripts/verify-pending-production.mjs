@@ -10,9 +10,12 @@ for(const domain of ['www.receptaai.com.br','receptaai.com.br','briefing-recepta
     assert.equal(r.status,200);assert.equal(body,fs.readFileSync(file,'utf8'),domain+url+' must match source');
     checks.push({path:url,http:r.status,sourceEqual:true,sha256:crypto.createHash('sha256').update(body).digest('hex')});
   }
-  const r=await fetch('https://'+domain+'/api/submit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pedido:null})});
-  assert.equal(r.status,400);assert.equal((await r.json()).erro,'pedido_invalido');
-  proof.domains.push({domain,checks,invalidSubmit:400});
+  let invalidSubmit='not repeated';
+  if(!process.argv.includes('--skip-submit')) {
+    const r=await fetch('https://'+domain+'/api/submit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pedido:null})});
+    assert.equal(r.status,400);assert.equal((await r.json()).erro,'pedido_invalido');invalidSubmit=400;
+  }
+  proof.domains.push({domain,checks,invalidSubmit});
 }
 for(const url of ['/','/termos','/privacidade','/estetica','/ortopedia','/psicologia','/radiologia','/blog','/blog/erros-clinicas-atendimento','/blog/ia-whatsapp-atendimento','/blog/secretaria-virtual-clinica','/briefing']){
   const r=await fetch('https://www.receptaai.com.br'+url);const html=await r.text();assert.equal(r.status,200);

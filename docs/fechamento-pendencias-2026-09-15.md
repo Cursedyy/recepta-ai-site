@@ -88,3 +88,21 @@ validador Google **não confirmei**. Não substituir esse aceite por parse JSON.
 
 Revisão jurídica, reintegração da fila no Atendimento e remoção de legados
 continuam exigindo escopo/aceite próprio; não foram declaradas concluídas.
+
+## Fechamento final confirmado
+
+Deployment final pronto e três aliases movidos individualmente para
+`briefing-recepta-eywlx0avm-site-magic.vercel.app`. Probes de 22:09:35 UTC
+confirmaram cinco arquivos iguais à origem nos três domínios, gate visível
+em três larguras, doze superfícies sem promessa antiga pesquisada e Portal
+ativo. Health pós-deploy: 13/13 OK.
+
+Repetição inicial do probe POST atingiu o rate limit legítimo do submit
+(429); não foi contornado. Nova rodada usou `--skip-submit` para conferir
+arquivos/navegador sem consumir a quota pública. O handler da API não mudou
+entre os dois deploys; prova 400 está na primeira rodada e no teste local.
+
+Commit de implementação `8967571`, push em `codex/pos-e2e-corrections`
+confirmado por `git ls-remote`. Incluiu também os commits locais anteriores
+da branch. Não houve merge no master ou alteração das configs locais dos
+agentes. Cérebro do Obsidian recebe este fechamento e link da semana.
