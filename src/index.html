@@ -110,7 +110,9 @@
               "@type": "ContactPoint",
               "contactType": "customer support",
               "email": "contato@receptaai.com.br",
-              "availableLanguage": ["Portuguese"],
+              "availableLanguage": [
+                "Portuguese"
+              ],
               "areaServed": "BR"
             }
           },
@@ -146,7 +148,10 @@
             "inLanguage": "pt-BR"
           },
           {
-            "@type": ["SoftwareApplication", "Service"],
+            "@type": [
+              "SoftwareApplication",
+              "Service"
+            ],
             "@id": "https://www.receptaai.com.br/#software",
             "name": "Recepta AI",
             "applicationCategory": "BusinessApplication",
@@ -182,17 +187,24 @@
                 "@id": "https://www.receptaai.com.br/#essencial-anual",
                 "name": "Essencial anual",
                 "description": "Plano Essencial anual da secretária virtual Recepta AI, cobrado uma vez por ano (R$ 4.164), equivalente a R$ 347 por mês.",
-                "price": "347.00",
+                "price": "4164.00",
                 "priceCurrency": "BRL",
                 "url": "https://www.receptaai.com.br/#planos",
                 "availability": "https://schema.org/InStock",
                 "priceSpecification": {
                   "@type": "UnitPriceSpecification",
-                  "price": "347.00",
+                  "price": "4164.00",
                   "priceCurrency": "BRL",
                   "unitCode": "MON",
                   "billingDuration": 12,
-                  "billingIncrement": 1
+                  "billingIncrement": 12
+                },
+                "hasMerchantReturnPolicy": {
+                  "@type": "MerchantReturnPolicy",
+                  "applicableCountry": "BR",
+                  "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+                  "merchantReturnDays": 7,
+                  "refundType": "https://schema.org/FullRefund"
                 }
               },
               {
@@ -211,6 +223,13 @@
                   "unitCode": "MON",
                   "billingDuration": 1,
                   "billingIncrement": 1
+                },
+                "hasMerchantReturnPolicy": {
+                  "@type": "MerchantReturnPolicy",
+                  "applicableCountry": "BR",
+                  "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+                  "merchantReturnDays": 7,
+                  "refundType": "https://schema.org/FullRefund"
                 }
               },
               {
@@ -218,17 +237,24 @@
                 "@id": "https://www.receptaai.com.br/#completo-anual",
                 "name": "Completo anual",
                 "description": "Plano Completo anual da secretária virtual Recepta AI, cobrado uma vez por ano (R$ 8.364), equivalente a R$ 697 por mês.",
-                "price": "697.00",
+                "price": "8364.00",
                 "priceCurrency": "BRL",
                 "url": "https://www.receptaai.com.br/#planos",
                 "availability": "https://schema.org/InStock",
                 "priceSpecification": {
                   "@type": "UnitPriceSpecification",
-                  "price": "697.00",
+                  "price": "8364.00",
                   "priceCurrency": "BRL",
                   "unitCode": "MON",
                   "billingDuration": 12,
-                  "billingIncrement": 1
+                  "billingIncrement": 12
+                },
+                "hasMerchantReturnPolicy": {
+                  "@type": "MerchantReturnPolicy",
+                  "applicableCountry": "BR",
+                  "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+                  "merchantReturnDays": 7,
+                  "refundType": "https://schema.org/FullRefund"
                 }
               },
               {
@@ -247,6 +273,13 @@
                   "unitCode": "MON",
                   "billingDuration": 1,
                   "billingIncrement": 1
+                },
+                "hasMerchantReturnPolicy": {
+                  "@type": "MerchantReturnPolicy",
+                  "applicableCountry": "BR",
+                  "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+                  "merchantReturnDays": 7,
+                  "refundType": "https://schema.org/FullRefund"
                 }
               }
             ],
