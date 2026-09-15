@@ -650,7 +650,8 @@ window.__PAINEL__ = {
      inline (abaixo), os numeros das metricas dispensam grafico e os
      inputs date/time nativos entregam exatamente o mesmo valor que o
      flatpickr entregava. Nao reintroduzir sem antes abrir o CSP. -->
-<script src="/clinica/painel.js?v=20260912-sem-cdn"></script>
+<script src="/analytics.js?v=20260915-f2"></script>
+<script src="/clinica/painel.js?v=20260915-f2"></script>
 <link rel="stylesheet" href="/page-transition.css" />
 <link rel="stylesheet" href="/loading-screen.css" />
 <script src="/page-transition.js"></script>

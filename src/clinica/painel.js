@@ -1410,6 +1410,7 @@ function linhaDetalhe(rotulo, valor, alerta) {
         })
         .then(function (x) {
           if (x.r.ok && x.j.ok) {
+            if (x.j.registrado_em && window.receptaAnalytics) window.receptaAnalytics("reembolso_solicitado");
             window.alert(x.j.mensagem || "Pedido registrado.");
             window.location.reload();
           } else if (x.r.status === 409) {
@@ -2160,6 +2161,7 @@ metricasPromise
       .then(function (dados) {
         if (!dados) return;
         if (dados.conectado) {
+          if (window.receptaAnalytics) window.receptaAnalytics("whatsapp_conectado");
           banner.classList.add("hidden");
           if (pollTimer) {
             clearInterval(pollTimer);

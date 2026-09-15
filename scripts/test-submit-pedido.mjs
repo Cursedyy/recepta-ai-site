@@ -28,6 +28,17 @@ for (const pedido of [undefined, null, "", "lixo", 123, {}, "aaaaaaaa-aaaa-aaaa-
 assert.equal((await submit("{")).body.erro, "payload_invalido");
 assert.equal(sent.length, 0, "invalid requests must not reach the webhook");
 const pedido = "12345678-abcd-4321-9876-123456789abc";
+// Exercise the real frontend payload against the real route validation.
+const html = fs.readFileSync('src/briefing/index.html', 'utf8');
+const payloadCode = html.slice(html.indexOf('const payload = {'), html.indexOf('\n        try {', html.indexOf('const payload = {')));
+const frontend = vm.createContext({ Date, S: [], data: () => ({clinica:'Fixture',cnpj:'12.345.678/0001-90'}), val:()=>'', Object, URLSearchParams, window:{location:{search:'?pedido='+pedido}} });
+const pedidoFunction = html.slice(html.indexOf('function pedidoDaUrl()'), html.indexOf('\n      F.addEventListener',html.indexOf('function pedidoDaUrl()')));
+vm.runInContext(pedidoFunction+'\n'+payloadCode+'\nthis.payload=payload;', frontend);
+assert.equal(frontend.payload.pedido,pedido);
+assert.equal(frontend.payload.bruto.pedido,pedido);
+const fromForm = await submit(frontend.payload);
+assert.equal(fromForm.status,200,'actual frontend payload must pass the API boundary');
+sent.length=0;
 const good = await submit({ pedido, bruto: { pedido: "untrusted", clinica: "Fixture", cnpj: "12.345.678/0001-90" } });
 assert.equal(good.status, 200);
 assert.equal(sent.length, 1);

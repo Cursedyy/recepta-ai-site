@@ -5768,6 +5768,7 @@
         window.addEventListener("resize", onScroll);
       })();
     </script>
+    <script src="/analytics.js?v=20260915-f2"></script>
     <script>
       /* F2 — métricas sem cookies (ver Política de Privacidade, seção 10):
          apenas contagens agregadas de visita, clique em planos e início de
@@ -5775,12 +5776,7 @@
          página. */
       (function () {
         function an(e) {
-          try {
-            var x = new XMLHttpRequest();
-            x.open("POST", "/api/an", true);
-            x.setRequestHeader("Content-Type", "application/json");
-            x.send(JSON.stringify({ evento: e }));
-          } catch (_) {}
+          if (window.receptaAnalytics) window.receptaAnalytics(e);
         }
         an("visit");
         var sec = document.getElementById("planos");
@@ -5857,7 +5853,9 @@
 
         function selecionar(botao, focar) {
           if (!botao) return;
+          var anterior = estado;
           estado = botao.getAttribute("data-ciclo");
+          if (anterior !== estado && window.receptaAnalytics) window.receptaAnalytics("ciclo_alterado", { ciclo: estado });
           aplicar();
           if (focar) botao.focus();
         }
@@ -5875,6 +5873,7 @@
         }
 
         if (new URLSearchParams(window.location.search).get("c") === "abandonado") {
+          if (window.receptaAnalytics) window.receptaAnalytics("checkout_abandonado", { ciclo: estado });
           mostrarErro("Checkout cancelado. Sua escolha foi preservada nesta aba. ");
           var fechar = document.createElement("button");
           fechar.type = "button";
@@ -5913,6 +5912,7 @@
           btn.addEventListener("click", function (ev) {
             ev.preventDefault();
             if (btn.disabled) return;
+            var checkoutCiclo = estado;
             if (typeof window.__anCheckout === "function") window.__anCheckout();
             btn.disabled = true;
             var original = btn.textContent;
@@ -5920,7 +5920,7 @@
             fetch("/api/checkout", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ tier: tier, ciclo: estado }),
+              body: JSON.stringify({ tier: tier, ciclo: checkoutCiclo }),
             })
               .then(function (r) {
                 if (!r.ok) throw new Error("checkout " + r.status);
@@ -5928,10 +5928,11 @@
               })
               .then(function (j) {
                 if (!j || !j.url) throw new Error("sem url");
+                if (window.receptaAnalytics) window.receptaAnalytics("checkout_iniciado", { tier: tier, ciclo: checkoutCiclo });
                 try {
                   sessionStorage.setItem("recepta_pedido_id", j.pedido_id || "");
                   sessionStorage.setItem("recepta_checkout_tier", tier);
-                  sessionStorage.setItem("recepta_checkout_ciclo", estado);
+                  sessionStorage.setItem("recepta_checkout_ciclo", checkoutCiclo);
                 } catch (e) {}
                 window.location.href = j.url;
               })
