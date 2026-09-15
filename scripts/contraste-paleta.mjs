@@ -53,6 +53,8 @@ function token(arquivo, nome) {
 const PAINEL = "src/clinica/painel.css";
 const AUTH = "src/clinica/auth.css";
 const ADMIN = "src/painel/index.html";
+const BRIEFING = "src/briefing/index.html";
+const LP = "src/index.html";
 
 const t = {
   primary: token(PAINEL, "primary"),
@@ -80,6 +82,18 @@ const t = {
   adminInk: token(ADMIN, "ink"),
   adminAccent: token(ADMIN, "accent"),
   adminBorderInput: token(ADMIN, "border-input"),
+  // O briefing e a LP sao a porta de entrada: se a marca divergir aqui, o
+  // usuario clica num botao e cai no que parece outra empresa.
+  briefAccent: token(BRIEFING, "accent"),
+  briefAccentHover: token(BRIEFING, "accent-hover"),
+  briefAccent2: token(BRIEFING, "accent-2"),
+  briefInk: token(BRIEFING, "ink"),
+  briefMuted: token(BRIEFING, "muted"),
+  briefSurface: token(BRIEFING, "surface"),
+  briefHeaderBg: token(BRIEFING, "header-bg"),
+  lpAccent: token(LP, "accent"),
+  lpInk: token(LP, "ink"),
+  lpHeaderBg: token(LP, "header-bg"),
 };
 
 // [rótulo, frente, fundo, mínimo]
@@ -111,6 +125,14 @@ const pares = [
   ["texto branco 62% sobre o painel do login", sobre("#ffffff", 0.62, t.authAccent), t.authAccent, 4.5],
 
   // Não-texto (bordas de campo, anel de foco) — AA exige 3:1
+  // Briefing: o gradiente do CTA "Continuar" e do badge numerado carrega
+  // texto branco. Terminava em --accent-2 (lilas) e dava 2.18:1.
+  ["rotulo branco no fim do gradiente do briefing", t.briefSurface, t.briefAccentHover, 4.5],
+  ["rotulo branco no inicio do gradiente do briefing", t.briefSurface, t.briefAccent, 4.5],
+  ["texto do briefing sobre card", t.briefInk, t.briefSurface, 4.5],
+  ["texto secundario do briefing", t.briefMuted, t.briefSurface, 4.5],
+  ["wordmark lilas na topbar do briefing", t.briefAccent2, t.briefHeaderBg, 4.5],
+
   ["borda de campo no painel", t.borderInput, t.surface, 3],
   ["borda de campo no painel (sobre o fundo)", t.borderInput, t.bg, 3],
   ["borda de campo no admin", t.adminBorderInput, t.surface, 3],
@@ -130,5 +152,22 @@ for (const [rotulo, frente, fundo, minimo] of pares) {
     `${ok ? "ok  " : "FALHA"} ${r.toFixed(2).padStart(5)}:1 (min ${minimo})  ${rotulo}  [${frente} / ${fundo}]`,
   );
 }
+// Trava de marca: o briefing e o destino de todo CTA da LP. Se estes tokens
+// divergirem, a pagina de conversao deixa de parecer a mesma empresa.
+const marca = [
+  ["--accent", t.briefAccent, t.lpAccent],
+  ["--ink", t.briefInk, t.lpInk],
+  ["--header-bg", t.briefHeaderBg, t.lpHeaderBg],
+];
+let divergiu = 0;
+for (const [nome, brief, lp] of marca) {
+  const igual = brief === lp;
+  if (!igual) divergiu++;
+  console.log(
+    `${igual ? "ok  " : "FALHA"} briefing ${nome} == LP ${nome}  [${brief} / ${lp}]`,
+  );
+}
+if (divergiu) falhas += divergiu;
+
 console.log(`\n${pares.length} pares, ${falhas} falha(s).`);
 process.exit(falhas ? 1 : 0);

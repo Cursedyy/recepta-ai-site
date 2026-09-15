@@ -7,7 +7,18 @@ if (!systemPrompt) {
 }
 
 const historico = $('Consolidar Histórico').first().json.historico || [];
-const mensagemAtual = $('Parser da Mensagem').first().json.mensagem;
+// O ramo de áudio/imagem pode substituir a mensagem original antes deste
+// node. Usar o item atual preserva a transcrição/visão; o parser permanece o
+// fallback para texto normal e para caminhos de debounce.
+const mensagemAtual =
+  typeof $json?.mensagem === 'string'
+    ? $json.mensagem
+    : $('Parser da Mensagem').first().json.mensagem;
+if ($json?.visao_imagem_ok === true) {
+  systemPrompt += `
+
+[DOCUMENTO VISUAL]: A mensagem acima é uma descrição automática de texto visível em uma imagem. Não faça diagnóstico, não interprete exames, não invente campos e não acione handoff apenas porque o documento é médico. Se o paciente pedir orientação clínica, aí sim siga as regras normais de segurança.`;
+}
 
 // ── REGRAS DE SAUDAÇÃO ──
 const antiSaudacaoRule = `

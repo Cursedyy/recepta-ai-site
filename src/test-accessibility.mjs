@@ -26,7 +26,6 @@ const PAGES = [
   { name: 'painel', url: '/painel/', critical: true },
   { name: 'termos', url: '/termos/', critical: false },
   { name: 'privacidade', url: '/privacidade/', critical: false },
-  { name: 'trial', url: '/t/', critical: false },
 ];
 
 const VIEWPORTS = [

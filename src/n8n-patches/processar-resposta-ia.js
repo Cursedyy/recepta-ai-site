@@ -46,7 +46,15 @@ const partesFinal = partes.length > 0 ? partes : [texto];
 const clinica = $('Configuração da Clínica').first().json.clinica;
 const telefone = $('Parser da Mensagem').first().json.telefone;
 const clinicaId = $('Buscar Clínica').first().json.id;
-const mensagemPaciente = $('Parser da Mensagem').first().json.mensagem;
+// O que o paciente "disse" e o que de fato foi para a IA: em imagem isso e a
+// extracao da visao, em audio a transcricao, em tier Essencial o texto de
+// limitacao. Ler do Parser gravava so o rotulo cru ("[imagem]"), escondendo
+// do painel o conteudo que a clinica precisa ver. Montar Prompt e entrada
+// unica deste node (Montar Prompt -> Chamar Claude -> aqui), entao sempre
+// existe; o Parser fica de rede de seguranca.
+const mensagemPaciente =
+  $('Montar Prompt').first().json.messages?.slice(-1)[0]?.content ||
+  $('Parser da Mensagem').first().json.mensagem;
 const mensagemMedia = $('Parser da Mensagem').first().json.mensagem_media || null;
 
 const supabaseInsert = [

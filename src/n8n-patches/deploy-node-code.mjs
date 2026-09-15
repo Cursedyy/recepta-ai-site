@@ -17,24 +17,28 @@
 // - confere no GET seguinte que activeVersionId === versionId e que o codigo
 //   no ar e byte a byte igual ao arquivo
 
-import { readFileSync, writeFileSync, mkdirSync } from 'fs';
-import { dirname, join, resolve } from 'path';
-import { fileURLToPath } from 'url';
+import { readFileSync, writeFileSync, mkdirSync } from "fs";
+import { dirname, join, resolve } from "path";
+import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const RAIZ = resolve(__dirname, '..', '..');
+const RAIZ = resolve(__dirname, "..", "..");
 
 const N8N_KEY = process.env.N8N_API_KEY;
-const N8N_URL = (process.env.N8N_BASE_URL || 'https://n8n.zapscout.com.br').replace(/\/$/, '');
+const N8N_URL = (
+  process.env.N8N_BASE_URL || "https://n8n.zapscout.com.br"
+).replace(/\/$/, "");
 
 if (!N8N_KEY) {
-  console.error('Falta N8N_API_KEY no ambiente.');
+  console.error("Falta N8N_API_KEY no ambiente.");
   process.exit(1);
 }
 
 const [workflowId, ...resto] = process.argv.slice(2);
 if (!workflowId || resto.length === 0 || resto.length % 2 !== 0) {
-  console.error('Uso: deploy-node-code.mjs <workflowId> "<Node>" <arquivo> [...]');
+  console.error(
+    'Uso: deploy-node-code.mjs <workflowId> "<Node>" <arquivo> [...]',
+  );
   process.exit(1);
 }
 
@@ -43,7 +47,10 @@ for (let i = 0; i < resto.length; i += 2) {
   pares.push({ node: resto[i], arquivo: resto[i + 1] });
 }
 
-const headers = { 'X-N8N-API-KEY': N8N_KEY, 'Content-Type': 'application/json' };
+const headers = {
+  "X-N8N-API-KEY": N8N_KEY,
+  "Content-Type": "application/json",
+};
 
 async function api(method, path, body) {
   const opts = { method, headers };
@@ -54,7 +61,7 @@ async function api(method, path, body) {
 }
 
 async function getWorkflow() {
-  const r = await api('GET', `/api/v1/workflows/${workflowId}`);
+  const r = await api("GET", `/api/v1/workflows/${workflowId}`);
   if (!r.ok) {
     console.error(`GET falhou (${r.status}): ${r.texto.slice(0, 400)}`);
     process.exit(1);
@@ -67,10 +74,13 @@ console.log(`Workflow: ${wf.name}`);
 console.log(`  active=${wf.active} versionId=${wf.versionId}`);
 
 // backup antes de qualquer escrita
-const dirBackup = join(RAIZ, 'tmp-backup-workflows-deletados');
+const dirBackup = join(RAIZ, "tmp-backup-workflows-deletados");
 mkdirSync(dirBackup, { recursive: true });
-const carimbo = new Date().toISOString().slice(0, 10);
-const caminhoBackup = join(dirBackup, `${workflowId}-pre-patch-${carimbo}.json`);
+const carimbo = new Date().toISOString().replace(/[:.]/g, "-");
+const caminhoBackup = join(
+  dirBackup,
+  `${workflowId}-pre-patch-${carimbo}.json`,
+);
 writeFileSync(caminhoBackup, JSON.stringify(wf, null, 2));
 console.log(`  backup: ${caminhoBackup}`);
 
@@ -78,14 +88,16 @@ const esperado = new Map();
 for (const { node, arquivo } of pares) {
   const alvo = wf.nodes.find((n) => n.name === node);
   if (!alvo) {
-    console.error(`Node "${node}" nao existe. Nodes: ${wf.nodes.map((n) => n.name).join(' | ')}`);
+    console.error(
+      `Node "${node}" nao existe. Nodes: ${wf.nodes.map((n) => n.name).join(" | ")}`,
+    );
     process.exit(1);
   }
-  if (typeof alvo.parameters?.jsCode !== 'string') {
+  if (typeof alvo.parameters?.jsCode !== "string") {
     console.error(`Node "${node}" nao e Code node (sem jsCode).`);
     process.exit(1);
   }
-  const codigo = readFileSync(resolve(RAIZ, arquivo), 'utf8');
+  const codigo = readFileSync(resolve(RAIZ, arquivo), "utf8");
   try {
     new Function(codigo);
   } catch (e) {
@@ -98,7 +110,7 @@ for (const { node, arquivo } of pares) {
 }
 
 async function publicar(settings) {
-  return api('PUT', `/api/v1/workflows/${workflowId}`, {
+  return api("PUT", `/api/v1/workflows/${workflowId}`, {
     name: wf.name,
     nodes: wf.nodes,
     connections: wf.connections,
@@ -109,9 +121,12 @@ async function publicar(settings) {
 let r = await publicar(wf.settings || {});
 let settingsReduzidas = false;
 if (!r.ok) {
-  console.warn(`PUT com settings completas recusado (${r.status}): ${r.texto.slice(0, 200)}`);
-  const minimas = { executionOrder: wf.settings?.executionOrder || 'v1' };
-  if (wf.settings?.errorWorkflow) minimas.errorWorkflow = wf.settings.errorWorkflow;
+  console.warn(
+    `PUT com settings completas recusado (${r.status}): ${r.texto.slice(0, 200)}`,
+  );
+  const minimas = { executionOrder: wf.settings?.executionOrder || "v1" };
+  if (wf.settings?.errorWorkflow)
+    minimas.errorWorkflow = wf.settings.errorWorkflow;
   r = await publicar(minimas);
   settingsReduzidas = true;
   if (!r.ok) {
@@ -121,13 +136,33 @@ if (!r.ok) {
   }
 }
 
+// O PUT grava uma nova versao como draft. Em workflows ativos, publicar
+// explicitamente evita que a execucao continue usando a versao anterior.
+if (wf.active) {
+  const ativacao = await api(
+    "POST",
+    `/api/v1/workflows/${workflowId}/activate`,
+  );
+  if (!ativacao.ok) {
+    console.error(
+      `Publish falhou (${ativacao.status}): ${ativacao.texto.slice(0, 400)}`,
+    );
+    console.error(
+      `O draft foi salvo, mas nao publicado. Backup em ${caminhoBackup}`,
+    );
+    process.exit(1);
+  }
+}
+
 const depois = await getWorkflow();
-console.log('');
-console.log(`Publicado. versionId=${depois.versionId} activeVersionId=${depois.activeVersionId}`);
+console.log("");
+console.log(
+  `Publicado. versionId=${depois.versionId} activeVersionId=${depois.activeVersionId}`,
+);
 
 let falhou = false;
 if (depois.versionId !== depois.activeVersionId) {
-  console.error('ERRO: versionId != activeVersionId — ficou como rascunho.');
+  console.error("ERRO: versionId != activeVersionId — ficou como rascunho.");
   falhou = true;
 }
 if (depois.active !== wf.active) {
@@ -147,12 +182,14 @@ for (const [node, codigo] of esperado) {
 const antes = JSON.stringify(wf.settings || {});
 const agora = JSON.stringify(depois.settings || {});
 if (antes !== agora) {
-  console.warn('');
-  console.warn('ATENCAO: settings do workflow mudaram no PUT.');
+  console.warn("");
+  console.warn("ATENCAO: settings do workflow mudaram no PUT.");
   console.warn(`  antes: ${antes}`);
   console.warn(`  agora: ${agora}`);
   if (settingsReduzidas) {
-    console.warn('  A API recusou o objeto completo. Reponha as chaves perdidas pela UI do n8n.');
+    console.warn(
+      "  A API recusou o objeto completo. Reponha as chaves perdidas pela UI do n8n.",
+    );
   }
 }
 

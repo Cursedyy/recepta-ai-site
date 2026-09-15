@@ -16,13 +16,13 @@ const rodarNode = new Function("$", codigo);
 
 const NUMERO_DO_DONO = "5553991635302";
 
-function montar(telefoneOperador) {
+function montar(telefoneOperador, tier) {
   const contexto = {
     "Mapear Campos Briefing": {
       clinica: "Clinica Teste",
       cnpj: "12345678000199",
       telefone_operador: telefoneOperador,
-      briefing_raw: { categoria: "odontologia" },
+      briefing_raw: { categoria: "odontologia", tier },
     },
     "Config Fixa": {
       uazapi_server: "https://sitemagic1.uazapi.com",
@@ -70,6 +70,18 @@ checar(
 checar(
   montar("53 99163-5305").telefone_operador === "53 99163-5305",
   "telefone_operador segue cru",
+);
+checar(
+  montar("53 99163-5305").tier === "completo",
+  "sem selecao explicita preserva compatibilidade com Completo",
+);
+checar(
+  montar("53 99163-5305", "essencial").tier === "essencial",
+  "selecao Essencial chega ao cadastro",
+);
+checar(
+  montar("53 99163-5305", "completo").tier === "completo",
+  "selecao Completo chega ao cadastro",
 );
 
 console.log(falhas === 0 ? "\nTudo ok." : `\n${falhas} falha(s).`);
