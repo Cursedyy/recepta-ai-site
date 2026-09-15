@@ -49,3 +49,27 @@ F2: contador real e emissores dos sete eventos.
 Customer Portal: cancelamento real e webhook Stripe correspondente.
 Compra real ponta a ponta: depende do cartão do dono e slot UazAPI disponível.
 Nenhuma compra, exclusão de instância ou push foi executado nesta preparação.
+
+## Aplicação autorizada do SEO
+
+O usuário autorizou aplicar somente o JSON-LD e as datas do sitemap.
+Commit `692ff1c`: totais anuais 4164/8364, política de reembolso nos quatro
+Offers, 11 datas atualizadas. O incremento de cobrança anual passou a 12
+meses para acompanhar o total anual; duração permanece em 12 meses.
+Referência: https://schema.org/UnitPriceSpecification e
+https://schema.org/billingDuration.
+
+Backups da origem em `tmp-preparacao-f8/before-index.html` e
+`tmp-preparacao-f8/before-sitemap.xml`. Verificação local confirmou igualdade
+do HTML fora do JSON-LD e do XML fora das datas. O diff não inclui alterações
+na copy, CTAs, blog, termos, scroll nem gate do briefing.
+Teste Rich Results do Google continua **não confirmei**.
+
+Deploy da raiz concluído: `dpl_BHm4cEr76ZjtifQJXNQxDMXbB2Am`, URL
+`briefing-recepta-r65wecvnt-site-magic.vercel.app`. Aliases www, domínio raiz
+e briefing-recepta.vercel.app movidos individualmente. Probes nos três domínios
+confirmaram HTTP 200, HTML igual à origem, anuais 4164/8364, quatro políticas,
+sitemap idêntico à origem com 11 datas novas e briefing inalterado.
+Health pré/pós-deploy: 13/13. Prova em
+`tmp-preparacao-f8/publicacao-seo-proof.json`.
+F8 não foi marcado concluído: aceite do Portal e Rich Results seguem pendentes.
