@@ -67,3 +67,38 @@ Esta sessão não mudou código do produto. Os arquivos de implementação e QA
 já estavam presentes e alterados antes da correção; não foram incluídos neste
 commit para preservar trabalho de outras frentes. Este registro é o único
 arquivo de fonte criado nesta revisão. Não foram repetidos testes live.
+
+## Execução autorizada do HARD e cancelamento — 2026-09-15
+
+- Health antes: 13/13 OK.
+- HARD aplicado ao workflow `voEwbw5fzNnn6bQq`, com alvo explicitamente fixado
+  em `F6_WORKFLOW_ID` durante a execução do script.
+- Backup prévio:
+  `tmp-backup-workflows-deletados/voEwbw5fzNnn6bQq-antes-claim-hard-2026-09-15T04-41-15-079Z.json`.
+- GET após publicação confirmou `versionId == activeVersionId ==
+  361c0866-dbb0-4ecc-bcde-688c1ad00853`, código HARD byte a byte igual ao
+  arquivo e ramo false de `É Pedido Pago?` para `Falha Claim Pedido`.
+- PATCH condicional cancelou exatamente os dois órfãos listados acima;
+  releitura confirmou `cancelado`, motivo `qa_orfao_2026-09-14` e
+  `encerrado_em=2026-09-15T04:41:37.795+00:00` em ambos.
+- Código de `Preparar Claim` obtido do workflow publicado foi executado em
+  harness local: entrada sem UUID lançou o erro F6-HARD antes de qualquer
+  chamada de claim ou provisionamento.
+- Fixture de pedido marcado pago no Supabase real
+  `a14f43df-7cd4-40cc-aa90-42b50fcba1ce`: código publicado gerou o claim;
+  PATCH condicional real retornou uma linha `provisionando`; código publicado
+  de `Ramo Pedido Pago` reconstruiu o pedido correto. A condição real de
+  `Pedido Válido?` é `$json.id` não vazio, satisfeita pela linha retornada.
+  Repetição do claim retornou zero linhas.
+- As fixtures `fb576f5d-0c9a-47a4-9c95-9caedc4866ec` e
+  `a14f43df-7cd4-40cc-aa90-42b50fcba1ce` foram canceladas com motivo
+  `qa_hard_gate` e confirmadas por releitura. A primeira prova terminou com
+  erro de codificação do nome acentuado ao imprimir a condição, depois de
+  claim e reconstrução; a segunda concluiu integralmente.
+- A tentativa inicial de fixture com origem `qa_hard_gate` retornou 400 e
+  não criou linha; fixtures seguintes usaram a origem aceita `landing`.
+- Limite da prova: pagamento foi simulado por fixture `status=pago`.
+  Não confirmei pagamento real, execução completa do webhook n8n ou
+  provisionamento de clínica. Anthropic e UazAPI não foram executados.
+- Health depois: 13/13 OK. Sem DELETE, sem repetir checkout dos quatro planos
+  e sem novo deploy Vercel para esta mudança exclusiva do n8n/banco.
