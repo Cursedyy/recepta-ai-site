@@ -28,6 +28,9 @@
  *      Stripe Webhook" do n8n e as env vars de Production da Vercel.
  *      `npm run health -- --pin` imprime os 4 pares resolvidos lado a lado.
  *   8. Cron de cobrança: alguma execução com sucesso nas últimas 25h
+ *   9. Fila do pagamento: pedido pago/provisionando parado há +2h e evento
+ *      Stripe recebido há +15min sem processado_em (ambos = cliente pagou e
+ *      não entrou)
  *
  * Não faz nenhuma operação de escrita/deleção. Só lê.
  */
@@ -492,6 +495,68 @@ async function checkCronBilling() {
 }
 
 // ---------------------------------------------------------------------------
+// 9. Monitoramento pós go-live: pedido pago que nunca provisionou e evento
+//    Stripe recebido que nunca foi processado. Ambos são fila parada — cliente
+//    pagou e não entrou. Janelas do runbook: 2h para pedido, 15min para evento.
+// ---------------------------------------------------------------------------
+const JANELA_PEDIDO_MS = 2 * 3600 * 1000;
+const JANELA_EVENTO_MS = 15 * 60 * 1000;
+
+async function contarSupabase(recurso, key) {
+  const res = await fetchSafe(`${SUPABASE_URL}/rest/v1/${recurso}`, {
+    headers: {
+      apikey: key,
+      Authorization: `Bearer ${key}`,
+      Prefer: "count=exact",
+      Range: "0-0",
+    },
+  });
+  if (!res.ok && res.status !== 206) throw new Error(`HTTP ${res.status} em ${recurso.split("?")[0]}`);
+  const total = Number((res.headers.get("content-range") || "").split("/")[1]);
+  if (!Number.isFinite(total)) throw new Error(`sem content-range em ${recurso.split("?")[0]}`);
+  return total;
+}
+
+async function checkFilaPagamento() {
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!SUPABASE_URL || !key) {
+    row("fila: pedidos/eventos", "ERRO", "SUPABASE_URL ou SUPABASE_SERVICE_ROLE_KEY ausente no ambiente");
+    return;
+  }
+  const corte = (ms) => new Date(Date.now() - ms).toISOString();
+  try {
+    const [pagos, provisionando, eventos] = await Promise.all([
+      contarSupabase(`pedidos?select=id&status=eq.pago&pago_em=lt.${corte(JANELA_PEDIDO_MS)}`, key),
+      contarSupabase(
+        `pedidos?select=id&status=eq.provisionando&provisionando_em=lt.${corte(JANELA_PEDIDO_MS)}`,
+        key,
+      ),
+      contarSupabase(
+        `stripe_eventos?select=event_id&processado_em=is.null&recebido_em=lt.${corte(JANELA_EVENTO_MS)}`,
+        key,
+      ),
+    ]);
+    const travados = pagos + provisionando;
+    if (travados > 0) {
+      row(
+        "fila: pedidos travados",
+        "ERRO",
+        `${pagos} pago(s) há +2h sem claim e ${provisionando} preso(s) em provisionando — cliente pagou e não entrou`,
+      );
+    } else {
+      row("fila: pedidos travados", "OK", "nenhum pedido pago ou provisionando parado há +2h");
+    }
+    if (eventos > 0) {
+      row("fila: eventos Stripe", "ERRO", `${eventos} evento(s) recebido(s) há +15min sem processado_em`);
+    } else {
+      row("fila: eventos Stripe", "OK", "nenhum evento pendente há +15min");
+    }
+  } catch (err) {
+    row("fila: pedidos/eventos", "ERRO", `falha ao consultar: ${err.message}`);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Saída
 // ---------------------------------------------------------------------------
 function printTable() {
@@ -522,6 +587,7 @@ await Promise.all([
   checkStripePin(),
   checkVercelPin(),
   checkCronBilling(),
+  checkFilaPagamento(),
 ]);
 printTable();
 if (PIN_DETALHE) {
