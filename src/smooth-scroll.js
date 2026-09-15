@@ -74,6 +74,30 @@
     history.pushState(null, "", id);
   });
 
+  /* Chegada de outra pagina em /#secao. O salto nativo do browser conta o
+     scroll-padding-top de 84px e ignora o translateY das secoes .reveal, entao
+     a secao assenta fora de lugar. Reposiciona pelo mesmo caminho do clique,
+     depois do load (imagens ja dimensionadas). Oito CTAs de nicho e blog
+     entram na landing por /#planos. */
+  function irParaHashInicial() {
+    var id = window.location.hash;
+    if (!id || id === "#") return;
+    var target;
+    try {
+      target = document.querySelector(id);
+    } catch (e) {
+      return; /* hash que nao e seletor valido */
+    }
+    if (!target) return;
+    irPara(target);
+  }
+
+  if (document.readyState === "complete") {
+    irParaHashInicial();
+  } else {
+    window.addEventListener("load", irParaHashInicial);
+  }
+
   /* ── Lenis (so o scroll suave da roda) ── */
 
   if (semMotion) return;
