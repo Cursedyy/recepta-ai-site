@@ -12,13 +12,9 @@ const NOME_DIA = {
   domingo: "Domingo",
 };
 
-// Payment Links do Stripe — os MESMOS que o n8n usa (workflow "Verificação de
-// Trial", node "Config Fixa": stripe_link_mensal / stripe_link_anual). Se o
-// preço mudar, trocar lá E aqui. O sufixo ?client_reference_id=<clinica_id>
-// é o que faz o checkout.session.completed vincular a clínica sozinho.
-const LINK_MENSAL = "https://buy.stripe.com/28E4gz8iv3HU97Tcv7gbm01";
-const LINK_ANUAL = "https://buy.stripe.com/dRm28r42fa6i97T9iVgbm02";
-
+// Payment Links do tier Completo. Ficam no ambiente da Vercel para que preço e
+// link não precisem ser publicados no código a cada troca. O sufixo
+// client_reference_id é o vínculo usado pelo webhook Stripe no n8n.
 function escapeHtml(valor) {
   return String(valor).replace(
     /[&<>\"']/g,
@@ -49,6 +45,7 @@ function paginaPainel(
   categoriaDados,
   telefoneAlerta = "",
 ) {
+  const gateCompleto = assinatura.tier === "completo";
   return `<!doctype html>
 <html lang="pt-BR">
 <head>
@@ -79,7 +76,6 @@ function paginaPainel(
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
 <style>
 :root {
   --bg: #f8f7ff; --surface: #ffffff; --ink: #26205c; --muted: #696580;
@@ -275,8 +271,9 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
 .conv-card { border: 1.5px solid var(--border); border-radius: var(--radius); padding: 12px 16px; margin-bottom: 8px; cursor: pointer; background: var(--surface); transition: box-shadow 0.2s ease, border-color 0.2s ease; }
 .conv-card:hover { box-shadow: var(--shadow); border-color: #c9c3f2; }
 .conv-card:focus-visible { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
-.conv-pausada { border-color: #fbbf24; background: #fffbeb; }
-.conv-pausada:hover { border-color: #f59e0b; }
+.conv-pausada { border-color: var(--warn-line, #f59e0b); background: var(--warn-bg, #fef3cd); }
+.conv-pausada:hover { border-color: var(--warn-ink, #92400e); }
+.conv-pausada .badge-pausada { background: var(--warn-ink, #92400e); color: var(--warn-bg, #fef3cd); padding: 2px 8px; border-radius: 999px; font-size: 10px; margin-left: 6px; }
 @media (max-width: 768px) {
   .modal-chat { max-height: 92vh; }
   .chat-row { max-width: 88%; }
@@ -310,21 +307,21 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
 .gate-btn small { display: block; font-size: 11.5px; font-weight: 400; opacity: 0.85; }
 .gate-btn-mensal { background: var(--primary); color: #fff; }
 .gate-btn-mensal:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(38,32,92,0.3); }
-.gate-btn-anual { background: var(--primary-soft); color: var(--primary); border: 1.5px solid #c9c3f2; }
-.gate-btn-anual:hover { background: #e3e0f9; }
+.gate-btn-anual { background: var(--primary-soft); color: var(--primary); border: 1.5px solid var(--primary-border, #c9c3f2); }
+.gate-btn-anual:hover { background: var(--primary-soft-hover, #e3e0f9); }
 .gate-nota { font-size: 11.5px; color: var(--muted); line-height: 1.5; }
 
 /* ── Banner de conexão pendente ── */
-.whatsapp-banner { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-bottom: 1.5px solid #f59e0b; padding: 14px 24px; display: flex; align-items: center; gap: 14px; flex-shrink: 0; animation: fadeDown 0.3s ease; }
+.whatsapp-banner { background: var(--warn-bg, #fef3cd); border-bottom: 1.5px solid var(--warn-line, #f59e0b); padding: 14px 24px; display: flex; align-items: center; gap: 14px; flex-shrink: 0; animation: fadeDown 0.3s ease; }
 @keyframes fadeDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 .whatsapp-banner .banner-icon { font-size: 22px; flex-shrink: 0; }
-.whatsapp-banner .banner-text { flex: 1; font-size: 13.5px; color: #92400e; line-height: 1.5; }
+.whatsapp-banner .banner-text { flex: 1; font-size: 13.5px; color: var(--warn-ink, #92400e); line-height: 1.5; }
 .whatsapp-banner .banner-text strong { font-weight: 700; }
 .whatsapp-banner .banner-btn { padding: 8px 18px; border-radius: var(--radius); background: #c2410c; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; border: none; white-space: nowrap; transition: all 0.15s ease; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
 .whatsapp-banner .banner-btn:hover { background: #9a3412; transform: translateY(-1px); box-shadow: 0 2px 8px rgba(234,88,12,0.3); }
 .whatsapp-banner.hidden { display: none; }
 </style>
-<link rel="stylesheet" href="/clinica/painel.css?v=20260910-theme-toggle">
+<link rel="stylesheet" href="/clinica/painel.css?v=20260912-sem-cdn">
 </head>
 <body>
 <div class="topbar">
@@ -351,14 +348,14 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
     <h2>Assinatura expirada</h2>
     <p class="gate-lead">Sua assinatura da Recepta não está ativa. A Recepta <strong>parou de atender no WhatsApp</strong> e o painel está bloqueado enquanto durar a pendência.</p>
     <div class="gate-plano">
-      <a id="gate-link-mensal" class="gate-btn gate-btn-mensal" target="_blank" rel="noopener" href="#">
+      <button id="gate-link-mensal" type="button" data-ciclo="mensal" class="gate-btn gate-btn-mensal">
         <strong>Assinar plano mensal</strong>
-        <small>R$ 497/mês, sem fidelidade</small>
-      </a>
-      <a id="gate-link-anual" class="gate-btn gate-btn-anual" target="_blank" rel="noopener" href="#">
+        <small>${gateCompleto ? "R$ 997/mês" : "R$ 497/mês"}, sem fidelidade</small>
+      </button>
+      <button id="gate-link-anual" type="button" data-ciclo="anual" class="gate-btn gate-btn-anual">
         <strong>Assinar plano anual</strong>
-        <small>R$ 347/mês, cobrado à vista no ano (R$ 4.164)</small>
-      </a>
+        <small>${gateCompleto ? "R$ 697/mês, cobrado à vista no ano (R$ 8.364)" : "R$ 347/mês, cobrado à vista no ano (R$ 4.164)"}</small>
+      </button>
       <button type="button" class="btn btn-ghost btn-sm" id="gate-btn-verificar" style="width:100%">Já paguei — verificar agora</button>
     </div>
     <p class="gate-nota">O painel volta sozinho após a confirmação do pagamento — se demorar mais que 1 minuto, clique em "verificar agora".</p>
@@ -374,22 +371,23 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
 <div class="layout">
   <nav class="sidebar">
     <div class="sidebar-section">Clínica</div>
-    <button class="nav-item active" data-tab="agenda"><span class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span>Agenda</span></button>
-    <button class="nav-item" data-tab="horarios"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span><span>Horários</span></button>
-    <button class="nav-item" data-tab="precos"><span class="icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span>Preços</span></button>
-    <button class="nav-item" data-tab="procedimentos" id="nav-procedimentos" style="display:none"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span id="nav-procedimentos-label">Procedimentos</span></button>
-    <button class="nav-item" data-tab="convenios"><span class="icon"><svg viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9v.01"/><path d="M9 12v.01"/><path d="M9 15v.01"/><path d="M9 18v.01"/></svg></span><span>Convênios</span></button>
+    <button class="nav-item active" data-tab="agenda" aria-label="Agenda"><span class="icon"><svg viewBox="0 0 24 24"><path d="M8 2v3"/><path d="M16 2v3"/><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M8 13h.01"/><path d="M12 13h.01"/><path d="M16 13h.01"/><path d="M8 17h.01"/><path d="M12 17h.01"/><path d="M16 17h.01"/></svg></span><span>Agenda</span></button>
+    <button class="nav-item" data-tab="fila" aria-label="Fila de espera"><span class="icon"><svg viewBox="0 0 24 24"><path d="M11 5h10"/><path d="M11 12h10"/><path d="M11 19h10"/><path d="M4 4h1v5"/><path d="M4 9h2"/><path d="M6.5 20H3.4c0-1 2.6-1.925 2.6-3.5a1.5 1.5 0 0 0-2.6-1.02"/></svg></span><span>Fila de espera</span></button>
+    <button class="nav-item" data-tab="horarios" aria-label="Horários"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span><span>Horários</span></button>
+    <button class="nav-item" data-tab="precos" aria-label="Preços"><span class="icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span>Preços</span></button>
+    <button class="nav-item" data-tab="procedimentos" id="nav-procedimentos" style="display:none" aria-labelledby="nav-procedimentos-label"><span class="icon"><svg viewBox="0 0 24 24"><path d="M10 5H3"/><path d="M12 19H3"/><path d="M14 3v4"/><path d="M16 17v4"/><path d="M21 12h-9"/><path d="M21 19h-5"/><path d="M21 5h-7"/><path d="M8 10v4"/><path d="M8 12H3"/></svg></span><span id="nav-procedimentos-label">Procedimentos</span></button>
+    <button class="nav-item" data-tab="convenios" aria-label="Convênios"><span class="icon"><svg viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9v.01"/><path d="M9 12v.01"/><path d="M9 15v.01"/><path d="M9 18v.01"/></svg></span><span>Convênios</span></button>
     <div class="sidebar-section">Recepta</div>
-    <a class="nav-item" href="/clinica/conectar"><span class="icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span><span>Conectar WhatsApp</span></a>
-    <button class="nav-item" data-tab="mensagem"><span class="icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span>Mensagem</span></button>
-    <button class="nav-item" data-tab="regras"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span>Regras</span></button>
-    <button class="nav-item" data-tab="faq"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><span>FAQ</span></button>
-    <button class="nav-item" data-tab="conversas"><span class="icon"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span><span>Conversas</span></button>
+    <a class="nav-item" href="/clinica/conectar" aria-label="Conectar WhatsApp"><span class="icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span><span>Conectar WhatsApp</span></a>
+    <button class="nav-item" data-tab="mensagem" aria-label="Mensagem"><span class="icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span>Mensagem</span></button>
+    <button class="nav-item" data-tab="regras" aria-label="Regras"><span class="icon"><svg viewBox="0 0 24 24"><path d="M13 5h8"/><path d="M13 12h8"/><path d="M13 19h8"/><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/></svg></span><span>Regras</span></button>
+    <button class="nav-item" data-tab="faq" aria-label="FAQ"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><span>FAQ</span></button>
+    <button class="nav-item" data-tab="conversas" aria-label="Conversas"><span class="icon"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span><span>Conversas</span></button>
     <div class="sidebar-section">Conta</div>
-    <button class="nav-item" data-tab="pausa"><span class="icon"><svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg></span><span>Pausa</span></button>
-    <button class="nav-item" data-tab="perfil"><span class="icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span><span>Perfil</span></button>
-    <button class="nav-item" data-tab="feriados"><span class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="10" y1="14" x2="14" y2="14"/></svg></span><span>Feriados</span></button>
-    <button class="nav-item" data-tab="status"><span class="icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span><span>Status</span></button>
+    <button class="nav-item" data-tab="pausa" aria-label="Pausa"><span class="icon"><svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg></span><span>Pausa</span></button>
+    <button class="nav-item" data-tab="perfil" aria-label="Perfil"><span class="icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span><span>Perfil</span></button>
+    <button class="nav-item" data-tab="feriados" aria-label="Feriados"><span class="icon"><svg viewBox="0 0 24 24"><path d="M16 2v3"/><path d="m2 2 20 20"/><path d="M21 9h-5.5"/><path d="M3 9h6"/><path d="M3.586 3.586A2 2 0 003 5v14a2 2 0 002 2h14a2 2 0 001.414-.586"/><path d="M8.656 3H19a2 2 0 012 2v10.344"/></svg></span><span>Feriados</span></button>
+    <button class="nav-item" data-tab="status" aria-label="Status"><span class="icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span><span>Status</span></button>
   </nav>
 
   <div class="content">
@@ -409,6 +407,11 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
           </details>
         </div>
       </div>
+    </div>
+
+    <div class="tab-panel" id="tab-fila">
+      <div class="content-header"><h1>Fila de espera</h1><p>Entradas, ofertas e expirações da sua clínica.</p></div>
+      <div class="content-body"><div class="section-card"><div id="fila-status" class="vazio">Carregando fila…</div><div id="fila-lista"></div></div></div>
     </div>
 
     <!-- ── HORÁRIOS ── -->
@@ -607,15 +610,30 @@ window.__PAINEL__ = {
 };
 
 // ── Gate de assinatura: wiring do overlay ──
-// Roda ANTES do painel.js: o overlay já vem visível pelo servidor quando
-// gate.ativo, aqui só conecto os links reais e o botão de verificar.
+// Roda ANTES do painel.js e transforma os CTAs em checkout autenticado.
 (function () {
-  var g = window.__PAINEL__.gate;
-  if (!g || !g.ativo) return;
-  var m = document.getElementById("gate-link-mensal");
-  var a = document.getElementById("gate-link-anual");
-  if (m) m.href = g.link_mensal;
-  if (a) a.href = g.link_anual;
+  ["gate-link-mensal", "gate-link-anual"].forEach(function (id) {
+    var botao = document.getElementById(id);
+    if (!botao) return;
+    botao.addEventListener("click", function () {
+      if (botao.disabled) return;
+      botao.disabled = true;
+      fetch("/api/clinica/painel-acoes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ acao: "checkout_reativacao", ciclo: botao.dataset.ciclo })
+      }).then(function (r) {
+        return r.json().then(function (j) { return { r: r, j: j }; });
+      }).then(function (x) {
+        if (!x.r.ok || !x.j.url) throw new Error(x.j.erro || "checkout");
+        try { sessionStorage.setItem("recepta_pedido_id", x.j.pedido_id || ""); } catch (e) {}
+        window.location.href = x.j.url;
+      }).catch(function () {
+        botao.disabled = false;
+        window.alert("Não foi possível abrir o checkout agora. Tente novamente.");
+      });
+    });
+  });
   var v = document.getElementById("gate-btn-verificar");
   if (v)
     v.addEventListener("click", function () {
@@ -625,11 +643,14 @@ window.__PAINEL__ = {
     });
 })();
 </script>
-<script src="https://cdn.jsdelivr.net/npm/lucide@1.43.0/dist/umd/lucide.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/l10n/pt.js"></script>
-<script src="/clinica/painel.js?v=20260910-tabler"></script>
+<!-- Sem biblioteca de terceiro aqui de proposito. lucide, Chart.js e
+     flatpickr vinham do cdn.jsdelivr.net, que o script-src do vercel.json
+     nunca liberou: os 4 eram bloqueados por CSP em producao e o painel
+     rodava no fallback o tempo todo. Os icones do menu agora sao SVG
+     inline (abaixo), os numeros das metricas dispensam grafico e os
+     inputs date/time nativos entregam exatamente o mesmo valor que o
+     flatpickr entregava. Nao reintroduzir sem antes abrir o CSP. -->
+<script src="/clinica/painel.js?v=20260912-sem-cdn"></script>
 <link rel="stylesheet" href="/page-transition.css" />
 <link rel="stylesheet" href="/loading-screen.css" />
 <script src="/page-transition.js"></script>
@@ -653,7 +674,7 @@ export default async function handler(req, res) {
   const { data: clinicaRow } = await admin
     .from("clinicas")
     .select(
-      "clinica,config_editavel,tempo_pausa_minutos,telefone_alerta,status,trial_fim,plano,stripe_customer_id,criado_em,categoria",
+      "clinica,config_editavel,tempo_pausa_minutos,telefone_alerta,status,trial_fim,plano,tier,stripe_customer_id,criado_em,categoria,garantia_fim,garantia_teto,reembolso_pedido_em,reembolsado_em",
     )
     .eq("id", perfil.clinica_id)
     .maybeSingle();
@@ -701,21 +722,24 @@ export default async function handler(req, res) {
     status: clinicaRow?.status || null,
     trial_fim: clinicaRow?.trial_fim || null,
     plano: clinicaRow?.plano || null,
+    tier: clinicaRow?.tier || "essencial",
     criado_em: clinicaRow?.criado_em || null,
     tem_stripe: !!clinicaRow?.stripe_customer_id,
+    // F7/G3 — regimes disjuntos: quem ativou tem garantia_fim; quem nunca
+    // ativou tem só o teto (pago_em + 30d). null = trial (não há garantia).
+    garantia_fim: clinicaRow?.garantia_fim || null,
+    garantia_teto: clinicaRow?.garantia_teto || null,
+    reembolso_pedido_em: clinicaRow?.reembolso_pedido_em || null,
+    reembolsado_em: clinicaRow?.reembolsado_em || null,
   };
 
   // ── Gate de assinatura expirada ──
   // Status vem do n8n (único dono do vocabulário 'ativo'/'expirado'). Com a
   // clínica expirada o painel renderiza o overlay de bloqueio e as rotas de
-  // escrita devolvem 402 (painel-acoes/config-salvar). Os links carregam
-  // client_reference_id para o checkout religar a clínica automaticamente.
-  // gate vai SEMPRE no __PAINEL__ (links incluídos mesmo com ativo:false):
-  // o painel.js usa os hrefs quando um 402 chega no meio da sessão.
+  // escrita devolvem 402 (painel-acoes/config-salvar). A reativação cria um
+  // pedido autenticado; clinica_id nunca viaja em client_reference_id.
   assinatura.gate = {
     ativo: assinatura.status === "expirado",
-    link_mensal: LINK_MENSAL + "?client_reference_id=" + perfil.clinica_id,
-    link_anual: LINK_ANUAL + "?client_reference_id=" + perfil.clinica_id,
   };
 
   res.setHeader("Content-Type", "text/html; charset=utf-8");

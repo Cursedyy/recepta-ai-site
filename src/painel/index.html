@@ -1083,6 +1083,24 @@
             required
           />
           <button type="submit">Entrar</button>
+          <button type="button" class="link-recovery" id="btn-esqueci-senha">Esqueci minha senha</button>
+        </form>
+        <form id="form-recovery">
+          <h1>Redefinir senha</h1>
+          <p>Informe seu e-mail administrativo para receber um link.</p>
+          <div class="erro" id="recovery-erro"></div>
+          <div class="sucesso" id="recovery-ok"></div>
+          <input type="email" id="recovery-email" placeholder="E-mail" autocomplete="email" required />
+          <button type="submit">Enviar link</button>
+          <button type="button" class="link-recovery" id="btn-voltar-login">Voltar para entrar</button>
+        </form>
+        <form id="form-nova-senha" style="display:none">
+          <h1>Nova senha</h1>
+          <p>Escolha uma senha com pelo menos 8 caracteres.</p>
+          <div class="erro" id="nova-senha-erro"></div>
+          <input type="password" id="nova-senha" placeholder="Nova senha" autocomplete="new-password" minlength="8" required />
+          <input type="password" id="nova-senha-confirmacao" placeholder="Repita a nova senha" autocomplete="new-password" minlength="8" required />
+          <button type="submit">Salvar nova senha</button>
         </form>
       </div>
 
@@ -1106,8 +1124,33 @@
               title="Alternar tema claro e escuro"
               aria-label="Alternar tema claro e escuro"
             >
-              <svg class="icon-lua" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" /></svg>
-              <svg class="icon-sol" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.5" /><path d="M12 1.5v2M12 20.5v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1.5 12h2M20.5 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4" /></svg>
+              <svg
+                class="icon-lua"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+              </svg>
+              <svg
+                class="icon-sol"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="4.5" />
+                <path
+                  d="M12 1.5v2M12 20.5v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1.5 12h2M20.5 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"
+                />
+              </svg>
             </button>
             <button id="btn-logout" type="button">Sair</button>
           </div>
@@ -2024,6 +2067,39 @@
         html += "</tbody></table>";
         el.innerHTML = html;
       }
+      window.trocarTier = function (id, tier) {
+        var c = clinicasDados.find(function (x) {
+          return x.id === id;
+        });
+        if (!c || c.tier === tier) return;
+        var nomeTier = tier === "completo" ? "Completo" : "Essencial";
+        if (
+          !window.confirm(
+            "Trocar os recursos de " + c.clinica + " para " + nomeTier +
+              "? Isso não altera a cobrança Stripe.",
+          )
+        )
+          return;
+        fetch("/api/painel/admin", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ acao: "alterar_tier", id: id, tier: tier }),
+        })
+          .then(function (r) {
+            return r.json();
+          })
+          .then(function (res) {
+            if (res.erro) {
+              window.alert("Não foi possível trocar o tier: " + res.erro);
+              return;
+            }
+            c.tier = tier;
+            renderClinicas();
+          })
+          .catch(function () {
+            window.alert("Não foi possível trocar o tier.");
+          });
+      };
       window.editarClinica = function (id) {
         var c = clinicasDados.find(function (x) {
           return x.id === id;
@@ -2045,6 +2121,11 @@
           '>Suspenso</option><option value="cancelado"' +
           (c.status === "cancelado" ? " selected" : "") +
           ">Cancelado</option></select></div>" +
+          '<div class="modal-field"><label>Tier de recursos</label><select id="m-tier"><option value="essencial"' +
+          (c.tier !== "completo" ? " selected" : "") +
+          '>Essencial</option><option value="completo"' +
+          (c.tier === "completo" ? " selected" : "") +
+          ">Completo</option></select></div>" +
           '<div class="modal-field"><label>Plano</label><select id="m-plano"><option value="">—</option><option value="mensal"' +
           (c.plano === "mensal" ? " selected" : "") +
           '>Mensal</option><option value="anual"' +

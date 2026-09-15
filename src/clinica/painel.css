@@ -46,6 +46,17 @@
   --bubble-paciente: #ffffff;
   --bubble-ia-border: #c9c3f2;
   --chat-day-bg: rgba(255, 255, 255, 0.92);
+  /* Aviso/atencao. Mesmos valores do painel admin (src/painel/index.html),
+     portados para ca porque .whatsapp-banner e .conv-pausada nasceram com
+     cor fixa e sumiam no tema escuro. Contraste ink/bg: 6.4:1 claro, 9.9:1 escuro. */
+  --warn-bg: #fef3cd;
+  --warn-line: #f59e0b;
+  --warn-ink: #92400e;
+  /* Estado hover e borda do primary-soft. Existiam so como #e3e0f9/#c9c3f2
+     no <style> inline do painel-view: no escuro o hover pintava lilas claro
+     sob texto lilas claro (1.69:1). */
+  --primary-soft-hover: #e3e0f9;
+  --primary-border: #c9c3f2;
 }
 
 /* ══ Tema escuro ══════════════════════════════════════════════════════
@@ -84,6 +95,11 @@ html[data-theme="dark"] {
   --bubble-paciente: #1a2438;
   --bubble-ia-border: #4a4383;
   --chat-day-bg: #182433;
+  --warn-bg: #3a2c0b;
+  --warn-line: #b47908;
+  --warn-ink: #fcd968;
+  --primary-soft-hover: #3a3470;
+  --primary-border: #4a4383;
   /* Sombra clara não existe no escuro: o que dá profundidade é o preto. */
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.3);
@@ -132,13 +148,9 @@ html[data-theme="dark"] .topbar button.theme-toggle .icon-lua {
   display: none;
 }
 
-/* Bibliotecas visuais: mantêm Chart.js e flatpickr dentro do design system. */
-.metricas-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.72fr);
-  gap: 16px;
-  align-items: stretch;
-}
+/* Metricas: tres cards numericos, sem grafico. O Chart.js que desenhava a
+   barra ao lado era aria-hidden e so repetia estes mesmos numeros — e vinha
+   do jsdelivr, que o CSP bloqueia. Por isso o layout nao e mais 2 colunas. */
 .metricas-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -166,53 +178,7 @@ html[data-theme="dark"] .topbar button.theme-toggle .icon-lua {
   color: var(--muted);
   font-size: 12px;
 }
-.metricas-grafico {
-  position: relative;
-  min-height: 180px;
-  padding: 12px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-}
-.flatpickr-calendar {
-  background: var(--surface);
-  color: var(--ink);
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow-lg);
-}
-.flatpickr-day,
-.flatpickr-months .flatpickr-month,
-.flatpickr-current-month .flatpickr-monthDropdown-months,
-.flatpickr-weekday,
-span.flatpickr-weekday {
-  color: var(--ink);
-  background: var(--surface);
-}
-.flatpickr-day:hover,
-.flatpickr-day:focus {
-  background: var(--accent-soft);
-  border-color: var(--accent-soft);
-}
-.flatpickr-day.selected,
-.flatpickr-day.selected:hover {
-  color: #fff;
-  background: var(--primary);
-  border-color: var(--primary);
-}
-.flatpickr-day.prevMonthDay,
-.flatpickr-day.nextMonthDay {
-  color: var(--muted);
-}
-.flatpickr-time input,
-.flatpickr-time .flatpickr-am-pm {
-  color: var(--ink);
-  background: var(--surface);
-}
-
 @media (max-width: 760px) {
-  .metricas-layout {
-    grid-template-columns: 1fr;
-  }
   .metricas-grid {
     grid-template-columns: 1fr;
   }

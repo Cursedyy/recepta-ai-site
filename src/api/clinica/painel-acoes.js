@@ -2,7 +2,10 @@ import { createClient } from "@supabase/supabase-js";
 import { createSupabaseServerClient } from "../_lib/supabase-server.js";
 import { autenticarClinica } from "../_lib/auth-clinica.js";
 import { configEditavelPadrao } from "../_lib/config-editavel.js";
-import { rateLimit } from "../_lib/rate-limit.js";
+import { rateLimit, getClientIp } from "../_lib/rate-limit.js";
+import { criarCheckout } from "../checkout.js";
+import { sincronizarAgendamentoSheets } from "../_lib/sheets-sync.js";
+import { ofertaTemJanelaValida } from "../_lib/fila-janela.js";
 
 const MIN_MINUTOS = 1;
 const MAX_MINUTOS = 120;
@@ -111,6 +114,39 @@ async function acaoPortalSessao(admin, perfil) {
   return { status: 200, corpo: { ok: true, url: dados.url } };
 }
 
+async function acaoCheckoutReativacao(admin, perfil, body, req) {
+  const ciclo = body?.ciclo;
+  if (ciclo !== "mensal" && ciclo !== "anual")
+    return { status: 400, corpo: { erro: "ciclo_invalido" } };
+
+  const ip = getClientIp(req);
+  const limite = await rateLimit(`checkout:${ip}`, 10, 10 * 60 * 1000);
+  if (limite.blocked)
+    return { status: 429, corpo: { erro: "muitas_tentativas", reset_ms: limite.resetMs } };
+
+  const { data: clinica, error } = await admin
+    .from("clinicas")
+    .select("tier,status")
+    .eq("id", perfil.clinica_id)
+    .maybeSingle();
+  if (error || !clinica) return { status: 404, corpo: { erro: "clinica_nao_encontrada" } };
+  if (clinica.status !== "expirado")
+    return { status: 409, corpo: { erro: "assinatura_nao_expirada" } };
+
+  const tier = clinica.tier === "completo" ? "completo" : "essencial";
+  return criarCheckout({
+    admin,
+    tier,
+    ciclo,
+    ip,
+    userAgent: req.headers["user-agent"],
+    origem: "painel_reativacao",
+    clinicaId: perfil.clinica_id,
+    successUrl: "https://www.receptaai.com.br/clinica/painel?checkout=sucesso",
+    cancelUrl: "https://www.receptaai.com.br/clinica/painel?checkout=cancelado",
+  });
+}
+
 // Detalhes que so o Stripe tem: valor cobrado, proxima fatura, cartao, se a
 // assinatura ja esta marcada para cancelar no fim do periodo. O banco guarda
 // apenas status/plano/trial_fim, entao a aba Status mostrava um resumo sem
@@ -207,15 +243,260 @@ async function statusClinica(admin, perfil) {
   return data?.status || null;
 }
 
+// ── Fila de espera (tier Completo) ─────────────────────────────────────
+// Vivia em api/clinica/fila.js e foi fundida aqui porque a Vercel Hobby
+// limita cada deployment a 12 Serverless Functions (verificado 2026-09-11:
+// com a fila eram 13 => "No more than 12 Serverless Functions"). Mesma
+// superficie: GET ?acao=fila e POST {acao: cancelar|aceitar|recusar}.
+// O arquivo original segue em archive/api-clinica-fila.js.
+const FILA_JANELA_INVALIDA = {
+  ok: false,
+  erro: "janela_invalida",
+  mensagem:
+    "Informe início e fim válidos para a preferência e para o horário oferecido.",
+};
+
+// aceitar/recusar/cancelar continuam abertas com a assinatura expirada:
+// o endpoint autonomo anterior nao checava status da clinica (apenas tier),
+// e recusar uma oferta nao pode depender de pagamento.
+const FILA_ACOES = ["cancelar", "aceitar", "recusar"];
+
+const FILA_ID_RE = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
+
+function filaCsrfOk(req) {
+  const origin = req.headers?.origin || req.headers?.referer || "";
+  if (!origin) return true;
+  try {
+    const host = new URL(origin).hostname;
+    return (
+      host === "receptaai.com.br" ||
+      host === "www.receptaai.com.br" ||
+      host === "localhost"
+    );
+  } catch {
+    return false;
+  }
+}
+
+async function filaTierCompleto(admin, clinicaId) {
+  const { data } = await admin
+    .from("clinicas")
+    .select("tier")
+    .eq("id", clinicaId)
+    .maybeSingle();
+  return data?.tier === "completo";
+}
+
+async function acaoListarFila(admin, perfil) {
+  const { data, error } = await admin
+    .from("fila_espera")
+    .select(
+      "id,paciente_telefone,paciente_nome,servico,servico_normalizado,janela_inicio,janela_fim,oferta_inicio,oferta_fim,status,entrou_em,ofertado_em,oferta_expira_em,respondido_em,agendamento_id",
+    )
+    .eq("clinica_id", perfil.clinica_id)
+    .order("entrou_em", { ascending: true });
+  if (error)
+    return { status: 500, corpo: { ok: false, erro: "falha_buscar_fila" } };
+  return { status: 200, corpo: { ok: true, entradas: data || [] } };
+}
+
+async function acaoResponderFila(admin, perfil, req, body) {
+  if (!filaCsrfOk(req))
+    return {
+      status: 403,
+      corpo: { ok: false, erro: "csrf_invalido", codigo: "CSRF_INVALIDO" },
+    };
+  const id = String(body?.id || "");
+  const acao = body?.acao;
+  if (
+    !FILA_ACOES.includes(acao) ||
+    !FILA_ID_RE.test(id)
+  )
+    return { status: 400, corpo: { ok: false, erro: "acao_invalida" } };
+  // Body/query não são uma fonte de identidade. Clínica vem apenas da sessão.
+  const { data: owned, error: erroBusca } = await admin
+    .from("fila_espera")
+    .select("id,janela_inicio,janela_fim,oferta_inicio,oferta_fim")
+    .eq("id", id)
+    .eq("clinica_id", perfil.clinica_id)
+    .maybeSingle();
+  if (erroBusca)
+    return { status: 500, corpo: { ok: false, erro: "falha_buscar_fila" } };
+  if (!owned)
+    return { status: 404, corpo: { ok: false, erro: "entrada_nao_encontrada" } };
+  if (acao === "cancelar") {
+    const { data, error } = await admin
+      .from("fila_espera")
+      .update({ status: "cancelado", respondido_em: new Date().toISOString() })
+      .eq("id", id)
+      .eq("clinica_id", perfil.clinica_id)
+      .in("status", ["aguardando", "ofertado"])
+      .select("id,status")
+      .maybeSingle();
+    if (error)
+      return { status: 409, corpo: { ok: false, erro: "nao_pode_cancelar" } };
+    return { status: 200, corpo: { ok: true, entrada: data } };
+  }
+  // Rejeitar ofertas legadas/incompletas antes de executar a RPC de aceite.
+  if (acao === "aceitar" && !ofertaTemJanelaValida(owned))
+    return { status: 400, corpo: FILA_JANELA_INVALIDA };
+  const fn =
+    acao === "aceitar" ? "fila_aceitar_oferta" : "fila_recusar_oferta";
+  const { data, error } = await admin.rpc(fn, {
+    p_id: id,
+    p_clinica: perfil.clinica_id,
+  });
+  if (error) {
+    if (error.code === "22023")
+      return { status: 400, corpo: FILA_JANELA_INVALIDA };
+    if (error.code === "23505")
+      return { status: 409, corpo: { ok: false, erro: "horario_ocupado" } };
+    if (error.code === "P0002")
+      return {
+        status: 404,
+        corpo: { ok: false, erro: "entrada_nao_encontrada" },
+      };
+    return {
+      status: 409,
+      corpo: {
+        ok: false,
+        erro: String(error.message).includes("expirada")
+          ? "oferta_expirada"
+          : "oferta_invalida",
+      },
+    };
+  }
+  if (acao === "aceitar" && data?.id) {
+    const { data: agendamento } = await admin
+      .from("agendamentos")
+      .select("id,clinica_id,paciente_telefone,data_hora,sheet_row")
+      .eq("id", data.id)
+      .eq("clinica_id", perfil.clinica_id)
+      .maybeSingle();
+    if (agendamento)
+      await sincronizarAgendamentoSheets({ admin, agendamento });
+  }
+  return { status: 200, corpo: { ok: true, resultado: data } };
+}
+
 // Acoes que continuam abertas com a assinatura expirada:
-// - portal_sessao: e justamente o caminho para regularizar a cobranca;
-// - atualizar_perfil: trocar senha nunca pode depender de pagamento.
+// - checkout_reativacao: cria um pedido autenticado para regularizar a cobrança;
+// - portal_sessao: gerencia assinatura existente (não é fluxo de reativação);
+// - atualizar_perfil: trocar senha nunca pode depender de pagamento;
+// - cancelar/aceitar/recusar: acoes da fila (ver FILA_ACOES acima).
 // As leituras (GET) tambem ficam abertas de proposito: ler configuracao nao
 // gera custo, e manter a aba Status acessivel ajuda o cliente a entender o
 // que fazer. O bloqueio de escrita e o overlay sao camadas independentes:
 // o overlay e a interface do gate, o 402 e o gate em si.
+// ── Reembolso (F7/G4) ─────────────────────────────────────────────────────
+// Canal primário do pedido de reembolso: botão "Pedir reembolso" no painel.
+// O carimbo oficial é o timestamp do SERVIDOR, não do navegador.
+//
+// Esta ação só REGISTRA a intenção (`reembolso_pedido_em`, motivo) — escrita
+// condicional `.is("reembolso_pedido_em", null)`, idempotente: o cliente pode
+// clicar quantas vezes quiser que a data não muda.
+//
+// NÃO estorna, NÃO cancela, NÃO muda `status`: o estorno é humano (runbook do
+// operador — política G4/G5), no Stripe, depois de conferir identidade e
+// janela. v1 é manual por decisão registrada (garantia-politica-operacional).
+//
+// Motivo é opcional e livre (máx 500 chars) — a promessa pública é "sem
+// perguntas"; pedir razão obrigatória contradiria a copy.
+const MAX_MOTIVO_REEMBOLSO = 500;
+
+async function carregarGarantia(admin, clinicaId) {
+  const { data, error } = await admin
+    .from("clinicas")
+    .select(
+      "garantia_inicio,garantia_fim,garantia_teto,reembolso_pedido_em,reembolsado_em,stripe_customer_id",
+    )
+    .eq("id", clinicaId)
+    .maybeSingle();
+
+  if (error) return { erro: { status: 500, corpo: { erro: "falha_buscar" } } };
+  return { garantia: data || {} };
+}
+
+function janelaGarantiaResumo(g) {
+  // G3 — regimes disjuntos: ativou → vale garantia_fim; nunca ativou → teto.
+  const fim = g.garantia_fim || g.garantia_teto || null;
+  return {
+    dentro_da_janela: fim ? new Date(fim).getTime() > Date.now() : false,
+    fim,
+    origem: g.garantia_fim ? "ativacao" : g.garantia_teto ? "teto" : null,
+  };
+}
+
+async function acaoReembolso(admin, perfil, body) {
+  // Limite próprio: 5 por hora. O teto global de mutações do painel (60/min)
+  // é frouxo demais para uma ação que vira ticket humano.
+  const rl = await rateLimit("reembolso-post:" + perfil.id, 5, 60 * 60 * 1000);
+  if (rl.blocked) {
+    return {
+      status: 429,
+      corpo: { erro: "muitas_requisicoes", mensagem: "Aguarde alguns minutos." },
+    };
+  }
+
+  const motivo = String(body?.motivo || "").slice(0, MAX_MOTIVO_REEMBOLSO);
+
+  const r = await carregarGarantia(admin, perfil.clinica_id);
+  if (r.erro) return { status: r.erro.status, corpo: r.erro.corpo };
+  const g = r.garantia;
+
+  // Reembolsado: o pedido vira informativo; nada novo a registrar.
+  if (g.reembolsado_em) {
+    return {
+      status: 409,
+      corpo: {
+        erro: "ja_reembolsado",
+        mensagem:
+          "Este contrato já foi reembolsado. Se precisar de algo, fale com o suporte.",
+      },
+    };
+  }
+
+  const j = janelaGarantiaResumo(g);
+  const agora = new Date().toISOString();
+
+  // Idempotente por construção: só grava se não há pedido anterior.
+  const { error } = await admin
+    .from("clinicas")
+    .update({
+      reembolso_pedido_em: agora,
+      reembolso_motivo: motivo || null,
+    })
+    .eq("id", perfil.clinica_id)
+    .is("reembolso_pedido_em", null);
+
+  if (error) {
+    console.error("reembolso_pedido_falhou", perfil.clinica_id, error.message);
+    return { status: 500, corpo: { erro: "falha_registrar" } };
+  }
+
+  return {
+    status: 200,
+    corpo: {
+      ok: true,
+      // Registro com data nova = este request venceu a corrida; com null =
+      // já havia pedido (resposta honesta: a data oficial é a primeira).
+      registrado_em: g.reembolso_pedido_em ? null : agora,
+      pedido_em: g.reembolso_pedido_em || agora,
+      ...j,
+      mensagem:
+        "Recebemos seu pedido. Respondemos em até 2 dias úteis e lançamos o estorno em até 5 dias úteis após a resposta. O crédito no cartão depende do prazo do seu banco.",
+    },
+  };
+}
+
 function acaoBloqueadaExpirado(acao) {
-  return acao !== "portal_sessao" && acao !== "atualizar_perfil";
+  return (
+    acao !== "portal_sessao" &&
+    acao !== "checkout_reativacao" &&
+    acao !== "atualizar_perfil" &&
+    acao !== "reembolso" &&
+    !FILA_ACOES.includes(acao)
+  );
 }
 
 async function acaoPausarConversa(admin, perfil, body) {
@@ -353,14 +634,17 @@ async function acaoCriarAgendamento(admin, perfil, body) {
       status: "agendado",
     })
     .select(
-      "id,paciente_telefone,paciente_nome,observacao,data_hora,status,cancelado_em",
+      "id,clinica_id,paciente_telefone,paciente_nome,observacao,data_hora,status,cancelado_em,sheet_row",
     )
     .maybeSingle();
 
   if (error) {
+    if (error.code === "23505") return { status: 409, corpo: { erro: "horario_ocupado" } };
     console.error("criar_agendamento_erro", error.message);
     return { status: 500, corpo: { erro: "falha_criar" } };
   }
+
+  if (criado) await sincronizarAgendamentoSheets({ admin, agendamento: criado });
 
   return { status: 200, corpo: { ok: true, agendamento: criado } };
 }
@@ -392,13 +676,29 @@ async function acaoRemarcarAgendamento(admin, perfil, body) {
   if (agendamento.status === "cancelado")
     return { status: 400, corpo: { erro: "agendamento_cancelado" } };
 
-  // Atualizar data/hora
+  // A pré-checagem dá uma resposta legível; a unique constraint continua sendo
+  // a proteção contra duas remarcações/criações simultâneas.
+  const { data: choque, error: erroConflito } = await admin
+    .from("agendamentos")
+    .select("id")
+    .eq("clinica_id", perfil.clinica_id)
+    .eq("data_hora", novaData.toISOString())
+    .neq("status", "cancelado")
+    .neq("id", agendamentoId)
+    .limit(1)
+    .maybeSingle();
+  if (erroConflito) return { status: 500, corpo: { erro: "falha_remarcar" } };
+  if (choque) return { status: 409, corpo: { erro: "horario_ocupado" } };
+
+  // Só alterar o registro da sessão; falha de constraint mantém o original.
   const { error: erroUpdate } = await admin
     .from("agendamentos")
     .update({ data_hora: novaData.toISOString() })
-    .eq("id", agendamentoId);
+    .eq("id", agendamentoId)
+    .eq("clinica_id", perfil.clinica_id);
 
   if (erroUpdate) {
+    if (erroUpdate.code === "23505") return { status: 409, corpo: { erro: "horario_ocupado" } };
     console.error("remarcar_agendamento_erro", erroUpdate.message);
     return { status: 500, corpo: { erro: "falha_remarcar" } };
   }
@@ -703,7 +1003,7 @@ async function acaoConfig(admin, perfil) {
   const { data: clinicaRow } = await admin
     .from("clinicas")
     .select(
-      "clinica,config_editavel,tempo_pausa_minutos,status,trial_fim,plano,criado_em",
+      "clinica,config_editavel,tempo_pausa_minutos,status,trial_fim,plano,tier,criado_em",
     )
     .eq("id", perfil.clinica_id)
     .maybeSingle();
@@ -748,6 +1048,7 @@ async function acaoConfig(admin, perfil) {
       status: clinicaRow.status || null,
       trial_fim: clinicaRow.trial_fim || null,
       plano: clinicaRow.plano || null,
+      tier: clinicaRow.tier || "essencial",
       criado_em: clinicaRow.criado_em || null,
     },
   };
@@ -834,6 +1135,16 @@ export default async function handler(req, res) {
       const resultado = await acaoListarFeriados(admin, perfil);
       return res.status(resultado.status).json(resultado.corpo);
     }
+    if (acao === "fila") {
+      if (!(await filaTierCompleto(admin, perfil.clinica_id)))
+        return res.status(403).json({
+          ok: false,
+          erro: "fila_disponivel_apenas_no_completo",
+          codigo: "TIER_COMPLETO_OBRIGATORIO",
+        });
+      const resultado = await acaoListarFila(admin, perfil);
+      return res.status(resultado.status).json(resultado.corpo);
+    }
     if (acao === "logout") {
       const supabase = createSupabaseServerClient(req, res);
       await supabase.auth.signOut();
@@ -885,6 +1196,10 @@ export default async function handler(req, res) {
       const resultado = await acaoPortalSessao(admin, perfil);
       return res.status(resultado.status).json(resultado.corpo);
     }
+    if (body?.acao === "checkout_reativacao") {
+      const resultado = await acaoCheckoutReativacao(admin, perfil, body, req);
+      return res.status(resultado.status).json(resultado.corpo);
+    }
     if (body?.acao === "pausar_conversa") {
       const resultado = await acaoPausarConversa(admin, perfil, body);
       return res.status(resultado.status).json(resultado.corpo);
@@ -917,8 +1232,22 @@ export default async function handler(req, res) {
       const resultado = await acaoAtualizarPerfil(admin, perfil, body);
       return res.status(resultado.status).json(resultado.corpo);
     }
+    if (body?.acao === "reembolso") {
+      const resultado = await acaoReembolso(admin, perfil, body);
+      return res.status(resultado.status).json(resultado.corpo);
+    }
     if (body?.acao === "salvar_nome_cliente") {
       const resultado = await acaoSalvarNomeCliente(admin, perfil, body);
+      return res.status(resultado.status).json(resultado.corpo);
+    }
+    if (FILA_ACOES.includes(body?.acao)) {
+      if (!(await filaTierCompleto(admin, perfil.clinica_id)))
+        return res.status(403).json({
+          ok: false,
+          erro: "fila_disponivel_apenas_no_completo",
+          codigo: "TIER_COMPLETO_OBRIGATORIO",
+        });
+      const resultado = await acaoResponderFila(admin, perfil, req, body);
       return res.status(resultado.status).json(resultado.corpo);
     }
     return res.status(400).json({ erro: "acao_invalida" });

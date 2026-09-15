@@ -11,6 +11,7 @@ const JANELA_MS = 10 * 60 * 1000;
 // Teto de payload: `bruto` e' repassado inteiro ao n8n, entao o corpo tem que
 // ter tamanho conhecido antes de virar trafego de saida.
 const MAX_BYTES = 64 * 1024;
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 function montarTexto(body, token) {
   const nome = (body?.bruto?.clinica || "Clínica sem nome").trim();
@@ -80,6 +81,16 @@ export default async function handler(req, res) {
     return res.status(413).json({ erro: "payload_muito_grande" });
   }
 
+  let body;
+  try {
+    body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
+  } catch {
+    return res.status(400).json({ erro: "payload_invalido" });
+  }
+  if (typeof body?.pedido !== "string" || !UUID_RE.test(body.pedido)) {
+    return res.status(400).json({ erro: "pedido_invalido" });
+  }
+
   const webhook = process.env.N8N_BRIEFING_WEBHOOK;
   if (!webhook)
     return res
@@ -93,7 +104,6 @@ export default async function handler(req, res) {
       .json({ erro: "N8N_ONBOARDING_WEBHOOK_SECRET nao configurada" });
 
   try {
-    const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
     const token = nanoid(16);
     const texto = montarTexto(body, token);
     const partes = fatiar(texto);
@@ -112,6 +122,7 @@ export default async function handler(req, res) {
         // Sem este spread o onboarding para em "Alerta: Campos Faltando" e a
         // planilha grava colunas vazias. As chaves explicitas abaixo vencem.
         ...(body?.bruto || {}),
+        pedido: body.pedido,
         // Normalizado pra digitos: o campo do briefing nao tem mascara e o
         // placeholder sugere "00.000.000/0000-00", entao o valor cru chega com
         // 18 caracteres e reprova no teste de 14 digitos do n8n.

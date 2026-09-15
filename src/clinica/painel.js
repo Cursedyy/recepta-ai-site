@@ -62,42 +62,13 @@ var TIER_RECURSOS = (DADOS.assinatura || {}).tier || "essencial";
     status: "Status",
     fila: "Fila de espera",
   };
-  var ICONS = {
-    agenda: "calendar-days",
-    horarios: "clock-3",
-    precos: "badge-dollar-sign",
-    procedimentos: "sliders-horizontal",
-    convenios: "building-2",
-    mensagem: "message-square-text",
-    regras: "list-checks",
-    faq: "circle-help",
-    conversas: "messages-square",
-    pausa: "pause-circle",
-    perfil: "user-round",
-    feriados: "calendar-off",
-    status: "chart-no-axes-column-increasing",
-    fila: "list-ordered",
-  };
-
   TABS_SIDEBAR.forEach(function (tab) {
     var navBtn = document.querySelector('.nav-item[data-tab="' + tab + '"]');
     if (!navBtn) return;
     var visivel = TABS_VISIVEIS.indexOf(tab) !== -1;
     if (tab === "fila") visivel = TIER_RECURSOS === "completo";
     navBtn.style.display = visivel ? "" : "none";
-    var icon = navBtn.querySelector(".icon");
-    if (icon && ICONS[tab] && window.lucide) {
-      icon.innerHTML = '<i data-lucide="' + ICONS[tab] + '"></i>';
-    }
   });
-
-  var conectarIcon = document.querySelector(
-    '.nav-item[href="/clinica/conectar"] .icon',
-  );
-  if (conectarIcon && window.lucide) {
-    conectarIcon.innerHTML = '<i data-lucide="message-circle-more"></i>';
-  }
-  if (window.lucide) window.lucide.createIcons();
 
   // Atualiza label da aba procedimentos
   var navProc = document.getElementById("nav-procedimentos");
@@ -113,7 +84,7 @@ var TIER_RECURSOS = (DADOS.assinatura || {}).tier || "essencial";
   function carregarFilaPainel() {
     var status = document.getElementById("fila-status"), lista = document.getElementById("fila-lista");
     if (!status || !lista) return;
-    fetch("/api/clinica/fila").then(function (r) { return r.json().then(function (j) { return { r: r, j: j }; }); }).then(function (x) {
+    fetch("/api/clinica/painel-acoes?acao=fila").then(function (r) { return r.json().then(function (j) { return { r: r, j: j }; }); }).then(function (x) {
       if (x.r.status === 403) { status.textContent = "A fila de espera está disponível somente no plano Completo."; lista.innerHTML = ""; return; }
       if (!x.j.ok) { status.textContent = "Não foi possível carregar a fila."; return; }
       var itens = x.j.entradas || []; lista.innerHTML = "";
@@ -136,7 +107,7 @@ var TIER_RECURSOS = (DADOS.assinatura || {}).tier || "essencial";
     if (botao) { botao.disabled = true; botao.setAttribute("aria-busy", "true"); }
     status.style.display = "";
     status.textContent = "Atualizando fila...";
-    fetch("/api/clinica/fila", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ acao: acao, id: id }) })
+    fetch("/api/clinica/painel-acoes", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ acao: acao, id: id }) })
       .then(function (r) { return r.json().then(function (j) {
         if (!r.ok || !j.ok) {
           status.style.display = "";
@@ -564,32 +535,7 @@ function abrirModalAgendamento(item) {
     if (e.target === modal) modal.remove();
   });
   document.body.appendChild(modal);
-  if (window.flatpickr) {
-    var localePt = window.flatpickr.l10ns && window.flatpickr.l10ns.pt;
-    window.flatpickr(iData, {
-      locale: localePt || "default",
-      minDate: "today",
-      dateFormat: "Y-m-d",
-      altInput: true,
-      altFormat: "d/m/Y",
-      disableMobile: true,
-    });
-    window.flatpickr(iHora, {
-      locale: localePt || "default",
-      enableTime: true,
-      noCalendar: true,
-      dateFormat: "H:i",
-      time_24hr: true,
-      minuteIncrement: 5,
-      disableMobile: true,
-    });
-  }
-  var focoInicial = novo
-    ? iTel
-    : iData._flatpickr && iData._flatpickr.altInput
-      ? iData._flatpickr.altInput
-      : iData;
-  focoInicial.focus();
+  (novo ? iTel : iData).focus();
 }
 
 function renderAgenda(agendamentos) {
@@ -1102,7 +1048,6 @@ document.getElementById("btn-tema").addEventListener("click", function () {
   } catch (e) {
     // Navegador com armazenamento bloqueado: o tema vale só nesta aba.
   }
-  atualizarTemaGrafico();
 });
 
 // ── Logout ──
@@ -1310,6 +1255,29 @@ function linhaDetalhe(rotulo, valor, alerta) {
 
   addLinha("Cliente desde", dataBR(ASSINATURA.criado_em));
 
+  // ── Garantia de reembolso (F7/G3) ──
+  // Regimes disjuntos: ativou → garantia_fim; nunca ativou → teto de 30d do
+  // pagamento. Só aparece com garantia materializada (null = trial/legado).
+  // Falha da rota de reembolso não apaga o que já está na tela.
+  var fimGarantia = ASSINATURA.garantia_fim || ASSINATURA.garantia_teto || null;
+  if (fimGarantia) {
+    var diasGar = diasAte(fimGarantia);
+    var txtGar =
+      dataBR(fimGarantia) +
+      (diasGar !== null && diasGar >= 0
+        ? diasGar > 1
+          ? " (faltam " + diasGar + " dias)"
+          : diasGar === 1
+            ? " (último dia)"
+            : " (termina hoje)"
+        : " (encerrada)");
+    addLinha("Garantia de reembolso", txtGar, diasGar !== null && diasGar <= 3);
+  }
+  if (ASSINATURA.reembolsado_em)
+    addLinha("Reembolso", "Concluído em " + dataBR(ASSINATURA.reembolsado_em), true);
+  else if (ASSINATURA.reembolso_pedido_em)
+    addLinha("Pedido de reembolso", "Registrado em " + dataBR(ASSINATURA.reembolso_pedido_em));
+
   if (temLinha) elD.appendChild(lista);
 
   // ── Cobranca: so o Stripe sabe valor, proxima fatura e cartao ──
@@ -1407,6 +1375,64 @@ function linhaDetalhe(rotulo, valor, alerta) {
     });
     elA.appendChild(btn);
   }
+
+  // ── Botão "Pedir reembolso" (F7/G4 — canal primário) ──
+  // Cancelamento ≠ reembolso (G11): o portal do Stripe CANCELA (para de
+  // renovar); este botão PEDE O DINHEIRO DE VOLTA. São promessas diferentes,
+  // então vivem em controles diferentes. Escondido depois de reembolso
+  // concluído; o estado "pedido já registrado" fica na lista acima.
+  if (ASSINATURA.tem_stripe && !ASSINATURA.reembolsado_em) {
+    var btnReemb = el("button", {
+      type: "button",
+      class: "btn btn-ghost btn-sm",
+      text: ASSINATURA.reembolso_pedido_em
+        ? "Pedido registrado — ver detalhes"
+        : "Pedir reembolso (garantia de 7 dias)",
+    });
+    btnReemb.addEventListener("click", function () {
+      if (
+        !window.confirm(
+          "A garantia de 7 dias devolve 100% do valor pago e encerra o acesso à Recepta na aprovação.\n\nDeseja registrar o pedido de reembolso?",
+        )
+      )
+        return;
+      btnReemb.disabled = true;
+      btnReemb.textContent = "Registrando…";
+      fetch("/api/clinica/painel-acoes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ acao: "reembolso" }),
+      })
+        .then(function (r) {
+          return r.json().then(function (j) {
+            return { r: r, j: j };
+          });
+        })
+        .then(function (x) {
+          if (x.r.ok && x.j.ok) {
+            window.alert(x.j.mensagem || "Pedido registrado.");
+            window.location.reload();
+          } else if (x.r.status === 409) {
+            window.alert(x.j.mensagem || "Este contrato já foi reembolsado.");
+            btnReemb.disabled = false;
+            btnReemb.textContent = "Pedir reembolso (garantia de 7 dias)";
+          } else {
+            window.alert(
+              (x.j && x.j.mensagem) ||
+                "Não conseguimos registrar agora. Tente novamente em instantes.",
+            );
+            btnReemb.disabled = false;
+            btnReemb.textContent = "Pedir reembolso (garantia de 7 dias)";
+          }
+        })
+        .catch(function () {
+          window.alert("Falha de rede. Tente novamente em instantes.");
+          btnReemb.disabled = false;
+          btnReemb.textContent = "Pedir reembolso (garantia de 7 dias)";
+        });
+    });
+    elA.appendChild(btnReemb);
+  }
 })();
 
 // ── Metricas: 1 request so, compartilhado por conversas / perfil / cards ──
@@ -1492,7 +1518,7 @@ function renderConversas(msgs) {
       minute: "2-digit",
     });
     var badgePausa = isPausada
-      ? '<span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:999px;font-size:10px;margin-left:6px">Pausada</span>'
+      ? '<span class="badge-pausada">Pausada</span>'
       : "";
     div.innerHTML =
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><b style="font-size:14px">' +
@@ -2067,32 +2093,6 @@ document
 carregarFeriados();
 
 // ── Métricas ──
-var metricasChart = null;
-function coresDoGrafico() {
-  var css = getComputedStyle(document.documentElement);
-  return {
-    texto: css.getPropertyValue("--muted").trim(),
-    borda: css.getPropertyValue("--surface").trim(),
-    grade: css.getPropertyValue("--border").trim(),
-    cores: [
-      css.getPropertyValue("--primary").trim(),
-      css.getPropertyValue("--green").trim(),
-      css.getPropertyValue("--orange").trim(),
-    ],
-  };
-}
-
-function atualizarTemaGrafico() {
-  if (!metricasChart) return;
-  var tema = coresDoGrafico();
-  metricasChart.data.datasets[0].backgroundColor = tema.cores;
-  metricasChart.data.datasets[0].borderColor = tema.borda;
-  metricasChart.options.scales.x.ticks.color = tema.texto;
-  metricasChart.options.scales.x.grid.color = tema.grade;
-  metricasChart.options.scales.y.ticks.color = tema.texto;
-  metricasChart.update("none");
-}
-
 metricasPromise
   .then(function (res) {
     var elC = document.getElementById("metricas-corpo");
@@ -2102,7 +2102,6 @@ metricasPromise
     }
     elC.className = "";
     elC.innerHTML = "";
-    var layout = el("div", { class: "metricas-layout" });
     var grid = el("div", { class: "metricas-grid" });
     var items = [
       {
@@ -2135,66 +2134,7 @@ metricasPromise
       ]);
       grid.appendChild(card);
     });
-    layout.appendChild(grid);
-    if (window.Chart) {
-      var grafico = el("div", {
-        class: "metricas-grafico",
-        role: "img",
-        "aria-label": "Comparação visual das métricas da clínica",
-      });
-      var canvas = el("canvas", { "aria-hidden": "true" });
-      grafico.appendChild(canvas);
-      layout.appendChild(grafico);
-      var tema = coresDoGrafico();
-      metricasChart = new window.Chart(canvas, {
-        type: "bar",
-        data: {
-          labels: items.map(function (item) {
-            return item.lbl;
-          }),
-          datasets: [
-            {
-              data: items.map(function (item) {
-                return item.val;
-              }),
-              backgroundColor: tema.cores,
-              borderColor: tema.borda,
-              borderWidth: 0,
-              borderRadius: 6,
-              barThickness: 24,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          indexAxis: "y",
-          animation: window.matchMedia("(prefers-reduced-motion: reduce)")
-            .matches
-            ? false
-            : { duration: 180 },
-          plugins: {
-            legend: {
-              display: false,
-            },
-          },
-          scales: {
-            x: {
-              beginAtZero: true,
-              ticks: { color: tema.texto, precision: 0 },
-              grid: { color: tema.grade },
-              border: { display: false },
-            },
-            y: {
-              ticks: { color: tema.texto },
-              grid: { display: false },
-              border: { display: false },
-            },
-          },
-        },
-      });
-    }
-    elC.appendChild(layout);
+    elC.appendChild(grid);
   })
   .catch(function () {
     document.getElementById("metricas-corpo").textContent = "Falha de conexão.";
@@ -2262,29 +2202,12 @@ metricasPromise
 // O overlay server-rendered já cobre a tela quando status="expirado". Este
 // bloco cobre o caso de corrida: clinica ativa quando a página carregou,
 // n8n expira no meio da sessão. Toda resposta 402 "assinatura_expirada"
-// vira o overlay com os links de pagamento (renderizados escondidos pelo
-// servidor, aqui só preencho os href e mostro).
+// vira o overlay com os botões de checkout autenticado já conectados pelo
+// HTML server-rendered.
 (function () {
   function montarGate402() {
     var overlay = document.getElementById("gate-overlay");
     if (!overlay) return;
-    var ids = ["gate-link-mensal", "gate-link-anual"];
-    var precisaLinks = ids.some(function (id) {
-      var a = document.getElementById(id);
-      return (
-        !a ||
-        !(a.getAttribute("href") || "").startsWith("https://buy.stripe.com")
-      );
-    });
-    if (precisaLinks) {
-      var g = (window.__PAINEL__ || {}).gate;
-      if (g && g.link_mensal && g.link_anual) {
-        var mm = document.getElementById("gate-link-mensal");
-        var aa = document.getElementById("gate-link-anual");
-        if (mm) mm.href = g.link_mensal;
-        if (aa) aa.href = g.link_anual;
-      }
-    }
     overlay.classList.remove("hidden");
   }
 
