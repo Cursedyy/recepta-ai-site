@@ -6,10 +6,10 @@ import { rateLimit, getClientIp } from "../_lib/rate-limit.js";
 import { criarCheckout } from "../checkout.js";
 import { sincronizarAgendamentoSheets } from "../_lib/sheets-sync.js";
 import { ofertaTemJanelaValida } from "../_lib/fila-janela.js";
+import { criarSessaoPortal } from "../_lib/stripe-portal.js";
 
 const MIN_MINUTOS = 1;
 const MAX_MINUTOS = 120;
-const STRIPE_RETURN_URL = "https://www.receptaai.com.br/clinica/painel";
 
 // Mutacoes do painel: 60 por minuto por usuario. Uso normal fica muito
 // abaixo disso; o limite existe para conter loop no client ou conta
@@ -81,37 +81,7 @@ async function acaoPortalSessao(admin, perfil) {
     return { status: 400, corpo: { erro: "sem_assinatura" } };
   }
 
-  const params = new URLSearchParams();
-  params.set("customer", clinicaRow.stripe_customer_id);
-  params.set("return_url", STRIPE_RETURN_URL);
-
-  const stripeRes = await fetch(
-    "https://api.stripe.com/v1/billing_portal/sessions",
-    {
-      method: "POST",
-      headers: {
-        Authorization: "Bearer " + stripeKey,
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: params.toString(),
-    },
-  );
-
-  const dados = await stripeRes.json();
-  if (!stripeRes.ok) {
-    // Logar o erro interno mas NAO expor ao cliente (pode conter
-    // informacoes sensiveis do Stripe, como IDs internos ou razoes).
-    console.error("stripe_portal_erro", JSON.stringify(dados?.error));
-    return {
-      status: 502,
-      corpo: {
-        erro: "falha_stripe",
-        detalhe: "Erro ao comunicar com o Stripe. Tente novamente.",
-      },
-    };
-  }
-
-  return { status: 200, corpo: { ok: true, url: dados.url } };
+  return criarSessaoPortal(clinicaRow.stripe_customer_id, stripeKey);
 }
 
 async function acaoCheckoutReativacao(admin, perfil, body, req) {
