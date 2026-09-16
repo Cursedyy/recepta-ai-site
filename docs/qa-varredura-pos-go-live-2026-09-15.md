@@ -208,9 +208,24 @@ Disallow: /clinica/
 Sitemap: https://www.receptaai.com.br/sitemap.xml
 ```
 
-As quatro áreas pedidas continuam fora do sitemap e bloqueadas no robots. Estado efetivo de indexação no Google/Search Console não confirmei: robots não prova desindexação.
+As quatro áreas pedidas continuam fora do sitemap e bloqueadas no robots. Estado efetivo de indexação no Google/Search Console não confirmei: robots não prova desindexação.Tentativa de abrir https://search.google.com/test/rich-results?url=https%3A%2F%2Fwww.receptaai.com.br%2F pela ferramenta web: “Internal Error”, URL “is not safe to open (non-retryable error)”. Resultado Rich Results Google: **não confirmei**. JSON.parse válido não prova elegibilidade para rich snippets.
 
-Tentativa de abrir https://search.google.com/test/rich-results?url=https%3A%2F%2Fwww.receptaai.com.br%2F pela ferramenta web: “Internal Error”, URL “is not safe to open (non-retryable error)”. Resultado Rich Results Google: **não confirmei**. JSON.parse válido não prova elegibilidade para rich snippets.
+### Complemento de 2026-09-16 — validação no validator.schema.org
+
+O teste do Google segue inacessível sem sessão; como alternativa oficial, a home servida foi validada no https://validator.schema.org (UI operada via Playwright local, Chromium headless). Resultado real: **0 erros, 0 avisos**, com todas as entidades do `@graph` reconhecidas: Organization, WebSite, WebPage, FAQPage, SoftwareApplication+Service, Offer, MerchantReturnPolicy, Question, Answer, ImageObject. A conformidade com o vocabulário schema.org está confirmada; o que permanece **não confirmei** é apenas a elegibilidade de rich results no Google (ferramenta do Google, exige sessão deles).## Complementos executados em 2026-09-16 (pós-correções)
+
+Após as correções do relatório, a suíte completa foi reexecutada contra o servidor local (`npx serve src -p 3333`), sem acionar compra:
+
+| Verificação | Comando | Resultado real |
+|---|---|---|
+| Responsivo (16 páginas × 6 viewports) | `node src/test-responsive-ci.mjs --base-url http://localhost:3333 --output-dir screenshots/qa-correcoes/ci-check --max-touch-small 0` | 96/96 PASS, 0 overflow, 0 alvos pequenos |
+| Acessibilidade strict (axe) | `node src/test-accessibility.mjs --base-url http://localhost:3333 --strict --output-dir screenshots/qa-correcoes/a11y-check` | 32/32 PASS, 0 violações (0 críticas/seriamente/moderadas/menores) |
+| Regressão de superfícies públicas | `node scripts/test-public-qa.mjs` | PASS: 12 páginas, copy obsoleta zero, links de briefing só com pedido, 6 ações de teclado no seletor, foco restaurado ao dispensar, preços e política no JSON-LD |
+| Hero breakpoints | `node src/check-hero-breakpoints.mjs --base-url http://localhost:3333` | Todos os 8 breakpoints OK |
+| Funnel frontend | `node scripts/test-funnel-frontend.mjs` | PASS (emitters anônimos, tolerância offline, dedupe de ciclo, abandono, gate do briefing, sem erros de JS) |
+| Health produção | `npm run health` | 13/13 OK |
+
+O teste do Google Rich Results continua **não confirmei** nesta auditoria; a conformidade com o vocabulário schema.org foi confirmada no validator.schema.org (seção SEO acima).
 
 ## Limites e artefatos
 

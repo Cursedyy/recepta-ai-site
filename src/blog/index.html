@@ -35,7 +35,7 @@
     .hero p { color: var(--muted); font-size: 17px; max-width: 50ch; margin: 0 auto; }
 
     .container { max-width: 900px; margin: 0 auto; padding: 40px 24px 80px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 24px; }
 
     .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: box-shadow 0.2s, transform 0.2s; }
     .card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.08); transform: translateY(-2px); }
@@ -53,6 +53,10 @@
     .cta a:hover { background: var(--primary-hover); }
 
     footer { text-align: center; padding: 24px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--border); }
+    header .logo, nav a { display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; }
+    nav { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px 16px; }
+    nav a { margin-left: 0; }
+    a:focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
   </style>
 </head>
 <body>
@@ -67,12 +71,13 @@
     </div>
   </header>
 
+  <main>
   <section class="hero">
     <h1>Blog Recepta AI</h1>
     <p>Dicas, guias e novidades sobre inteligência artificial para clínicas e consultórios.</p>
   </section>
 
-  <main class="container">
+  <div class="container">
     <div class="grid">
       <a href="/blog/secretaria-virtual-clinica/" class="card">
         <div class="card-img">🤖</div>
@@ -104,13 +109,15 @@
         </div>
       </a>
     </div>
-  </main>
+  </div>
 
   <section class="cta">
     <h2>Garantia Recepta de 7 dias</h2>
     <p>Devolvemos 100% se não servir. Cancele quando quiser.</p>
     <a href="/#planos">Começar agora</a>
   </section>
+
+  </main>
 
   <footer>
     <p>© 2026 Recepta AI | Secretária virtual com IA para clínicas</p>

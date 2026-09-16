@@ -15,7 +15,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    :root { --bg: #f8fafc; --surface: #fff; --ink: #0f172a; --muted: #64748b; --border: #e2e8f0; --primary: #059669; --primary-hover: #047857; --primary-soft: #ecfdf5; }
+    :root { --bg: #f8fafc; --surface: #fff; --ink: #0f172a; --muted: #64748b; --border: #e2e8f0; --primary: #047857; --primary-hover: #065f46; --primary-soft: #ecfdf5; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: "Inter", -apple-system, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.6; }
     a { color: var(--primary); text-decoration: none; }
@@ -39,7 +39,7 @@
     .section-title { font-size: 28px; font-weight: 700; text-align: center; margin-bottom: 12px; letter-spacing: -0.02em; }
     .section-sub { color: var(--muted); text-align: center; max-width: 500px; margin: 0 auto 40px; }
 
-    .benefits { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+    .benefits { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 24px; }
     .benefit { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 28px; }
     .benefit-icon { font-size: 32px; margin-bottom: 12px; }
     .benefit h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
@@ -57,6 +57,10 @@
     .cta-section a:hover { background: var(--primary-hover); }
 
     footer { text-align: center; padding: 24px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--border); }
+    .header .logo, .nav a { display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; }
+    .nav { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px 16px; }
+    .nav a { margin-left: 0; }
+    a:focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
   </style>
   <script type="application/ld+json">
   {
@@ -94,6 +98,7 @@
     </div>
   </header>
 
+  <main>
   <section class="hero">
     <span class="hero-badge">Especialidade: Psicologia</span>
     <h1>Você está em sessão. <em>A agenda continua andando.</em></h1>
@@ -163,6 +168,8 @@
     <p>Devolvemos 100% se não servir · Cancele quando quiser</p>
     <a href="/#planos">Começar agora</a>
   </section>
+
+  </main>
 
   <footer>
     <p>© 2026 Recepta AI | Secretária virtual com IA para clínicas</p>

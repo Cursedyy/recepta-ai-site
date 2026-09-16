@@ -344,3 +344,7 @@ a:focus-visible {
     scroll-behavior: auto !important;
   }
 }
+
+.auth-shell a[href^="/clinica/esqueci-senha"], .auth-shell a.voltar {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 44px;
+}

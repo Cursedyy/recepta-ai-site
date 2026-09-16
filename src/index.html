@@ -334,7 +334,7 @@
                 "name": "Como fica a LGPD e os dados dos pacientes?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Os dados dos pacientes são usados exclusivamente para o atendimento da própria clínica. Ficam no ambiente da clínica, não são compartilhados com terceiros e não são usados pra treinar modelo de ninguém. A Recepta segue integralmente a Lei Geral de Proteção de Dados."
+                  "text": "Os dados dos pacientes são tratados para o atendimento da própria clínica. Compartilhamos dados apenas com operadores necessários ao serviço, sob obrigações de confidencialidade e segurança, conforme a Política de Privacidade. Não vendemos esses dados nem os usamos para treinar modelos."
                 }
               },
               {
@@ -350,7 +350,7 @@
                 "name": "E se eu quiser cancelar?",
                 "acceptedAnswer": {
                   "@type": "Answer",
-                  "text": "Cancela quando quiser, sem multa e sem aviso prévio. A renovação para de rolar no mesmo instante. Se pedir, a gente apaga todos os dados da clínica e dos pacientes."
+                  "text": "Cancela quando quiser, sem multa e sem aviso prévio. O cancelamento impede a próxima renovação, e o acesso continua até o fim do período pago. Após o encerramento, os dados operacionais ficam disponíveis por 30 dias para exportação e depois são eliminados. Registros fiscais e contábeis são retidos pelo prazo legal, conforme a Política de Privacidade."
                 }
               },
               {
@@ -537,6 +537,7 @@
         color: var(--accent-2);
       }
       a.logo {
+        min-height: 44px;
         text-decoration: none;
       }
       .topbar-left {
@@ -3150,7 +3151,7 @@
       }
       .cmp-head {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         background: var(--header-bg);
         font-size: 12px;
         font-weight: 700;
@@ -3168,10 +3169,12 @@
       }
       .cmp-row {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         border-top: 1px solid var(--line);
       }
       .cmp-row > div {
+        min-width: 0;
+        overflow-wrap: anywhere;
         padding: 16px 24px;
         font-size: 15px;
         display: flex;
@@ -3313,6 +3316,15 @@
         }
       }
       /* cards de especialidade com ícone */
+      .clinic-types {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 24px;
+      }
+      @media (max-width: 719px) {
+        .clinic-types { grid-template-columns: 1fr; }
+        .cmp-head > div, .cmp-row > div { padding: 14px 12px; }
+      }
       .type-card {
         background: var(--surface);
         border: 1px solid var(--line);
@@ -3478,6 +3490,9 @@
           height: 36px;
           font-size: 16px;
         }
+      }
+      #sobre p a, #faq p a, .guarantee-box p a, .about-facts a, .foot-legal a, .foot-top {
+        display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; max-width: 100%; overflow-wrap: anywhere;
       }
     </style>
     <link rel="stylesheet" href="/page-transition.css" />
@@ -4368,13 +4383,7 @@
               <span class="is-more">e qualquer outra</span>
             </div>
 
-            <div
-              style="
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 24px;
-              "
-            >
+            <div class="clinic-types">
               <div class="type-card">
                 <div class="type-card-icon">🩺</div>
                 <h3>Atendimento sem distrações</h3>
@@ -4533,7 +4542,7 @@
                       >
                         <path d="M20 6L9 17l-5-5" />
                       </svg>
-                      Sem compartilhar com terceiros
+                      Operadores do serviço
                     </div>
                   </div>
                 </div>
@@ -4541,9 +4550,9 @@
               <div class="text">
                 <h3>Meus dados e os dos pacientes estão seguros?</h3>
                 <p>
-                  Sim, seguimos a LGPD. Os dados ficam no seu ambiente, não são
-                  compartilhados com terceiros nem usados pra treinar modelo de
-                  terceiro.
+                  Os dados são tratados para o atendimento da sua clínica, com
+                  operadores necessários ao serviço e obrigações de segurança.
+                  Não vendemos esses dados nem os usamos para treinar modelos.
                 </p>
               </div>
             </div>
@@ -5303,11 +5312,12 @@
               <path d="m9 12 2 2 4-4" />
             </svg>
             <div>
-              <h3>Se não servir, some tudo</h3>
+              <h3>Cancelamento e dados, sem surpresa</h3>
               <p>
-                Desistiu? Você pede e a gente apaga os dados da clínica e as
-                conversas dos pacientes, sem pergunta e sem processo de
-                retenção. Cancelar é um clique e para a renovação na hora.
+                Cancelar impede a próxima renovação. Após o encerramento, os
+                dados operacionais ficam disponíveis por 30 dias para exportação
+                e depois são eliminados. Registros fiscais e contábeis seguem o
+                prazo legal, conforme a <a href="/privacidade">Política de Privacidade</a>.
               </p>
             </div>
           </div>
@@ -5356,11 +5366,11 @@
             <details>
               <summary>E a LGPD?</summary>
               <p>
-                Os dados dos pacientes são usados exclusivamente para o
-                atendimento da própria clínica. Ficam no ambiente da clínica,
-                não são compartilhados com terceiros e não são usados pra
-                treinar modelo de ninguém. A Recepta segue integralmente a Lei
-                Geral de Proteção de Dados.
+                Os dados dos pacientes são tratados para o atendimento da
+                própria clínica. Compartilhamos dados apenas com operadores
+                necessários ao serviço, sob obrigações de confidencialidade e
+                segurança, conforme a <a href="/privacidade">Política de Privacidade</a>.
+                Não vendemos esses dados nem os usamos para treinar modelos.
               </p>
             </details>
             <details>
@@ -5376,8 +5386,11 @@
               <summary>E se eu quiser cancelar?</summary>
               <p>
                 Cancela quando quiser, sem multa e sem aviso prévio. A
-                renovação para no mesmo instante. Se pedir, a gente apaga todos
-                os dados da clínica e dos pacientes.
+                próxima renovação é impedida, e o acesso continua até o fim do
+                período pago. Após o encerramento, os dados operacionais ficam
+                disponíveis por 30 dias para exportação e depois são eliminados.
+                Registros fiscais e contábeis seguem o prazo legal, conforme a
+                <a href="/privacidade">Política de Privacidade</a>.
               </p>
             </details>
             <details>
@@ -5416,10 +5429,10 @@
                 qualquer paciente.
               </p>
               <p>
-                Dado de paciente é assunto sério. Os dados ficam no ambiente da
-                sua clínica, seguem a LGPD, não são compartilhados com terceiros
-                e não são usados pra treinar modelo de ninguém. Está tudo
-                escrito na
+                Dado de paciente é assunto sério. Tratamos esses dados para o
+                atendimento da sua clínica, com operadores necessários ao serviço
+                e obrigações de confidencialidade e segurança. Não vendemos os
+                dados nem os usamos para treinar modelos. Está tudo escrito na
                 <a href="/privacidade">política de privacidade</a>, sem letra
                 miúda.
               </p>
@@ -5447,7 +5460,7 @@
               </div>
               <div class="af">
                 <dt>Compartilhamento</dt>
-                <dd>Nenhum, com ninguém</dd>
+                <dd>Operadores necessários ao serviço</dd>
               </div>
               <div class="af">
                 <dt>Documentos</dt>
@@ -5879,7 +5892,15 @@
           fechar.type = "button";
           fechar.textContent = "Dispensar aviso";
           fechar.setAttribute("aria-label", "Dispensar aviso de checkout cancelado");
-          fechar.addEventListener("click", function () { errBox.remove(); });
+          fechar.addEventListener("click", function () {
+            var restaurarFoco = errBox.contains(document.activeElement);
+            errBox.remove();
+            errBox = null;
+            if (restaurarFoco && toggle) {
+              var selecionado = toggle.querySelector('[aria-checked="true"]');
+              if (selecionado) selecionado.focus({ preventScroll: true });
+            }
+          });
           errBox.appendChild(fechar);
         }
 
