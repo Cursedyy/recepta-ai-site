@@ -208,11 +208,15 @@ Disallow: /clinica/
 Sitemap: https://www.receptaai.com.br/sitemap.xml
 ```
 
-As quatro áreas pedidas continuam fora do sitemap e bloqueadas no robots. Estado efetivo de indexação no Google/Search Console não confirmei: robots não prova desindexação.Tentativa de abrir https://search.google.com/test/rich-results?url=https%3A%2F%2Fwww.receptaai.com.br%2F pela ferramenta web: “Internal Error”, URL “is not safe to open (non-retryable error)”. Resultado Rich Results Google: **não confirmei**. JSON.parse válido não prova elegibilidade para rich snippets.
+As quatro áreas pedidas continuam fora do sitemap e bloqueadas no robots. Estado efetivo de indexação no Google/Search Console não confirmei: robots não prova desindexação.
+
+Tentativa de abrir https://search.google.com/test/rich-results?url=https%3A%2F%2Fwww.receptaai.com.br%2F pela ferramenta web: “Internal Error”, URL “is not safe to open (non-retryable error)”. Resultado Rich Results Google: **não confirmei**. JSON.parse válido não prova elegibilidade para rich snippets.
 
 ### Complemento de 2026-09-16 — validação no validator.schema.org
 
-O teste do Google segue inacessível sem sessão; como alternativa oficial, a home servida foi validada no https://validator.schema.org (UI operada via Playwright local, Chromium headless). Resultado real: **0 erros, 0 avisos**, com todas as entidades do `@graph` reconhecidas: Organization, WebSite, WebPage, FAQPage, SoftwareApplication+Service, Offer, MerchantReturnPolicy, Question, Answer, ImageObject. A conformidade com o vocabulário schema.org está confirmada; o que permanece **não confirmei** é apenas a elegibilidade de rich results no Google (ferramenta do Google, exige sessão deles).## Complementos executados em 2026-09-16 (pós-correções)
+O teste do Google segue inacessível sem sessão; como alternativa oficial, a home servida foi validada no https://validator.schema.org (UI operada via Playwright local, Chromium headless). Resultado real: **0 erros, 0 avisos**, com todas as entidades do `@graph` reconhecidas: Organization, WebSite, WebPage, FAQPage, SoftwareApplication+Service, Offer, MerchantReturnPolicy, Question, Answer, ImageObject. A conformidade com o vocabulário schema.org está confirmada; o que permanece **não confirmei** é apenas a elegibilidade de rich results no Google (ferramenta do Google, exige sessão deles).
+
+## Complementos executados em 2026-09-16 (pós-correções)
 
 Após as correções do relatório, a suíte completa foi reexecutada contra o servidor local (`npx serve src -p 3333`), sem acionar compra:
 
