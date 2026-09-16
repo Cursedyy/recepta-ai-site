@@ -31,21 +31,28 @@ Casa com a promessa da seção 10 da Política de Privacidade
 
 | Evento                    | Gatilho real                                                                       | Arquivo:linha                             | Corpo observado                                                     |
 | ------------------------- | ---------------------------------------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------- |
-| `visit` (legado)          | carregamento da landing                                                            | `src/index.html:5781`                     | `{"evento":"visit"}`                                                |
-| `cta_planos` (legado)     | 1º clique em `.pricing-card .btn` (dedup por `dataset.anCta`)                      | `src/index.html:5790`                     | `{"evento":"cta_planos"}`                                           |
-| `checkout_start` (legado) | clique no CTA de plano, **antes** do `fetch`                                       | `src/index.html:5797` (chamado em `5916`) | `{"evento":"checkout_start"}`                                       |
-| `ciclo_alterado`          | troca mensal↔anual no radiogroup, só quando o estado muda                          | `src/index.html:5858`                     | `{"evento":"ciclo_alterado","ciclo":"anual"}`                       |
-| `checkout_iniciado`       | resposta OK de `/api/checkout` com `url` (sessão Stripe criada), antes do redirect | `src/index.html:5931`                     | `{"evento":"checkout_iniciado","tier":"essencial","ciclo":"anual"}` |
-| `checkout_abandonado`     | retorno do Stripe em `/?c=abandonado#planos`                                       | `src/index.html:5876`                     | `{"evento":"checkout_abandonado","ciclo":"anual"}`                  |
-| `briefing_iniciado`       | 1º `input` no formulário (`{once:true}`), só com `?pedido=<uuid>` válido           | `src/briefing/index.html:1923`            | `{"evento":"briefing_iniciado"}`                                    |
-| `briefing_enviado`        | `/api/submit` respondeu OK e o JSON foi lido                                       | `src/briefing/index.html:2520`            | `{"evento":"briefing_enviado"}`                                     |
+| `visit` (legado)          | carregamento da landing                                                            | `src/index.html:5794`                     | `{"evento":"visit"}`                                                |
+| `cta_planos` (legado)     | 1º clique em `.pricing-card .btn` (dedup por `dataset.anCta`)                      | `src/index.html:5803`                     | `{"evento":"cta_planos"}`                                           |
+| `checkout_start` (legado) | clique no CTA de plano, **antes** do `fetch`                                       | `src/index.html:5810` (chamado em `5937`) | `{"evento":"checkout_start"}`                                       |
+| `ciclo_alterado`          | troca mensal↔anual no radiogroup, só quando o estado muda                          | `src/index.html:5871`                     | `{"evento":"ciclo_alterado","ciclo":"anual"}`                       |
+| `checkout_iniciado`       | resposta OK de `/api/checkout` com `url` (sessão Stripe criada), antes do redirect | `src/index.html:5952`                     | `{"evento":"checkout_iniciado","tier":"essencial","ciclo":"anual"}` |
+| `checkout_abandonado`     | retorno do Stripe em `/?c=abandonado#planos`                                       | `src/index.html:5889`                     | `{"evento":"checkout_abandonado","ciclo":"anual"}`                  |
+| `briefing_iniciado`       | 1º `input` no formulário (`{once:true}`), só com `?pedido=<uuid>` válido           | `src/briefing/index.html:1924`            | `{"evento":"briefing_iniciado"}`                                    |
+| `briefing_enviado`        | `/api/submit` respondeu OK e o JSON foi lido                                       | `src/briefing/index.html:2521`            | `{"evento":"briefing_enviado"}`                                     |
 | `whatsapp_conectado`      | polling autenticado detecta a transição desconectado→conectado                     | `src/clinica/painel.js:2164`              | `{"evento":"whatsapp_conectado"}`                                   |
 | `reembolso_solicitado`    | `/api/clinica/painel-acoes` devolveu `ok` **com** `registrado_em`                  | `src/clinica/painel.js:1413`              | `{"evento":"reembolso_solicitado"}`                                 |
+
+As linhas acima valem para o worktree de 2026-09-15 e **andam**: outra frente
+estava editando `src/index.html` e `src/briefing/index.html` em paralelo nesta
+mesma tarde e já deslocou todas em ~13 linhas sem tocar em nenhuma emissão.
+Para reancorar: `grep -n 'receptaAnalytics("' src/index.html
+src/briefing/index.html src/clinica/painel.js` mais
+`grep -n '__anCheckout\|an("' src/index.html`.
 
 ### Por que `checkout_iniciado` fica depois do `fetch`
 
 A instrução original pedia "antes do fetch". Antes do `fetch` já existe
-`checkout_start` (`5797`), que não pode quebrar. Emitir os dois no mesmo ponto
+`checkout_start` (`5810`), que não pode quebrar. Emitir os dois no mesmo ponto
 criaria dois contadores idênticos e jogaria fora um sinal. Do jeito que está:
 
 - `checkout_start` = cliques no CTA (tentativas)
