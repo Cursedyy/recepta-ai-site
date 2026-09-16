@@ -1364,11 +1364,20 @@ function linhaDetalhe(rotulo, valor, alerta) {
         .then(function (res) {
           if (res.ok && res.url) window.location.href = res.url;
           else {
+            // 503/502 trazem `detalhe` com a mensagem amigável da API
+            // (mesmo padrão do fluxo de reembolso: alert com fallback).
+            window.alert(
+              (res && res.detalhe) ||
+                "Não conseguimos abrir o gerenciamento agora. Tente novamente em instantes.",
+            );
             btn.disabled = false;
             btn.textContent = "Gerenciar assinatura";
           }
         })
         .catch(function () {
+          window.alert(
+            "Não conseguimos abrir o gerenciamento agora. Tente novamente em instantes.",
+          );
           btn.disabled = false;
           btn.textContent = "Gerenciar assinatura";
         });

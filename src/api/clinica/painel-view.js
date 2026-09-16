@@ -651,7 +651,7 @@ window.__PAINEL__ = {
      inputs date/time nativos entregam exatamente o mesmo valor que o
      flatpickr entregava. Nao reintroduzir sem antes abrir o CSP. -->
 <script src="/analytics.js?v=20260915-f2"></script>
-<script src="/clinica/painel.js?v=20260915-f2"></script>
+<script src="/clinica/painel.js?v=20260916-portal-alert"></script>
 <link rel="stylesheet" href="/page-transition.css" />
 <link rel="stylesheet" href="/loading-screen.css" />
 <script src="/page-transition.js"></script>
