@@ -8,8 +8,10 @@ que cada um sai do ponto certo, com o corpo certo.
 esta verificação começou — entraram no commit `8967571`
 ("fix: unblock briefing submission and complete anonymous funnel tracking").
 Nenhuma linha de emissão precisou ser escrita aqui. O que faltava era a prova
-de navegador dos dois eventos do painel e este documento. Nenhum arquivo de
-produto foi alterado nesta passagem.
+de navegador dos dois eventos do painel e este documento. **Nenhum arquivo de
+produto foi alterado nesta passagem** — a única mudança de código é uma
+assertion de teste que a própria instrumentação tinha deixado quebrada (ver
+"Regressão de teste" no fim).
 
 ## Contrato (não mudou)
 
@@ -52,8 +54,16 @@ criaria dois contadores idênticos e jogaria fora um sinal. Do jeito que está:
 - `checkout_abandonado` = voltou do Stripe sem pagar
 
 Sem essa separação não dá para distinguir "a API do checkout quebrou" de
-"o cliente desistiu". Decisão registrada aqui de propósito, porque diverge da
-letra da instrução.
+"o cliente desistiu". E a taxa de abandono só é exata com `checkout_iniciado`
+contando sessões criadas: medindo cliques, toda falha de `/api/checkout` entra
+na conta como se fosse desistência do cliente.
+
+**Decisão fechada, não pendência.** A instrução original mandava avaliar se
+`checkout_iniciado` substituiria `checkout_start` ou conviveria com ele — a
+avaliação é esta, e a resposta é conviver. Não existe arranjo que satisfaça a
+letra ("antes do fetch") sem perder o sinal de sessão criada: o terceiro evento
+que resolveria isso não pode ser inventado, porque a allowlist de
+`src/api/an.js` recusa evento fora da lista. Fica como está.
 
 ## Provas executadas
 
@@ -68,10 +78,15 @@ beacon real contaminaria o contador do dia.
 | Navegador — painel             | harness no scratchpad (ver abaixo)                                             | PASS                                                                                 |
 | Acessibilidade                 | `cd src && node test-accessibility.mjs`                                        | 16/16 PASS, 0 critical/serious/moderate/minor                                        |
 | Âncoras                        | `cd src && node check-ancoras.mjs`                                             | PASS nos 3 caminhos (Lenis, reduced-motion, CDN fora), folgas 11–12px, variação ≤1px |
+| Painel (script)                | `cd src && node test-painel-script.mjs`                                        | 10/10 ok apos o fix da assertion de versao                                           |
 
-Os dois scripts em `src/` **só funcionam com `cwd = src/`** (`check-ancoras.mjs`
-usa `process.cwd()` como raiz do servidor estático e `axe-core` vive em
-`src/node_modules`). Rodar da raiz dá erro de ambiente, não regressão.
+`check-ancoras.mjs` e `test-accessibility.mjs` **só funcionam com `cwd = src/`**:
+o primeiro usa `process.cwd()` como raiz do servidor estático, o segundo procura
+`axe-core` em `node_modules` relativo ao cwd — e o pacote vive em
+`src/node_modules`. Rodar da raiz dá timeout de locator e 16 erros de axe: é
+erro de ambiente, não regressão. Rodar da raiz também deixa lixo em
+`screenshots/a11y/` na raiz do repo (que, ao contrário de `src/screenshots/`,
+não está no `.gitignore`).
 
 ### Corpos capturados — landing e briefing
 
@@ -125,23 +140,30 @@ O que ele prova, além do corpo:
 O harness vive no scratchpad da sessão (`prova-painel-eventos.mjs`), não no
 repo: `scripts/` é frente de outro agente nesta rodada.
 
-## Achado que NÃO foi corrigido (fora da lista de arquivos desta frente)
+## Regressão de teste encontrada e corrigida
 
-`src/test-painel-script.mjs` **está falhando**:
+`src/test-painel-script.mjs` estava falhando:
 
 ```
 FALHA HTML carrega /clinica/painel.js
 1 falha(s). O painel da clinica nao roda no browser.
 ```
 
-Causa verificada: o teste afirma a tag literal
+Causa verificada: o teste afirmava a tag **literal**
 `<script src="/clinica/painel.js?v=20260910-tabler"></script>`, mas o commit
-`8967571` (o da instrumentação) subiu a query para `?v=20260915-f2`
-(`src/api/clinica/painel-view.js:654`). É assertion velha, não painel quebrado —
-o harness de navegador acima carrega o painel real e renderiza tudo sem um único
-erro de JS. Correção de uma linha: afirmar por regex
-(`/clinica\/painel\.js\?v=/`) em vez do literal. Não aplicada porque
-`src/test-painel-script.mjs` está fora dos arquivos desta frente.
+`8967571` (o da instrumentação) subiu a query de cache-busting para
+`?v=20260915-f2` (`src/api/clinica/painel-view.js:654`). Assertion velha, não
+painel quebrado — o harness de navegador acima carrega o painel real e renderiza
+tudo sem um único erro de JS.
+
+Corrigido afirmando por regex (`/<script src="\/clinica\/painel\.js\?v=[^"]+"><\/script>/`)
+em vez do literal: fixar a versão transforma todo deploy normal do painel em
+falha de teste. A regex continua pegando o que o teste existe para pegar —
+verificado caso a caso: tag removida, tag sem query de versão, caminho errado e
+a armadilha histórica do `\n` literal partindo a tag ao meio (o bug que matou o
+painel duas vezes, `177b850` e `29eaf81`) reprovam todos.
+
+Depois do fix: **10/10 ok, `painel da clinica: JavaScript valido.`**
 
 ## Não confirmei
 

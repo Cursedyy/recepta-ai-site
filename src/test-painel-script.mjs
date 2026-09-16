@@ -103,11 +103,14 @@ try {
     codigo.includes("window.__PAINEL__"),
   );
 
+  // A query `?v=` e' cache-busting: ela MUDA a cada deploy que mexe no
+  // painel.js (ja quebrou este teste uma vez, quando a F2 de analytics subiu
+  // de `20260910-tabler` para `20260915-f2`). O que precisa ser verdade e' que
+  // a tag exista e carregue o arquivo externo com ALGUMA versao — fixar o
+  // literal so transforma deploy normal em falha de teste.
   checar(
-    html.includes(
-      '<script src="/clinica/painel.js?v=20260910-tabler"></script>',
-    ),
-    "HTML carrega /clinica/painel.js",
+    /<script src="\/clinica\/painel\.js\?v=[^"]+"><\/script>/.test(html),
+    "HTML carrega /clinica/painel.js com query de versao",
   );
   checar(scriptDados !== undefined, "script inline define window.__PAINEL__");
   // O cliente le os dados por window.__PAINEL__: se o painel-view parar de
