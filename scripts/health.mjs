@@ -214,7 +214,15 @@ async function checkUazapi() {
       row("UazAPI: lixo zz-teste-*", "ERRO", "não foi possível listar instâncias");
       return;
     }
-    const total = body.length;
+    // Contar só instâncias Recepta contra o limite: o n8n é compartilhado com
+    // o produto ZapScout, cujas instâncias zapscout_* não são geridas por este
+    // repo (decisão do dono em 2026-09-16). Deletar instância conectada de
+    // outro produto quebraria o Process Campaigns lá.
+    const recepta = body.filter((i) => {
+      const name = i.name || i.instanceName || i.instance_name || "";
+      return !String(name).toLowerCase().startsWith("zapscout");
+    });
+    const total = recepta.length;
     const vagas = UAZAPI_LIMIT - total;
     const nomes = body.map((i) => i.name || i.instanceName || i.instance_name || "?");
     const teste = body.filter((i) => {
@@ -224,7 +232,7 @@ async function checkUazapi() {
     row(
       "UazAPI: instâncias",
       total > UAZAPI_LIMIT ? "ERRO" : "OK",
-      `${total}/${UAZAPI_LIMIT} em uso [${nomes.join(", ")}]`,
+      `${total}/${UAZAPI_LIMIT} Recepta em uso (${body.length} na conta, incluindo zapscout_*) [${nomes.join(", ")}]`,
     );
 
     // Instância de alertas admin: o n8n envia por ela TODOS os avisos e o
