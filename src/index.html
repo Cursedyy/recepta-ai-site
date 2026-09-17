@@ -5669,6 +5669,7 @@
       (function () {
         var track = document.querySelector(".hero-slide");
         var handle = document.querySelector(".hero-slide-handle");
+        var reveal = document.querySelector(".hero-slide-reveal");
         if (!track || !handle) return;
 
         var reduceMotion = window.matchMedia(
@@ -5690,7 +5691,9 @@
         var originHandleX = 0;
 
         var handleWidth = handle.offsetWidth;
-        var maxTravel = 79;
+        // largura real do texto revelado + folga, pra nao cortar a ultima
+        // letra (79px fixo cortava o "r" de "servir" — bug visto em prod).
+        var maxTravel = reveal ? Math.max(79, reveal.scrollWidth + 10) : 79;
         track.style.width = handleWidth + "px";
 
         function setPosition(x, animate) {
