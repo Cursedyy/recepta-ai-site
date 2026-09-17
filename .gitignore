@@ -13,6 +13,8 @@ node_modules
 .agentsroom/handoff-transcript-*.txt
 .agentsroom/handoff-summary-*.md
 .agentsroom/fork-context-*.txt
+.agentsroom/checkout-url-ativo.txt
+.agentsroom/session-note-tmp.txt
 
 # ---------------------------------------------------------------------------
 # Rascunho de agente. NAO e fonte: scripts de uma sessao so, backups de
