@@ -110,9 +110,7 @@
               "@type": "ContactPoint",
               "contactType": "customer support",
               "email": "contato@receptaai.com.br",
-              "availableLanguage": [
-                "Portuguese"
-              ],
+              "availableLanguage": ["Portuguese"],
               "areaServed": "BR"
             }
           },
@@ -148,10 +146,7 @@
             "inLanguage": "pt-BR"
           },
           {
-            "@type": [
-              "SoftwareApplication",
-              "Service"
-            ],
+            "@type": ["SoftwareApplication", "Service"],
             "@id": "https://www.receptaai.com.br/#software",
             "name": "Recepta AI",
             "applicationCategory": "BusinessApplication",
@@ -3175,6 +3170,7 @@
       .cmp-row > div {
         min-width: 0;
         overflow-wrap: anywhere;
+        hyphens: auto;
         padding: 16px 24px;
         font-size: 15px;
         display: flex;
@@ -3322,8 +3318,16 @@
         gap: 24px;
       }
       @media (max-width: 719px) {
-        .clinic-types { grid-template-columns: 1fr; }
-        .cmp-head > div, .cmp-row > div { padding: 14px 12px; }
+        .clinic-types {
+          grid-template-columns: 1fr;
+        }
+        .cmp-head > div,
+        .cmp-row > div {
+          padding: 14px 12px;
+        }
+        .cmp-row > div {
+          font-size: 13.5px;
+        }
       }
       .type-card {
         background: var(--surface);
@@ -3390,6 +3394,18 @@
         line-height: 1.6;
       }
       /* mockup do whatsapp na seção recursos */
+      .recursos-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 48px;
+        align-items: center;
+      }
+      @media (max-width: 719px) {
+        .recursos-grid {
+          grid-template-columns: 1fr;
+          gap: 32px;
+        }
+      }
       .wa-mock {
         background: #e5ddd5;
         border-radius: 20px;
@@ -3474,14 +3490,6 @@
           flex-direction: column;
           gap: 12px;
         }
-        /* grids inline das seções */
-        #recursos [style*="grid-template-columns:1fr 1fr"] {
-          grid-template-columns: 1fr !important;
-          gap: 32px !important;
-        }
-        #clinica [style*="grid-template-columns:repeat(3,1fr)"] {
-          grid-template-columns: 1fr !important;
-        }
         .feat-item {
           gap: 12px;
         }
@@ -3491,8 +3499,18 @@
           font-size: 16px;
         }
       }
-      #sobre p a, #faq p a, .guarantee-box p a, .about-facts a, .foot-legal a, .foot-top {
-        display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; max-width: 100%; overflow-wrap: anywhere;
+      #sobre p a,
+      #faq p a,
+      .guarantee-box p a,
+      .about-facts a,
+      .foot-legal a,
+      .foot-top {
+        display: inline-flex;
+        align-items: center;
+        min-height: 44px;
+        min-width: 44px;
+        max-width: 100%;
+        overflow-wrap: anywhere;
       }
     </style>
     <link rel="stylesheet" href="/page-transition.css" />
@@ -3696,7 +3714,7 @@
                 Recepta AI
               </span>
               <div class="hero-slide" aria-hidden="true">
-                <span class="hero-slide-reveal">garantia de 7 dias</span>
+                <span class="hero-slide-reveal">se não servir</span>
                 <div class="hero-slide-handle">
                   devolvemos 100%
                   <svg
@@ -3743,7 +3761,8 @@
               </a>
             </div>
             <p class="hero-note">
-              Pagamento antecipado com Garantia Recepta: se não servir em 7 dias, devolvemos 100%.
+              Pagamento antecipado com Garantia Recepta: se não servir em 7
+              dias, devolvemos 100%.
             </p>
           </div>
           <div class="demo-stage" aria-hidden="true">
@@ -4051,14 +4070,7 @@
               <h2>O que a secretária virtual com IA faz pela sua recepção</h2>
             </div>
 
-            <div
-              style="
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 48px;
-                align-items: center;
-              "
-            >
+            <div class="recursos-grid">
               <!-- Features -->
               <div class="feat-list">
                 <div class="feat-item">
@@ -4347,9 +4359,7 @@
               </div>
             </div>
             <div class="sec-cta">
-              <a href="#planos" class="btn btn-primary"
-                >Ver planos e começar</a
-              >
+              <a href="#planos" class="btn btn-primary">Ver planos e começar</a>
             </div>
           </div>
         </section>
@@ -4409,7 +4419,6 @@
                 </p>
               </div>
             </div>
-
           </div>
         </section>
       </div>
@@ -4558,7 +4567,9 @@
             </div>
 
             <div class="cta-wrap">
-              <a href="#planos" class="cta-btn">Assinar com garantia de 7 dias</a>
+              <a href="#planos" class="cta-btn"
+                >Assinar com garantia de 7 dias</a
+              >
             </div>
           </div>
         </div>
@@ -4878,7 +4889,11 @@
                       Economize R$ 1.800/ano
                     </span>
                   </div>
-                  <div class="pricing-price" aria-live="polite" aria-atomic="true">
+                  <div
+                    class="pricing-price"
+                    aria-live="polite"
+                    aria-atomic="true"
+                  >
                     <span class="amount">R$ 497</span>
                     <span class="period">/mês</span>
                   </div>
@@ -5052,7 +5067,10 @@
                       Uma agenda
                     </li>
                   </ul>
-                  <div class="pricing-checkout-summary" aria-live="polite"></div>
+                  <div
+                    class="pricing-checkout-summary"
+                    aria-live="polite"
+                  ></div>
                   <a href="#" class="btn btn-secondary">
                     Começar com o Essencial
                   </a>
@@ -5060,7 +5078,11 @@
               </div>
 
               <!-- COMPLETO -- Destaque -->
-              <div class="pricing-card featured" id="completo" data-tier="completo">
+              <div
+                class="pricing-card featured"
+                id="completo"
+                data-tier="completo"
+              >
                 <div class="pricing-card-bar" aria-hidden="true"></div>
                 <div class="pricing-card-body">
                   <div class="pricing-card-header">
@@ -5080,7 +5102,11 @@
                       Economize R$ 3.600/ano
                     </span>
                   </div>
-                  <div class="pricing-price" aria-live="polite" aria-atomic="true">
+                  <div
+                    class="pricing-price"
+                    aria-live="polite"
+                    aria-atomic="true"
+                  >
                     <span class="amount">R$ 997</span>
                     <span class="period">/mês</span>
                   </div>
@@ -5222,7 +5248,10 @@
                       Até 5 profissionais, cada um com a sua agenda
                     </li>
                   </ul>
-                  <div class="pricing-checkout-summary" aria-live="polite"></div>
+                  <div
+                    class="pricing-checkout-summary"
+                    aria-live="polite"
+                  ></div>
                   <a href="#" class="btn btn-primary">
                     Começar com o Completo
                   </a>
@@ -5234,7 +5263,9 @@
           <noscript>
             <p class="pricing-noscript">
               Para contratar, ative o JavaScript ou escreva para
-              <a href="mailto:contato@receptaai.com.br">contato@receptaai.com.br</a>.
+              <a href="mailto:contato@receptaai.com.br"
+                >contato@receptaai.com.br</a
+              >.
             </p>
           </noscript>
 
@@ -5282,7 +5313,9 @@
             </div>
             <div class="gb">
               <span class="gb-n">7 dias</span>
-              <span class="gb-l">De garantia: devolvemos 100% do valor pago</span>
+              <span class="gb-l"
+                >De garantia: devolvemos 100% do valor pago</span
+              >
             </div>
             <div class="gb">
               <span class="gb-n">R$ 0</span>
@@ -5317,7 +5350,8 @@
                 Cancelar impede a próxima renovação. Após o encerramento, os
                 dados operacionais ficam disponíveis por 30 dias para exportação
                 e depois são eliminados. Registros fiscais e contábeis seguem o
-                prazo legal, conforme a <a href="/privacidade">Política de Privacidade</a>.
+                prazo legal, conforme a
+                <a href="/privacidade">Política de Privacidade</a>.
               </p>
             </div>
           </div>
@@ -5369,8 +5403,9 @@
                 Os dados dos pacientes são tratados para o atendimento da
                 própria clínica. Compartilhamos dados apenas com operadores
                 necessários ao serviço, sob obrigações de confidencialidade e
-                segurança, conforme a <a href="/privacidade">Política de Privacidade</a>.
-                Não vendemos esses dados nem os usamos para treinar modelos.
+                segurança, conforme a
+                <a href="/privacidade">Política de Privacidade</a>. Não vendemos
+                esses dados nem os usamos para treinar modelos.
               </p>
             </details>
             <details>
@@ -5385,9 +5420,9 @@
             <details>
               <summary>E se eu quiser cancelar?</summary>
               <p>
-                Cancela quando quiser, sem multa e sem aviso prévio. A
-                próxima renovação é impedida, e o acesso continua até o fim do
-                período pago. Após o encerramento, os dados operacionais ficam
+                Cancela quando quiser, sem multa e sem aviso prévio. A próxima
+                renovação é impedida, e o acesso continua até o fim do período
+                pago. Após o encerramento, os dados operacionais ficam
                 disponíveis por 30 dias para exportação e depois são eliminados.
                 Registros fiscais e contábeis seguem o prazo legal, conforme a
                 <a href="/privacidade">Política de Privacidade</a>.
@@ -5398,9 +5433,9 @@
               <p>
                 Os 7 dias começam quando o WhatsApp da clínica conecta e a IA
                 começa a atender. Se nesse período a Recepta não servir para a
-                sua clínica, é só pedir o reembolso pelo painel: devolvemos
-                100% do valor pago. Quem ainda não ativou tem até 30 dias
-                depois do pagamento para ativar e usar a garantia.
+                sua clínica, é só pedir o reembolso pelo painel: devolvemos 100%
+                do valor pago. Quem ainda não ativou tem até 30 dias depois do
+                pagamento para ativar e usar a garantia.
               </p>
             </details>
           </div>
@@ -5430,9 +5465,10 @@
               </p>
               <p>
                 Dado de paciente é assunto sério. Tratamos esses dados para o
-                atendimento da sua clínica, com operadores necessários ao serviço
-                e obrigações de confidencialidade e segurança. Não vendemos os
-                dados nem os usamos para treinar modelos. Está tudo escrito na
+                atendimento da sua clínica, com operadores necessários ao
+                serviço e obrigações de confidencialidade e segurança. Não
+                vendemos os dados nem os usamos para treinar modelos. Está tudo
+                escrito na
                 <a href="/privacidade">política de privacidade</a>, sem letra
                 miúda.
               </p>
@@ -5825,12 +5861,32 @@
         } catch (e) {}
         var PRECOS = {
           essencial: {
-            mensal: { valor: "R$ 497", periodo: "/mês", nota: "cobrado hoje e renovado mensalmente", total: "R$ 497 hoje" },
-            anual: { valor: "R$ 4.164", periodo: "/ano", nota: "equivale a R$ 347/mês · economize R$ 1.800", total: "R$ 4.164 hoje" },
+            mensal: {
+              valor: "R$ 497",
+              periodo: "/mês",
+              nota: "cobrado hoje e renovado mensalmente",
+              total: "R$ 497 hoje",
+            },
+            anual: {
+              valor: "R$ 4.164",
+              periodo: "/ano",
+              nota: "equivale a R$ 347/mês · economize R$ 1.800",
+              total: "R$ 4.164 hoje",
+            },
           },
           completo: {
-            mensal: { valor: "R$ 997", periodo: "/mês", nota: "cobrado hoje e renovado mensalmente", total: "R$ 997 hoje" },
-            anual: { valor: "R$ 8.364", periodo: "/ano", nota: "equivale a R$ 697/mês · economize R$ 3.600", total: "R$ 8.364 hoje" },
+            mensal: {
+              valor: "R$ 997",
+              periodo: "/mês",
+              nota: "cobrado hoje e renovado mensalmente",
+              total: "R$ 997 hoje",
+            },
+            anual: {
+              valor: "R$ 8.364",
+              periodo: "/ano",
+              nota: "equivale a R$ 697/mês · economize R$ 3.600",
+              total: "R$ 8.364 hoje",
+            },
           },
         };
 
@@ -5848,10 +5904,15 @@
             if (period) period.textContent = d.periodo;
             if (nota) nota.textContent = d.nota;
             if (alt) alt.hidden = estado === "anual";
-            if (resumo) resumo.innerHTML =
-              "<strong>Você paga " + d.total + ".</strong>" +
-              (estado === "anual" ? "Próxima renovação anual pelo mesmo total." : "Próxima renovação em um mês pelo mesmo valor.") +
-              " Cancele quando quiser, sem multa. Garantia de 7 dias para pedir reembolso integral.";
+            if (resumo)
+              resumo.innerHTML =
+                "<strong>Você paga " +
+                d.total +
+                ".</strong>" +
+                (estado === "anual"
+                  ? "Próxima renovação anual pelo mesmo total."
+                  : "Próxima renovação em um mês pelo mesmo valor.") +
+                " Cancele quando quiser, sem multa. Garantia de 7 dias para pedir reembolso integral.";
           });
           if (toggle) {
             toggle.querySelectorAll(".pt-opt").forEach(function (b) {
@@ -5861,14 +5922,17 @@
               b.tabIndex = on ? 0 : -1;
             });
           }
-          try { sessionStorage.setItem("recepta_checkout_ciclo", estado); } catch (e) {}
+          try {
+            sessionStorage.setItem("recepta_checkout_ciclo", estado);
+          } catch (e) {}
         }
 
         function selecionar(botao, focar) {
           if (!botao) return;
           var anterior = estado;
           estado = botao.getAttribute("data-ciclo");
-          if (anterior !== estado && window.receptaAnalytics) window.receptaAnalytics("ciclo_alterado", { ciclo: estado });
+          if (anterior !== estado && window.receptaAnalytics)
+            window.receptaAnalytics("ciclo_alterado", { ciclo: estado });
           aplicar();
           if (focar) botao.focus();
         }
@@ -5885,13 +5949,21 @@
           errBox.classList.add("is-vis");
         }
 
-        if (new URLSearchParams(window.location.search).get("c") === "abandonado") {
-          if (window.receptaAnalytics) window.receptaAnalytics("checkout_abandonado", { ciclo: estado });
-          mostrarErro("Checkout cancelado. Sua escolha foi preservada nesta aba. ");
+        if (
+          new URLSearchParams(window.location.search).get("c") === "abandonado"
+        ) {
+          if (window.receptaAnalytics)
+            window.receptaAnalytics("checkout_abandonado", { ciclo: estado });
+          mostrarErro(
+            "Checkout cancelado. Sua escolha foi preservada nesta aba. ",
+          );
           var fechar = document.createElement("button");
           fechar.type = "button";
           fechar.textContent = "Dispensar aviso";
-          fechar.setAttribute("aria-label", "Dispensar aviso de checkout cancelado");
+          fechar.setAttribute(
+            "aria-label",
+            "Dispensar aviso de checkout cancelado",
+          );
           fechar.addEventListener("click", function () {
             var restaurarFoco = errBox.contains(document.activeElement);
             errBox.remove();
@@ -5911,12 +5983,16 @@
             selecionar(b, false);
           });
           toggle.addEventListener("keydown", function (e) {
-            var opcoes = Array.prototype.slice.call(toggle.querySelectorAll(".pt-opt"));
+            var opcoes = Array.prototype.slice.call(
+              toggle.querySelectorAll(".pt-opt"),
+            );
             var atual = opcoes.indexOf(document.activeElement);
             if (atual < 0) return;
             var proximo = atual;
-            if (e.key === "ArrowRight" || e.key === "ArrowDown") proximo = (atual + 1) % opcoes.length;
-            else if (e.key === "ArrowLeft" || e.key === "ArrowUp") proximo = (atual - 1 + opcoes.length) % opcoes.length;
+            if (e.key === "ArrowRight" || e.key === "ArrowDown")
+              proximo = (atual + 1) % opcoes.length;
+            else if (e.key === "ArrowLeft" || e.key === "ArrowUp")
+              proximo = (atual - 1 + opcoes.length) % opcoes.length;
             else if (e.key === "Home") proximo = 0;
             else if (e.key === "End") proximo = opcoes.length - 1;
             else return;
@@ -5934,7 +6010,8 @@
             ev.preventDefault();
             if (btn.disabled) return;
             var checkoutCiclo = estado;
-            if (typeof window.__anCheckout === "function") window.__anCheckout();
+            if (typeof window.__anCheckout === "function")
+              window.__anCheckout();
             btn.disabled = true;
             var original = btn.textContent;
             btn.textContent = "Abrindo checkout…";
@@ -5949,11 +6026,21 @@
               })
               .then(function (j) {
                 if (!j || !j.url) throw new Error("sem url");
-                if (window.receptaAnalytics) window.receptaAnalytics("checkout_iniciado", { tier: tier, ciclo: checkoutCiclo });
+                if (window.receptaAnalytics)
+                  window.receptaAnalytics("checkout_iniciado", {
+                    tier: tier,
+                    ciclo: checkoutCiclo,
+                  });
                 try {
-                  sessionStorage.setItem("recepta_pedido_id", j.pedido_id || "");
+                  sessionStorage.setItem(
+                    "recepta_pedido_id",
+                    j.pedido_id || "",
+                  );
                   sessionStorage.setItem("recepta_checkout_tier", tier);
-                  sessionStorage.setItem("recepta_checkout_ciclo", checkoutCiclo);
+                  sessionStorage.setItem(
+                    "recepta_checkout_ciclo",
+                    checkoutCiclo,
+                  );
                 } catch (e) {}
                 window.location.href = j.url;
               })
@@ -5968,10 +6055,7 @@
         });
       })();
     </script>
-    <script
-      src="/vendor/lenis-1.3.26.min.js"
-      defer
-    ></script>
+    <script src="/vendor/lenis-1.3.26.min.js" defer></script>
     <script src="/smooth-scroll.js" defer></script>
   </body>
 </html>
