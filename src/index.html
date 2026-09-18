@@ -927,73 +927,28 @@
         height: 15px;
         flex-shrink: 0;
       }
-      .hero-slide {
-        position: relative;
-        width: 115px;
-        height: 30px;
-        border-radius: 99px;
-        overflow: hidden;
-        background: rgba(21, 23, 73, 0.55);
-        flex-shrink: 0;
-      }
-      .hero-slide-reveal {
-        position: absolute;
-        inset: 0;
-        display: flex;
-        align-items: center;
-        padding-left: 14px;
-        font-size: 10.5px;
-        font-weight: 600;
-        color: rgba(255, 255, 255, 0.85);
-        white-space: nowrap;
-        pointer-events: none;
-      }
-      .hero-slide-handle {
-        position: absolute;
-        top: 0;
-        left: 0;
-        height: 100%;
+      .hero-badge-guarantee {
         display: inline-flex;
         align-items: center;
-        justify-content: center;
         gap: 6px;
+        flex-shrink: 0;
+        white-space: nowrap;
         background: #fff;
         color: var(--accent);
         font-family: inherit;
-        font-weight: 600;
-        font-size: clamp(10.5px, 2.6vw, 12.5px);
-        padding: 0 11px;
+        font-weight: 500;
+        font-size: clamp(11px, 2.8vw, 12.5px);
+        padding: 6px 14px 6px 11px;
         border-radius: 99px;
         border: 1px solid rgba(38, 32, 92, 0.12);
-        white-space: nowrap;
-        cursor: grab;
-        touch-action: pan-y;
-        user-select: none;
-        -webkit-user-select: none;
       }
-      .hero-slide-handle:active {
-        cursor: grabbing;
+      .hero-badge-guarantee strong {
+        font-weight: 700;
       }
-      .hero-slide-chevron {
-        width: 13px;
-        height: 13px;
+      .hero-badge-shield {
+        width: 14px;
+        height: 14px;
         flex-shrink: 0;
-      }
-      @media (prefers-reduced-motion: no-preference) {
-        .hero-slide-chevron {
-          animation: chevronHint 1.6s ease-in-out infinite;
-        }
-      }
-      @keyframes chevronHint {
-        0%,
-        100% {
-          transform: translateX(0);
-          opacity: 0.7;
-        }
-        50% {
-          transform: translateX(4px);
-          opacity: 1;
-        }
       }
       .hero h1 {
         font-size: clamp(28px, 5.5vw, 48px);
@@ -3713,24 +3668,24 @@
                 </svg>
                 Recepta AI
               </span>
-              <div class="hero-slide" aria-hidden="true">
-                <span class="hero-slide-reveal">se não servir</span>
-                <div class="hero-slide-handle">
-                  devolvemos 100%
-                  <svg
-                    class="hero-slide-chevron"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    aria-hidden="true"
-                  >
-                    <polyline points="9 6 15 12 9 18" />
-                  </svg>
-                </div>
-              </div>
+              <span class="hero-badge-guarantee">
+                <svg
+                  class="hero-badge-shield"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M12 3l7 3v5c0 4.5-3 7.7-7 9-4-1.3-7-4.5-7-9V6l7-3z"
+                  />
+                  <path d="M9 12l2 2 4-4" />
+                </svg>
+                <strong>7 dias</strong>&nbsp;de garantia
+              </span>
             </div>
             <h1>
               A secretária virtual com IA que responde todo WhatsApp da sua
@@ -5663,113 +5618,6 @@
         );
         alvos.forEach(function (el) {
           observer.observe(el);
-        });
-      })();
-
-      (function () {
-        var track = document.querySelector(".hero-slide");
-        var handle = document.querySelector(".hero-slide-handle");
-        var reveal = document.querySelector(".hero-slide-reveal");
-        if (!track || !handle) return;
-
-        var reduceMotion = window.matchMedia(
-          "(prefers-reduced-motion: reduce)",
-        ).matches;
-
-        if (reduceMotion) {
-          return;
-        }
-
-        var maxX = 0;
-        var currentX = 0;
-        var dragging = false;
-        var decided = false;
-        var horizontalDrag = false;
-        var pointerId = null;
-        var originClientX = 0;
-        var originClientY = 0;
-        var originHandleX = 0;
-
-        var handleWidth = handle.offsetWidth;
-        // largura real do texto revelado + folga, pra nao cortar a ultima
-        // letra (79px fixo cortava o "r" de "servir" — bug visto em prod).
-        var maxTravel = reveal ? Math.max(79, reveal.scrollWidth + 10) : 79;
-        track.style.width = handleWidth + "px";
-
-        function setPosition(x, animate) {
-          x = Math.max(0, Math.min(maxX, x));
-          currentX = x;
-          var easing = animate
-            ? "0.4s cubic-bezier(0.34, 1.56, 0.64, 1)"
-            : "none";
-          handle.style.transition = animate ? "transform " + easing : "none";
-          handle.style.transform = "translateX(" + x + "px)";
-          track.style.transition = animate ? "width " + easing : "none";
-          track.style.width = handleWidth + x + "px";
-        }
-
-        function onPointerDown(e) {
-          if (e.pointerType === "mouse" && e.button !== 0) return;
-          pointerId = e.pointerId;
-          originClientX = e.clientX;
-          originClientY = e.clientY;
-          originHandleX = currentX;
-          decided = false;
-          horizontalDrag = false;
-          dragging = true;
-          maxX = maxTravel;
-        }
-
-        function onPointerMove(e) {
-          if (!dragging || e.pointerId !== pointerId) return;
-          var dx = e.clientX - originClientX;
-          var dy = e.clientY - originClientY;
-
-          if (!decided) {
-            if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
-            decided = true;
-            horizontalDrag = Math.abs(dx) > Math.abs(dy);
-            if (horizontalDrag) {
-              try {
-                handle.setPointerCapture(pointerId);
-              } catch (err) {}
-            } else {
-              dragging = false;
-              return;
-            }
-          }
-
-          if (!horizontalDrag) return;
-          e.preventDefault();
-          setPosition(originHandleX + dx, false);
-        }
-
-        function onPointerUp(e) {
-          if (!dragging || e.pointerId !== pointerId) return;
-          dragging = false;
-          if (!horizontalDrag) return;
-          try {
-            if (handle.hasPointerCapture(pointerId)) {
-              handle.releasePointerCapture(pointerId);
-            }
-          } catch (err) {}
-          setPosition(0, true);
-        }
-
-        function onPointerCancel() {
-          dragging = false;
-          if (horizontalDrag) setPosition(0, true);
-        }
-
-        handle.addEventListener("pointerdown", onPointerDown);
-        handle.addEventListener("pointermove", onPointerMove);
-        handle.addEventListener("pointerup", onPointerUp);
-        handle.addEventListener("pointercancel", onPointerCancel);
-
-        window.addEventListener("resize", function () {
-          handleWidth = handle.offsetWidth;
-          maxX = maxTravel;
-          setPosition(Math.min(currentX, maxX), false);
         });
       })();
 
