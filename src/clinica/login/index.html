@@ -179,6 +179,27 @@
         font-size: 14px;
         color: #b3261e;
       }
+
+      .auth-signup-hint {
+        margin-top: 20px;
+        padding-top: 16px;
+        border-top: 1px solid var(--line);
+        text-align: center;
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .auth-signup-hint a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 44px;
+        margin-left: 4px;
+        color: var(--accent);
+        font-weight: 600;
+        text-decoration: none;
+      }
+      .auth-signup-hint a:hover {
+        text-decoration: underline;
+      }
     </style>
     <link rel="stylesheet" href="/clinica/auth.css" />
     <link rel="stylesheet" href="/page-transition.css" />
@@ -266,6 +287,10 @@
               >Esqueci minha senha</a
             >
           </form>
+          <p class="auth-signup-hint">
+            Ainda não é cliente da Recepta?
+            <a href="/#planos">Conheça os planos</a>
+          </p>
         </div>
       </section>
     </main>
