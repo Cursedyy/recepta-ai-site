@@ -1120,6 +1120,7 @@
       /* whatsapp demo */
       .demo-stage {
         position: relative;
+        margin-top: 36px;
       }
       .demo-panel {
         position: absolute;
@@ -1145,7 +1146,7 @@
       .demo-body {
         position: relative;
         z-index: 1;
-        padding: 18px 0;
+        padding: 18px 26px;
         display: flex;
         flex-direction: column;
         gap: 7px;
@@ -1178,7 +1179,7 @@
         display: flex;
         align-items: flex-start;
         gap: 8px;
-        max-width: 76%;
+        max-width: 88%;
       }
       .msg .bub {
         min-width: 0;
@@ -1186,19 +1187,14 @@
       .msg-in {
         align-self: flex-start;
         flex-direction: row;
-        margin-left: -14px;
       }
       .msg-out {
         align-self: flex-end;
         flex-direction: row-reverse;
-        margin-right: -14px;
       }
       @media (min-width: 1200px) {
-        .msg-in {
-          margin-left: -34px;
-        }
-        .msg-out {
-          margin-right: -34px;
+        .demo-body {
+          padding-inline: calc(15% + 8px);
         }
       }
       .msg-tag {
@@ -1219,18 +1215,26 @@
         color: #fff;
       }
       @media (max-width: 380px) {
+        .hero-badge {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 6px;
+          background: transparent;
+          border: none;
+          padding: 0;
+        }
+      }
+      @media (max-width: 380px) {
         .msg {
-          max-width: 88%;
+          max-width: 92%;
           flex-direction: column;
           gap: 3px;
         }
         .msg-in {
           align-items: flex-start;
-          margin-left: -6px;
         }
         .msg-out {
           align-items: flex-end;
-          margin-right: -6px;
         }
       }
 
@@ -1683,7 +1687,7 @@
         .hero-inner {
           display: grid;
           grid-template-columns: 1.1fr 0.9fr;
-          column-gap: 32px;
+          column-gap: 56px;
           row-gap: 0;
           align-items: start;
         }
@@ -1695,6 +1699,7 @@
 
         .demo-stage {
           grid-column: 2;
+          margin-top: 0;
         }
         .foot-grid {
           grid-template-columns: 1fr 1fr;

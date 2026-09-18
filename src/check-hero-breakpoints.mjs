@@ -152,16 +152,13 @@ const run = async () => {
         );
     }
 
-    // O demo do chat transborda o container de proposito: e o efeito de
-    // sobreposicao pedido no design, feito com as margens negativas de
-    // .msg-in / .msg-out sobre o .demo-panel, que fica recuado 15%. Acima de
-    // 1200px isso passa ~10px da borda direita e ESTA CORRETO — nao "consertar".
-    // O que precisa continuar valendo e o assert de overflow horizontal la em
-    // cima: o transbordo e contido pelo overflow:hidden do .hero e nunca pode
-    // virar barra de rolagem. So por isso a medida segue sendo reportada.
+    // O demo do chat foi realinhado em 2026-09-17 (pedido do dono): as bolhas
+    // ficam DENTRO do .demo-panel (padding-inline no .demo-body, sem margens
+    // negativas). A "sangria" abaixo deve ser <= 0; se voltar a positiva,
+    // alguem reintroduziu as margens negativas de .msg-in/.msg-out.
     const sangria =
       m.inner && m.msgRight != null
-        ? `  sangria do chat: ${(m.msgRight - m.inner.right).toFixed(0)}px (intencional)`
+        ? `  sangria do chat: ${(m.msgRight - m.inner.right).toFixed(0)}px (esperado <= 0)`
         : "";
 
     await page
