@@ -1146,7 +1146,7 @@
       .demo-body {
         position: relative;
         z-index: 1;
-        padding: 18px 26px;
+        padding: 18px 0;
         display: flex;
         flex-direction: column;
         gap: 7px;
@@ -1179,7 +1179,7 @@
         display: flex;
         align-items: flex-start;
         gap: 8px;
-        max-width: 88%;
+        max-width: 76%;
       }
       .msg .bub {
         min-width: 0;
@@ -1187,14 +1187,19 @@
       .msg-in {
         align-self: flex-start;
         flex-direction: row;
+        margin-left: -14px;
       }
       .msg-out {
         align-self: flex-end;
         flex-direction: row-reverse;
+        margin-right: -14px;
       }
       @media (min-width: 1200px) {
-        .demo-body {
-          padding-inline: calc(15% + 8px);
+        .msg-in {
+          margin-left: -34px;
+        }
+        .msg-out {
+          margin-right: -34px;
         }
       }
       .msg-tag {
@@ -1232,9 +1237,11 @@
         }
         .msg-in {
           align-items: flex-start;
+          margin-left: -6px;
         }
         .msg-out {
           align-items: flex-end;
+          margin-right: -6px;
         }
       }
 

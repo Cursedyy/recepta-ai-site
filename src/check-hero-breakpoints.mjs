@@ -152,13 +152,13 @@ const run = async () => {
         );
     }
 
-    // O demo do chat foi realinhado em 2026-09-17 (pedido do dono): as bolhas
-    // ficam DENTRO do .demo-panel (padding-inline no .demo-body, sem margens
-    // negativas). A "sangria" abaixo deve ser <= 0; se voltar a positiva,
-    // alguem reintroduziu as margens negativas de .msg-in/.msg-out.
+    // A sangria do chat e DESIGN PEDIDO (dono do produto, 2026-08-29; restaurada
+    // em 2026-09-18): acima de 1200px os baloes passam ~10px da borda direita
+    // do .hero-inner.container. E informativo, nao falha — o assert duro segue
+    // sendo o overflow horizontal (scrollW <= docW), la em cima.
     const sangria =
       m.inner && m.msgRight != null
-        ? `  sangria do chat: ${(m.msgRight - m.inner.right).toFixed(0)}px (esperado <= 0)`
+        ? `  sangria do chat: ${(m.msgRight - m.inner.right).toFixed(0)}px (>= 0 acima de 1200px é o design pedido)`
         : "";
 
     await page
