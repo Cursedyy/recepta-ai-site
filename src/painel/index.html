@@ -2042,10 +2042,10 @@
             '<div class="tier-quick-actions">' +
             '<button class="btn btn-ghost btn-sm"' +
             (c.tier === "essencial" ? " disabled" : "") +
-            ' onclick="trocarTier(\'' + c.id + "','essencial')">Essencial</button>" +
+            ' onclick="trocarTier(\'' + c.id + "','essencial')\">Essencial</button>" +
             '<button class="btn btn-ghost btn-sm"' +
             (c.tier === "completo" ? " disabled" : "") +
-            ' onclick="trocarTier(\'' + c.id + "','completo')">Completo</button>" +
+            ' onclick="trocarTier(\'' + c.id + "','completo')\">Completo</button>" +
             "</div></td>";
           html += "<td>" + escapeHtml(c.plano || "—") + "</td>";
           html += "<td>" + (c.tempo_pausa_minutos || 10) + " min</td>";
