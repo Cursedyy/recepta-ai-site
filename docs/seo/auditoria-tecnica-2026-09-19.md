@@ -22,7 +22,8 @@
 
 - **Resolvido (P1):** `BlogPosting.image` adicionado nos 8 posts.
 - **Resolvido (P2 sistêmico):** `og:type/title/description/url/locale/site_name/image(+dim/alt)` e `twitter:card/title/description/image` inseridos nas 23 páginas que não tinham — elimina ~69 achados P2 desta lista (as seções abaixo registram o estado **anterior** à correção).
-- **Pendentes (P2):** 8 titles >65 car., 14 descriptions >170 car., conteúdo de especialidades ~305–400 palavras, `defer` no `/analytics.js` da home.
+- **Resolvido (CWV):** `/analytics.js` da home agora `defer`, com o `visit` movido para `DOMContentLoaded` (defer executa antes dele). Verificado em produção (2026-09-19): logs de runtime Vercel mostram `POST /api/an → 204` com tráfego real e netlog de Chrome headless confirma a emissão do POST com `Content-Type: application/json` ao carregar a home.
+- **Pendentes (P2):** 8 titles >65 car., 14 descriptions >170 car., conteúdo de especialidades ~305–400 palavras.
 
 ## robots.txt e sitemap
 
