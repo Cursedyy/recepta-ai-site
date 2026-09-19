@@ -5731,34 +5731,41 @@
         window.addEventListener("resize", onScroll);
       })();
     </script>
-    <script src="/analytics.js?v=20260915-f2"></script>
+    <script src="/analytics.js?v=20260915-f2" defer></script>
     <script>
       /* F2 — métricas sem cookies (ver Política de Privacidade, seção 10):
          apenas contagens agregadas de visita, clique em planos e início de
          checkout. Ignora silenciosamente qualquer falha — nunca bloqueia a
-         página. */
+         página. Roda no DOMContentLoaded porque o /analytics.js agora é
+         defer: deferred scripts executam antes deste evento, então
+         window.receptaAnalytics já existe quando o "visit" dispara. */
       (function () {
-        function an(e) {
-          if (window.receptaAnalytics) window.receptaAnalytics(e);
+        function init() {
+          function an(e) {
+            if (window.receptaAnalytics) window.receptaAnalytics(e);
+          }
+          an("visit");
+          var sec = document.getElementById("planos");
+          if (sec) {
+            sec.addEventListener(
+              "click",
+              function (ev) {
+                var b = ev.target.closest(".pricing-card .btn");
+                if (b && !b.dataset.anCta) {
+                  b.dataset.anCta = "1";
+                  an("cta_planos");
+                }
+              },
+              true,
+            );
+          }
+          window.__anCheckout = function () {
+            an("checkout_start");
+          };
         }
-        an("visit");
-        var sec = document.getElementById("planos");
-        if (sec) {
-          sec.addEventListener(
-            "click",
-            function (ev) {
-              var b = ev.target.closest(".pricing-card .btn");
-              if (b && !b.dataset.anCta) {
-                b.dataset.anCta = "1";
-                an("cta_planos");
-              }
-            },
-            true,
-          );
-        }
-        window.__anCheckout = function () {
-          an("checkout_start");
-        };
+        if (document.readyState === "loading")
+          document.addEventListener("DOMContentLoaded", init);
+        else init();
       })();
     </script>
     <script>
