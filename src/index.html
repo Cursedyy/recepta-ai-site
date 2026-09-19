@@ -1644,6 +1644,11 @@
         outline-offset: 3px;
         border-radius: 4px;
       }
+      .foot-specs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0 18px;
+      }
       .foot-mail {
         word-break: break-word;
       }
@@ -1728,7 +1733,7 @@
       }
       @media (min-width: 960px) {
         .foot-grid {
-          grid-template-columns: 1.6fr 1fr 1fr 1fr 1.3fr;
+          grid-template-columns: 1.4fr 0.9fr 1.6fr 1.1fr 1fr;
           gap: 40px;
           padding: 64px 0 44px;
         }
@@ -5553,39 +5558,41 @@
           <a href="#custo">Quanto custa</a>
           <a href="#planos">Planos</a>
         </nav>
-        <nav class="foot-col" aria-label="Clínica">
-          <h3>Clínica</h3>
-          <a href="/clinica/login">Entrar</a>
-          <a href="#planos">Assinar agora</a>
-          <a href="#faq">Dúvidas</a>
-        </nav>
         <nav class="foot-col" aria-label="Especialidades">
           <h3>Especialidades</h3>
-          <a href="/radiologia/">Radiologia</a>
-          <a href="/estetica/">Estética</a>
-          <a href="/ortopedia/">Ortopedia</a>
-          <a href="/psicologia/">Psicologia</a>
-          <a href="/dermatologia/">Dermatologia</a>
-          <a href="/odontologia/">Odontologia</a>
-          <a href="/pediatria/">Pediatria</a>
-          <a href="/ginecologia/">Ginecologia</a>
-          <a href="/cardiologia/">Cardiologia</a>
-          <a href="/fisioterapia/">Fisioterapia</a>
-          <a href="/nutricao/">Nutrição</a>
-          <a href="/oftalmologia/">Oftalmologia</a>
+          <div class="foot-specs">
+            <a href="/radiologia/">Radiologia</a>
+            <a href="/estetica/">Estética</a>
+            <a href="/ortopedia/">Ortopedia</a>
+            <a href="/psicologia/">Psicologia</a>
+            <a href="/dermatologia/">Dermatologia</a>
+            <a href="/odontologia/">Odontologia</a>
+            <a href="/pediatria/">Pediatria</a>
+            <a href="/ginecologia/">Ginecologia</a>
+            <a href="/cardiologia/">Cardiologia</a>
+            <a href="/fisioterapia/">Fisioterapia</a>
+            <a href="/nutricao/">Nutrição</a>
+            <a href="/oftalmologia/">Oftalmologia</a>
+          </div>
+        </nav>
+        <nav class="foot-col" aria-label="Conteúdo">
+          <h3>Conteúdo</h3>
           <a href="/blog/">Blog</a>
           <a href="/quanto-custa-secretaria-virtual-clinica/">Preços</a>
           <a href="/recepta-vs-concorrentes/">Comparar</a>
           <a href="/blog/ia-vs-secretaria-clt/">IA × secretária CLT</a>
           <a href="/blog/reduzir-no-show-consultas/">Reduzir no-show</a>
         </nav>
-        <div class="foot-col">
-          <h3>Contato</h3>
+        <nav class="foot-col" aria-label="Clínica">
+          <h3>Clínica</h3>
+          <a href="/clinica/login">Entrar</a>
+          <a href="#planos">Assinar agora</a>
+          <a href="#faq">Dúvidas</a>
           <a href="#sobre">Quem somos</a>
           <a class="foot-mail" href="mailto:contato@receptaai.com.br"
             >contato@receptaai.com.br</a
           >
-        </div>
+        </nav>
       </div>
       <div class="container foot-bottom">
         <p>© <span id="y">2026</span> Recepta AI · CNPJ 68.213.601/0001-16</p>
