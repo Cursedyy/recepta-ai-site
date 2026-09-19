@@ -15,6 +15,15 @@
 | Titles duplicados | nenhum |
 | Descriptions duplicadas | nenhuma |
 
+## Correções aplicadas (mesmo dia)
+
+> Commit `1474086`, deploy prod + aliases verificados via curl (og:image=1 nas
+> amostras; `"image"` presente no BlogPosting live).
+
+- **Resolvido (P1):** `BlogPosting.image` adicionado nos 8 posts.
+- **Resolvido (P2 sistêmico):** `og:type/title/description/url/locale/site_name/image(+dim/alt)` e `twitter:card/title/description/image` inseridos nas 23 páginas que não tinham — elimina ~69 achados P2 desta lista (as seções abaixo registram o estado **anterior** à correção).
+- **Pendentes (P2):** 8 titles >65 car., 14 descriptions >170 car., conteúdo de especialidades ~305–400 palavras, `defer` no `/analytics.js` da home.
+
 ## robots.txt e sitemap
 
 - robots.txt: presente, com diretiva `Sitemap:`
