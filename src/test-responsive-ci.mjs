@@ -27,13 +27,23 @@ const PAGES = [
   { name: "painel", url: "/painel/", critical: true },
   { name: "termos", url: "/termos/", critical: false },
   { name: "privacidade", url: "/privacidade/", critical: false },
-  { name: "trial", url: "/t/", critical: false },
+  { name: "estetica", url: "/estetica/", critical: true },
+  { name: "ortopedia", url: "/ortopedia/", critical: true },
+  { name: "psicologia", url: "/psicologia/", critical: true },
+  { name: "radiologia", url: "/radiologia/", critical: true },
+  { name: "blog", url: "/blog/", critical: false },
+  { name: "blog-erros", url: "/blog/erros-clinicas-atendimento/", critical: false },
+  { name: "blog-ia", url: "/blog/ia-whatsapp-atendimento/", critical: false },
+  { name: "blog-secretaria", url: "/blog/secretaria-virtual-clinica/", critical: false },
 ];
 
 const VIEWPORTS = [
-  { name: "desktop", width: 1920, height: 1080 },
-  { name: "tablet", width: 768, height: 1024 },
+  { name: "mobile-320", width: 320, height: 900 },
   { name: "mobile", width: 375, height: 812 },
+  { name: "tablet", width: 768, height: 1024 },
+  { name: "desktop-1024", width: 1024, height: 900 },
+  { name: "desktop-1440", width: 1440, height: 900 },
+  { name: "desktop", width: 1920, height: 1080 },
 ];
 
 // ============ THRESHOLDS ============
@@ -56,7 +66,7 @@ function parseArgs() {
         config.maxOverflow = parseInt(args[++i]) || 0;
         break;
       case "--max-touch-small":
-        config.maxTouchSmall = parseInt(args[++i]) || 10;
+        config.maxTouchSmall = Number(args[++i]);
         break;
       case "--max-total":
         config.maxTotal = parseInt(args[++i]) || 50;
@@ -76,6 +86,9 @@ function parseArgs() {
     }
   }
 
+  if (!Number.isInteger(config.maxTouchSmall) || config.maxTouchSmall < 0) {
+    throw new Error("Invalid touch target threshold");
+  }
   return config;
 }
 
@@ -219,6 +232,7 @@ async function main() {
 
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext();
+  await context.route("**/api/**", route => route.abort());
   const page = await context.newPage();
 
   const results = [];
@@ -309,6 +323,7 @@ async function main() {
 
   // Determine pass/fail
   const overallPassed =
+    errors === 0 && failed === 0 &&
     criticalIssues <= config.maxCritical && totalIssues <= config.maxTotal;
 
   if (overallPassed) {

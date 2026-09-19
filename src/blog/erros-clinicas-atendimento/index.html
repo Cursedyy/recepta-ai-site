@@ -7,12 +7,30 @@
   <meta name="description" content="Os principais problemas que fazem pacientes desistirem de agendar e como a tecnologia pode resolver cada um deles.">
   <meta name="robots" content="index,follow">
   <link rel="canonical" href="https://www.receptaai.com.br/blog/erros-clinicas-atendimento/">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="5 erros que clínicas cometem no atendimento ao paciente | Recepta AI">
+  <meta property="og:description" content="Os principais problemas que fazem pacientes desistirem de agendar e como a tecnologia pode resolver cada um deles.">
+  <meta property="og:url" content="https://www.receptaai.com.br/blog/erros-clinicas-atendimento/">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:site_name" content="Recepta AI">
+  <meta property="og:image" content="https://www.receptaai.com.br/img/og-recepta.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:alt" content="Recepta AI: secretária virtual com IA para clínicas e consultórios">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="5 erros que clínicas cometem no atendimento ao paciente | Recepta AI">
+  <meta name="twitter:description" content="Os principais problemas que fazem pacientes desistirem de agendar e como a tecnologia pode resolver cada um deles.">
+  <meta name="twitter:image" content="https://www.receptaai.com.br/img/og-recepta.jpg">
   <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/img/favicon-512.png">
+  <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+  <meta name="theme-color" content="#151749">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    :root { --bg: #f8fafc; --surface: #fff; --ink: #0f172a; --muted: #64748b; --border: #e2e8f0; --primary: #4f46e5; --primary-soft: #eef2ff; --red: #dc2626; --red-bg: #fef2f2; --green: #059669; --green-bg: #ecfdf5; }
+    :root { --bg: #f8fafc; --surface: #fff; --ink: #0f172a; --muted: #64748b; --border: #e2e8f0; --primary: #4f46e5; --primary-soft: #eef2ff; --red: #dc2626; --red-bg: #fef2f2; --green: #047857; --green-bg: #ecfdf5; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: "Inter", -apple-system, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.7; }
     a { color: var(--primary); }
@@ -29,7 +47,7 @@
     h2 { font-size: 22px; font-weight: 700; margin: 32px 0 12px; letter-spacing: -0.02em; }
     p { margin-bottom: 16px; font-size: 16px; }
     .error-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin: 24px 0; }
-    .error-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+    .error-card h2 { font-size: 18px; font-weight: 700; margin: 0 0 8px; display: flex; align-items: center; gap: 8px; }
     .error-card .problem { color: var(--red); font-size: 14px; font-weight: 500; margin-bottom: 8px; }
     .error-card .solution { color: var(--green); font-size: 14px; }
     .error-card .solution strong { color: var(--green); }
@@ -39,16 +57,22 @@
     .cta-box a { display: inline-block; background: var(--primary); color: #fff; padding: 12px 28px; border-radius: 8px; font-weight: 600; text-decoration: none; }
     .cta-box a:hover { background: #4338ca; }
     footer { text-align: center; padding: 24px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--border); }
+    header .logo, header .back, nav a { display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; }
+    nav { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px 16px; }
+    nav a { margin-left: 0; }
+    a:focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
   </style>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
+    "image": "https://www.receptaai.com.br/img/og-recepta.jpg",
     "headline": "5 erros que clínicas cometem no atendimento ao paciente",
     "description": "Os principais problemas que fazem pacientes desistirem de agendar.",
     "author": { "@type": "Organization", "name": "Recepta AI" },
     "publisher": { "@type": "Organization", "name": "Recepta AI" },
     "datePublished": "2026-08-29",
+    "dateModified": "2026-09-18",
     "mainEntityOfPage": "https://www.receptaai.com.br/blog/erros-clinicas-atendimento/"
   }
   </script>
@@ -61,6 +85,7 @@
     </div>
   </header>
 
+  <main>
   <article>
     <span class="tag">Dicas</span>
     <h1>5 erros que clínicas cometem no atendimento ao paciente</h1>
@@ -69,31 +94,31 @@
     <p>Pacientes que não conseguem agendar, ligações sem resposta e informações desatualizadas fazem com que clínicas percam mais de 30% dos potenciais atendimentos. Veja os 5 erros mais comuns e como resolvê-los.</p>
 
     <div class="error-card">
-      <h3>1. Não atender fora do horário comercial</h3>
+      <h2>1. Não atender fora do horário comercial</h2>
       <div class="problem">❌ Problema: 45% das ligações para clínicas acontecem após as 18h ou nos fins de semana.</div>
       <div class="solution">✅ Solução: Uma IA no WhatsApp atende 24/7, respondendo dúvidas e agendando consultas mesmo quando a recepção está fechada.</div>
     </div>
 
     <div class="error-card">
-      <h3>2. Demora para responder mensagens</h3>
+      <h2>2. Demora para responder mensagens</h2>
       <div class="problem">❌ Problema: Pacientes que esperam mais de 5 minutos para receber resposta procuram outra clínica.</div>
       <div class="solution">✅ Solução: Respostas automáticas instantâneas mantêm o paciente engajado e evitam que ele busque concorrência.</div>
     </div>
 
     <div class="error-card">
-      <h3>3. Informações inconsistentes</h3>
+      <h2>3. Informações inconsistentes</h2>
       <div class="problem">❌ Problema: Recepcionistas diferentes dão respostas diferentes sobre preços e horários.</div>
       <div class="solution">✅ Solução: Uma IA consulta o cadastro atualizado e sempre dá a mesma resposta, baseada nos dados reais da clínica.</div>
     </div>
 
     <div class="error-card">
-      <h3>4. Esquecer de confirmar consultas</h3>
+      <h2>4. Esquecer de confirmar consultas</h2>
       <div class="problem">❌ Problema: 20% dos pacientes não aparecem nas consultas agendadas (no-show).</div>
       <div class="solution">✅ Solução: Lembretes automáticos 24h e 3h antes da consulta reduzem o no-show em até 50%.</div>
     </div>
 
     <div class="error-card">
-      <h3>5. Não ter canal de communicate por texto</h3>
+      <h2>5. Não ter canal de comunicação por texto</h2>
       <div class="problem">❌ Problema: Muitos pacientes preferem enviar uma mensagem a fazer uma ligação, mas não têm essa opção.</div>
       <div class="solution">✅ Solução: WhatsApp como canal de atendimento atende a preferência da maioria dos pacientes brasileiros.</div>
     </div>
@@ -101,15 +126,19 @@
     <h2>Como resolver tudo de uma vez</h2>
     <p>A maioria desses erros tem uma causa em comum: dependência exclusiva de atendimento humano presencial. A solução não é substituir recepcionistas, mas complementá-las com uma IA que cuida do atendimento repetitivo 24/7.</p>
 
+    <h2>Onde isso mais acontece</h2>
+    <p>Esses erros se repetem em diferentes áreas — veja como resolvê-los na <a href="/psicologia/">clínica de psicologia</a>, na <a href="/estetica/">clínica de estética</a>, na <a href="/radiologia/">clínica de radiologia</a> e no <a href="/odontologia/">consultório odontológico</a>.</p>
+
     <div class="cta-box">
       <h3>Resolva esses erros com a Recepta AI</h3>
-      <p>Teste grátis por 7 dias. Sem cartão de crédito.</p>
-      <a href="/briefing/">Começar agora</a>
+      <p>Garantia Recepta de 7 dias. Devolvemos 100% se não servir.</p>
+      <a href="/#planos">Começar agora</a>
     </div>
   </article>
+  </main>
 
   <footer>
-    <p>© 2026 Recepta AI — Secretária virtual com IA para clínicas</p>
+    <p>© 2026 Recepta AI | Secretária virtual com IA para clínicas</p>
   </footer>
 </body>
 </html>

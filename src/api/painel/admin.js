@@ -1,6 +1,9 @@
 import { createClient } from "@supabase/supabase-js";
+import { Resend } from "resend";
 import { createSupabaseServerClient } from "../_lib/supabase-server.js";
-import { getClientIp } from "../_lib/rate-limit.js";
+import { getClientIp, rateLimit } from "../_lib/rate-limit.js";
+
+const TIERS_VALIDOS = new Set(["essencial", "completo"]);
 
 // ── Auth helper ──
 async function autenticarAdmin(req, res) {
@@ -60,7 +63,7 @@ async function handleGet(req, res, auth) {
     const { data, error } = await admin
       .from("clinicas")
       .select(
-        "id,clinica,status,trial_fim,plano,stripe_customer_id,tempo_pausa_minutos,criado_em",
+        "id,clinica,status,trial_fim,plano,tier,stripe_customer_id,tempo_pausa_minutos,criado_em",
       )
       .order("criado_em", { ascending: false });
     if (error) return res.status(500).json({ erro: "falha_buscar" });
@@ -197,6 +200,7 @@ async function handlePost(req, res, auth) {
         status: "ativo",
         trial_inicio: now.toISOString(),
         trial_fim: trialFim.toISOString(),
+        tier: "completo",
       })
       .select("id,clinica")
       .maybeSingle();
@@ -221,6 +225,12 @@ async function handlePost(req, res, auth) {
     if (typeof body?.status === "string") updates.status = body.status;
     if (body?.trial_fim !== undefined) updates.trial_fim = body.trial_fim;
     if (typeof body?.plano === "string") updates.plano = body.plano;
+    if (body?.tier !== undefined) {
+      if (typeof body.tier !== "string" || !TIERS_VALIDOS.has(body.tier)) {
+        return res.status(400).json({ erro: "tier_invalido" });
+      }
+      updates.tier = body.tier;
+    }
     if (typeof body?.tempo_pausa_minutos === "number")
       updates.tempo_pausa_minutos = body.tempo_pausa_minutos;
     if (!Object.keys(updates).length)
@@ -235,6 +245,39 @@ async function handlePost(req, res, auth) {
       ip,
     );
     return res.status(200).json({ ok: true });
+  }
+
+  // ── Trocar somente o tier de recursos ──
+  if (body?.acao === "alterar_tier") {
+    const id = body?.id;
+    const tier = body?.tier;
+    if (!id) return res.status(400).json({ erro: "id_obrigatorio" });
+    if (typeof tier !== "string" || !TIERS_VALIDOS.has(tier))
+      return res.status(400).json({ erro: "tier_invalido" });
+
+    const { data: atual, error: erroBusca } = await admin
+      .from("clinicas")
+      .select("id,tier")
+      .eq("id", id)
+      .maybeSingle();
+    if (erroBusca || !atual)
+      return res.status(404).json({ erro: "clinica_nao_encontrada" });
+    if (atual.tier === tier)
+      return res.status(200).json({ ok: true, tier, alterado: false });
+
+    const { error } = await admin
+      .from("clinicas")
+      .update({ tier })
+      .eq("id", id);
+    if (error) return res.status(500).json({ erro: "falha_atualizar_tier" });
+    await registrarLog(
+      admin,
+      userId,
+      "alterar_tier",
+      { clinica_id: id, de: atual.tier || "essencial", para: tier },
+      ip,
+    );
+    return res.status(200).json({ ok: true, tier, alterado: true });
   }
 
   // ── Gerar convite para clínica ──
@@ -363,6 +406,51 @@ async function handleConfig(req, res) {
   return res.status(200).json({ url, anonKey });
 }
 
+async function handleResetAdmin(req, res) {
+  if (req.method !== "POST") return res.status(405).json({ erro: "metodo" });
+  const rl = await rateLimit("reset-admin:" + getClientIp(req), 3, 15 * 60 * 1000);
+  if (rl.blocked) return res.status(429).json({ erro: "muitas_tentativas" });
+  let body;
+  try {
+    body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
+  } catch {
+    return res.status(400).json({ erro: "payload_invalido" });
+  }
+  const email = typeof body?.email === "string" ? body.email.trim().toLowerCase() : "";
+  if (!email) return res.status(400).json({ erro: "email_obrigatorio" });
+  const url = process.env.SUPABASE_URL;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  const resendKey = process.env.RESEND_API_KEY;
+  if (!url || !serviceKey || !resendKey) return res.status(500).json({ erro: "servico_nao_configurado" });
+  const admin = createClient(url, serviceKey, { auth: { persistSession: false } });
+  const authRes = await fetch(url + "/auth/v1/admin/users?email=" + encodeURIComponent(email), {
+    headers: { Authorization: "Bearer " + serviceKey, apikey: serviceKey },
+  });
+  const resposta = () => res.status(200).json({ ok: true, mensagem: "Se esse email for de uma conta admin, enviaremos um link." });
+  if (!authRes.ok) return res.status(500).json({ erro: "falha_buscar_usuario" });
+  const authData = await authRes.json();
+  const usuario = (authData?.users || []).find((u) => (u.email || "").toLowerCase() === email);
+  if (!usuario) return resposta();
+  const { data: perfil } = await admin.from("perfis").select("id").eq("id", usuario.id).eq("papel", "admin").maybeSingle();
+  if (!perfil) return resposta();
+  const base = process.env.SITE_URL || "https://www.receptaai.com.br";
+  const { data: linkData, error: linkError } = await admin.auth.admin.generateLink({
+    type: "recovery", email, options: { redirectTo: base + "/painel?recovery=1" },
+  });
+  if (linkError || !linkData?.properties?.action_link) return res.status(500).json({ erro: "falha_gerar_link" });
+  const resend = new Resend(resendKey);
+  const { error: emailError } = await resend.emails.send({
+    from: process.env.RESEND_FROM || "Recepta AI <no-reply@receptaai.com.br>",
+    to: email,
+    subject: "Redefinir senha do painel Recepta AI",
+    html: "<p>Recebemos um pedido para redefinir sua senha administrativa.</p>" +
+      '<p><a href="' + String(linkData.properties.action_link).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\"/g, "&quot;") + '">Redefinir minha senha</a></p>' +
+      "<p>Se você não fez este pedido, ignore este email.</p>",
+  });
+  if (emailError) return res.status(500).json({ erro: "falha_enviar_email" });
+  return resposta();
+}
+
 // ── Convite externo (API key, sem auth de clinica) ──
 // Mesclado de api/clinica/convite.js
 import { apiKeyValida } from "../_lib/api-key.js";
@@ -412,14 +500,12 @@ async function handleConviteExterno(req, res) {
     .insert({ clinica_id: clinicaId, token, expira_em: expiraEm });
   if (erroInsert) return res.status(500).json({ erro: "falha_criar_convite" });
   const base = process.env.SITE_URL || "https://www.receptaai.com.br";
-  return res
-    .status(200)
-    .json({
-      ok: true,
-      token,
-      expira_em: expiraEm,
-      url: base + "/clinica/definir-senha/" + token,
-    });
+  return res.status(200).json({
+    ok: true,
+    token,
+    expira_em: expiraEm,
+    url: base + "/clinica/definir-senha/" + token,
+  });
 }
 
 export default async function handler(req, res) {
@@ -428,6 +514,10 @@ export default async function handler(req, res) {
   // /api/painel/config — publico
   if (req.url?.startsWith("/api/painel/config")) {
     return handleConfig(req, res);
+  }
+
+  if (req.url?.startsWith("/api/painel/reset-admin")) {
+    return handleResetAdmin(req, res);
   }
 
   // /api/clinica/convite — API key auth

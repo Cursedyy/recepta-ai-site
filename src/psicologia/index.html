@@ -3,16 +3,34 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>IA para Psicólogos | Recepta AI</title>
-  <meta name="description" content="Atenda pacientes de psicologia 24h no WhatsApp: agende sessões, responda sobre abordagens e valores. IA para psicólogos e clínicas de psicologia.">
+  <title>Secretária virtual para psicólogos | Recepta AI</title>
+  <meta name="description" content="Marque sessões pelo WhatsApp sem interromper atendimento. Responde valores e abordagens, agenda e mantém você fora do celular. Garantia Recepta de 7 dias: se não servir, devolvemos 100%.">
   <meta name="robots" content="index,follow">
   <link rel="canonical" href="https://www.receptaai.com.br/psicologia/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Secretária virtual para psicólogos | Recepta AI">
+  <meta property="og:description" content="Marque sessões pelo WhatsApp sem interromper atendimento. Responde valores e abordagens, agenda e mantém você fora do celular. Garantia Recepta de 7 dias: se não servir, devolvemos 100%.">
+  <meta property="og:url" content="https://www.receptaai.com.br/psicologia/">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:site_name" content="Recepta AI">
+  <meta property="og:image" content="https://www.receptaai.com.br/img/og-recepta.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:alt" content="Recepta AI: secretária virtual com IA para clínicas e consultórios">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Secretária virtual para psicólogos | Recepta AI">
+  <meta name="twitter:description" content="Marque sessões pelo WhatsApp sem interromper atendimento. Responde valores e abordagens, agenda e mantém você fora do celular. Garantia Recepta de 7 dias: se não servir, devolvemos 100%.">
+  <meta name="twitter:image" content="https://www.receptaai.com.br/img/og-recepta.jpg">
   <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/img/favicon-512.png">
+  <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+  <meta name="theme-color" content="#151749">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    :root { --bg: #f8fafc; --surface: #fff; --ink: #0f172a; --muted: #64748b; --border: #e2e8f0; --primary: #059669; --primary-hover: #047857; --primary-soft: #ecfdf5; }
+    :root { --bg: #f8fafc; --surface: #fff; --ink: #0f172a; --muted: #64748b; --border: #e2e8f0; --primary: #047857; --primary-hover: #065f46; --primary-soft: #ecfdf5; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: "Inter", -apple-system, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.6; }
     a { color: var(--primary); text-decoration: none; }
@@ -36,7 +54,7 @@
     .section-title { font-size: 28px; font-weight: 700; text-align: center; margin-bottom: 12px; letter-spacing: -0.02em; }
     .section-sub { color: var(--muted); text-align: center; max-width: 500px; margin: 0 auto 40px; }
 
-    .benefits { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+    .benefits { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 24px; }
     .benefit { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 28px; }
     .benefit-icon { font-size: 32px; margin-bottom: 12px; }
     .benefit h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
@@ -54,26 +72,37 @@
     .cta-section a:hover { background: var(--primary-hover); }
 
     footer { text-align: center; padding: 24px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--border); }
+    .header .logo, .nav a { display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; }
+    .nav { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px 16px; }
+    .nav a { margin-left: 0; }
+    a:focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
+    .related { padding: 48px 24px 8px; text-align: center; }
+    .related h2 { font-size: 22px; margin-bottom: 6px; }
+    .related p { color: var(--muted); margin-bottom: 18px; }
+    .related-links { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; max-width: 720px; margin: 0 auto; }
+    .related-links a { display: inline-block; padding: 9px 18px; border: 1px solid var(--border); border-radius: 99px; background: var(--surface); font-weight: 500; font-size: 14px; color: var(--primary); transition: all 0.15s; }
+    .related-links a:hover { border-color: var(--primary); background: var(--primary-soft); }
   </style>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "FAQPage",
+    "dateModified": "2026-09-18",
     "mainEntity": [
       {
         "@type": "Question",
         "name": "A IA pode agendar sessões de psicologia?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Sim. A agenda sessões individuais e terapias, verificando disponibilidade do psicólogo." }
+        "acceptedAnswer": { "@type": "Answer", "text": "Sim. Ela consulta os horários livres na sua agenda e confirma a sessão na conversa." }
       },
       {
         "@type": "Question",
         "name": "A IA responde sobre abordagens terapêuticas?",
-        "acceptedAnswer": { "@type": "Answer", "text": "A IA informa as abordagens oferecidas (TCC, psicanálise, etc.) e encaminha para consulta inicial." }
+        "acceptedAnswer": { "@type": "Answer", "text": "Ela informa as abordagens que você cadastrou, como TCC ou psicanálise, e marca a primeira conversa. Orientação clínica é com você." }
       },
       {
         "@type": "Question",
-        "name": "Como funciona a sigilo terapêutico?",
-        "acceptedAnswer": { "@type": "Answer", "text": "A IA não armazena dados clínicos. Apenas agenda e encaminha, preservando o sigilo profissional." }
+        "name": "E o sigilo profissional?",
+        "acceptedAnswer": { "@type": "Answer", "text": "Ela cuida de agendamento, valor e formato. Conteúdo de sessão não passa por ela, e o histórico das conversas fica só no painel do seu consultório." }
       }
     ]
   }
@@ -86,53 +115,54 @@
       <nav class="nav">
         <a href="/">Home</a>
         <a href="/blog/">Blog</a>
-        <a href="/briefing/">Teste grátis</a>
+        <a href="/#planos">Assinar</a>
       </nav>
     </div>
   </header>
 
+  <main>
   <section class="hero">
     <span class="hero-badge">Especialidade: Psicologia</span>
-    <h1>IA para <em>psicólogos</em> que atende 24h</h1>
-    <p>Agende sessões, responda sobre abordagens e valores. Atendimento que preserva o sigilo profissional.</p>
-    <a href="/briefing/" class="hero-cta">Testar grátis por 7 dias</a>
-    <p class="hero-sub">Sem cartão de crédito · Configuração em 10 minutos</p>
+    <h1>Você está em sessão. <em>A agenda continua andando.</em></h1>
+    <p>Quem procura terapia manda mensagem entre uma coisa e outra e desiste se ninguém responde. A Recepta responde valores e horários e marca a sessão, sem tirar você do atendimento.</p>
+    <a href="/#planos" class="hero-cta">Assinar com garantia de 7 dias</a>
+    <p class="hero-sub">Garantia Recepta de 7 dias · Configuração em 10 minutos</p>
   </section>
 
   <section class="section">
-    <h2 class="section-title">Psicologia com atendimento inteligente</h2>
-    <p class="section-sub">Psicólogos perdem pacientes por não conseguir atender fora do horário.</p>
+    <h2 class="section-title">A pessoa criou coragem de mandar mensagem. Não a deixe sem resposta.</h2>
+    <p class="section-sub">Procurar terapia é decisão difícil e a janela é curta. Entre sessões você não pode parar para responder, e a mensagem esfria.</p>
     
     <div class="benefits">
       <div class="benefit">
         <div class="benefit-icon">🧠</div>
-        <h3>Agendamento de sessões</h3>
-        <p>Sessões individuais e terapias agendadas automaticamente.</p>
+        <h3>Primeira sessão marcada sem você parar</h3>
+        <p>Sessão individual, casal ou grupo: o horário livre é oferecido e confirmado na conversa, enquanto você atende.</p>
       </div>
       <div class="benefit">
         <div class="benefit-icon">💬</div>
-        <h3>Abordagens terapêuticas</h3>
-        <p>IA informa TCC, psicanálise e outras abordagens oferecidas.</p>
+        <h3>Responde a dúvida que trava o agendamento</h3>
+        <p>Qual abordagem, quanto dura, como funciona online. Ela responde o que você cadastrou e marca a primeira conversa.</p>
       </div>
       <div class="benefit">
         <div class="benefit-icon">🔒</div>
-        <h3>Sigilo preservado</h3>
-        <p>A IA não armazena dados clínicos. Apenas agenda e encaminha.</p>
+        <h3>Ela não entra no conteúdo clínico</h3>
+        <p>Ela trata de horário, valor e formato. Nada do que for clínico é respondido por ela: vai direto para você.</p>
       </div>
       <div class="benefit">
         <div class="benefit-icon">💰</div>
-        <h3>Valores e convênios</h3>
-        <p>Paciente pergunta o preço e recebe resposta na hora.</p>
+        <h3>Valor dito na hora, sem constrangimento</h3>
+        <p>A pergunta mais difícil de fazer é a do preço. Ela responde direto, com o seu valor, sem a pessoa precisar insistir.</p>
       </div>
       <div class="benefit">
         <div class="benefit-icon">⏰</div>
-        <h3>Atendimento 24/7</h3>
-        <p>Pacientes em crise recebem orientação e encaminhamento imediato.</p>
+        <h3>Domingo à noite também</h3>
+        <p>É de madrugada e no fim de semana que chega a mensagem de quem decidiu buscar ajuda. Ela responde na hora e já deixa a sessão marcada.</p>
       </div>
       <div class="benefit">
         <div class="benefit-icon">📅</div>
-        <h3>Retorno automático</h3>
-        <p>IA agenda sessões de retorno e envia lembretes.</p>
+        <h3>Menos falta, menos horário vago</h3>
+        <p>Lembrete antes de cada sessão e remarcação pela conversa. Horário vago avisado em cima da hora deixa de ser prejuízo.</p>
       </div>
     </div>
   </section>
@@ -142,27 +172,41 @@
     <div class="faq">
       <div class="faq-item">
         <h3>A IA pode agendar sessões de psicologia?</h3>
-        <p>Sim. A agenda sessões individuais e terapias, verificando disponibilidade do psicólogo.</p>
+        <p>Sim. Ela consulta os horários livres na sua agenda e confirma a sessão na conversa.</p>
       </div>
       <div class="faq-item">
         <h3>A IA responde sobre abordagens terapêuticas?</h3>
-        <p>A IA informa as abordagens oferecidas (TCC, psicanálise, etc.) e encaminha para consulta inicial.</p>
+        <p>Ela informa as abordagens que você cadastrou, como TCC ou psicanálise, e marca a primeira conversa. Orientação clínica é com você.</p>
       </div>
       <div class="faq-item">
-        <h3>Como funciona a sigilo terapêutico?</h3>
-        <p>A IA não armazena dados clínicos. Apenas agenda e encaminha, preservando o sigilo profissional.</p>
+        <h3>E o sigilo profissional?</h3>
+        <p>Ela cuida de agendamento, valor e formato. Conteúdo de sessão não passa por ela, e o histórico das conversas fica só no painel do seu consultório.</p>
       </div>
     </div>
   </section>
 
-  <section class="cta-section">
-    <h2>Teste grátis por 7 dias</h2>
-    <p>Sem cartão de crédito · Cancele quando quiser</p>
-    <a href="/briefing/">Começar agora</a>
+  <section class="related">
+    <h2>A Recepta também atende</h2>
+    <p>Secretária virtual com IA para outras especialidades:</p>
+    <nav class="related-links" aria-label="Especialidades">
+      <a href="/dermatologia/">Dermatologia</a>
+      <a href="/radiologia/">Radiologia</a>
+      <a href="/estetica/">Estética</a>
+      <a href="/ortopedia/">Ortopedia</a>
+      <a href="/blog/">Blog</a>
+    </nav>
   </section>
 
+  <section class="cta-section">
+    <h2>Garantia Recepta de 7 dias</h2>
+    <p>Devolvemos 100% se não servir · Cancele quando quiser</p>
+    <a href="/#planos">Começar agora</a>
+  </section>
+
+  </main>
+
   <footer>
-    <p>© 2026 Recepta AI — Secretária virtual com IA para clínicas</p>
+    <p>© 2026 Recepta AI | Secretária virtual com IA para clínicas</p>
   </footer>
 </body>
 </html>

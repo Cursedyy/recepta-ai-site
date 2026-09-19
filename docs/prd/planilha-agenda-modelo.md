@@ -1,5 +1,9 @@
 # Planilha modelo — Agenda por clínica
 
+> **HISTÓRICO — spec de 2026-08-27, escrita antes de a agenda ir para produção.**
+> A integração de agenda ESTÁ no ar (ver banner de `agenda-integracao-plano.md`).
+> Use este arquivo só como referência do formato da planilha, nunca como estado.
+
 Complementa `agenda-integracao-plano.md`. Este documento descreve a estrutura da
 planilha Google Sheets modelo e o contrato de sincronização com `agendamentos` no
 Supabase. **Não cria a planilha real** — isso é passo manual do Matheus (seção 3).

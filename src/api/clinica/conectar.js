@@ -44,6 +44,26 @@ const TIMEOUT_UAZAPI_MS = 15000;
 // de criacao manual pelo admin, contexto diferente.)
 const TRIAL_DIAS = 7;
 
+// Garantia de reembolso (G1/G2 da política operacional): 7 dias corridos
+// contados da ATIVAÇÃO (WhatsApp conectado), arredondados para o fim do dia
+// em BRT — corre a favor do cliente. Para quem nunca ativa, o teto é
+// garantia_teto (pago_em + 30 dias), materializado pelo billing no pagamento.
+const GARANTIA_DIAS = 7;
+
+/**
+ * Fim da garantia (G2): 23:59:59 BRT do 7º dia após a ativação, em UTC.
+ * BRT é UTC-3 fixo (sem horário de verão desde 2019), então o offset é
+ * constante e a conta pode ser feita em UTC sem biblioteca de fuso.
+ */
+function fimDaGarantia(agora) {
+  const OFFSET_BRT_MS = 3 * 60 * 60 * 1000;
+  const brt = new Date(agora.getTime() - OFFSET_BRT_MS);
+  const y = brt.getUTCFullYear();
+  const m = brt.getUTCMonth();
+  const d = brt.getUTCDate();
+  return new Date(Date.UTC(y, m, d + GARANTIA_DIAS, 23, 59, 59) + OFFSET_BRT_MS).toISOString();
+}
+
 /**
  * `uazapi_server` vem do banco, e o banco e escrito pelo n8n. Sem validacao,
  * um valor apontando para rede interna transformaria esta rota autenticada num
@@ -71,7 +91,7 @@ async function carregarClinica(admin, perfil) {
   const { data, error } = await admin
     .from("clinicas")
     .select(
-      "uazapi_token,uazapi_server,telefone_operador,trial_inicio,stripe_customer_id",
+      "uazapi_token,uazapi_server,telefone_operador,trial_inicio,stripe_customer_id,garantia_inicio,garantia_fim,garantia_teto",
     )
     .eq("id", perfil.clinica_id)
     .maybeSingle();
@@ -104,6 +124,9 @@ async function carregarClinica(admin, perfil) {
       ? telefoneSugerido
       : null,
     trial_inicio: data.trial_inicio ?? null,
+    garantia_inicio: data.garantia_inicio ?? null,
+    garantia_fim: data.garantia_fim ?? null,
+    garantia_teto: data.garantia_teto ?? null,
     stripe_customer_id: data.stripe_customer_id ?? null,
   };
 }
@@ -156,6 +179,38 @@ async function iniciarTrial(admin, clinicaId) {
     .is("trial_inicio", null);
   if (error) {
     console.error("trial_inicio_falhou", clinicaId, error.message);
+  }
+}
+
+/**
+ * G1/G3 — materializa a garantia do pagante no primeiro instante de ativação
+ * observada (instância WhatsApp conectada), UMA vez, com escrita condicional
+ * `.is("garantia_inicio", null)`: o banco decide, não nós — duas chamadas
+ * simultâneas de polling não sobrescrevem a data uma da outra.
+ *
+ * Guarda de pagante = mesma do trial (stripe_customer_id). garantia_fim segue
+ * G2 (fim do 7º dia em BRT); garantia_teto já veio do pedido (pago_em + 30d,
+ * escrita pelo billing no checkout.session.completed) e NÃO é reescrita aqui.
+ *
+ * R7 do desenho de risco: este polling não é o único futuro observador, mas o
+ * teto G3 cobre o caso "nunca ativou" — quem não conecta em 30 dias perde a
+ * janela mesmo sem ninguém olhando.
+ */
+async function materializarGarantia(admin, clinicaId, clinica) {
+  if (!clinica.stripe_customer_id) return;
+  if (clinica.garantia_inicio) return;
+
+  const agora = new Date();
+  const { error } = await admin
+    .from("clinicas")
+    .update({
+      garantia_inicio: agora.toISOString(),
+      garantia_fim: fimDaGarantia(agora),
+    })
+    .eq("id", clinicaId)
+    .is("garantia_inicio", null);
+  if (error) {
+    console.error("garantia_inicio_falhou", clinicaId, error.message);
   }
 }
 
@@ -250,8 +305,11 @@ async function acaoStatus(admin, perfil) {
   // Este polling e o unico ponto em que o backend enxerga a conexao: a UazAPI
   // nao manda webhook, e /instance/connect responde antes do pareamento
   // terminar.
-  if (instancia.conectado && deveIniciarTrial(clinica)) {
-    await iniciarTrial(admin, perfil.clinica_id);
+  if (instancia.conectado) {
+    if (deveIniciarTrial(clinica)) {
+      await iniciarTrial(admin, perfil.clinica_id);
+    }
+    await materializarGarantia(admin, perfil.clinica_id, clinica);
   }
 
   return {
@@ -259,6 +317,8 @@ async function acaoStatus(admin, perfil) {
     corpo: {
       ok: true,
       telefone_sugerido: clinica.telefoneSugerido,
+      garantia_fim: clinica.garantia_fim,
+      garantia_teto: clinica.garantia_teto,
       ...instancia,
     },
   };

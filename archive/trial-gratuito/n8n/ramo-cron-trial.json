@@ -1,0 +1,256 @@
+{
+  "_o": "Ramo do CRON de trial do workflow cf1An4BYT9A0LuHi (Verificacao de Trial). Estes 7 nodes sao o que foi DESCONECTADO ao trocar o trial por pagamento antecipado. O ramo do webhook Stripe do mesmo workflow CONTINUA VIVO e nao esta aqui.",
+  "_restaurar": "Reconectar Config Fixa -> [Buscar Avisos Pendentes, Expirar Clinicas]. Conferir que os payment links de Config Fixa ainda existem no Stripe antes de religar.",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "id": "cf44c374-e3be-4505-997d-262765d20bcb",
+      "name": "Schedule - Diário 9h",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -400,
+        528
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "sv1",
+              "name": "supabase_url",
+              "type": "string",
+              "value": "https://vfyubktlmqytkcewicse.supabase.co"
+            },
+            {
+              "id": "sv2",
+              "name": "stripe_link_mensal",
+              "type": "string",
+              "value": "https://buy.stripe.com/28E4gz8iv3HU97Tcv7gbm01"
+            },
+            {
+              "id": "sv3",
+              "name": "stripe_link_anual",
+              "type": "string",
+              "value": "https://buy.stripe.com/dRm28r42fa6i97T9iVgbm02"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "49b65dec-912b-48b4-b8c5-1c1d04661035",
+      "name": "Config Fixa",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -176,
+        528
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.supabase_url + '/rest/v1/clinicas?status=eq.ativo&trial_fim=gte.' + encodeURIComponent(new Date().toISOString()) + '&trial_fim=lte.' + encodeURIComponent(new Date(Date.now() + 1*24*60*60*1000).toISOString()) + '&select=id,clinica,uazapi_token,uazapi_server,telefone_operador,trial_fim,ultimo_aviso_trial' }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {}
+      },
+      "id": "32be531f-4447-48e8-9d41-410226fc43ad",
+      "name": "Buscar Avisos Pendentes",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        48,
+        432
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "G0RXYRaUhbQwZTyn",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Avisa so no dia final do trial (o dia local BR anterior a trial_fim,\n// ja que trial_fim e meia-noite BRT = inicio do dia seguinte ao ultimo dia util).\n// Nunca duas vezes no mesmo dia (ultimo_aviso_trial != hoje).\nconst BR_OFFSET_MS = -3 * 60 * 60 * 1000;\nfunction dataLocalBR(date) {\n  return new Date(date.getTime() + BR_OFFSET_MS).toISOString().slice(0, 10);\n}\n\nconst hoje = dataLocalBR(new Date());\nconst results = [];\n\nfor (const item of $input.all()) {\n  const c = item.json;\n  if (!c || !c.trial_fim) continue;\n\n  const umDiaAntesDoFim = new Date(new Date(c.trial_fim).getTime() - 24 * 60 * 60 * 1000);\n  const diaFinal = dataLocalBR(umDiaAntesDoFim);\n  if (hoje !== diaFinal) continue;\n  if (c.ultimo_aviso_trial === hoje) continue;\n\n  results.push({ json: { ...c, hoje } });\n}\n\nreturn results;"
+      },
+      "id": "c0b2fabc-2f31-47da-b12e-e370630894ee",
+      "name": "Filtrar Aviso Último Dia",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        272,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.uazapi_server + '/send/text' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "token",
+              "value": "={{ $json.uazapi_token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ number: $json.telefone_operador, text: 'Oi! Hoje é o último dia do seu teste grátis da Recepta AI — expira à meia-noite.\\n\\nPra continuar:\\nMensal R$497/mês: ' + $('Config Fixa').item.json.stripe_link_mensal + '?client_reference_id=' + $json.id + '\\n\\nOu economize no anual, R$347/mês (R$4.164 à vista no ano): ' + $('Config Fixa').item.json.stripe_link_anual + '?client_reference_id=' + $json.id }) }}",
+        "options": {}
+      },
+      "id": "8f1a3dac-2a20-4f52-8b36-d4654c582be4",
+      "name": "Enviar Aviso Trial",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        496,
+        432
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $('Filtrar Aviso Último Dia').item.json.supabase_url + '/rest/v1/clinicas?id=eq.' + $('Filtrar Aviso Último Dia').item.json.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ ultimo_aviso_trial: $('Filtrar Aviso Último Dia').item.json.hoje }) }}",
+        "options": {}
+      },
+      "id": "ace62ffb-b6f9-46f4-b176-421aea66694c",
+      "name": "Marcar Aviso Enviado",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        720,
+        432
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "G0RXYRaUhbQwZTyn",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $json.supabase_url + '/rest/v1/clinicas?status=eq.ativo&trial_fim=lt.' + encodeURIComponent(new Date().toISOString()) }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ status: 'expirado' }) }}",
+        "options": {}
+      },
+      "id": "2c4080bd-1df5-46bf-b232-134656a3a155",
+      "name": "Expirar Clínicas",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        48,
+        624
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "G0RXYRaUhbQwZTyn",
+          "name": "Supabase account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule - Diário 9h": {
+      "main": [
+        [
+          {
+            "node": "Config Fixa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config Fixa": {
+      "main": [
+        [
+          {
+            "node": "Buscar Avisos Pendentes",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Expirar Clínicas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Avisos Pendentes": {
+      "main": [
+        [
+          {
+            "node": "Filtrar Aviso Último Dia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrar Aviso Último Dia": {
+      "main": [
+        [
+          {
+            "node": "Enviar Aviso Trial",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar Aviso Trial": {
+      "main": [
+        [
+          {
+            "node": "Marcar Aviso Enviado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

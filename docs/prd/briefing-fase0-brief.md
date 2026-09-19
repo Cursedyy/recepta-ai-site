@@ -1,5 +1,10 @@
 # Brief Fase 0 — encurtar o briefing (prompt para o front-end)
 
+> **HISTÓRICO — brief de tarefa única, já executado (2026-08-27). NÃO é estado do sistema.**
+> O briefing atual está em `src/briefing/index.html`. Para o estado real leia a
+> memória `briefing` e `features-categorias-clinica`. Este arquivo só serve para
+> entender por que o formulário foi encurtado.
+
 Colar o bloco abaixo inteiro para quem for executar. É autocontido.
 
 ---

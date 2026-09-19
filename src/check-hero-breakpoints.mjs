@@ -152,16 +152,13 @@ const run = async () => {
         );
     }
 
-    // O demo do chat transborda o container de proposito: e o efeito de
-    // sobreposicao pedido no design, feito com as margens negativas de
-    // .msg-in / .msg-out sobre o .demo-panel, que fica recuado 15%. Acima de
-    // 1200px isso passa ~10px da borda direita e ESTA CORRETO — nao "consertar".
-    // O que precisa continuar valendo e o assert de overflow horizontal la em
-    // cima: o transbordo e contido pelo overflow:hidden do .hero e nunca pode
-    // virar barra de rolagem. So por isso a medida segue sendo reportada.
+    // A sangria do chat e DESIGN PEDIDO (dono do produto, 2026-08-29; restaurada
+    // em 2026-09-18): acima de 1200px os baloes passam ~10px da borda direita
+    // do .hero-inner.container. E informativo, nao falha — o assert duro segue
+    // sendo o overflow horizontal (scrollW <= docW), la em cima.
     const sangria =
       m.inner && m.msgRight != null
-        ? `  sangria do chat: ${(m.msgRight - m.inner.right).toFixed(0)}px (intencional)`
+        ? `  sangria do chat: ${(m.msgRight - m.inner.right).toFixed(0)}px (>= 0 acima de 1200px é o design pedido)`
         : "";
 
     await page

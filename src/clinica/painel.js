@@ -22,6 +22,7 @@ var CAMPOS_EXTRAS = DADOS.camposExtras || [];
 var CAMPOS_SALVOS = CONFIG.campos_extras || {};
 var REGRAS_CATEGORIA = DADOS.regrasCategoria || "";
 var FAQ_CATEGORIA = DADOS.faqCategoria || [];
+var TIER_RECURSOS = (DADOS.assinatura || {}).tier || "essencial";
 
 // ── Tabs dinâmicas: esconde/mostra nav items conforme a categoria ──
 (function () {
@@ -30,6 +31,7 @@ var FAQ_CATEGORIA = DADOS.faqCategoria || [];
   // Tabs que a sidebar mostra (data-tab)
   var TABS_SIDEBAR = [
     "agenda",
+    "fila",
     "horarios",
     "precos",
     "procedimentos",
@@ -58,27 +60,13 @@ var FAQ_CATEGORIA = DADOS.faqCategoria || [];
     perfil: "Perfil",
     feriados: "Feriados",
     status: "Status",
+    fila: "Fila de espera",
   };
-  var ICONS = {
-    agenda: "📋",
-    horarios: "🕐",
-    precos: "💰",
-    procedimentos: "⚙️",
-    convenios: "🏥",
-    mensagem: "💬",
-    regras: "⚙️",
-    faq: "❓",
-    conversas: "🗨️",
-    pausa: "⏸️",
-    perfil: "👤",
-    feriados: "📅",
-    status: "📊",
-  };
-
   TABS_SIDEBAR.forEach(function (tab) {
     var navBtn = document.querySelector('.nav-item[data-tab="' + tab + '"]');
     if (!navBtn) return;
     var visivel = TABS_VISIVEIS.indexOf(tab) !== -1;
+    if (tab === "fila") visivel = TIER_RECURSOS === "completo";
     navBtn.style.display = visivel ? "" : "none";
   });
 
@@ -91,6 +79,48 @@ var FAQ_CATEGORIA = DADOS.faqCategoria || [];
     if (labelProc && CATEGORIA_META.nome) {
       labelProc.textContent = "Dados da clínica";
     }
+  }
+  // ── Fila de espera (tier Completo, API server-side) ──
+  function carregarFilaPainel() {
+    var status = document.getElementById("fila-status"), lista = document.getElementById("fila-lista");
+    if (!status || !lista) return;
+    fetch("/api/clinica/painel-acoes?acao=fila").then(function (r) { return r.json().then(function (j) { return { r: r, j: j }; }); }).then(function (x) {
+      if (x.r.status === 403) { status.textContent = "A fila de espera está disponível somente no plano Completo."; lista.innerHTML = ""; return; }
+      if (!x.j.ok) { status.textContent = "Não foi possível carregar a fila."; return; }
+      var itens = x.j.entradas || []; lista.innerHTML = "";
+      if (!itens.length) { status.style.display = ""; status.textContent = "Fila vazia."; return; }
+      status.style.display = "none";
+      itens.forEach(function (item) {
+        var row = document.createElement("div"); row.className = "item-row";
+        var horario = item.status === "ofertado" ? item.oferta_inicio : item.janela_inicio;
+        var janela = horario ? new Date(horario).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }) : "Horário incompleto";
+        row.innerHTML = "<div><strong>" + escapeHtml(item.paciente_nome || item.paciente_telefone) + "</strong><br><small>" + escapeHtml(item.servico || "") + " · " + janela + " · " + escapeHtml(item.status) + (item.oferta_expira_em ? " · expira " + new Date(item.oferta_expira_em).toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" }) : "") + "</small></div>";
+        if (["aguardando", "ofertado"].indexOf(item.status) >= 0) { var b = document.createElement("button"); b.className = "btn btn-danger btn-sm"; b.textContent = "Cancelar"; b.onclick = function () { responderFila("cancelar", item.id, b); }; row.appendChild(b); }
+        if (item.status === "ofertado") { [ ["Aceitar", "aceitar"], ["Recusar", "recusar"] ].forEach(function (pair) { var x = document.createElement("button"); x.className = "btn btn-sm"; x.textContent = pair[0]; x.onclick = function () { responderFila(pair[1], item.id, x); }; row.appendChild(x); }); }
+        lista.appendChild(row);
+      });
+    }).catch(function () { status.textContent = "Falha de conexão."; });
+  }
+  function responderFila(acao, id, botao) {
+    var status = document.getElementById("fila-status");
+    if (["cancelar", "recusar"].indexOf(acao) >= 0 && !window.confirm(acao === "cancelar" ? "Cancelar esta entrada da fila?" : "Recusar esta oferta?")) return;
+    if (botao) { botao.disabled = true; botao.setAttribute("aria-busy", "true"); }
+    status.style.display = "";
+    status.textContent = "Atualizando fila...";
+    fetch("/api/clinica/painel-acoes", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ acao: acao, id: id }) })
+      .then(function (r) { return r.json().then(function (j) {
+        if (!r.ok || !j.ok) {
+          status.style.display = "";
+          status.textContent = j.mensagem || (j.erro === "horario_ocupado" ? "Esse horário já está ocupado. Escolha outra oferta." : "Não foi possível atualizar a oferta.");
+          return;
+        }
+        carregarFilaPainel();
+      }); })
+      .catch(function () { status.style.display = ""; status.textContent = "Falha de conexão. Tente novamente."; })
+      .finally(function () { if (botao) { botao.disabled = false; botao.removeAttribute("aria-busy"); } });
+  }
+  if (TIER_RECURSOS === "completo") {
+    document.querySelectorAll('[data-tab="fila"]').forEach(function (b) { b.addEventListener("click", carregarFilaPainel); });
   }
 })();
 
@@ -166,18 +196,29 @@ function el(tag, attrs, filhos) {
 
 // ── Empty state helper ──
 var EMPTY_SVG = {
-  calendar: '<svg viewBox="0 0 24 24" class="empty-state-icon"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
-  dollar: '<svg viewBox="0 0 24 24" class="empty-state-icon"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
-  building: '<svg viewBox="0 0 24 24" class="empty-state-icon"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9v.01"/><path d="M9 12v.01"/><path d="M9 15v.01"/><path d="M9 18v.01"/></svg>',
+  calendar:
+    '<svg viewBox="0 0 24 24" class="empty-state-icon"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+  dollar:
+    '<svg viewBox="0 0 24 24" class="empty-state-icon"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
+  building:
+    '<svg viewBox="0 0 24 24" class="empty-state-icon"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9v.01"/><path d="M9 12v.01"/><path d="M9 15v.01"/><path d="M9 18v.01"/></svg>',
   help: '<svg viewBox="0 0 24 24" class="empty-state-icon"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
   chat: '<svg viewBox="0 0 24 24" class="empty-state-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
   info: '<svg viewBox="0 0 24 24" class="empty-state-icon"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
 };
 function emptyStateHtml(icon, title, desc, ctaHtml) {
-  return '<div class="empty-state">' + EMPTY_SVG[icon] +
-    '<div class="empty-state-title">' + title + '</div>' +
-    '<div class="empty-state-desc">' + desc + '</div>' +
-    (ctaHtml || '') + '</div>';
+  return (
+    '<div class="empty-state">' +
+    EMPTY_SVG[icon] +
+    '<div class="empty-state-title">' +
+    title +
+    "</div>" +
+    '<div class="empty-state-desc">' +
+    desc +
+    "</div>" +
+    (ctaHtml || "") +
+    "</div>"
+  );
 }
 
 // ── Agenda ──
@@ -505,7 +546,11 @@ function renderAgenda(agendamentos) {
   elProx.innerHTML = "";
   elAnt.innerHTML = "";
   if (!agendamentos.length) {
-    elStatus.innerHTML = emptyStateHtml('calendar', 'Agenda vazia', 'Agendamentos feitos pela Recepta ou pela clínica aparecem aqui.');
+    elStatus.innerHTML = emptyStateHtml(
+      "calendar",
+      "Agenda vazia",
+      "Agendamentos feitos pela Recepta ou pela clínica aparecem aqui.",
+    );
     elStatus.style.display = "";
     return;
   }
@@ -523,7 +568,11 @@ function renderAgenda(agendamentos) {
     });
   } else {
     elStatus.style.display = "";
-    elStatus.innerHTML = emptyStateHtml('calendar', 'Sem agendamentos futuros', 'Agendamentos feitos pela Recepta ou pela clínica aparecem aqui.');
+    elStatus.innerHTML = emptyStateHtml(
+      "calendar",
+      "Sem agendamentos futuros",
+      "Agendamentos feitos pela Recepta ou pela clínica aparecem aqui.",
+    );
   }
   if (anteriores.length) {
     elAntW.style.display = "";
@@ -564,7 +613,12 @@ var elPrecos = document.getElementById("lista-precos");
 function renderPrecos() {
   elPrecos.innerHTML = "";
   if (!CONFIG.precos.length) {
-    elPrecos.innerHTML = emptyStateHtml('dollar', 'Nenhum preço cadastrado', 'Adicione os serviços e valores que a Recepta usa para informar pacientes.', '<button type="button" class="btn btn-primary" onclick="document.getElementById(\'add-preco\').click()">+ Adicionar preço</button>');
+    elPrecos.innerHTML = emptyStateHtml(
+      "dollar",
+      "Nenhum preço cadastrado",
+      "Adicione os serviços e valores que a Recepta usa para informar pacientes.",
+      '<button type="button" class="btn btn-primary" onclick="document.getElementById(\'add-preco\').click()">+ Adicionar preço</button>',
+    );
     return;
   }
   CONFIG.precos.forEach(function (item, i) {
@@ -609,7 +663,12 @@ var elConv = document.getElementById("lista-convenios");
 function renderConvenios() {
   elConv.innerHTML = "";
   if (!CONFIG.convenios.length) {
-    elConv.innerHTML = emptyStateHtml('building', 'Nenhum convênio cadastrado', 'Adicione os convênios que a clínica aceita para informar os pacientes.', '<button type="button" class="btn btn-primary" onclick="document.getElementById(\'add-convenio\').click()">+ Adicionar convênio</button>');
+    elConv.innerHTML = emptyStateHtml(
+      "building",
+      "Nenhum convênio cadastrado",
+      "Adicione os convênios que a clínica aceita para informar os pacientes.",
+      '<button type="button" class="btn btn-primary" onclick="document.getElementById(\'add-convenio\').click()">+ Adicionar convênio</button>',
+    );
     return;
   }
   CONFIG.convenios.forEach(function (nome, i) {
@@ -717,7 +776,11 @@ var elFaq = document.getElementById("lista-faq");
 function renderFaq() {
   elFaq.innerHTML = "";
   if (!CONFIG.faq.length) {
-    elFaq.innerHTML = emptyStateHtml('help', 'Nenhuma pergunta cadastrada', 'Adicione perguntas frequentes que a Recepta usa para responder pacientes.');
+    elFaq.innerHTML = emptyStateHtml(
+      "help",
+      "Nenhuma pergunta cadastrada",
+      "Adicione perguntas frequentes que a Recepta usa para responder pacientes.",
+    );
     return;
   }
   CONFIG.faq.forEach(function (item, i) {
@@ -764,7 +827,11 @@ var elCamposCat = document.getElementById("campos-categoria");
 function renderCamposCategoria() {
   if (!elCamposCat || !CAMPOS_EXTRAS.length) {
     if (elCamposCat)
-      elCamposCat.innerHTML = emptyStateHtml('info', 'Nenhum dado específico', 'Esta categoria não possui campos adicionais no momento.');
+      elCamposCat.innerHTML = emptyStateHtml(
+        "info",
+        "Nenhum dado específico",
+        "Esta categoria não possui campos adicionais no momento.",
+      );
     return;
   }
   elCamposCat.innerHTML = "";
@@ -965,6 +1032,24 @@ elBtnSalvar.addEventListener("click", function () {
     });
 });
 
+// ── Tema claro/escuro ──
+// O tema inicial já foi aplicado por um script inline no <head> (evita o
+// flash branco). Aqui só fica a troca por clique e a persistência.
+document.getElementById("btn-tema").addEventListener("click", function () {
+  var escuroAgora =
+    document.documentElement.getAttribute("data-theme") === "dark";
+  if (escuroAgora) {
+    document.documentElement.removeAttribute("data-theme");
+  } else {
+    document.documentElement.setAttribute("data-theme", "dark");
+  }
+  try {
+    localStorage.setItem("recepta-tema", escuroAgora ? "light" : "dark");
+  } catch (e) {
+    // Navegador com armazenamento bloqueado: o tema vale só nesta aba.
+  }
+});
+
 // ── Logout ──
 document.getElementById("btn-sair").addEventListener("click", function () {
   fetch("/api/clinica/painel-acoes?acao=logout", { method: "GET" }).then(
@@ -1000,6 +1085,46 @@ document
       })
       .catch(function () {
         elSP.innerHTML = '<span class="badge badge-red">Falha</span>';
+      });
+  });
+
+// ── Telefone que recebe os alertas de escalonamento ──
+var elTelAlerta = document.getElementById("telefone-alerta");
+if (elTelAlerta && elTelAlerta.value) {
+  // O banco guarda E.164 sem "+", a tela mostra "(53) 991635302".
+  elTelAlerta.value = telefoneBonito(elTelAlerta.value);
+}
+
+document
+  .getElementById("btn-salvar-alerta")
+  .addEventListener("click", function () {
+    var elSA = document.getElementById("status-alerta");
+    var v = document.getElementById("telefone-alerta").value;
+    elSA.innerHTML = "";
+    if (String(v).replace(/\D/g, "").length < 10) {
+      elSA.innerHTML = '<span class="badge badge-red">Número inválido</span>';
+      return;
+    }
+    fetch("/api/clinica/painel-acoes", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ acao: "telefone_alerta", telefone_alerta: v }),
+    })
+      .then(function (r) {
+        return r.json();
+      })
+      .then(function (res) {
+        if (res.ok) {
+          document.getElementById("telefone-alerta").value = telefoneBonito(
+            res.telefone_alerta,
+          );
+          elSA.innerHTML = '<span class="badge badge-green">Salvo!</span>';
+        } else {
+          elSA.innerHTML = '<span class="badge badge-red">Erro</span>';
+        }
+      })
+      .catch(function () {
+        elSA.innerHTML = '<span class="badge badge-red">Falha</span>';
       });
   });
 
@@ -1070,14 +1195,21 @@ function linhaDetalhe(rotulo, valor, alerta) {
   var elA = document.getElementById("assinatura-acao");
 
   // ── Badge: sai do banco, aparece de imediato, sem esperar o Stripe ──
-  var ehTrial = ASSINATURA.status === "trial";
+  // clinicas.status so conhece 'ativo' e 'expirado' (vocabulario do n8n) —
+  // nao existe status 'trial'. Clinica em teste = status ativo + trial_fim no
+  // futuro (o checkout zera trial_fim, entao pagante nunca cai aqui).
   var ehAtivo = ASSINATURA.status === "ativo";
-  elS.textContent = ehAtivo
-    ? "Assinatura ativa"
-    : ehTrial
-      ? "Periodo de teste"
+  var ehTrial =
+    ehAtivo &&
+    !!ASSINATURA.trial_fim &&
+    new Date(ASSINATURA.trial_fim).getTime() > Date.now();
+  elS.textContent = ehTrial
+    ? "Periodo de teste"
+    : ehAtivo
+      ? "Assinatura ativa"
       : ASSINATURA.status || "Desconhecido";
-  elS.className = ehAtivo ? "badge badge-green" : "badge badge-muted";
+  elS.className =
+    ehTrial || !ehAtivo ? "badge badge-muted" : "badge badge-green";
 
   // ── Detalhes do banco ──
   var lista = el("div", { class: "det-lista" });
@@ -1087,6 +1219,11 @@ function linhaDetalhe(rotulo, valor, alerta) {
     lista.appendChild(linhaDetalhe(rotulo, valor, alerta));
     temLinha = true;
   }
+
+  addLinha(
+    "Recursos",
+    ASSINATURA.tier === "completo" ? "Completo" : "Essencial",
+  );
 
   addLinha(
     "Plano",
@@ -1117,6 +1254,29 @@ function linhaDetalhe(rotulo, valor, alerta) {
   }
 
   addLinha("Cliente desde", dataBR(ASSINATURA.criado_em));
+
+  // ── Garantia de reembolso (F7/G3) ──
+  // Regimes disjuntos: ativou → garantia_fim; nunca ativou → teto de 30d do
+  // pagamento. Só aparece com garantia materializada (null = trial/legado).
+  // Falha da rota de reembolso não apaga o que já está na tela.
+  var fimGarantia = ASSINATURA.garantia_fim || ASSINATURA.garantia_teto || null;
+  if (fimGarantia) {
+    var diasGar = diasAte(fimGarantia);
+    var txtGar =
+      dataBR(fimGarantia) +
+      (diasGar !== null && diasGar >= 0
+        ? diasGar > 1
+          ? " (faltam " + diasGar + " dias)"
+          : diasGar === 1
+            ? " (último dia)"
+            : " (termina hoje)"
+        : " (encerrada)");
+    addLinha("Garantia de reembolso", txtGar, diasGar !== null && diasGar <= 3);
+  }
+  if (ASSINATURA.reembolsado_em)
+    addLinha("Reembolso", "Concluído em " + dataBR(ASSINATURA.reembolsado_em), true);
+  else if (ASSINATURA.reembolso_pedido_em)
+    addLinha("Pedido de reembolso", "Registrado em " + dataBR(ASSINATURA.reembolso_pedido_em));
 
   if (temLinha) elD.appendChild(lista);
 
@@ -1204,16 +1364,84 @@ function linhaDetalhe(rotulo, valor, alerta) {
         .then(function (res) {
           if (res.ok && res.url) window.location.href = res.url;
           else {
+            // 503/502 trazem `detalhe` com a mensagem amigável da API
+            // (mesmo padrão do fluxo de reembolso: alert com fallback).
+            window.alert(
+              (res && res.detalhe) ||
+                "Não conseguimos abrir o gerenciamento agora. Tente novamente em instantes.",
+            );
             btn.disabled = false;
             btn.textContent = "Gerenciar assinatura";
           }
         })
         .catch(function () {
+          window.alert(
+            "Não conseguimos abrir o gerenciamento agora. Tente novamente em instantes.",
+          );
           btn.disabled = false;
           btn.textContent = "Gerenciar assinatura";
         });
     });
     elA.appendChild(btn);
+  }
+
+  // ── Botão "Pedir reembolso" (F7/G4 — canal primário) ──
+  // Cancelamento ≠ reembolso (G11): o portal do Stripe CANCELA (para de
+  // renovar); este botão PEDE O DINHEIRO DE VOLTA. São promessas diferentes,
+  // então vivem em controles diferentes. Escondido depois de reembolso
+  // concluído; o estado "pedido já registrado" fica na lista acima.
+  if (ASSINATURA.tem_stripe && !ASSINATURA.reembolsado_em) {
+    var btnReemb = el("button", {
+      type: "button",
+      class: "btn btn-ghost btn-sm",
+      text: ASSINATURA.reembolso_pedido_em
+        ? "Pedido registrado — ver detalhes"
+        : "Pedir reembolso (garantia de 7 dias)",
+    });
+    btnReemb.addEventListener("click", function () {
+      if (
+        !window.confirm(
+          "A garantia de 7 dias devolve 100% do valor pago e encerra o acesso à Recepta na aprovação.\n\nDeseja registrar o pedido de reembolso?",
+        )
+      )
+        return;
+      btnReemb.disabled = true;
+      btnReemb.textContent = "Registrando…";
+      fetch("/api/clinica/painel-acoes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ acao: "reembolso" }),
+      })
+        .then(function (r) {
+          return r.json().then(function (j) {
+            return { r: r, j: j };
+          });
+        })
+        .then(function (x) {
+          if (x.r.ok && x.j.ok) {
+            if (x.j.registrado_em && window.receptaAnalytics) window.receptaAnalytics("reembolso_solicitado");
+            window.alert(x.j.mensagem || "Pedido registrado.");
+            window.location.reload();
+          } else if (x.r.status === 409) {
+            window.alert(x.j.mensagem || "Este contrato já foi reembolsado.");
+            btnReemb.disabled = false;
+            btnReemb.textContent = "Pedir reembolso (garantia de 7 dias)";
+          } else {
+            window.alert(
+              (x.j && x.j.mensagem) ||
+                "Não conseguimos registrar agora. Tente novamente em instantes.",
+            );
+            btnReemb.disabled = false;
+            btnReemb.textContent = "Pedir reembolso (garantia de 7 dias)";
+          }
+        })
+        .catch(function () {
+          window.alert("Falha de rede. Tente novamente em instantes.");
+          btnReemb.disabled = false;
+          btnReemb.textContent = "Pedir reembolso (garantia de 7 dias)";
+        });
+    });
+    elA.appendChild(btnReemb);
   }
 })();
 
@@ -1262,7 +1490,11 @@ function renderConversas(msgs) {
   var elLi = document.getElementById("conv-lista");
   elLi.innerHTML = "";
   if (!msgs.length) {
-    elSt.innerHTML = emptyStateHtml('chat', 'Nenhuma conversa ainda', 'Conversas com pacientes aparecem aqui depois que a Recepta começar a atender.');
+    elSt.innerHTML = emptyStateHtml(
+      "chat",
+      "Nenhuma conversa ainda",
+      "Conversas com pacientes aparecem aqui depois que a Recepta começar a atender.",
+    );
     elSt.style.display = "";
     return;
   }
@@ -1284,7 +1516,9 @@ function renderConversas(msgs) {
     var ult = conv.msgs[0];
     var role = ult.role === "ia" ? "Recepta: " : "Paciente: ";
     var corpoMidia = detectarMidia(ult.mensagem, ult.mensagem_media);
-    var corpo = corpoMidia ? corpoMidia.icone + ' ' + corpoMidia.label : textoMensagem(ult.mensagem);
+    var corpo = corpoMidia
+      ? corpoMidia.icone + " " + corpoMidia.label
+      : textoMensagem(ult.mensagem);
     if (corpo.length > 80) corpo = corpo.slice(0, 80) + "…";
     var dt = new Date(ult.criado_em).toLocaleString("pt-BR", {
       timeZone: "America/Sao_Paulo",
@@ -1294,7 +1528,7 @@ function renderConversas(msgs) {
       minute: "2-digit",
     });
     var badgePausa = isPausada
-      ? '<span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:999px;font-size:10px;margin-left:6px">Pausada</span>'
+      ? '<span class="badge-pausada">Pausada</span>'
       : "";
     div.innerHTML =
       '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><b style="font-size:14px">' +
@@ -1396,12 +1630,36 @@ function detectarMidia(t, mediaJson) {
     if (m || u) {
       var r = {};
       if (m) {
-        if (m.indexOf("audio") === 0) { r.tipo = "audio"; r.icone = "🎤"; r.label = "Áudio" + (mediaJson.seconds ? " · " + Math.round(mediaJson.seconds) + "s" : ""); }
-        else if (mediaJson.isSticker === true || m === "image/webp") { r.tipo = "sticker"; r.icone = "🏷"; r.label = "Sticker"; }
-        else if (m.indexOf("image") === 0) { r.tipo = "imagem"; r.icone = "🖼"; r.label = "Imagem"; }
-        else if (m.indexOf("video") === 0) { r.tipo = "video"; r.icone = "🎬"; r.label = "Vídeo"; }
-        else { r.tipo = "documento"; r.icone = "📎"; r.label = "Documento"; }
-      } else { r.tipo = "documento"; r.icone = "📎"; r.label = "Mídia"; }
+        if (m.indexOf("audio") === 0) {
+          r.tipo = "audio";
+          r.icone = "🎤";
+          r.label =
+            "Áudio" +
+            (mediaJson.seconds
+              ? " · " + Math.round(mediaJson.seconds) + "s"
+              : "");
+        } else if (mediaJson.isSticker === true || m === "image/webp") {
+          r.tipo = "sticker";
+          r.icone = "🏷";
+          r.label = "Sticker";
+        } else if (m.indexOf("image") === 0) {
+          r.tipo = "imagem";
+          r.icone = "🖼";
+          r.label = "Imagem";
+        } else if (m.indexOf("video") === 0) {
+          r.tipo = "video";
+          r.icone = "🎬";
+          r.label = "Vídeo";
+        } else {
+          r.tipo = "documento";
+          r.icone = "📎";
+          r.label = "Documento";
+        }
+      } else {
+        r.tipo = "documento";
+        r.icone = "📎";
+        r.label = "Mídia";
+      }
       if (u) r.url = u;
       return r;
     }
@@ -1414,46 +1672,104 @@ function detectarMidia(t, mediaJson) {
     if (!m && !u) return null;
     var r = {};
     if (m) {
-      if (m.indexOf("audio") === 0) { r.tipo = "audio"; r.icone = "🎤"; r.label = "Áudio" + (o.seconds ? " · " + Math.round(o.seconds) + "s" : ""); }
-      else if (o.isSticker === true || m === "image/webp") { r.tipo = "sticker"; r.icone = "🏷"; r.label = "Sticker"; }
-      else if (m.indexOf("image") === 0) { r.tipo = "imagem"; r.icone = "🖼"; r.label = "Imagem"; }
-      else if (m.indexOf("video") === 0) { r.tipo = "video"; r.icone = "🎬"; r.label = "Vídeo"; }
-      else { r.tipo = "documento"; r.icone = "📎"; r.label = "Documento"; }
-    } else { r.tipo = "documento"; r.icone = "📎"; r.label = "Mídia"; }
+      if (m.indexOf("audio") === 0) {
+        r.tipo = "audio";
+        r.icone = "🎤";
+        r.label =
+          "Áudio" + (o.seconds ? " · " + Math.round(o.seconds) + "s" : "");
+      } else if (o.isSticker === true || m === "image/webp") {
+        r.tipo = "sticker";
+        r.icone = "🏷";
+        r.label = "Sticker";
+      } else if (m.indexOf("image") === 0) {
+        r.tipo = "imagem";
+        r.icone = "🖼";
+        r.label = "Imagem";
+      } else if (m.indexOf("video") === 0) {
+        r.tipo = "video";
+        r.icone = "🎬";
+        r.label = "Vídeo";
+      } else {
+        r.tipo = "documento";
+        r.icone = "📎";
+        r.label = "Documento";
+      }
+    } else {
+      r.tipo = "documento";
+      r.icone = "📎";
+      r.label = "Mídia";
+    }
     if (u) r.url = u;
     return r;
-  } catch (e) { return null; }
+  } catch (e) {
+    return null;
+  }
 }
 
 function criarMidiaElement(midia) {
   if (midia.tipo === "imagem" && midia.url) {
     var wrap = el("div", { style: "margin-bottom:4px" });
-    var img = el("img", { src: midia.url, alt: "Imagem", style: "max-width:260px;max-height:300px;border-radius:8px;display:block" });
-    var chip = el("span", { class: "chip-midia", text: midia.icone + " " + midia.label });
-    img.onerror = function() { this.style.display = 'none'; chip.textContent = '⏰ Mídia expirada'; };
+    var img = el("img", {
+      src: midia.url,
+      alt: "Imagem",
+      style: "max-width:260px;max-height:300px;border-radius:8px;display:block",
+    });
+    var chip = el("span", {
+      class: "chip-midia",
+      text: midia.icone + " " + midia.label,
+    });
+    img.onerror = function () {
+      this.style.display = "none";
+      chip.textContent = "⏰ Mídia expirada";
+    };
     wrap.appendChild(img);
     wrap.appendChild(chip);
     return wrap;
   }
   if (midia.tipo === "video" && midia.url) {
     var vw = el("div", { style: "margin-bottom:4px" });
-    var vid = el("video", { src: midia.url, muted: true, preload: "metadata", style: "max-width:260px;max-height:300px;border-radius:8px;display:block" });
-    var vchip = el("span", { class: "chip-midia", text: midia.icone + " " + midia.label });
-    vid.onerror = function() { this.style.display = 'none'; vchip.textContent = '⏰ Mídia expirada'; };
+    var vid = el("video", {
+      src: midia.url,
+      muted: true,
+      preload: "metadata",
+      style: "max-width:260px;max-height:300px;border-radius:8px;display:block",
+    });
+    var vchip = el("span", {
+      class: "chip-midia",
+      text: midia.icone + " " + midia.label,
+    });
+    vid.onerror = function () {
+      this.style.display = "none";
+      vchip.textContent = "⏰ Mídia expirada";
+    };
     vw.appendChild(vid);
     vw.appendChild(vchip);
     return vw;
   }
   if (midia.tipo === "audio" && midia.url) {
     var aw = el("div", { style: "margin-bottom:4px" });
-    var aud = el("audio", { src: midia.url, controls: true, preload: "metadata", style: "width:100%;max-width:260px;display:block" });
-    var achip = el("span", { class: "chip-midia", text: midia.icone + " " + midia.label });
-    aud.onerror = function() { this.style.display = 'none'; achip.textContent = '⏰ Mídia expirada'; };
+    var aud = el("audio", {
+      src: midia.url,
+      controls: true,
+      preload: "metadata",
+      style: "width:100%;max-width:260px;display:block",
+    });
+    var achip = el("span", {
+      class: "chip-midia",
+      text: midia.icone + " " + midia.label,
+    });
+    aud.onerror = function () {
+      this.style.display = "none";
+      achip.textContent = "⏰ Mídia expirada";
+    };
     aw.appendChild(aud);
     aw.appendChild(achip);
     return aw;
   }
-  return el("span", { class: "chip-midia", text: midia.icone + " " + midia.label });
+  return el("span", {
+    class: "chip-midia",
+    text: midia.icone + " " + midia.label,
+  });
 }
 
 function textoMensagem(bruto) {
@@ -1531,7 +1847,17 @@ function abrirConversa(conv) {
             class: "chat-autor",
             text: ehIa ? "Recepta" : "Paciente",
           }),
-          (function(){ var midia=detectarMidia(m.mensagem||"",m.mensagem_media); if(midia) return el("div",{class:"chat-bubble"},[criarMidiaElement(midia)]); return el("div",{class:"chat-bubble",text:textoMensagem(m.mensagem)}); })(),
+          (function () {
+            var midia = detectarMidia(m.mensagem || "", m.mensagem_media);
+            if (midia)
+              return el("div", { class: "chat-bubble" }, [
+                criarMidiaElement(midia),
+              ]);
+            return el("div", {
+              class: "chat-bubble",
+              text: textoMensagem(m.mensagem),
+            });
+          })(),
           el("span", {
             class: "chat-hora",
             text: d.toLocaleTimeString("pt-BR", {
@@ -1697,7 +2023,11 @@ function renderFeriados() {
   var elLi = document.getElementById("feriados-lista");
   elLi.innerHTML = "";
   if (!feriadosDados.length) {
-    elLi.innerHTML = emptyStateHtml('calendar', 'Nenhum feriado cadastrado', 'Adicione feriados para a Recepta não agendar nesses dias.');
+    elLi.innerHTML = emptyStateHtml(
+      "calendar",
+      "Nenhum feriado cadastrado",
+      "Adicione feriados para a Recepta não agendar nesses dias.",
+    );
     return;
   }
   feriadosDados.forEach(function (f) {
@@ -1782,9 +2112,7 @@ metricasPromise
     }
     elC.className = "";
     elC.innerHTML = "";
-    var grid = el("div", {
-      style: "display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px",
-    });
+    var grid = el("div", { class: "metricas-grid" });
     var items = [
       {
         val: res.total_conversas || 0,
@@ -1803,23 +2131,17 @@ metricasPromise
       },
     ];
     items.forEach(function (item) {
-      var card = el(
-        "div",
-        {
-          style:
-            "text-align:center;padding:14px 12px;background:var(--accent-soft);border-radius:var(--radius)",
-        },
-        [
-          el("div", {
-            style: "font-size:28px;font-weight:700;color:" + item.color,
-            text: String(item.val),
-          }),
-          el("div", {
-            style: "font-size:12px;color:var(--muted);margin-top:2px",
-            text: item.lbl,
-          }),
-        ],
-      );
+      var card = el("div", { class: "metrica-card" }, [
+        el("div", {
+          class: "metrica-valor",
+          style: "color:" + item.color,
+          text: String(item.val),
+        }),
+        el("div", {
+          class: "metrica-label",
+          text: item.lbl,
+        }),
+      ]);
       grid.appendChild(card);
     });
     elC.appendChild(grid);
@@ -1848,6 +2170,7 @@ metricasPromise
       .then(function (dados) {
         if (!dados) return;
         if (dados.conectado) {
+          if (window.receptaAnalytics) window.receptaAnalytics("whatsapp_conectado");
           banner.classList.add("hidden");
           if (pollTimer) {
             clearInterval(pollTimer);
@@ -1884,4 +2207,41 @@ metricasPromise
       banner.classList.remove("hidden");
       pollTimer = setInterval(verificarConexao, POLL_CONEXAO_MS);
     });
+})();
+
+// ── Gate de assinatura expirada (tratamento do 402) ──
+// O overlay server-rendered já cobre a tela quando status="expirado". Este
+// bloco cobre o caso de corrida: clinica ativa quando a página carregou,
+// n8n expira no meio da sessão. Toda resposta 402 "assinatura_expirada"
+// vira o overlay com os botões de checkout autenticado já conectados pelo
+// HTML server-rendered.
+(function () {
+  function montarGate402() {
+    var overlay = document.getElementById("gate-overlay");
+    if (!overlay) return;
+    overlay.classList.remove("hidden");
+  }
+
+  var postOriginal = window.fetch;
+  window.fetch = function (input, init) {
+    var url = typeof input === "string" ? input : input && input.url;
+    var method = ((init && init.method) || "GET").toUpperCase();
+    return postOriginal.apply(this, arguments).then(function (resposta) {
+      if (
+        resposta.status === 402 &&
+        method !== "GET" &&
+        url &&
+        url.indexOf("/api/clinica/") === 0
+      ) {
+        resposta
+          .clone()
+          .json()
+          .then(function (corpo) {
+            if (corpo && corpo.erro === "assinatura_expirada") montarGate402();
+          })
+          .catch(function () {});
+      }
+      return resposta;
+    });
+  };
 })();

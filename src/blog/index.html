@@ -3,10 +3,25 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Blog — Recepta AI | Dicas para clínicas e consultórios</title>
+  <title>Blog da Recepta AI | Como atender melhor no WhatsApp da clínica</title>
   <meta name="description" content="Artigos sobre inteligência artificial, atendimento ao paciente, gestão de clínicas e secretarias virtuais para WhatsApp.">
   <meta name="robots" content="index,follow">
   <link rel="canonical" href="https://www.receptaai.com.br/blog/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Blog da Recepta AI | Como atender melhor no WhatsApp da clínica">
+  <meta property="og:description" content="Artigos sobre inteligência artificial, atendimento ao paciente, gestão de clínicas e secretarias virtuais para WhatsApp.">
+  <meta property="og:url" content="https://www.receptaai.com.br/blog/">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:site_name" content="Recepta AI">
+  <meta property="og:image" content="https://www.receptaai.com.br/img/og-recepta.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:alt" content="Recepta AI: secretária virtual com IA para clínicas e consultórios">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Blog da Recepta AI | Como atender melhor no WhatsApp da clínica">
+  <meta name="twitter:description" content="Artigos sobre inteligência artificial, atendimento ao paciente, gestão de clínicas e secretarias virtuais para WhatsApp.">
+  <meta name="twitter:image" content="https://www.receptaai.com.br/img/og-recepta.jpg">
   <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32.png">
   <link rel="icon" type="image/png" sizes="512x512" href="/img/favicon-512.png">
   <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
@@ -35,7 +50,7 @@
     .hero p { color: var(--muted); font-size: 17px; max-width: 50ch; margin: 0 auto; }
 
     .container { max-width: 900px; margin: 0 auto; padding: 40px 24px 80px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 24px; }
 
     .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: box-shadow 0.2s, transform 0.2s; }
     .card:hover { box-shadow: 0 8px 24px rgba(0,0,0,0.08); transform: translateY(-2px); }
@@ -53,6 +68,10 @@
     .cta a:hover { background: var(--primary-hover); }
 
     footer { text-align: center; padding: 24px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--border); }
+    header .logo, nav a { display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; }
+    nav { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px 16px; }
+    nav a { margin-left: 0; }
+    a:focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
   </style>
 </head>
 <body>
@@ -62,18 +81,39 @@
       <nav class="nav">
         <a href="/">Home</a>
         <a href="/blog/">Blog</a>
-        <a href="/briefing/">Teste grátis</a>
+        <a href="/#planos">Assinar</a>
       </nav>
     </div>
   </header>
 
+  <main>
   <section class="hero">
     <h1>Blog Recepta AI</h1>
     <p>Dicas, guias e novidades sobre inteligência artificial para clínicas e consultórios.</p>
   </section>
 
-  <main class="container">
+  <div class="container">
     <div class="grid">
+      <a href="/recepta-vs-concorrentes/" class="card">
+        <div class="card-img">📋</div>
+        <div class="card-body">
+          <span class="card-tag">Comparativo</span>
+          <h2>Recepta vs concorrentes: as 7 perguntas antes de assinar</h2>
+          <p>Checklist para avaliar qualquer fornecedor — inclusive a Recepta — com a tabela do que cada um declara publicamente sobre atendimento, agendamento e preço.</p>
+          <div class="card-meta">Página comparativa · 18/09/2026</div>
+        </div>
+      </a>
+
+      <a href="/blog/ia-vs-secretaria-clt/" class="card">
+        <div class="card-img">⚖️</div>
+        <div class="card-body">
+          <span class="card-tag">Comparativo</span>
+          <h2>IA ou secretária CLT: o que custa menos para sua clínica?</h2>
+          <p>Recepcionista CLT custa tipicamente mais de R$ 3 mil/mês. Veja a comparação completa de custo, cobertura e quando cada uma faz sentido.</p>
+          <div class="card-meta">7 min de leitura · 18/09/2026</div>
+        </div>
+      </a>
+
       <a href="/blog/secretaria-virtual-clinica/" class="card">
         <div class="card-img">🤖</div>
         <div class="card-body">
@@ -94,6 +134,46 @@
         </div>
       </a>
 
+      <a href="/blog/agenda-vazia-clinica/" class="card">
+        <div class="card-img">🗓️</div>
+        <div class="card-body">
+          <span class="card-tag">Gestão</span>
+          <h2>Agenda vazia no consultório: o problema não é falta de pacientes</h2>
+          <p>Antes de anunciar, estanque os 3 vazamentos: falta sem reposição, mensagem fora do horário que morre e base dormente de quem já foi e não voltou.</p>
+          <div class="card-meta">7 min de leitura · 18/09/2026</div>
+        </div>
+      </a>
+
+      <a href="/blog/reduzir-no-show-consultas/" class="card">
+        <div class="card-img">📉</div>
+        <div class="card-body">
+          <span class="card-tag">Gestão</span>
+          <h2>Como reduzir o no-show na sua clínica com lembretes no WhatsApp</h2>
+          <p>Cerca de 20% da agenda se perde com falta de paciente. 5 estratégias práticas para preencher os horários de novo.</p>
+          <div class="card-meta">7 min de leitura · 18/09/2026</div>
+        </div>
+      </a>
+
+      <a href="/blog/whatsapp-clinica-fora-do-horario/" class="card">
+        <div class="card-img">🌙</div>
+        <div class="card-body">
+          <span class="card-tag">Atendimento</span>
+          <h2>Atendimento fora do horário: quem responde o WhatsApp da sua clínica?</h2>
+          <p>O paciente decide à noite e no fim de semana — exatamente quando ninguém responde. O que a clínica perde e como resolver sem virar plantão.</p>
+          <div class="card-meta">6 min de leitura · 18/09/2026</div>
+        </div>
+      </a>
+
+      <a href="/blog/confirmacao-consulta-whatsapp/" class="card">
+        <div class="card-img">✅</div>
+        <div class="card-body">
+          <span class="card-tag">Atendimento</span>
+          <h2>Confirmação de consulta automática pelo WhatsApp: como funciona</h2>
+          <p>O fluxo completo mensagem por mensagem: confirmação, remarcação na conversa, lembrete 24h e 3h e lista de risco para a equipe.</p>
+          <div class="card-meta">6 min de leitura · 18/09/2026</div>
+        </div>
+      </a>
+
       <a href="/blog/erros-clinicas-atendimento/" class="card">
         <div class="card-img">⚠️</div>
         <div class="card-body">
@@ -104,16 +184,18 @@
         </div>
       </a>
     </div>
-  </main>
+  </div>
 
   <section class="cta">
-    <h2>Teste grátis por 7 dias</h2>
-    <p>Sem cartão de crédito. Cancele quando quiser.</p>
-    <a href="/briefing/">Começar agora</a>
+    <h2>Garantia Recepta de 7 dias</h2>
+    <p>Devolvemos 100% se não servir. Cancele quando quiser.</p>
+    <a href="/#planos">Começar agora</a>
   </section>
 
+  </main>
+
   <footer>
-    <p>© 2026 Recepta AI — Secretária virtual com IA para clínicas</p>
+    <p>© 2026 Recepta AI | Secretária virtual com IA para clínicas</p>
   </footer>
 </body>
 </html>

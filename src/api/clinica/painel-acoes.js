@@ -2,11 +2,14 @@ import { createClient } from "@supabase/supabase-js";
 import { createSupabaseServerClient } from "../_lib/supabase-server.js";
 import { autenticarClinica } from "../_lib/auth-clinica.js";
 import { configEditavelPadrao } from "../_lib/config-editavel.js";
-import { rateLimit } from "../_lib/rate-limit.js";
+import { rateLimit, getClientIp } from "../_lib/rate-limit.js";
+import { criarCheckout } from "../checkout.js";
+import { sincronizarAgendamentoSheets } from "../_lib/sheets-sync.js";
+import { ofertaTemJanelaValida } from "../_lib/fila-janela.js";
+import { criarSessaoPortal } from "../_lib/stripe-portal.js";
 
 const MIN_MINUTOS = 1;
 const MAX_MINUTOS = 120;
-const STRIPE_RETURN_URL = "https://www.receptaai.com.br/clinica/painel";
 
 // Mutacoes do painel: 60 por minuto por usuario. Uso normal fica muito
 // abaixo disso; o limite existe para conter loop no client ou conta
@@ -19,6 +22,16 @@ const MAX_MUTACOES = 60;
 const MAX_NOME = 120;
 const MAX_OBSERVACAO = 500;
 const JANELA_MUTACOES_MS = 60 * 1000;
+
+// Pausa por conversa: painel e n8n usam a MESMA tabela, `pausas_ia`.
+// O workflow de Atendimento ("Checar Pausa Ativa") so pergunta
+// `pausado_ate > now()`, entao a pausa manual do painel e' simplesmente uma
+// data absurdamente no futuro. Retomar apaga a linha.
+// A pausa automatica (operador respondeu no WhatsApp -> now + N minutos)
+// escreve na mesma linha; o trigger `pausas_ia_nunca_encurta` (migration 014)
+// impede que ela rebaixe uma pausa manual para 10 minutos.
+const PAUSA_MANUAL_ATE = "2999-12-31T00:00:00.000Z";
+const PAUSA_MANUAL_LIMIAR = "2900-01-01T00:00:00.000Z";
 
 async function acaoTempoPausa(admin, perfil, body) {
   const valor = Number(body?.tempo_pausa_minutos);
@@ -36,6 +49,23 @@ async function acaoTempoPausa(admin, perfil, body) {
   return { status: 200, corpo: { ok: true, tempo_pausa_minutos: valor } };
 }
 
+// O alerta de escalonamento sai da instancia UazAPI da clinica para este
+// numero. Ate 2026-09-09 ele nascia hardcoded no node "Config Fixa" do
+// Onboarding com o celular pessoal do dono do produto, para toda clinica nova.
+async function acaoTelefoneAlerta(admin, perfil, body) {
+  const numero = normalizarTelefone(body?.telefone_alerta);
+  if (!numero) return { status: 400, corpo: { erro: "telefone_invalido" } };
+
+  const { error: erroUpdate } = await admin
+    .from("clinicas")
+    .update({ telefone_alerta: numero })
+    .eq("id", perfil.clinica_id);
+
+  if (erroUpdate) return { status: 500, corpo: { erro: "falha_salvar" } };
+
+  return { status: 200, corpo: { ok: true, telefone_alerta: numero } };
+}
+
 async function acaoPortalSessao(admin, perfil) {
   const stripeKey = process.env.STRIPE_SECRET_KEY;
   if (!stripeKey)
@@ -51,37 +81,40 @@ async function acaoPortalSessao(admin, perfil) {
     return { status: 400, corpo: { erro: "sem_assinatura" } };
   }
 
-  const params = new URLSearchParams();
-  params.set("customer", clinicaRow.stripe_customer_id);
-  params.set("return_url", STRIPE_RETURN_URL);
+  return criarSessaoPortal(clinicaRow.stripe_customer_id, stripeKey);
+}
 
-  const stripeRes = await fetch(
-    "https://api.stripe.com/v1/billing_portal/sessions",
-    {
-      method: "POST",
-      headers: {
-        Authorization: "Bearer " + stripeKey,
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: params.toString(),
-    },
-  );
+async function acaoCheckoutReativacao(admin, perfil, body, req) {
+  const ciclo = body?.ciclo;
+  if (ciclo !== "mensal" && ciclo !== "anual")
+    return { status: 400, corpo: { erro: "ciclo_invalido" } };
 
-  const dados = await stripeRes.json();
-  if (!stripeRes.ok) {
-    // Logar o erro interno mas NAO expor ao cliente (pode conter
-    // informacoes sensiveis do Stripe, como IDs internos ou razoes).
-    console.error("stripe_portal_erro", JSON.stringify(dados?.error));
-    return {
-      status: 502,
-      corpo: {
-        erro: "falha_stripe",
-        detalhe: "Erro ao comunicar com o Stripe. Tente novamente.",
-      },
-    };
-  }
+  const ip = getClientIp(req);
+  const limite = await rateLimit(`checkout:${ip}`, 10, 10 * 60 * 1000);
+  if (limite.blocked)
+    return { status: 429, corpo: { erro: "muitas_tentativas", reset_ms: limite.resetMs } };
 
-  return { status: 200, corpo: { ok: true, url: dados.url } };
+  const { data: clinica, error } = await admin
+    .from("clinicas")
+    .select("tier,status")
+    .eq("id", perfil.clinica_id)
+    .maybeSingle();
+  if (error || !clinica) return { status: 404, corpo: { erro: "clinica_nao_encontrada" } };
+  if (clinica.status !== "expirado")
+    return { status: 409, corpo: { erro: "assinatura_nao_expirada" } };
+
+  const tier = clinica.tier === "completo" ? "completo" : "essencial";
+  return criarCheckout({
+    admin,
+    tier,
+    ciclo,
+    ip,
+    userAgent: req.headers["user-agent"],
+    origem: "painel_reativacao",
+    clinicaId: perfil.clinica_id,
+    successUrl: "https://www.receptaai.com.br/clinica/painel?checkout=sucesso",
+    cancelUrl: "https://www.receptaai.com.br/clinica/painel?checkout=cancelado",
+  });
 }
 
 // Detalhes que so o Stripe tem: valor cobrado, proxima fatura, cartao, se a
@@ -168,6 +201,274 @@ async function resolverNomeClinica(admin, perfil) {
   return data?.clinica || null;
 }
 
+// Status de vida da clinica ('ativo' | 'expirado' — vocabulario do n8n, que
+// e quem grava o campo). O vocabulario vive no n8n: NAO introduzir novos
+// valores aqui.
+async function statusClinica(admin, perfil) {
+  const { data } = await admin
+    .from("clinicas")
+    .select("status")
+    .eq("id", perfil.clinica_id)
+    .maybeSingle();
+  return data?.status || null;
+}
+
+// ── Fila de espera (tier Completo) ─────────────────────────────────────
+// Vivia em api/clinica/fila.js e foi fundida aqui porque a Vercel Hobby
+// limita cada deployment a 12 Serverless Functions (verificado 2026-09-11:
+// com a fila eram 13 => "No more than 12 Serverless Functions"). Mesma
+// superficie: GET ?acao=fila e POST {acao: cancelar|aceitar|recusar}.
+// O arquivo original segue em archive/api-clinica-fila.js.
+const FILA_JANELA_INVALIDA = {
+  ok: false,
+  erro: "janela_invalida",
+  mensagem:
+    "Informe início e fim válidos para a preferência e para o horário oferecido.",
+};
+
+// aceitar/recusar/cancelar continuam abertas com a assinatura expirada:
+// o endpoint autonomo anterior nao checava status da clinica (apenas tier),
+// e recusar uma oferta nao pode depender de pagamento.
+const FILA_ACOES = ["cancelar", "aceitar", "recusar"];
+
+const FILA_ID_RE = /^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i;
+
+function filaCsrfOk(req) {
+  const origin = req.headers?.origin || req.headers?.referer || "";
+  if (!origin) return true;
+  try {
+    const host = new URL(origin).hostname;
+    return (
+      host === "receptaai.com.br" ||
+      host === "www.receptaai.com.br" ||
+      host === "localhost"
+    );
+  } catch {
+    return false;
+  }
+}
+
+async function filaTierCompleto(admin, clinicaId) {
+  const { data } = await admin
+    .from("clinicas")
+    .select("tier")
+    .eq("id", clinicaId)
+    .maybeSingle();
+  return data?.tier === "completo";
+}
+
+async function acaoListarFila(admin, perfil) {
+  const { data, error } = await admin
+    .from("fila_espera")
+    .select(
+      "id,paciente_telefone,paciente_nome,servico,servico_normalizado,janela_inicio,janela_fim,oferta_inicio,oferta_fim,status,entrou_em,ofertado_em,oferta_expira_em,respondido_em,agendamento_id",
+    )
+    .eq("clinica_id", perfil.clinica_id)
+    .order("entrou_em", { ascending: true });
+  if (error)
+    return { status: 500, corpo: { ok: false, erro: "falha_buscar_fila" } };
+  return { status: 200, corpo: { ok: true, entradas: data || [] } };
+}
+
+async function acaoResponderFila(admin, perfil, req, body) {
+  if (!filaCsrfOk(req))
+    return {
+      status: 403,
+      corpo: { ok: false, erro: "csrf_invalido", codigo: "CSRF_INVALIDO" },
+    };
+  const id = String(body?.id || "");
+  const acao = body?.acao;
+  if (
+    !FILA_ACOES.includes(acao) ||
+    !FILA_ID_RE.test(id)
+  )
+    return { status: 400, corpo: { ok: false, erro: "acao_invalida" } };
+  // Body/query não são uma fonte de identidade. Clínica vem apenas da sessão.
+  const { data: owned, error: erroBusca } = await admin
+    .from("fila_espera")
+    .select("id,janela_inicio,janela_fim,oferta_inicio,oferta_fim")
+    .eq("id", id)
+    .eq("clinica_id", perfil.clinica_id)
+    .maybeSingle();
+  if (erroBusca)
+    return { status: 500, corpo: { ok: false, erro: "falha_buscar_fila" } };
+  if (!owned)
+    return { status: 404, corpo: { ok: false, erro: "entrada_nao_encontrada" } };
+  if (acao === "cancelar") {
+    const { data, error } = await admin
+      .from("fila_espera")
+      .update({ status: "cancelado", respondido_em: new Date().toISOString() })
+      .eq("id", id)
+      .eq("clinica_id", perfil.clinica_id)
+      .in("status", ["aguardando", "ofertado"])
+      .select("id,status")
+      .maybeSingle();
+    if (error)
+      return { status: 409, corpo: { ok: false, erro: "nao_pode_cancelar" } };
+    return { status: 200, corpo: { ok: true, entrada: data } };
+  }
+  // Rejeitar ofertas legadas/incompletas antes de executar a RPC de aceite.
+  if (acao === "aceitar" && !ofertaTemJanelaValida(owned))
+    return { status: 400, corpo: FILA_JANELA_INVALIDA };
+  const fn =
+    acao === "aceitar" ? "fila_aceitar_oferta" : "fila_recusar_oferta";
+  const { data, error } = await admin.rpc(fn, {
+    p_id: id,
+    p_clinica: perfil.clinica_id,
+  });
+  if (error) {
+    if (error.code === "22023")
+      return { status: 400, corpo: FILA_JANELA_INVALIDA };
+    if (error.code === "23505")
+      return { status: 409, corpo: { ok: false, erro: "horario_ocupado" } };
+    if (error.code === "P0002")
+      return {
+        status: 404,
+        corpo: { ok: false, erro: "entrada_nao_encontrada" },
+      };
+    return {
+      status: 409,
+      corpo: {
+        ok: false,
+        erro: String(error.message).includes("expirada")
+          ? "oferta_expirada"
+          : "oferta_invalida",
+      },
+    };
+  }
+  if (acao === "aceitar" && data?.id) {
+    const { data: agendamento } = await admin
+      .from("agendamentos")
+      .select("id,clinica_id,paciente_telefone,data_hora,sheet_row")
+      .eq("id", data.id)
+      .eq("clinica_id", perfil.clinica_id)
+      .maybeSingle();
+    if (agendamento)
+      await sincronizarAgendamentoSheets({ admin, agendamento });
+  }
+  return { status: 200, corpo: { ok: true, resultado: data } };
+}
+
+// Acoes que continuam abertas com a assinatura expirada:
+// - checkout_reativacao: cria um pedido autenticado para regularizar a cobrança;
+// - portal_sessao: gerencia assinatura existente (não é fluxo de reativação);
+// - atualizar_perfil: trocar senha nunca pode depender de pagamento;
+// - cancelar/aceitar/recusar: acoes da fila (ver FILA_ACOES acima).
+// As leituras (GET) tambem ficam abertas de proposito: ler configuracao nao
+// gera custo, e manter a aba Status acessivel ajuda o cliente a entender o
+// que fazer. O bloqueio de escrita e o overlay sao camadas independentes:
+// o overlay e a interface do gate, o 402 e o gate em si.
+// ── Reembolso (F7/G4) ─────────────────────────────────────────────────────
+// Canal primário do pedido de reembolso: botão "Pedir reembolso" no painel.
+// O carimbo oficial é o timestamp do SERVIDOR, não do navegador.
+//
+// Esta ação só REGISTRA a intenção (`reembolso_pedido_em`, motivo) — escrita
+// condicional `.is("reembolso_pedido_em", null)`, idempotente: o cliente pode
+// clicar quantas vezes quiser que a data não muda.
+//
+// NÃO estorna, NÃO cancela, NÃO muda `status`: o estorno é humano (runbook do
+// operador — política G4/G5), no Stripe, depois de conferir identidade e
+// janela. v1 é manual por decisão registrada (garantia-politica-operacional).
+//
+// Motivo é opcional e livre (máx 500 chars) — a promessa pública é "sem
+// perguntas"; pedir razão obrigatória contradiria a copy.
+const MAX_MOTIVO_REEMBOLSO = 500;
+
+async function carregarGarantia(admin, clinicaId) {
+  const { data, error } = await admin
+    .from("clinicas")
+    .select(
+      "garantia_inicio,garantia_fim,garantia_teto,reembolso_pedido_em,reembolsado_em,stripe_customer_id",
+    )
+    .eq("id", clinicaId)
+    .maybeSingle();
+
+  if (error) return { erro: { status: 500, corpo: { erro: "falha_buscar" } } };
+  return { garantia: data || {} };
+}
+
+function janelaGarantiaResumo(g) {
+  // G3 — regimes disjuntos: ativou → vale garantia_fim; nunca ativou → teto.
+  const fim = g.garantia_fim || g.garantia_teto || null;
+  return {
+    dentro_da_janela: fim ? new Date(fim).getTime() > Date.now() : false,
+    fim,
+    origem: g.garantia_fim ? "ativacao" : g.garantia_teto ? "teto" : null,
+  };
+}
+
+async function acaoReembolso(admin, perfil, body) {
+  // Limite próprio: 5 por hora. O teto global de mutações do painel (60/min)
+  // é frouxo demais para uma ação que vira ticket humano.
+  const rl = await rateLimit("reembolso-post:" + perfil.id, 5, 60 * 60 * 1000);
+  if (rl.blocked) {
+    return {
+      status: 429,
+      corpo: { erro: "muitas_requisicoes", mensagem: "Aguarde alguns minutos." },
+    };
+  }
+
+  const motivo = String(body?.motivo || "").slice(0, MAX_MOTIVO_REEMBOLSO);
+
+  const r = await carregarGarantia(admin, perfil.clinica_id);
+  if (r.erro) return { status: r.erro.status, corpo: r.erro.corpo };
+  const g = r.garantia;
+
+  // Reembolsado: o pedido vira informativo; nada novo a registrar.
+  if (g.reembolsado_em) {
+    return {
+      status: 409,
+      corpo: {
+        erro: "ja_reembolsado",
+        mensagem:
+          "Este contrato já foi reembolsado. Se precisar de algo, fale com o suporte.",
+      },
+    };
+  }
+
+  const j = janelaGarantiaResumo(g);
+  const agora = new Date().toISOString();
+
+  // Idempotente por construção: só grava se não há pedido anterior.
+  const { error } = await admin
+    .from("clinicas")
+    .update({
+      reembolso_pedido_em: agora,
+      reembolso_motivo: motivo || null,
+    })
+    .eq("id", perfil.clinica_id)
+    .is("reembolso_pedido_em", null);
+
+  if (error) {
+    console.error("reembolso_pedido_falhou", perfil.clinica_id, error.message);
+    return { status: 500, corpo: { erro: "falha_registrar" } };
+  }
+
+  return {
+    status: 200,
+    corpo: {
+      ok: true,
+      // Registro com data nova = este request venceu a corrida; com null =
+      // já havia pedido (resposta honesta: a data oficial é a primeira).
+      registrado_em: g.reembolso_pedido_em ? null : agora,
+      pedido_em: g.reembolso_pedido_em || agora,
+      ...j,
+      mensagem:
+        "Recebemos seu pedido. Respondemos em até 2 dias úteis e lançamos o estorno em até 5 dias úteis após a resposta. O crédito no cartão depende do prazo do seu banco.",
+    },
+  };
+}
+
+function acaoBloqueadaExpirado(acao) {
+  return (
+    acao !== "portal_sessao" &&
+    acao !== "checkout_reativacao" &&
+    acao !== "atualizar_perfil" &&
+    acao !== "reembolso" &&
+    !FILA_ACOES.includes(acao)
+  );
+}
+
 async function acaoPausarConversa(admin, perfil, body) {
   const telefone = body?.telefone;
   const clinicaBody = body?.clinica;
@@ -190,26 +491,18 @@ async function acaoPausarConversa(admin, perfil, body) {
   if (!conversa)
     return { status: 404, corpo: { erro: "conversa_nao_encontrada" } };
 
-  const { error } = await admin.from("conversas_pausadas").upsert(
+  const { error } = await admin.from("pausas_ia").upsert(
     {
       telefone,
       clinica: nomeClinica,
-      pausada: true,
-      pausada_em: new Date().toISOString(),
+      pausado_ate: PAUSA_MANUAL_ATE,
     },
     { onConflict: "telefone,clinica" },
   );
 
   if (error) {
     console.error("pausar_conversa_erro", error.message);
-    return {
-      status: 500,
-      corpo: {
-        erro: "falha_pausar",
-        detalhe:
-          "Tabela conversas_pausadas não existe. Execute o SQL de migração.",
-      },
-    };
+    return { status: 500, corpo: { erro: "falha_pausar" } };
   }
 
   return { status: 200, corpo: { ok: true, pausada: true } };
@@ -225,22 +518,17 @@ async function acaoRetomarConversa(admin, perfil, body) {
   if (!nomeClinica || nomeClinica !== clinicaBody)
     return { status: 403, corpo: { erro: "sem_permissao" } };
 
+  // Apaga a linha inteira: retomar tambem cancela uma pausa automatica em
+  // curso, que e' o que a clinica espera ao clicar em "Retomar".
   const { error } = await admin
-    .from("conversas_pausadas")
+    .from("pausas_ia")
     .delete()
     .eq("telefone", telefone)
     .eq("clinica", nomeClinica);
 
   if (error) {
     console.error("retomar_conversa_erro", error.message);
-    return {
-      status: 500,
-      corpo: {
-        erro: "falha_retomar",
-        detalhe:
-          "Tabela conversas_pausadas não existe. Execute o SQL de migração.",
-      },
-    };
+    return { status: 500, corpo: { erro: "falha_retomar" } };
   }
 
   return { status: 200, corpo: { ok: true, pausada: false } };
@@ -316,14 +604,17 @@ async function acaoCriarAgendamento(admin, perfil, body) {
       status: "agendado",
     })
     .select(
-      "id,paciente_telefone,paciente_nome,observacao,data_hora,status,cancelado_em",
+      "id,clinica_id,paciente_telefone,paciente_nome,observacao,data_hora,status,cancelado_em,sheet_row",
     )
     .maybeSingle();
 
   if (error) {
+    if (error.code === "23505") return { status: 409, corpo: { erro: "horario_ocupado" } };
     console.error("criar_agendamento_erro", error.message);
     return { status: 500, corpo: { erro: "falha_criar" } };
   }
+
+  if (criado) await sincronizarAgendamentoSheets({ admin, agendamento: criado });
 
   return { status: 200, corpo: { ok: true, agendamento: criado } };
 }
@@ -355,13 +646,29 @@ async function acaoRemarcarAgendamento(admin, perfil, body) {
   if (agendamento.status === "cancelado")
     return { status: 400, corpo: { erro: "agendamento_cancelado" } };
 
-  // Atualizar data/hora
+  // A pré-checagem dá uma resposta legível; a unique constraint continua sendo
+  // a proteção contra duas remarcações/criações simultâneas.
+  const { data: choque, error: erroConflito } = await admin
+    .from("agendamentos")
+    .select("id")
+    .eq("clinica_id", perfil.clinica_id)
+    .eq("data_hora", novaData.toISOString())
+    .neq("status", "cancelado")
+    .neq("id", agendamentoId)
+    .limit(1)
+    .maybeSingle();
+  if (erroConflito) return { status: 500, corpo: { erro: "falha_remarcar" } };
+  if (choque) return { status: 409, corpo: { erro: "horario_ocupado" } };
+
+  // Só alterar o registro da sessão; falha de constraint mantém o original.
   const { error: erroUpdate } = await admin
     .from("agendamentos")
     .update({ data_hora: novaData.toISOString() })
-    .eq("id", agendamentoId);
+    .eq("id", agendamentoId)
+    .eq("clinica_id", perfil.clinica_id);
 
   if (erroUpdate) {
+    if (erroUpdate.code === "23505") return { status: 409, corpo: { erro: "horario_ocupado" } };
     console.error("remarcar_agendamento_erro", erroUpdate.message);
     return { status: 500, corpo: { erro: "falha_remarcar" } };
   }
@@ -486,19 +793,23 @@ async function acaoConversas(admin, perfil) {
 
   const { data, error } = await admin
     .from("conversas")
-    .select("id,telefone,clinica,role,mensagem,mensagem_media,criado_em,nome_cliente")
+    .select(
+      "id,telefone,clinica,role,mensagem,mensagem_media,criado_em,nome_cliente",
+    )
     .eq("clinica", nomeClinica)
     .order("criado_em", { ascending: false })
     .limit(CONVERSAS_LIMITE);
 
   if (error) return { status: 500, corpo: { erro: "falha_buscar" } };
 
-  // Buscar telefones pausados para marcar na UI
+  // Telefones com pausa MANUAL, para o badge da UI. A pausa automatica de
+  // N minutos tambem mora em `pausas_ia`, mas e' transitoria e nao vira badge:
+  // o limiar de data separa as duas.
   const { data: pausadas } = await admin
-    .from("conversas_pausadas")
+    .from("pausas_ia")
     .select("telefone")
     .eq("clinica", nomeClinica)
-    .eq("pausada", true);
+    .gte("pausado_ate", PAUSA_MANUAL_LIMIAR);
 
   const pausadasSet = new Set((pausadas || []).map((p) => p.telefone));
 
@@ -611,8 +922,7 @@ async function acaoSalvarNomeCliente(admin, perfil, body) {
     return { status: 400, corpo: { erro: "nome_muito_longo" } };
 
   const nomeClinica = await resolverNomeClinica(admin, perfil);
-  if (!nomeClinica)
-    return { status: 403, corpo: { erro: "sem_permissao" } };
+  if (!nomeClinica) return { status: 403, corpo: { erro: "sem_permissao" } };
 
   const valorNome = nomeTrim || null;
 
@@ -662,7 +972,9 @@ async function acaoBuscarSugestaoNome(admin, perfil, query) {
 async function acaoConfig(admin, perfil) {
   const { data: clinicaRow } = await admin
     .from("clinicas")
-    .select("clinica,config_editavel,tempo_pausa_minutos,status,trial_fim,plano,criado_em")
+    .select(
+      "clinica,config_editavel,tempo_pausa_minutos,status,trial_fim,plano,tier,criado_em",
+    )
     .eq("id", perfil.clinica_id)
     .maybeSingle();
 
@@ -706,6 +1018,7 @@ async function acaoConfig(admin, perfil) {
       status: clinicaRow.status || null,
       trial_fim: clinicaRow.trial_fim || null,
       plano: clinicaRow.plano || null,
+      tier: clinicaRow.tier || "essencial",
       criado_em: clinicaRow.criado_em || null,
     },
   };
@@ -792,6 +1105,16 @@ export default async function handler(req, res) {
       const resultado = await acaoListarFeriados(admin, perfil);
       return res.status(resultado.status).json(resultado.corpo);
     }
+    if (acao === "fila") {
+      if (!(await filaTierCompleto(admin, perfil.clinica_id)))
+        return res.status(403).json({
+          ok: false,
+          erro: "fila_disponivel_apenas_no_completo",
+          codigo: "TIER_COMPLETO_OBRIGATORIO",
+        });
+      const resultado = await acaoListarFila(admin, perfil);
+      return res.status(resultado.status).json(resultado.corpo);
+    }
     if (acao === "logout") {
       const supabase = createSupabaseServerClient(req, res);
       await supabase.auth.signOut();
@@ -820,12 +1143,31 @@ export default async function handler(req, res) {
       return res.status(400).json({ erro: "payload_invalido" });
     }
 
+    // Gate de assinatura: com a clinica "expirado" nenhuma mutacao passa,
+    // mesmo que o cliente contorne o overlay do painel chamando a API direto.
+    if (acaoBloqueadaExpirado(body?.acao)) {
+      const status = await statusClinica(admin, perfil);
+      if (status === "expirado") {
+        return res
+          .status(402)
+          .json({ erro: "assinatura_expirada", acao: body?.acao || null });
+      }
+    }
+
     if (body?.acao === "tempo_pausa") {
       const resultado = await acaoTempoPausa(admin, perfil, body);
       return res.status(resultado.status).json(resultado.corpo);
     }
+    if (body?.acao === "telefone_alerta") {
+      const resultado = await acaoTelefoneAlerta(admin, perfil, body);
+      return res.status(resultado.status).json(resultado.corpo);
+    }
     if (body?.acao === "portal_sessao") {
       const resultado = await acaoPortalSessao(admin, perfil);
+      return res.status(resultado.status).json(resultado.corpo);
+    }
+    if (body?.acao === "checkout_reativacao") {
+      const resultado = await acaoCheckoutReativacao(admin, perfil, body, req);
       return res.status(resultado.status).json(resultado.corpo);
     }
     if (body?.acao === "pausar_conversa") {
@@ -860,8 +1202,22 @@ export default async function handler(req, res) {
       const resultado = await acaoAtualizarPerfil(admin, perfil, body);
       return res.status(resultado.status).json(resultado.corpo);
     }
+    if (body?.acao === "reembolso") {
+      const resultado = await acaoReembolso(admin, perfil, body);
+      return res.status(resultado.status).json(resultado.corpo);
+    }
     if (body?.acao === "salvar_nome_cliente") {
       const resultado = await acaoSalvarNomeCliente(admin, perfil, body);
+      return res.status(resultado.status).json(resultado.corpo);
+    }
+    if (FILA_ACOES.includes(body?.acao)) {
+      if (!(await filaTierCompleto(admin, perfil.clinica_id)))
+        return res.status(403).json({
+          ok: false,
+          erro: "fila_disponivel_apenas_no_completo",
+          codigo: "TIER_COMPLETO_OBRIGATORIO",
+        });
+      const resultado = await acaoResponderFila(admin, perfil, req, body);
       return res.status(resultado.status).json(resultado.corpo);
     }
     return res.status(400).json({ erro: "acao_invalida" });

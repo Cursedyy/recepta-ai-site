@@ -3,8 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Política de privacidade — Recepta AI</title>
-    <meta name="robots" content="noindex" />
+    <title>Política de privacidade | Recepta AI</title>
+    <meta name="description" content="Política de privacidade da Recepta AI: como tratamos dados de clínicas e pacientes conforme a LGPD, com segurança, confidencialidade e sem uso para treinamento de modelos." />
+    <meta name="robots" content="index,follow" />
+    <link rel="canonical" href="https://www.receptaai.com.br/privacidade" />
     <link
       rel="icon"
       type="image/png"
@@ -113,6 +115,7 @@
       }
       table {
         width: 100%;
+        table-layout: fixed;
         border-collapse: collapse;
         margin-bottom: 14px;
         font-size: 14px;
@@ -123,6 +126,7 @@
         padding: 8px 10px;
         border: 1px solid var(--line);
         vertical-align: top;
+        overflow-wrap: anywhere;
       }
       th {
         background: var(--surface);
@@ -173,6 +177,9 @@
           opacity: 0.9;
         }
       }
+      .toc li a { display: block; min-height: 44px; padding: 10px 8px; line-height: 1.4; }
+      main p a, .back { display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; max-width: 100%; overflow-wrap: anywhere; }
+      a:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
     </style>
     <link rel="stylesheet" href="/page-transition.css" />
     <link rel="stylesheet" href="/loading-screen.css" />
@@ -185,7 +192,7 @@
       <p class="updated">Última atualização: 18/08/2026</p>
       <p class="note">
         Documento em elaboração, publicado nesta versão ampliada para revisão. A
-        versão final — validada por assessoria jurídica especializada em LGPD —
+        versão final, validada por assessoria jurídica especializada em LGPD, 
         será publicada antes do lançamento comercial da Recepta AI.
       </p>
 
@@ -218,7 +225,7 @@
           Esta política descreve como a Recepta AI ("nós") trata dados pessoais
           no contexto do serviço de secretária virtual com inteligência
           artificial oferecido a clínicas e consultórios, em conformidade com a
-          Lei Geral de Proteção de Dados (Lei nº 13.709/2018 — LGPD).
+          Lei Geral de Proteção de Dados (Lei nº 13.709/2018, LGPD).
         </p>
       </section>
 
@@ -231,7 +238,7 @@
         <ul>
           <li>
             <strong>Dados do responsável da clínica</strong> (quem preenche o
-            briefing de onboarding — nome, e-mail, telefone, CNPJ): aqui a
+            briefing de onboarding: nome, e-mail, telefone, CNPJ): aqui a
             Recepta AI é <strong>controladora</strong>, decidindo como e para
             quê esses dados são usados (operar a conta e prestar o serviço
             contratado).
@@ -239,7 +246,7 @@
           <li>
             <strong>Dados dos pacientes da clínica</strong> (nome, telefone,
             mensagens trocadas no WhatsApp, horários de consulta): aqui a
-            <strong>clínica contratante é a controladora</strong> — é ela quem
+            <strong>clínica contratante é a controladora</strong>, é ela quem
             decide atender pacientes por WhatsApp e quem tem a relação direta
             com o titular dos dados. A Recepta AI atua como
             <strong>operadora</strong>, tratando esses dados exclusivamente para
@@ -296,7 +303,7 @@
         </table>
         <p>
           Não coletamos dados sensíveis de saúde (como diagnósticos ou
-          prontuários) — o atendimento é administrativo (agendamento e dúvidas
+          prontuários), o atendimento é administrativo (agendamento e dúvidas
           de preço/preparo), não clínico.
         </p>
       </section>
@@ -319,7 +326,7 @@
           </li>
           <li>
             <strong>Legítimo interesse</strong> (art. 7º, IX), em hipóteses
-            limitadas e sempre com avaliação de proporcionalidade — por exemplo,
+            limitadas e sempre com avaliação de proporcionalidade, por exemplo,
             prevenção a fraude e abuso da plataforma.
           </li>
         </ul>
@@ -341,11 +348,11 @@
         </p>
         <ul>
           <li>
-            Provedor de conexão com o WhatsApp (API de mensageria) — necessário
+            Provedor de conexão com o WhatsApp (API de mensageria), necessário
             para enviar e receber as mensagens do atendimento;
           </li>
           <li>
-            Provedor de infraestrutura de nuvem e banco de dados — armazenamento
+            Provedor de infraestrutura de nuvem e banco de dados, armazenamento
             da instância da clínica;
           </li>
           <li>
@@ -379,6 +386,15 @@
           administrativo ou arbitral (art. 16 da LGPD). Após o encerramento do
           contrato e decorridos esses prazos, os dados são eliminados ou
           anonimizados, ressalvadas as hipóteses legais de conservação.
+        </p>
+        <p>
+          <strong>Encerramento por reembolso ou cancelamento:</strong> os dados
+          operacionais do uso da plataforma (conversas atendidas, agendamentos
+          criados e a configuração da secretária virtual) permanecem disponíveis
+          para exportação pela clínica durante <strong>30 dias</strong> contados
+          do encerramento e, então, são eliminados. Registros fiscais e
+          contábeis da transação (nota fiscal, comprovantes de cobrança e
+          estorno) são retidos pelo prazo legal aplicável.
         </p>
       </section>
 
@@ -431,11 +447,22 @@
       </section>
 
       <section id="cookies">
-        <h2>10. Cookies no site</h2>
+        <h2>10. Cookies e métricas do site</h2>
         <p>
           O site institucional da Recepta AI utiliza apenas cookies essenciais
-          ao funcionamento básico do site. Não utilizamos cookies de analytics,
-          rastreamento ou publicidade de terceiros.
+          ao funcionamento básico do site (a sessão do painel da clínica). Não
+          utilizamos cookies de analytics, rastreamento ou publicidade de
+          terceiros.
+        </p>
+        <p>
+          Para medir o desempenho do próprio site, coletamos apenas contagens
+          agregadas e anônimas de eventos (por exemplo: visita à página, clique
+          no botão de planos, início do checkout), <strong>sem cookies</strong>,
+          <strong>sem identificador</strong> que permita reconhecer o visitante
+          ou cruzar sessões, e <strong>sem armazenar</strong> endereço IP,
+          cadeia do agente de usuário ou a página de referência. Nenhum desses
+          dados é compartilhado ou vendido e eles não se qualificam como dados
+          pessoais isoladamente.
         </p>
       </section>
 
@@ -472,7 +499,7 @@
           >.
         </p>
         <p>
-          Controlador: Recepta AI — CNPJ 68.213.601/0001-16. O encarregado pelo
+          Controlador: Recepta AI, CNPJ 68.213.601/0001-16. O encarregado pelo
           tratamento de dados pessoais (DPO) responde pelo mesmo endereço.
         </p>
         <p>Respondemos em até 15 dias corridos, conforme o art. 19 da LGPD.</p>
@@ -482,7 +509,7 @@
       <a class="back" href="/">← Voltar para a página inicial</a>
     </div>
     </main>
-    <script src="https://unpkg.com/lenis@latest/dist/lenis.min.js"></script>
+    <script src="/vendor/lenis-1.3.26.min.js"></script>
     <script src="/smooth-scroll.js"></script>
   </body>
 </html>

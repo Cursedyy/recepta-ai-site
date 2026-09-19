@@ -16,6 +16,19 @@ export default async function handler(req, res) {
     return res.status(400).json({ erro: "payload_invalido" });
   }
 
+  // Gate de assinatura: com a clinica "expirado" o painel inteiro esta
+  // bloqueado (overlay server-rendered em painel-view). Aqui e a camada
+  // servidor do mesmo gate — a validacao em si so acontece se a clinica
+  // pode de fato salvar.
+  const { data: clinicaStatus } = await admin
+    .from("clinicas")
+    .select("status")
+    .eq("id", perfil.clinica_id)
+    .maybeSingle();
+  if (clinicaStatus?.status === "expirado") {
+    return res.status(402).json({ erro: "assinatura_expirada" });
+  }
+
   const validado = validarConfigEditavel(body);
   if (!validado.ok) return res.status(400).json({ erro: validado.erro });
 

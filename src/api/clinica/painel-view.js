@@ -12,6 +12,9 @@ const NOME_DIA = {
   domingo: "Domingo",
 };
 
+// Payment Links do tier Completo. Ficam no ambiente da Vercel para que preço e
+// link não precisem ser publicados no código a cada troca. O sufixo
+// client_reference_id é o vínculo usado pelo webhook Stripe no n8n.
 function escapeHtml(valor) {
   return String(valor).replace(
     /[&<>\"']/g,
@@ -34,7 +37,15 @@ function jsonParaScript(obj) {
     .replace(/\//g, "\\u002f");
 }
 
-function paginaPainel(nomeClinica, config, tempoPausaAtual, assinatura, categoriaDados) {
+function paginaPainel(
+  nomeClinica,
+  config,
+  tempoPausaAtual,
+  assinatura,
+  categoriaDados,
+  telefoneAlerta = "",
+) {
+  const gateCompleto = assinatura.tier === "completo";
   return `<!doctype html>
 <html lang="pt-BR">
 <head>
@@ -42,21 +53,37 @@ function paginaPainel(nomeClinica, config, tempoPausaAtual, assinatura, categori
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Painel da clínica · Recepta AI</title>
 <meta name="robots" content="noindex,nofollow">
+<script>
+/* Tema: roda ANTES de qualquer CSS pintar, senão o painel pisca branco a
+   cada carregamento pra quem usa escuro. Sem preferência salva, segue o
+   sistema operacional. try/catch porque localStorage joga exceção em
+   navegador com dados de site bloqueados. */
+(function () {
+  try {
+    var salvo = localStorage.getItem("recepta-tema");
+    var escuro = salvo
+      ? salvo === "dark"
+      : window.matchMedia("(prefers-color-scheme: dark)").matches;
+    if (escuro) document.documentElement.setAttribute("data-theme", "dark");
+  } catch (e) {
+    /* segue no tema claro */
+  }
+})();
+</script>
 <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32.png">
 <link rel="icon" type="image/png" sizes="512x512" href="/img/favicon-512.png">
 <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/clinica/painel.css">
 <style>
 :root {
-  --bg: #f8fafc; --surface: #ffffff; --ink: #0f172a; --muted: #64748b;
-  --border: #e2e8f0;  --accent: #151749; --accent-soft: #f1f5f9;
-  --primary: #4f46e5; --primary-hover: #4338ca; --primary-soft: #eef2ff;
-  --green: #059669; --green-bg: #ecfdf5; --red: #dc2626; --red-bg: #fef2f2;
-  --orange: #ea580c; --orange-bg: #fff7ed;
-  --ring: rgba(79,70,229,0.15); --radius: 10px; --radius-lg: 14px;
+  --bg: #f8f7ff; --surface: #ffffff; --ink: #26205c; --muted: #696580;
+  --border: #dedbf5; --border-input: #8b82c4; --accent: #26205c; --accent-soft: #f0eefb;
+  --primary: #26205c; --primary-hover: #352d78; --primary-soft: #eeedfd;
+  --green: #047857; --green-bg: #ecfdf5; --red: #c81e1e; --red-bg: #fef2f2;
+  --orange: #c2410c; --orange-bg: #fff7ed;
+  --ring: rgba(175, 168, 235, 0.55); --radius: 10px; --radius-lg: 14px;
   --shadow-xs: 0 1px 2px rgba(0,0,0,0.03);
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
   --shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.03);
@@ -86,7 +113,7 @@ button, input, textarea, select { font: inherit; }
 .sidebar-section { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; padding: 16px 14px 8px; }
 .nav-item { display: flex; align-items: center; gap: 10px; padding: 9px 14px; border-radius: var(--radius); cursor: pointer; font-size: 13px; font-weight: 500; color: var(--muted); transition: all 0.15s ease; border: none; background: none; width: 100%; text-align: left; text-decoration: none; }
 .nav-item:hover { background: var(--accent-soft); color: var(--ink); }
-.nav-item.active { background: var(--primary); color: #fff; box-shadow: 0 2px 8px rgba(79,70,229,0.3); }
+.nav-item.active { background: var(--primary); color: #fff; box-shadow: 0 2px 8px rgba(38,32,92,0.3); }
 .nav-item .icon { width: 20px; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 15px; }
 .nav-item .icon svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; fill: none; }
 .sidebar-footer { margin-top: auto; padding: 12px; border-top: 1px solid var(--border); }
@@ -100,7 +127,7 @@ button, input, textarea, select { font: inherit; }
 .content-body::-webkit-scrollbar { width: 5px; }
 .content-body::-webkit-scrollbar-track { background: transparent; }
 .content-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
-.content-body::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
+.content-body::-webkit-scrollbar-thumb:hover { background: #c4bfe8; }
 
 /* ── Tab panels ── */
 .tab-panel { display: none; flex: 1 1 auto; min-height: 0; overflow: hidden; }
@@ -113,7 +140,7 @@ button, input, textarea, select { font: inherit; }
 .field-desc { font-size: 12px; color: var(--muted); margin-bottom: 8px; line-height: 1.5; }
 .field-input { width: 100%; padding: 9px 14px; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: 13px; background: var(--surface); transition: all 0.2s ease; color: var(--ink); }
 .field-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
-.field-input::placeholder { color: #94a3b8; }
+.field-input::placeholder { color: #8e89a8; }
 textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
 .field-counter { font-size: 11px; color: var(--muted); text-align: right; margin-top: 4px; }
 
@@ -134,11 +161,11 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
 
 /* ── Buttons ── */
 .btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: var(--radius); font-size: 13px; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s ease; }
-.btn-primary { background: var(--primary); color: #fff; box-shadow: 0 1px 3px rgba(79,70,229,0.25); }
-.btn-primary:hover { background: var(--primary-hover); box-shadow: 0 4px 12px rgba(79,70,229,0.3); transform: translateY(-1px); }
+.btn-primary { background: var(--primary); color: #fff; box-shadow: 0 1px 3px rgba(38,32,92,0.25); }
+.btn-primary:hover { background: var(--primary-hover); box-shadow: 0 4px 12px rgba(38,32,92,0.3); transform: translateY(-1px); }
 .btn-primary:disabled { opacity: 0.5; cursor: default; transform: none; box-shadow: none; }
 .btn-ghost { background: var(--surface); border: 1.5px solid var(--border); color: var(--ink); }
-.btn-ghost:hover { background: var(--accent-soft); border-color: #cbd5e1; }
+.btn-ghost:hover { background: var(--accent-soft); border-color: #c4bfe8; }
 .btn-danger { background: transparent; border: 1.5px solid var(--border); color: var(--red); }
 .btn-danger:hover { background: var(--red-bg); border-color: var(--red); }
 .btn-sm { padding: 6px 12px; font-size: 12px; }
@@ -153,7 +180,7 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
 
 /* ── Agenda ── */
 .ag-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 1.5px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; font-size: 13px; transition: all 0.2s ease; background: var(--surface); }
-.ag-item:hover { box-shadow: var(--shadow); border-color: #cbd5e1; }
+.ag-item:hover { box-shadow: var(--shadow); border-color: #c4bfe8; }
 .ag-date { font-weight: 700; min-width: 60px; font-size: 13px; color: var(--ink); }
 .ag-time { font-size: 12px; color: var(--muted); font-weight: 500; }
 /* O bloco central do item cresce; nome e observacao truncam em vez de
@@ -174,7 +201,7 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
 
 /* ── FAQ items ── */
 .faq-item { border: 1.5px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 10px; background: var(--surface); transition: border-color 0.2s; }
-.faq-item:hover { border-color: #cbd5e1; }
+.faq-item:hover { border-color: #c4bfe8; }
 .faq-header { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
 .faq-header input { flex: 1; min-width: 0; padding: 8px 12px; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: 13px; transition: all 0.2s; }
 .faq-header input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
@@ -189,7 +216,7 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
 .day-header .closed { color: var(--muted); font-size: 12px; background: var(--accent-soft); padding: 2px 10px; border-radius: 999px; }
 
 /* ── Modal ── */
-.modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.5); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; animation: fadeIn 0.15s ease; }
+.modal-overlay { position: fixed; inset: 0; background: rgba(38,32,92,0.5); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 20px; animation: fadeIn 0.15s ease; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 .modal-content { background: var(--surface); border-radius: var(--radius-lg); padding: 28px; max-width: 380px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); animation: slideUp 0.2s ease; }
 @keyframes slideUp { from { opacity: 0; transform: translateY(10px) scale(0.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
@@ -221,7 +248,7 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
    Fundo do thread: canvas slate-100 com dot-grid discreto (padrao dos chats do
    21st.dev). Existe para os baloes brancos terem borda visivel contra o fundo:
    sobre o branco do modal o balao do paciente sumia. Contraste do texto:
-   --ink (#0f172a) sobre #fff = 17.8:1 e sobre --primary-soft (#eef2ff) = 16.4:1,
+   --ink (#26205c) sobre #fff = 14.6:1 e sobre --primary-soft (#eeedfd) = 12.6:1,
    os dois passam WCAG AAA. */
 .modal-chat { max-width: 640px; padding: 0; display: flex; flex-direction: column; max-height: 86vh; overflow: hidden; }
 .chat-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 18px 22px; border-bottom: 1px solid var(--border); background: var(--surface); }
@@ -229,9 +256,9 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
 .chat-close { width: 30px; height: 30px; flex: 0 0 auto; border-radius: 8px; border: 1.5px solid var(--border); background: var(--surface); color: var(--muted); cursor: pointer; font-size: 15px; line-height: 1; transition: all 0.2s ease; }
 .chat-close:hover { background: var(--accent-soft); color: var(--ink); }
 .chat-close:focus-visible { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
-.chat-thread { flex: 1; overflow-y: auto; padding: 20px 22px; display: flex; flex-direction: column; gap: 10px; background-color: #f1f5f9; background-image: radial-gradient(circle at 1px 1px, rgba(15,23,42,0.07) 1px, transparent 0); background-size: 18px 18px; }
+.chat-thread { flex: 1; overflow-y: auto; padding: 20px 22px; display: flex; flex-direction: column; gap: 10px; background-color: #f0eefb; background-image: radial-gradient(circle at 1px 1px, rgba(38,32,92,0.08) 1px, transparent 0); background-size: 18px 18px; }
 .chat-thread::-webkit-scrollbar { width: 8px; }
-.chat-thread::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+.chat-thread::-webkit-scrollbar-thumb { background: #c4bfe8; border-radius: 10px; }
 .chat-day { align-self: center; margin: 6px 0; font-size: 11px; font-weight: 600; color: var(--muted); background: rgba(255,255,255,0.92); border: 1px solid var(--border); padding: 3px 12px; border-radius: 999px; }
 .chat-row { display: flex; flex-direction: column; max-width: 78%; }
 .chat-row.ia { align-self: flex-end; align-items: flex-end; }
@@ -239,13 +266,14 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
 .chat-autor { font-size: 10.5px; font-weight: 600; color: var(--muted); margin-bottom: 3px; padding: 0 4px; text-transform: uppercase; letter-spacing: 0.4px; }
 .chat-bubble { padding: 9px 13px; border-radius: 14px; font-size: 13.5px; line-height: 1.55; color: var(--ink); white-space: pre-wrap; overflow-wrap: anywhere; box-shadow: var(--shadow-sm); }
 .chat-row.paciente .chat-bubble { background: #ffffff; border: 1px solid var(--border); border-bottom-left-radius: 4px; }
-.chat-row.ia .chat-bubble { background: var(--primary-soft); border: 1px solid #c7d2fe; border-bottom-right-radius: 4px; }
+.chat-row.ia .chat-bubble { background: var(--primary-soft); border: 1px solid #c9c3f2; border-bottom-right-radius: 4px; }
 .chat-hora { font-size: 10.5px; color: var(--muted); margin-top: 3px; padding: 0 4px; }
 .conv-card { border: 1.5px solid var(--border); border-radius: var(--radius); padding: 12px 16px; margin-bottom: 8px; cursor: pointer; background: var(--surface); transition: box-shadow 0.2s ease, border-color 0.2s ease; }
-.conv-card:hover { box-shadow: var(--shadow); border-color: #c7d2fe; }
+.conv-card:hover { box-shadow: var(--shadow); border-color: #c9c3f2; }
 .conv-card:focus-visible { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--ring); }
-.conv-pausada { border-color: #fbbf24; background: #fffbeb; }
-.conv-pausada:hover { border-color: #f59e0b; }
+.conv-pausada { border-color: var(--warn-line, #f59e0b); background: var(--warn-bg, #fef3cd); }
+.conv-pausada:hover { border-color: var(--warn-ink, #92400e); }
+.conv-pausada .badge-pausada { background: var(--warn-ink, #92400e); color: var(--warn-bg, #fef3cd); padding: 2px 8px; border-radius: 999px; font-size: 10px; margin-left: 6px; }
 @media (max-width: 768px) {
   .modal-chat { max-height: 92vh; }
   .chat-row { max-width: 88%; }
@@ -266,16 +294,34 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
   .content-body { padding: 16px 18px 100px; }
   .section-card { padding: 16px; }
 }
+/* ── Gate de assinatura expirada ── */
+.gate-overlay { position: fixed; inset: 0; z-index: 200; background: rgba(38, 32, 92, 0.55); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; padding: 20px; }
+.gate-overlay.hidden { display: none; }
+.gate-card { background: var(--surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); max-width: 460px; width: 100%; padding: 28px; text-align: center; animation: fadeUp 0.25s ease; }
+.gate-card h2 { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; margin: 12px 0 6px; }
+.gate-card .gate-lead { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
+.gate-card .gate-lead strong { color: var(--ink); }
+.gate-plano { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+.gate-btn { display: block; width: 100%; padding: 11px 16px; border-radius: var(--radius); border: none; cursor: pointer; font-size: 13px; font-weight: 600; text-decoration: none; transition: all 0.15s ease; }
+.gate-btn strong { font-size: 13.5px; }
+.gate-btn small { display: block; font-size: 11.5px; font-weight: 400; opacity: 0.85; }
+.gate-btn-mensal { background: var(--primary); color: #fff; }
+.gate-btn-mensal:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(38,32,92,0.3); }
+.gate-btn-anual { background: var(--primary-soft); color: var(--primary); border: 1.5px solid var(--primary-border, #c9c3f2); }
+.gate-btn-anual:hover { background: var(--primary-soft-hover, #e3e0f9); }
+.gate-nota { font-size: 11.5px; color: var(--muted); line-height: 1.5; }
+
 /* ── Banner de conexão pendente ── */
-.whatsapp-banner { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-bottom: 1.5px solid #f59e0b; padding: 14px 24px; display: flex; align-items: center; gap: 14px; flex-shrink: 0; animation: fadeDown 0.3s ease; }
+.whatsapp-banner { background: var(--warn-bg, #fef3cd); border-bottom: 1.5px solid var(--warn-line, #f59e0b); padding: 14px 24px; display: flex; align-items: center; gap: 14px; flex-shrink: 0; animation: fadeDown 0.3s ease; }
 @keyframes fadeDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 .whatsapp-banner .banner-icon { font-size: 22px; flex-shrink: 0; }
-.whatsapp-banner .banner-text { flex: 1; font-size: 13.5px; color: #92400e; line-height: 1.5; }
+.whatsapp-banner .banner-text { flex: 1; font-size: 13.5px; color: var(--warn-ink, #92400e); line-height: 1.5; }
 .whatsapp-banner .banner-text strong { font-weight: 700; }
-.whatsapp-banner .banner-btn { padding: 8px 18px; border-radius: var(--radius); background: #ea580c; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; border: none; white-space: nowrap; transition: all 0.15s ease; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
-.whatsapp-banner .banner-btn:hover { background: #c2410c; transform: translateY(-1px); box-shadow: 0 2px 8px rgba(234,88,12,0.3); }
+.whatsapp-banner .banner-btn { padding: 8px 18px; border-radius: var(--radius); background: #c2410c; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; border: none; white-space: nowrap; transition: all 0.15s ease; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+.whatsapp-banner .banner-btn:hover { background: #9a3412; transform: translateY(-1px); box-shadow: 0 2px 8px rgba(234,88,12,0.3); }
 .whatsapp-banner.hidden { display: none; }
 </style>
+<link rel="stylesheet" href="/clinica/painel.css?v=20260912-sem-cdn">
 </head>
 <body>
 <div class="topbar">
@@ -287,7 +333,33 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
     <span class="topbar-sep">|</span>
     <span class="topbar-clinic">${escapeHtml(nomeClinica)}</span>
   </div>
-  <button id="btn-sair" type="button">Sair</button>
+  <div class="topbar-right">
+    <button id="btn-tema" class="theme-toggle" type="button" title="Alternar tema claro e escuro" aria-label="Alternar tema claro e escuro">
+      <svg class="icon-lua" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <svg class="icon-sol" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v2M12 20.5v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1.5 12h2M20.5 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>
+    </button>
+    <button id="btn-sair" type="button">Sair</button>
+  </div>
+</div>
+
+<div id="gate-overlay" class="gate-overlay${assinatura.gate?.ativo ? "" : " hidden"}">
+  <div class="gate-card">
+    <div style="font-size:30px">🔒</div>
+    <h2>Assinatura expirada</h2>
+    <p class="gate-lead">Sua assinatura da Recepta não está ativa. A Recepta <strong>parou de atender no WhatsApp</strong> e o painel está bloqueado enquanto durar a pendência.</p>
+    <div class="gate-plano">
+      <button id="gate-link-mensal" type="button" data-ciclo="mensal" class="gate-btn gate-btn-mensal">
+        <strong>Assinar plano mensal</strong>
+        <small>${gateCompleto ? "R$ 997/mês" : "R$ 497/mês"}, sem fidelidade</small>
+      </button>
+      <button id="gate-link-anual" type="button" data-ciclo="anual" class="gate-btn gate-btn-anual">
+        <strong>Assinar plano anual</strong>
+        <small>${gateCompleto ? "R$ 697/mês, cobrado à vista no ano (R$ 8.364)" : "R$ 347/mês, cobrado à vista no ano (R$ 4.164)"}</small>
+      </button>
+      <button type="button" class="btn btn-ghost btn-sm" id="gate-btn-verificar" style="width:100%">Já paguei — verificar agora</button>
+    </div>
+    <p class="gate-nota">O painel volta sozinho após a confirmação do pagamento — se demorar mais que 1 minuto, clique em "verificar agora".</p>
+  </div>
 </div>
 
 <div id="whatsapp-banner" class="whatsapp-banner hidden">
@@ -299,22 +371,23 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
 <div class="layout">
   <nav class="sidebar">
     <div class="sidebar-section">Clínica</div>
-    <button class="nav-item active" data-tab="agenda"><span class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span><span>Agenda</span></button>
-    <button class="nav-item" data-tab="horarios"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span><span>Horários</span></button>
-    <button class="nav-item" data-tab="precos"><span class="icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span>Preços</span></button>
-    <button class="nav-item" data-tab="procedimentos" id="nav-procedimentos" style="display:none"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span id="nav-procedimentos-label">Procedimentos</span></button>
-    <button class="nav-item" data-tab="convenios"><span class="icon"><svg viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9v.01"/><path d="M9 12v.01"/><path d="M9 15v.01"/><path d="M9 18v.01"/></svg></span><span>Convênios</span></button>
+    <button class="nav-item active" data-tab="agenda" aria-label="Agenda"><span class="icon"><svg viewBox="0 0 24 24"><path d="M8 2v3"/><path d="M16 2v3"/><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M8 13h.01"/><path d="M12 13h.01"/><path d="M16 13h.01"/><path d="M8 17h.01"/><path d="M12 17h.01"/><path d="M16 17h.01"/></svg></span><span>Agenda</span></button>
+    <button class="nav-item" data-tab="fila" aria-label="Fila de espera"><span class="icon"><svg viewBox="0 0 24 24"><path d="M11 5h10"/><path d="M11 12h10"/><path d="M11 19h10"/><path d="M4 4h1v5"/><path d="M4 9h2"/><path d="M6.5 20H3.4c0-1 2.6-1.925 2.6-3.5a1.5 1.5 0 0 0-2.6-1.02"/></svg></span><span>Fila de espera</span></button>
+    <button class="nav-item" data-tab="horarios" aria-label="Horários"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span><span>Horários</span></button>
+    <button class="nav-item" data-tab="precos" aria-label="Preços"><span class="icon"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span><span>Preços</span></button>
+    <button class="nav-item" data-tab="procedimentos" id="nav-procedimentos" style="display:none" aria-labelledby="nav-procedimentos-label"><span class="icon"><svg viewBox="0 0 24 24"><path d="M10 5H3"/><path d="M12 19H3"/><path d="M14 3v4"/><path d="M16 17v4"/><path d="M21 12h-9"/><path d="M21 19h-5"/><path d="M21 5h-7"/><path d="M8 10v4"/><path d="M8 12H3"/></svg></span><span id="nav-procedimentos-label">Procedimentos</span></button>
+    <button class="nav-item" data-tab="convenios" aria-label="Convênios"><span class="icon"><svg viewBox="0 0 24 24"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9v.01"/><path d="M9 12v.01"/><path d="M9 15v.01"/><path d="M9 18v.01"/></svg></span><span>Convênios</span></button>
     <div class="sidebar-section">Recepta</div>
-    <a class="nav-item" href="/clinica/conectar"><span class="icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span><span>Conectar WhatsApp</span></a>
-    <button class="nav-item" data-tab="mensagem"><span class="icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span>Mensagem</span></button>
-    <button class="nav-item" data-tab="regras"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span>Regras</span></button>
-    <button class="nav-item" data-tab="faq"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><span>FAQ</span></button>
-    <button class="nav-item" data-tab="conversas"><span class="icon"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span><span>Conversas</span></button>
+    <a class="nav-item" href="/clinica/conectar" aria-label="Conectar WhatsApp"><span class="icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span><span>Conectar WhatsApp</span></a>
+    <button class="nav-item" data-tab="mensagem" aria-label="Mensagem"><span class="icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span>Mensagem</span></button>
+    <button class="nav-item" data-tab="regras" aria-label="Regras"><span class="icon"><svg viewBox="0 0 24 24"><path d="M13 5h8"/><path d="M13 12h8"/><path d="M13 19h8"/><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/></svg></span><span>Regras</span></button>
+    <button class="nav-item" data-tab="faq" aria-label="FAQ"><span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span><span>FAQ</span></button>
+    <button class="nav-item" data-tab="conversas" aria-label="Conversas"><span class="icon"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span><span>Conversas</span></button>
     <div class="sidebar-section">Conta</div>
-    <button class="nav-item" data-tab="pausa"><span class="icon"><svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg></span><span>Pausa</span></button>
-    <button class="nav-item" data-tab="perfil"><span class="icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span><span>Perfil</span></button>
-    <button class="nav-item" data-tab="feriados"><span class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="10" y1="14" x2="14" y2="14"/></svg></span><span>Feriados</span></button>
-    <button class="nav-item" data-tab="status"><span class="icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span><span>Status</span></button>
+    <button class="nav-item" data-tab="pausa" aria-label="Pausa"><span class="icon"><svg viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg></span><span>Pausa</span></button>
+    <button class="nav-item" data-tab="perfil" aria-label="Perfil"><span class="icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span><span>Perfil</span></button>
+    <button class="nav-item" data-tab="feriados" aria-label="Feriados"><span class="icon"><svg viewBox="0 0 24 24"><path d="M16 2v3"/><path d="m2 2 20 20"/><path d="M21 9h-5.5"/><path d="M3 9h6"/><path d="M3.586 3.586A2 2 0 003 5v14a2 2 0 002 2h14a2 2 0 001.414-.586"/><path d="M8.656 3H19a2 2 0 012 2v10.344"/></svg></span><span>Feriados</span></button>
+    <button class="nav-item" data-tab="status" aria-label="Status"><span class="icon"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span><span>Status</span></button>
   </nav>
 
   <div class="content">
@@ -334,6 +407,11 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
           </details>
         </div>
       </div>
+    </div>
+
+    <div class="tab-panel" id="tab-fila">
+      <div class="content-header"><h1>Fila de espera</h1><p>Entradas, ofertas e expirações da sua clínica.</p></div>
+      <div class="content-body"><div class="section-card"><div id="fila-status" class="vazio">Carregando fila…</div><div id="fila-lista"></div></div></div>
     </div>
 
     <!-- ── HORÁRIOS ── -->
@@ -429,7 +507,7 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
 
     <!-- ── PAUSA ── -->
     <div class="tab-panel" id="tab-pausa">
-      <div class="content-header"><h1>Pausa da Recepta</h1><p>Tempo que a Recepta fica em silêncio após uma resposta manual sua.</p></div>
+      <div class="content-header"><h1>Pausa e alertas</h1><p>Quanto tempo a Recepta fica em silêncio e para onde ela chama um humano.</p></div>
       <div class="content-body">
         <div class="section-card">
           <div class="field">
@@ -440,6 +518,17 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
               <span style="font-size:13px;color:var(--muted)">minutos</span>
               <button type="button" class="btn btn-primary btn-sm" id="btn-salvar-pausa">Salvar</button>
               <span id="status-pausa"></span>
+            </div>
+          </div>
+        </div>
+        <div class="section-card">
+          <div class="field">
+            <label class="field-label">WhatsApp que recebe os alertas</label>
+            <div class="field-desc">Quando a Recepta precisa de um humano, ela avisa neste número. Comece pelo DDD.</div>
+            <div style="display:flex;align-items:center;gap:10px;margin-top:8px">
+              <input type="tel" id="telefone-alerta" class="field-input" maxlength="20" placeholder="53 99999-9999" value="${escapeHtml(telefoneAlerta)}" style="width:200px" />
+              <button type="button" class="btn btn-primary btn-sm" id="btn-salvar-alerta">Salvar</button>
+              <span id="status-alerta"></span>
             </div>
           </div>
         </div>
@@ -507,6 +596,7 @@ textarea.field-input { resize: vertical; min-height: 72px; line-height: 1.6; }
 
 <script>
 window.__PAINEL__ = {
+  gate: ${jsonParaScript(assinatura.gate || { ativo: false })},
   config: ${jsonParaScript(config)},
   dias: ${jsonParaScript(DIAS)},
   nomeDia: ${jsonParaScript(NOME_DIA)},
@@ -518,8 +608,50 @@ window.__PAINEL__ = {
   regrasCategoria: ${jsonParaScript(categoriaDados.regrasCategoria)},
   faqCategoria: ${jsonParaScript(categoriaDados.faqCategoria)}
 };
+
+// ── Gate de assinatura: wiring do overlay ──
+// Roda ANTES do painel.js e transforma os CTAs em checkout autenticado.
+(function () {
+  ["gate-link-mensal", "gate-link-anual"].forEach(function (id) {
+    var botao = document.getElementById(id);
+    if (!botao) return;
+    botao.addEventListener("click", function () {
+      if (botao.disabled) return;
+      botao.disabled = true;
+      fetch("/api/clinica/painel-acoes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ acao: "checkout_reativacao", ciclo: botao.dataset.ciclo })
+      }).then(function (r) {
+        return r.json().then(function (j) { return { r: r, j: j }; });
+      }).then(function (x) {
+        if (!x.r.ok || !x.j.url) throw new Error(x.j.erro || "checkout");
+        try { sessionStorage.setItem("recepta_pedido_id", x.j.pedido_id || ""); } catch (e) {}
+        window.location.href = x.j.url;
+      }).catch(function () {
+        botao.disabled = false;
+        window.alert("Não foi possível abrir o checkout agora. Tente novamente.");
+      });
+    });
+  });
+  var v = document.getElementById("gate-btn-verificar");
+  if (v)
+    v.addEventListener("click", function () {
+      v.disabled = true;
+      v.textContent = "Verificando…";
+      window.location.reload();
+    });
+})();
 </script>
-<script src="/clinica/painel.js"></script>
+<!-- Sem biblioteca de terceiro aqui de proposito. lucide, Chart.js e
+     flatpickr vinham do cdn.jsdelivr.net, que o script-src do vercel.json
+     nunca liberou: os 4 eram bloqueados por CSP em producao e o painel
+     rodava no fallback o tempo todo. Os icones do menu agora sao SVG
+     inline (abaixo), os numeros das metricas dispensam grafico e os
+     inputs date/time nativos entregam exatamente o mesmo valor que o
+     flatpickr entregava. Nao reintroduzir sem antes abrir o CSP. -->
+<script src="/analytics.js?v=20260915-f2"></script>
+<script src="/clinica/painel.js?v=20260916-portal-alert"></script>
 <link rel="stylesheet" href="/page-transition.css" />
 <link rel="stylesheet" href="/loading-screen.css" />
 <script src="/page-transition.js"></script>
@@ -543,7 +675,7 @@ export default async function handler(req, res) {
   const { data: clinicaRow } = await admin
     .from("clinicas")
     .select(
-      "clinica,config_editavel,tempo_pausa_minutos,status,trial_fim,plano,stripe_customer_id,criado_em,categoria",
+      "clinica,config_editavel,tempo_pausa_minutos,telefone_alerta,status,trial_fim,plano,tier,stripe_customer_id,criado_em,categoria,garantia_fim,garantia_teto,reembolso_pedido_em,reembolsado_em",
     )
     .eq("id", perfil.clinica_id)
     .maybeSingle();
@@ -591,19 +723,44 @@ export default async function handler(req, res) {
     status: clinicaRow?.status || null,
     trial_fim: clinicaRow?.trial_fim || null,
     plano: clinicaRow?.plano || null,
+    tier: clinicaRow?.tier || "essencial",
     criado_em: clinicaRow?.criado_em || null,
     tem_stripe: !!clinicaRow?.stripe_customer_id,
+    // F7/G3 — regimes disjuntos: quem ativou tem garantia_fim; quem nunca
+    // ativou tem só o teto (pago_em + 30d). null = trial (não há garantia).
+    garantia_fim: clinicaRow?.garantia_fim || null,
+    garantia_teto: clinicaRow?.garantia_teto || null,
+    reembolso_pedido_em: clinicaRow?.reembolso_pedido_em || null,
+    reembolsado_em: clinicaRow?.reembolsado_em || null,
+  };
+
+  // ── Gate de assinatura expirada ──
+  // Status vem do n8n (único dono do vocabulário 'ativo'/'expirado'). Com a
+  // clínica expirada o painel renderiza o overlay de bloqueio e as rotas de
+  // escrita devolvem 402 (painel-acoes/config-salvar). A reativação cria um
+  // pedido autenticado; clinica_id nunca viaja em client_reference_id.
+  assinatura.gate = {
+    ativo: assinatura.status === "expirado",
   };
 
   res.setHeader("Content-Type", "text/html; charset=utf-8");
-  return res
-    .status(200)
-    .send(paginaPainel(nomeClinica, config, tempoPausaAtual, assinatura, {
-      categoria: categoriaId,
-      categoriaMeta: catMeta,
-      tabsVisiveis: catConfig.tabs,
-      camposExtras: catConfig.camposExtras,
-      regrasCategoria: catConfig.regrasPadrao || "",
-      faqCategoria: catConfig.faqPadrao || [],
-    }));
+  return res.status(200).send(
+    paginaPainel(
+      nomeClinica,
+      config,
+      tempoPausaAtual,
+      assinatura,
+      {
+        categoria: categoriaId,
+        categoriaMeta: catMeta,
+        tabsVisiveis: catConfig.tabs,
+        camposExtras: catConfig.camposExtras,
+        regrasCategoria: catConfig.regrasPadrao || "",
+        faqCategoria: catConfig.faqPadrao || [],
+      },
+      clinicaRow?.telefone_alerta || "",
+    ),
+  );
 }
+
+export { paginaPainel };

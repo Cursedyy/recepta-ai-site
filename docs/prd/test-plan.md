@@ -1,5 +1,10 @@
 # Test Plan — /clinica/login + /clinica/painel (edição de config)
 
+> **HISTÓRICO — plano de QA de 2026-08-15, com os checkboxes daquela rodada.**
+> NÃO reflete o estado atual nem a suíte de testes de hoje. Testes vivos:
+> `src/test-*.mjs` e `npm run health`. Auditoria mais recente: memória
+> `auditoria-producao-2026-09-09` e `e2e-tests`.
+
 Escopo: só login da clínica e a área de edição (preços, horários, convênios, mensagem de identidade). Nada de /briefing, landing pública, ou webhooks n8n.
 
 Cada item: `[ ]` id — descrição — resultado esperado. Marcado só com print + saída crua de console/rede anexados pelo subagente de QA (não pelo autor do código).

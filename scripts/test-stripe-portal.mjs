@@ -1,0 +1,20 @@
+import assert from 'node:assert/strict';
+import { criarSessaoPortal } from '../src/api/_lib/stripe-portal.js';
+const response = (status, body) => ({ status, ok: status >= 200 && status < 300, json: async () => body });
+let calls = 0;
+const missing = await criarSessaoPortal('cus_fixture', 'fixture', async () => { calls++; return response(200, { data: [] }); });
+assert.equal(missing.status, 503); assert.equal(missing.corpo.erro, 'portal_nao_configurado'); assert.equal(calls, 1);
+assert.ok(!missing.corpo.detalhe.includes('Tente novamente'));
+const config = { active: true, livemode: true, id: 'bpc_fixture', metadata: { recepta: 'v1' } };
+calls = 0;
+const happy = await criarSessaoPortal('cus_fixture', 'fixture', async (url, options) => {
+  if (++calls === 1) return response(200, { data: [config] });
+  const body = new URLSearchParams(options.body); assert.equal(body.get('configuration'), config.id);
+  assert.equal(body.get('customer'), 'cus_fixture'); assert.equal(body.get('return_url'), 'https://www.receptaai.com.br/clinica/painel');
+  return response(200, { url: 'https://billing.stripe.com/p/session/fixture' });
+});
+assert.equal(happy.status, 200); assert.equal(calls, 2);
+let index = 0;
+const permanent = await criarSessaoPortal('cus_fixture', 'fixture', async () => ++index === 1 ? response(200, { data: [config] }) : response(400, { error: { type: 'invalid_request_error' } }));
+assert.equal(permanent.status, 503); assert.ok(!permanent.corpo.detalhe.includes('Tente novamente'));
+console.log('PASS: missing configuration, explicit configuration and permanent error');

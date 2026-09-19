@@ -1,52 +1,68 @@
 // ══════════════════════════════════════════════════════════════
-// Parser da Mensagem — n8n Code node
+// Parser da Mensagem — n8n Code node (RECONSTRUÍDO 2026-09-08)
 // ══════════════════════════════════════════════════════════════
 //
-// COLE ESTE CÓDIGO no node "Parser da Mensagem" do workflow
-// cxn5FxUNMJmlJ1WJ (Recepta AI - Atendimento WhatsApp).
-//
-// O que este node faz:
-// 1. Extrai telefone e mensagem do body do webhook UazAPI
-// 2. Para mensagens de MÍDIA: salva JSON completo em mensagem_media
-//    e um texto legível em mensagem (ex: "[imagem] foto.jpg")
-// 3. Para mensagens de TEXTO: mantém o comportamento atual
-// 4. O campo mensagem é o que vai para o prompt do Claude (limpo)
-// 5. O campo mensagem_media é o que vai para o Supabase (display)
+// Fonte da verdade: o código LIVE do workflow cxn5FxUNMJmlJ1WJ.
+// Este arquivo substitui a versão corrompida (escapes duplicados) e a versão
+// incompleta (sem tipo/token/telefone_alt) que quebraram o Atendimento.
+// CONTRATO: emite tipo, token, telefone, telefone_alt, mensagem,
+// mensagem_media, midia_tipo — remover qualquer um deles MATA o atendimento.
 //
 // ══════════════════════════════════════════════════════════════
 
-const body = $input.first().json.body || $input.first().json;
-const instanceKey = $input.first().json.instancekey || body.instancekey || '';
+const outer = $input.first().json;
+const body = outer.body || outer;
+const msg = body.message || body;
+const instanceKey = outer.instancekey || body.instancekey || '';
 
-// Extrair telefone (remove @s.whatsapp.net se presente)
-let rawPhone = body.from || body.chatid || body.remoteJid || '';
-let telefone = rawPhone.replace(/@s\.whatsapp\.net.*/, '').replace(/\D/g, '');
+// Token da instância (UazAPI manda no topo; caminho debounce manda dentro de body)
+const token = body.token || outer.token || body.instanceToken || '';
 
-// Se tem DDI 55 no início, manter; senão, adicionar
-if (telefone.length >= 10 && !telefone.startsWith('55')) {
+// Telefone bruto (sem @s.whatsapp.net)
+const rawFrom = msg.chatid || msg.remoteJid || body.from || body.chatid || '';
+const rawDigits = String(rawFrom || '').replace(/@s\.whatsapp\.net.*/, '').replace(/\D/g, '');
+
+// Normalização p/ 13 dígitos (mesma regra de 2026-09-04: 12->insere 9, 11->55, 10->55+9)
+let telefone = rawDigits;
+if (telefone.length === 12 && telefone.startsWith('55')) {
+  telefone = telefone.slice(0, 4) + '9' + telefone.slice(4);
+} else if (telefone.length === 11 && !telefone.startsWith('55')) {
   telefone = '55' + telefone;
+} else if (telefone.length === 10) {
+  telefone = '55' + telefone.slice(0, 2) + '9' + telefone.slice(2);
+}
+const telefone_alt = rawDigits;
+
+// ── Regras de tipo (devolvidas: estavam no parser de 2026-09-04) ──
+const fromMe = msg.fromMe === true || body.fromMe === true;
+const wasSentByApi = msg.wasSentByApi === true || body.wasSentByApi === true;
+let tipo;
+if (fromMe && wasSentByApi) {
+  tipo = 'ignorar';
+} else if (fromMe && !wasSentByApi) {
+  tipo = 'operador_manual';
+} else {
+  tipo = 'paciente';
 }
 
-// ── Detectar tipo de mensagem ──
-const msgType = (body.messagetype || body.messageType || '').toLowerCase();
-const text = body.text || body.caption || '';
-const fileUrl = body.fileurl || body.fileURL || body.url || null;
-const mimetype = body.mimetype || body.mimeType || null;
-const filename = body.filename || body.fileName || '';
-const seconds = body.seconds || body.duration || null;
-const isSticker = body.issticker === true || body.isSticker === true;
+// ── Mídia (patch 2026-09: mensagem_media p/ Supabase + mensagem legível) ──
+const msgType = String(msg.messagetype || msg.messageType || body.messagetype || body.messageType || '').toLowerCase();
+const text = msg.content ?? body.text ?? body.caption ?? '';
+const fileUrl = msg.fileurl || msg.fileURL || body.fileurl || body.fileURL || body.url || null;
+const mimetype = msg.mimetype || msg.mimeType || body.mimetype || body.mimeType || null;
+const filename = msg.filename || msg.fileName || body.filename || body.fileName || '';
+const seconds = msg.seconds || msg.duration || body.seconds || body.duration || null;
+const isSticker = msg.issticker === true || msg.isSticker === true || body.issticker === true;
 
-// ── É mídia? ──
 const isMedia = ['image', 'video', 'audio', 'document', 'sticker'].some(
-  t => msgType.includes(t)
+  (t) => msgType.includes(t)
 ) || (mimetype && mimetype !== 'text/plain');
 
 let mensagem = '';
 let mensagem_media = null;
+let midia_tipo = null;
 
 if (isMedia && (fileUrl || mimetype)) {
-  // ── MENSAGEM DE MÍDIA ──
-  // Montar JSON completo para mensagem_media
   mensagem_media = {};
   if (mimetype) mensagem_media.mimetype = mimetype;
   if (fileUrl) mensagem_media.URL = fileUrl;
@@ -54,47 +70,35 @@ if (isMedia && (fileUrl || mimetype)) {
   if (seconds) mensagem_media.seconds = seconds;
   if (isSticker) mensagem_media.isSticker = true;
 
-  // Determinar tipo legível para o campo mensagem
-  let tipoLegivel = 'mídia';
-  if (isSticker) {
-    tipoLegivel = 'sticker';
-  } else if (mimetype && mimetype.startsWith('image')) {
-    tipoLegivel = 'imagem';
-  } else if (mimetype && mimetype.startsWith('video')) {
-    tipoLegivel = 'vídeo';
-  } else if (mimetype && mimetype.startsWith('audio')) {
-    tipoLegivel = 'áudio';
-  } else if (mimetype && mimetype.includes('pdf')) {
-    tipoLegivel = 'documento PDF';
-  } else if (mimetype && mimetype.includes('document')) {
-    tipoLegivel = 'documento';
-  }
+  midia_tipo = 'midia';
+  if (isSticker) midia_tipo = 'sticker';
+  else if (mimetype && mimetype.startsWith('image')) midia_tipo = 'imagem';
+  else if (mimetype && mimetype.startsWith('video')) midia_tipo = 'video';
+  else if (mimetype && mimetype.startsWith('audio')) midia_tipo = 'audio';
+  else if (mimetype && mimetype.includes('pdf')) midia_tipo = 'documento';
+  else if (mimetype && mimetype.includes('document')) midia_tipo = 'documento';
 
-  // Campo mensagem = texto legível para o Claude ver
-  // Se tem caption, usar ele; senão, usar o label do tipo
-  if (text && text.trim()) {
-    mensagem = text.trim();
-  } else {
-    mensagem = '[' + tipoLegivel + ']';
-  }
+  mensagem = (text && String(text).trim()) ? String(text).trim() : '[' + midia_tipo + ']';
 } else {
-  // ── MENSAGEM DE TEXTO ──
-  mensagem = text || '';
-  mensagem_media = null;
+  mensagem = String(text || '');
 }
 
-// ── Extrair nomes de participantes (se disponível) ──
-const pushName = body.pushname || body.pushName || '';
-const groupName = body.groupname || body.groupName || '';
+// ── Nomes de participantes ──
+const pushname = msg.pushname || msg.pushName || body.pushname || body.pushName || '';
+const groupname = msg.groupname || msg.groupName || body.groupname || body.groupName || '';
 
 return [{
   json: {
+    tipo,
+    token,
     telefone,
+    telefone_alt,
     mensagem,
     mensagem_media,
+    midia_tipo,
     instancekey: instanceKey,
-    pushname: pushName,
-    groupname: groupName,
+    pushname,
+    groupname,
     messagetype: msgType,
     original: body,
   },

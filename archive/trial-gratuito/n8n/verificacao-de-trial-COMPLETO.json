@@ -1,0 +1,725 @@
+{
+  "_origem": {
+    "id": "cf1An4BYT9A0LuHi",
+    "nome": "Recepta AI - Verificação de Trial",
+    "ativo": true,
+    "capturadoEm": "2026-09-13T00:17:45.581Z",
+    "aviso": "Segredos substituidos por <REDACTED>. Restaurar pela credencial/env, nunca colando valor."
+  },
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "id": "cf44c374-e3be-4505-997d-262765d20bcb",
+      "name": "Schedule - Diário 9h",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -400,
+        528
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "sv1",
+              "name": "supabase_url",
+              "type": "string",
+              "value": "https://vfyubktlmqytkcewicse.supabase.co"
+            },
+            {
+              "id": "sv2",
+              "name": "stripe_link_mensal",
+              "type": "string",
+              "value": "https://buy.stripe.com/28E4gz8iv3HU97Tcv7gbm01"
+            },
+            {
+              "id": "sv3",
+              "name": "stripe_link_anual",
+              "type": "string",
+              "value": "https://buy.stripe.com/dRm28r42fa6i97T9iVgbm02"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "49b65dec-912b-48b4-b8c5-1c1d04661035",
+      "name": "Config Fixa",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -176,
+        528
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.supabase_url + '/rest/v1/clinicas?status=eq.ativo&trial_fim=gte.' + encodeURIComponent(new Date().toISOString()) + '&trial_fim=lte.' + encodeURIComponent(new Date(Date.now() + 1*24*60*60*1000).toISOString()) + '&select=id,clinica,uazapi_token,uazapi_server,telefone_operador,trial_fim,ultimo_aviso_trial' }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "options": {}
+      },
+      "id": "32be531f-4447-48e8-9d41-410226fc43ad",
+      "name": "Buscar Avisos Pendentes",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        48,
+        432
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "G0RXYRaUhbQwZTyn",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Avisa so no dia final do trial (o dia local BR anterior a trial_fim,\n// ja que trial_fim e meia-noite BRT = inicio do dia seguinte ao ultimo dia util).\n// Nunca duas vezes no mesmo dia (ultimo_aviso_trial != hoje).\nconst BR_OFFSET_MS = -3 * 60 * 60 * 1000;\nfunction dataLocalBR(date) {\n  return new Date(date.getTime() + BR_OFFSET_MS).toISOString().slice(0, 10);\n}\n\nconst hoje = dataLocalBR(new Date());\nconst results = [];\n\nfor (const item of $input.all()) {\n  const c = item.json;\n  if (!c || !c.trial_fim) continue;\n\n  const umDiaAntesDoFim = new Date(new Date(c.trial_fim).getTime() - 24 * 60 * 60 * 1000);\n  const diaFinal = dataLocalBR(umDiaAntesDoFim);\n  if (hoje !== diaFinal) continue;\n  if (c.ultimo_aviso_trial === hoje) continue;\n\n  results.push({ json: { ...c, hoje } });\n}\n\nreturn results;"
+      },
+      "id": "c0b2fabc-2f31-47da-b12e-e370630894ee",
+      "name": "Filtrar Aviso Último Dia",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        272,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.uazapi_server + '/send/text' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "token",
+              "value": "={{ $json.uazapi_token }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ number: $json.telefone_operador, text: 'Oi! Hoje é o último dia do seu teste grátis da Recepta AI — expira à meia-noite.\\n\\nPra continuar:\\nMensal R$497/mês: ' + $('Config Fixa').item.json.stripe_link_mensal + '?client_reference_id=' + $json.id + '\\n\\nOu economize no anual, R$347/mês (R$4.164 à vista no ano): ' + $('Config Fixa').item.json.stripe_link_anual + '?client_reference_id=' + $json.id }) }}",
+        "options": {}
+      },
+      "id": "8f1a3dac-2a20-4f52-8b36-d4654c582be4",
+      "name": "Enviar Aviso Trial",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        496,
+        432
+      ],
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $('Filtrar Aviso Último Dia').item.json.supabase_url + '/rest/v1/clinicas?id=eq.' + $('Filtrar Aviso Último Dia').item.json.id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ ultimo_aviso_trial: $('Filtrar Aviso Último Dia').item.json.hoje }) }}",
+        "options": {}
+      },
+      "id": "ace62ffb-b6f9-46f4-b176-421aea66694c",
+      "name": "Marcar Aviso Enviado",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        720,
+        432
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "G0RXYRaUhbQwZTyn",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $json.supabase_url + '/rest/v1/clinicas?status=eq.ativo&trial_fim=lt.' + encodeURIComponent(new Date().toISOString()) }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ status: 'expirado' }) }}",
+        "options": {}
+      },
+      "id": "2c4080bd-1df5-46bf-b232-134656a3a155",
+      "name": "Expirar Clínicas",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        48,
+        624
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "G0RXYRaUhbQwZTyn",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "recepta/stripe-webhook",
+        "options": {
+          "rawBody": true
+        }
+      },
+      "id": "c423b908-45dd-4dbe-b7d6-8a6a342750b4",
+      "name": "Webhook Stripe Pagamento",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -400,
+        944
+      ],
+      "webhookId": "recepta-stripe-webhook"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "sw1",
+              "name": "supabase_url",
+              "type": "string",
+              "value": "https://vfyubktlmqytkcewicse.supabase.co"
+            },
+            {
+              "id": "stripe_price_essencial_mensal",
+              "name": "STRIPE_PRICE_ESSENCIAL_MENSAL",
+              "type": "string",
+              "value": "price_1U35F9HkvKNdqMufd58XEIq2"
+            },
+            {
+              "id": "stripe_price_essencial_anual",
+              "name": "STRIPE_PRICE_ESSENCIAL_ANUAL",
+              "type": "string",
+              "value": "price_1U35FAHkvKNdqMuf7dtT8vrs"
+            },
+            {
+              "id": "stripe_price_completo_mensal",
+              "name": "STRIPE_PRICE_COMPLETO_MENSAL",
+              "type": "string",
+              "value": "price_1UEIx6HkvKNdqMufqV6xA1s7"
+            },
+            {
+              "id": "stripe_price_completo_anual",
+              "name": "STRIPE_PRICE_COMPLETO_ANUAL",
+              "type": "string",
+              "value": "price_1UEIx8HkvKNdqMufg0iqXerD"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "6073d684-81f9-4bc3-807c-415a5a9d4001",
+      "name": "Config Stripe Webhook",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -176,
+        944
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const headers = $json.headers || {};\nconst sigHeader = headers['stripe-signature'] || '';\nconst parts = Object.fromEntries(sigHeader.split(',').filter(Boolean).map(p => { const [k, v] = p.split('='); return [k, v]; }));\nconst timestamp = parts.t || '';\nconst receivedSignature = parts.v1 || '';\n\nconst buf = await this.helpers.getBinaryDataBuffer(0, 'data');\nconst rawBody = buf.toString('utf8');\n\nconst fiveMinutes = 5 * 60;\nconst isRecent = timestamp ? Math.abs((Date.now() / 1000) - Number(timestamp)) < fiveMinutes : false;\n\nreturn [{ json: { signed_payload: timestamp + '.' + rawBody, received_signature: receivedSignature, is_recent: isRecent, raw_body: rawBody } }];"
+      },
+      "id": "35142526-4949-4845-b9e1-0e76cc8b3ae4",
+      "name": "Montar Payload Assinado",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        48,
+        944
+      ]
+    },
+    {
+      "parameters": {
+        "action": "hmac",
+        "value": "={{ $json.signed_payload }}",
+        "dataPropertyName": "computed_signature"
+      },
+      "id": "90d803c2-fda7-4c72-9419-d86176b5d6aa",
+      "name": "Calcular HMAC Stripe",
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 2,
+      "position": [
+        272,
+        944
+      ],
+      "credentials": {
+        "crypto": {
+          "id": "40vaFUOF1B9YatcD",
+          "name": "Crypto account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "function safeEqual(a, b) {\n  if (typeof a !== 'string' || typeof b !== 'string' || a.length !== b.length) return false;\n  let diff = 0;\n  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);\n  return diff === 0;\n}\n\nconst computed = ($json.computed_signature || '').toLowerCase();\nconst received = ($json.received_signature || '').toLowerCase();\nconst valid = Boolean($json.is_recent) && safeEqual(computed, received);\n\nif (!valid) {\n  return [{ json: { valid: false } }];\n}\n\nreturn [{ json: { valid: true, event: JSON.parse($json.raw_body) } }];"
+      },
+      "id": "eb314ed2-5366-40eb-a844-c58b8f86a32c",
+      "name": "Comparar Assinatura",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        496,
+        944
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "sif1",
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "6baf791d-8e81-494c-9a3d-0e6adaa8b80c",
+      "name": "Assinatura Válida?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        720,
+        944
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const event = $json.event;\nif (!event || event.type !== 'checkout.session.completed') {\n  return [];\n}\nconst session = event.data.object;\nreturn [{ json: { session_id: session.id, clinica_id: session.client_reference_id, customer_id: session.customer, subscription_id: session.subscription } }];"
+      },
+      "id": "8c2482b7-df67-48ab-96f9-bbdbd33d59c1",
+      "name": "Extrair Evento Checkout",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        944,
+        848
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $('Config Stripe Webhook').item.json.supabase_url + '/rest/v1/clinicas?id=eq.' + $json.clinica_id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Prefer",
+              "value": "return=minimal"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ status: 'ativo', trial_fim: null, plano_pago_em: new Date().toISOString(), stripe_subscription_id: $json.subscription_id, stripe_customer_id: $json.customer_id, plano: $json.plano, tier: $json.tier }) }}",
+        "options": {}
+      },
+      "id": "d3431aa6-bdf2-46cb-8f0f-424cffc193d2",
+      "name": "Supabase Confirmar Pagamento",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1616,
+        848
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "G0RXYRaUhbQwZTyn",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ 'https://api.stripe.com/v1/checkout/sessions/' + $json.session_id + '/line_items?limit=5' }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "stripeApi",
+        "options": {}
+      },
+      "id": "35cce802-c8de-4fa8-91dc-b9c2d4bee67e",
+      "name": "Buscar Line Items Checkout Session",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1168,
+        848
+      ],
+      "credentials": {
+        "stripeApi": {
+          "id": "ZYM7MJM0SkrpqFWc",
+          "name": "Stripe API - Recepta"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const li = $input.first().json;\nconst cfg = $(\"Config Stripe Webhook\").first().json;\nconst ctx = $(\"Extrair Evento Checkout\").first().json;\n\nconst precoId =\n  li.data && li.data[0] && li.data[0].price && li.data[0].price.id;\nconst completoMensal = cfg.STRIPE_PRICE_COMPLETO_MENSAL;\nconst completoAnual = cfg.STRIPE_PRICE_COMPLETO_ANUAL;\nconst essencialMensal = cfg.STRIPE_PRICE_ESSENCIAL_MENSAL;\nconst essencialAnual = cfg.STRIPE_PRICE_ESSENCIAL_ANUAL;\n\nlet plano = null;\nlet tier = null;\nif (precoId === completoMensal) {\n  plano = \"mensal\";\n  tier = \"completo\";\n} else if (precoId === completoAnual) {\n  plano = \"anual\";\n  tier = \"completo\";\n} else if (precoId === essencialMensal) {\n  plano = \"mensal\";\n  tier = \"essencial\";\n} else if (precoId === essencialAnual) {\n  plano = \"anual\";\n  tier = \"essencial\";\n}\n\n// Fail closed: checkout com price desconhecido nunca ativa uma clínica.\nif (!plano) return [];\n\nreturn [\n  {\n    json: {\n      ...ctx,\n      plano,\n      tier,\n      price_id_encontrado: precoId,\n    },\n  },\n];\n"
+      },
+      "id": "3213d522-f1ac-4923-b1f2-324b4277b580",
+      "name": "Determinar Plano",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1392,
+        848
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const event = $json.event;\nif (!event) return [];\nconst obj = (event.data && event.data.object) || {};\n\n// Expira a clínica quando o Stripe encerra/rompe a assinatura:\n// deleted (qualquer status) OU updated caindo em unpaid/past_due/canceled.\nconst fimDefinitivo =\n  event.type === 'customer.subscription.deleted' ||\n  (event.type === 'customer.subscription.updated' &&\n    ['unpaid', 'past_due', 'canceled'].includes(obj.status));\n\nif (!fimDefinitivo) return [];\n\nconst customer_id = typeof obj.customer === 'string' ? obj.customer : null;\nif (!customer_id) return [];\n\nreturn [{ json: { customer_id, motivo: event.type + ':' + (obj.status || '') } }];"
+      },
+      "id": "8b5ba96d-a4ae-4da0-b208-bd9b9dc73284",
+      "name": "Extrair Fim de Pagamento",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        944,
+        1040
+      ],
+      "notes": "Só passa quando o Stripe desiste (unpaid/canceled/deleted). payment_failed nao corta: o Stripe ainda esta tentando."
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $('Config Stripe Webhook').item.json.supabase_url + '/rest/v1/clinicas?stripe_customer_id=eq.' + $json.customer_id + '&select=id,clinica,status' }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ status: 'expirado' }) }}",
+        "options": {}
+      },
+      "id": "b3157d82-d52e-4d41-9bcb-eb75b1bc4d5a",
+      "name": "Supabase Expirar Por Pagamento",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1168,
+        1040
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "G0RXYRaUhbQwZTyn",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const event = $json.event;\nif (!event || event.type !== 'customer.subscription.updated') return [];\nconst obj = (event.data && event.data.object) || {};\nif (obj.status !== 'active') return [];\nconst customer_id = typeof obj.customer === 'string' ? obj.customer : null;\nif (!customer_id) return [];\nreturn [{ json: { customer_id, motivo: 'customer.subscription.updated:active' } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        944,
+        1188
+      ],
+      "id": "a1b2c3d4-0001-4000-8000-000000000001",
+      "name": "Extrair Reativar"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $('Config Stripe Webhook').item.json.supabase_url + '/rest/v1/clinicas?stripe_customer_id=eq.' + $json.customer_id + '&select=id,clinica,status' }}",
+        "jsonBody": "={{ JSON.stringify({ status: 'ativo' }) }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Prefer",
+              "value": "return=representation"
+            }
+          ]
+        },
+        "options": {},
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendBody": true,
+        "specifyBody": "json"
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1168,
+        1188
+      ],
+      "id": "a1b2c3d4-0002-4000-8000-000000000002",
+      "name": "Supabase Reativar Clínica",
+      "credentials": {
+        "supabaseApi": {
+          "id": "G0RXYRaUhbQwZTyn",
+          "name": "Supabase account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule - Diário 9h": {
+      "main": [
+        [
+          {
+            "node": "Config Fixa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config Fixa": {
+      "main": [
+        [
+          {
+            "node": "Buscar Avisos Pendentes",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Expirar Clínicas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Avisos Pendentes": {
+      "main": [
+        [
+          {
+            "node": "Filtrar Aviso Último Dia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrar Aviso Último Dia": {
+      "main": [
+        [
+          {
+            "node": "Enviar Aviso Trial",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar Aviso Trial": {
+      "main": [
+        [
+          {
+            "node": "Marcar Aviso Enviado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Stripe Pagamento": {
+      "main": [
+        [
+          {
+            "node": "Config Stripe Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config Stripe Webhook": {
+      "main": [
+        [
+          {
+            "node": "Montar Payload Assinado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Montar Payload Assinado": {
+      "main": [
+        [
+          {
+            "node": "Calcular HMAC Stripe",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calcular HMAC Stripe": {
+      "main": [
+        [
+          {
+            "node": "Comparar Assinatura",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Comparar Assinatura": {
+      "main": [
+        [
+          {
+            "node": "Assinatura Válida?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assinatura Válida?": {
+      "main": [
+        [
+          {
+            "node": "Extrair Evento Checkout",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Extrair Fim de Pagamento",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Extrair Reativar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extrair Evento Checkout": {
+      "main": [
+        [
+          {
+            "node": "Buscar Line Items Checkout Session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar Line Items Checkout Session": {
+      "main": [
+        [
+          {
+            "node": "Determinar Plano",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Determinar Plano": {
+      "main": [
+        [
+          {
+            "node": "Supabase Confirmar Pagamento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extrair Fim de Pagamento": {
+      "main": [
+        [
+          {
+            "node": "Supabase Expirar Por Pagamento",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extrair Reativar": {
+      "main": [
+        [
+          {
+            "node": "Supabase Reativar Clínica",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true,
+    "errorWorkflow": "2ZvOhRWcQNO3WZ8C"
+  }
+}

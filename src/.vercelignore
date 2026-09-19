@@ -10,3 +10,8 @@ preview-*.html
 
 # ferramentas de build (geram assets, nao fazem parte do site)
 gen-*.mjs
+
+# painel React descontinuado — movido para archive/clinic-react-descontinuado/
+# em 2026-09-09. Esta linha e defesa contra alguem recriar a pasta em src/:
+# em src/ ela virava a rota publica /clinic-react/ servindo pagina em branco.
+clinic-react

@@ -26,7 +26,14 @@ const PAGES = [
   { name: 'painel', url: '/painel/', critical: true },
   { name: 'termos', url: '/termos/', critical: false },
   { name: 'privacidade', url: '/privacidade/', critical: false },
-  { name: 'trial', url: '/t/', critical: false },
+  { name: 'estetica', url: '/estetica/', critical: true },
+  { name: 'ortopedia', url: '/ortopedia/', critical: true },
+  { name: 'psicologia', url: '/psicologia/', critical: true },
+  { name: 'radiologia', url: '/radiologia/', critical: true },
+  { name: 'blog', url: '/blog/', critical: false },
+  { name: 'blog-erros', url: '/blog/erros-clinicas-atendimento/', critical: false },
+  { name: 'blog-ia', url: '/blog/ia-whatsapp-atendimento/', critical: false },
+  { name: 'blog-secretaria', url: '/blog/secretaria-virtual-clinica/', critical: false },
 ];
 
 const VIEWPORTS = [
@@ -88,21 +95,23 @@ function parseArgs() {
       case '--page': config.page = args[++i]; break;
       case '--base-url': config.baseUrl = args[++i]; break;
       case '--output-dir': config.outputDir = args[++i]; break;
-      case '--max-serious': config.maxSerious = parseInt(args[++i]) || 5; break;
-      case '--max-critical': config.maxCritical = parseInt(args[++i]) || 0; break;
+      case '--max-serious': config.maxSerious = Number(args[++i]); break;
+      case '--max-critical': config.maxCritical = Number(args[++i]); break;
     }
   }
 
+  for (const value of [config.maxSerious, config.maxCritical]) {
+    if (!Number.isInteger(value) || value < 0) throw new Error('Invalid issue threshold');
+  }
   return config;
 }
 
 // ============ INJECT AXE-CORE ============
 
 import { readFileSync } from 'fs';
-import { resolve } from 'path';
 
 async function injectAxe(page) {
-  const axePath = resolve('node_modules/axe-core/axe.min.js');
+  const axePath = new URL(import.meta.resolve('axe-core/axe.min.js'));
   const axeSource = readFileSync(axePath, 'utf-8');
   await page.evaluate(axeSource);
 }
@@ -176,7 +185,8 @@ async function runAudit(page, pageDef, viewport, config) {
       incomplete: results.incomplete,
       violations: results.violations,
       screenshot: screenshotPath,
-      passed: critical.length <= config.maxCritical && serious.length <= config.maxSerious,
+      passed: config.strict ? results.violations.length === 0
+        : critical.length <= config.maxCritical && serious.length <= config.maxSerious,
     };
   } catch (error) {
     return {
@@ -201,6 +211,8 @@ async function runAudit(page, pageDef, viewport, config) {
 
 async function main() {
   const config = parseArgs();
+  const pagesToTest = config.page ? PAGES.filter(p => p.name === config.page) : PAGES;
+  if (pagesToTest.length === 0) throw new Error(`Unknown page: ${config.page}`);
   
   console.log('🔍 WCAG 2.1 Accessibility Audit');
   console.log('='.repeat(60));
@@ -210,11 +222,8 @@ async function main() {
   
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext();
+  await context.route('**/api/**', route => route.abort());
   const page = await context.newPage();
-  
-  const pagesToTest = config.page 
-    ? PAGES.filter(p => p.name === config.page)
-    : PAGES;
   
   const results = [];
   
@@ -297,7 +306,9 @@ async function main() {
   }
   
   // Determine pass/fail
-  const overallPassed = totalCritical <= config.maxCritical && totalSerious <= config.maxSerious;
+  const overallPassed = errors === 0 && (config.strict
+    ? totalCritical + totalSerious + totalModerate + totalMinor === 0
+    : totalCritical <= config.maxCritical && totalSerious <= config.maxSerious);
   
   if (overallPassed) {
     console.log('\n✅ OVERALL: PASS');

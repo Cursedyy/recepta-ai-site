@@ -4,7 +4,21 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, nofollow" />
-    <title>Conectar WhatsApp — Recepta AI</title>
+    <title>Conectar WhatsApp | Recepta AI</title>
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="/img/favicon-32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="512x512"
+      href="/img/favicon-512.png"
+    />
+    <link rel="apple-touch-icon" href="/img/apple-touch-icon.png" />
+    <meta name="theme-color" content="#26205c" />
     <link rel="stylesheet" href="/clinica/painel.css" />
     <style>
       html,
@@ -411,9 +425,16 @@
           A Recepta está atendendo os pacientes por este número.
         </p>
 
-        <div class="aviso ok" id="teste-bloco" style="margin-top:16px;display:none;">
+        <div
+          class="aviso ok"
+          id="teste-bloco"
+          style="margin-top: 16px; display: none"
+        >
           <span>🎉</span>
-          <span>Sua Recepta está no ar! Teste agora: mande uma mensagem para <b id="teste-numero"></b> e veja ela responder.</span>
+          <span
+            >Sua Recepta está no ar! Teste agora: mande uma mensagem para
+            <b id="teste-numero"></b> e veja ela responder.</span
+          >
         </div>
 
         <div class="acoes">
@@ -517,7 +538,7 @@
             />
             <small
               >Com DDD. É o número que vai receber o pedido de conexão.
-              Preenchemos com o número do cadastro — pode trocar se quiser
+              Preenchemos com o número do cadastro. Pode trocar se quiser
               conectar outro.</small
             >
           </div>
@@ -586,6 +607,7 @@
       </div>
     </div>
 
+    <script src="/analytics.js?v=20260915-f2"></script>
     <script>
       (function () {
         "use strict";
@@ -817,7 +839,10 @@
           if (r.status === 401) return irParaLogin();
           if (!r.ok || !r.dados) return;
 
-          if (r.dados.conectado) return mostrarConectado(r.dados);
+          if (r.dados.conectado) {
+            if (window.receptaAnalytics) window.receptaAnalytics("whatsapp_conectado");
+            return mostrarConectado(r.dados);
+          }
 
           if (estado.metodo === "qr" && r.dados.qrcode) {
             document.getElementById("valor-qr").src = r.dados.qrcode;

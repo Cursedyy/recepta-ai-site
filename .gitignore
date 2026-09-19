@@ -1,16 +1,46 @@
+# ---------------------------------------------------------------------------
+# Segredos e infra local
+# ---------------------------------------------------------------------------
 .vercel
 .env*
 node_modules
-Lavender petal logo design.zip
-logo-assets
 .mcp.json
+.agents/mcp.json
+
+# ---------------------------------------------------------------------------
+# Ruido de sessao de agente (AgentsRoom)
+# ---------------------------------------------------------------------------
 .agentsroom/handoff-transcript-*.txt
 .agentsroom/handoff-summary-*.md
-.agents/mcp.json
+.agentsroom/fork-context-*.txt
+.agentsroom/checkout-url-ativo.txt
+.agentsroom/session-note-tmp.txt
+
+# ---------------------------------------------------------------------------
+# Rascunho de agente. NAO e fonte: scripts de uma sessao so, backups de
+# workflow, saida de teste. Ficam no disco, fora do git e fora do `git status`
+# (que e injetado no contexto de toda sessao de IA).
+# Script que deva sobreviver a sessao vai para scripts/ ou src/n8n-patches/.
+# ---------------------------------------------------------------------------
+tmp/
+tmp-*
+src/tmp/
+src/tmp-*
+tmp-backup-workflows-deletados/
+src/tmp-backup-workflows-deletados/
 
 # saida dos testes (regeravel: test-responsiveness / test-accessibility / CI)
 src/screenshots/
+*.png
+!src/img/*.png
+!logo-assets/**
 
-# arquivo de outro projeto (risco XSS)
-support.js
-.agentsroom/fork-context-*.txt
+# ---------------------------------------------------------------------------
+# Binarios e artefatos que nao sao codigo
+# ---------------------------------------------------------------------------
+Lavender petal logo design.zip
+logo-assets
+uploads/
+.thumbnail
+dy
+

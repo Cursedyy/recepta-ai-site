@@ -1,0 +1,10 @@
+{
+  "name": "recepta-ai-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "node scripts/test-checkout-f5.mjs",
+    "health": "node scripts/health.mjs",
+    "contraste": "node scripts/contraste-paleta.mjs"
+  }
+}

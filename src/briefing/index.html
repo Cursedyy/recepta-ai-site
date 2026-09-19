@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Briefing — Recepta AI | Teste grátis de 7 dias</title>
+    <title>Finalizar assinatura | Recepta AI</title>
     <meta
       name="description"
       content="Formulário de configuração da sua secretária virtual com Recepta."
@@ -27,37 +27,39 @@
     <link
       rel="preload"
       as="style"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
     />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <style>
       :root {
-        --bg: #f8f9fc;
+        --bg: #fafafd;
         --surface: #ffffff;
-        --ink: #111827;
-        --muted: #6b7280;
-        --line: #e5e7eb;
-        --accent: #4f46e5;
-        --accent-hover: #4338ca;
+        --ink: #100d22;
+        --muted: #302e47;
+        --line: #e7e5f2;
+        --accent: #26205c;
+        --accent-rgb: 38, 32, 92;
+        --accent-hover: #352d78;
         --accent-ink: #ffffff;
-        --accent-soft: #eef2ff;
-        --accent-2: #818cf8;
-        --accent-glow: rgba(79, 70, 229, 0.15);
-        --header-bg: #111827;
+        --accent-soft: #eeedfd;
+        --accent-2: #afa8eb;
+        --accent-glow: rgba(var(--accent-rgb), 0.15);
+        --header-bg: #151749;
         --err: #ef4444;
         --err-soft: #fef2f2;
         --err-border: rgba(239, 68, 68, 0.3);
         --success: #10b981;
         --success-soft: #ecfdf5;
         --success-border: rgba(16, 185, 129, 0.3);
-        --radius: 16px;
+        --radius: 14px;
         --radius-sm: 10px;
         --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
         --shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 6px 16px rgba(0, 0, 0, 0.04);
-        --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.08), 0 20px 40px rgba(0, 0, 0, 0.06);
+        --shadow-lg:
+          0 4px 12px rgba(0, 0, 0, 0.08), 0 20px 40px rgba(0, 0, 0, 0.06);
         --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       }
       * {
@@ -68,13 +70,30 @@
       body {
         background: var(--bg);
         color: var(--ink);
-        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
-          Roboto, Helvetica, Arial, sans-serif;
+        font-family:
+          "Poppins",
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          Helvetica,
+          Arial,
+          sans-serif;
         font-weight: 400;
         font-size: 15px;
         line-height: 1.6;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
+      }
+      html,
+      body {
+        height: 100%;
+        overflow: hidden;
+      }
+      body {
+        min-height: 100dvh;
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
       }
       a {
         color: inherit;
@@ -82,8 +101,7 @@
 
       /* ── Header ── */
       header.top {
-        position: sticky;
-        top: 0;
+        position: relative;
         z-index: 100;
         background: var(--header-bg);
         border-bottom: 1px solid rgba(255, 255, 255, 0.08);
@@ -98,6 +116,7 @@
         margin: 0 auto;
       }
       .logo {
+        min-height: 44px;
         display: flex;
         align-items: center;
         gap: 10px;
@@ -120,13 +139,25 @@
       /* ── Wrap ── */
       .wrap {
         max-width: 720px;
+        width: 100%;
+        min-height: 0;
         margin: 0 auto;
-        padding: 36px 20px 140px;
+        padding: 14px 20px;
+      }
+      main {
+        height: 100%;
+        min-height: 0;
+        display: grid;
+        grid-template-rows: auto auto auto minmax(0, 1fr) auto;
+        gap: 10px;
       }
 
       /* ── Intro ── */
-      header.intro {
-        margin-bottom: 28px;
+      .intro {
+        display: none;
+      }
+      #semPedido:not([hidden]) {
+        display: block;
       }
       .badge {
         display: inline-flex;
@@ -138,7 +169,7 @@
         text-transform: uppercase;
         color: var(--accent);
         background: var(--accent-soft);
-        border: 1px solid rgba(79, 70, 229, 0.15);
+        border: 1px solid rgba(var(--accent-rgb), 0.15);
         padding: 5px 12px;
         border-radius: 99px;
         margin-bottom: 16px;
@@ -152,8 +183,13 @@
         animation: pulse 2s ease-in-out infinite;
       }
       @keyframes pulse {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.4; }
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.4;
+        }
       }
       h1 {
         font-size: clamp(28px, 5vw, 38px);
@@ -201,15 +237,15 @@
 
       /* ── Progress Stepper (inspirado 21st.dev Wizard) ── */
       .prog {
-        position: sticky;
-        top: 56px;
+        position: relative;
+        top: auto;
         z-index: 90;
         background: rgba(248, 249, 252, 0.88);
         backdrop-filter: blur(16px) saturate(1.5);
         -webkit-backdrop-filter: blur(16px) saturate(1.5);
         border-bottom: 1px solid var(--line);
-        margin: 0 -20px 28px;
-        padding: 18px 20px 14px;
+        margin: 0 -20px;
+        padding: 12px 20px 10px;
       }
       .steps-rail {
         position: relative;
@@ -274,7 +310,9 @@
         border-color: var(--accent);
         background: var(--accent);
         color: #fff;
-        box-shadow: 0 0 0 4px var(--accent-glow), 0 2px 8px rgba(79, 70, 229, 0.25);
+        box-shadow:
+          0 0 0 4px var(--accent-glow),
+          0 2px 8px rgba(var(--accent-rgb), 0.25);
         transform: scale(1.08);
       }
       .step-dot.active .dot-l {
@@ -390,6 +428,8 @@
       #form > section.active {
         display: block;
         position: relative;
+        height: 100%;
+        overflow: hidden;
         animation: stepIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
       }
       #form > section.active.back {
@@ -448,13 +488,15 @@
         flex: 0 0 34px;
         height: 34px;
         border-radius: var(--radius-sm);
-        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        /* Termina em --accent-hover, nao em --accent-2: o lilas claro deixava
+           o #fff em 2.18:1. Assim o branco fica >= 11.7:1 em toda a faixa. */
+        background: linear-gradient(135deg, var(--accent), var(--accent-hover));
         color: #fff;
         display: grid;
         place-items: center;
         font-size: 13px;
         font-weight: 700;
-        box-shadow: 0 2px 8px rgba(79, 70, 229, 0.2);
+        box-shadow: 0 2px 8px rgba(var(--accent-rgb), 0.2);
       }
       .sh h2 {
         font-size: 21px;
@@ -471,7 +513,7 @@
 
       /* ── Form Fields ── */
       .f {
-        margin-bottom: 20px;
+        margin-bottom: 14px;
       }
       .f:last-child {
         margin-bottom: 0;
@@ -522,7 +564,7 @@
         }
       }
       textarea {
-        min-height: 90px;
+        min-height: 64px;
         resize: vertical;
         line-height: 1.55;
       }
@@ -631,12 +673,12 @@
       /* ── Note Banner ── */
       .note {
         background: var(--accent-soft);
-        border: 1px solid rgba(79, 70, 229, 0.12);
+        border: 1px solid rgba(var(--accent-rgb), 0.12);
         border-radius: var(--radius-sm);
         padding: 14px 16px;
         font-size: 13px;
         color: #4b5563;
-        margin-bottom: 22px;
+        margin-bottom: 0;
         line-height: 1.5;
         display: flex;
         gap: 10px;
@@ -656,7 +698,7 @@
 
       /* ── Footer / Navigation ── */
       footer {
-        margin-top: 28px;
+        margin-top: 0;
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -686,7 +728,7 @@
       }
       button:hover {
         background: var(--accent-hover);
-        box-shadow: 0 4px 16px rgba(79, 70, 229, 0.3);
+        box-shadow: 0 4px 16px rgba(var(--accent-rgb), 0.3);
         transform: translateY(-1px);
       }
       button:active {
@@ -706,7 +748,8 @@
         min-width: 240px;
         padding: 15px 40px;
         font-size: 15.5px;
-        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        /* Mesmo motivo do .num: gradiente que nao clareia demais sob o rotulo branco. */
+        background: linear-gradient(135deg, var(--accent), var(--accent-hover));
         position: relative;
         overflow: hidden;
       }
@@ -714,7 +757,11 @@
         content: "";
         position: absolute;
         inset: 0;
-        background: linear-gradient(135deg, transparent, rgba(255,255,255,0.15));
+        background: linear-gradient(
+          135deg,
+          transparent,
+          rgba(255, 255, 255, 0.15)
+        );
         opacity: 0;
         transition: opacity 0.2s;
       }
@@ -722,7 +769,7 @@
         opacity: 1;
       }
       #btn:hover {
-        box-shadow: 0 6px 24px rgba(79, 70, 229, 0.35);
+        box-shadow: 0 6px 24px rgba(var(--accent-rgb), 0.35);
       }
       #prevBtn {
         background: var(--surface);
@@ -863,14 +910,85 @@
       /* ── Responsive ── */
       @media (max-width: 520px) {
         .wrap {
-          padding: 24px 14px 100px;
+          padding: 8px 14px;
         }
         .prog {
-          margin: 0 -14px 24px;
-          padding: 16px 14px 12px;
+          margin: 0 -14px;
+          padding: 8px 14px;
         }
         h1 {
-          font-size: 26px;
+          font-size: 23px;
+        }
+        .badge {
+          margin-bottom: 6px;
+        }
+        .sub,
+        .meta,
+        .note,
+        .sd {
+          display: none;
+        }
+        .steps-rail {
+          margin-bottom: 8px;
+        }
+        .prog-bottom {
+          margin-top: 6px;
+        }
+        .saveflag {
+          display: none;
+        }
+        .step-dot {
+          flex: 0 0 32px;
+          min-width: 0;
+        }
+        .step-connector {
+          flex: 1 1 0;
+          width: 0;
+          min-width: 0;
+          max-width: none;
+        }
+        .sh {
+          gap: 10px;
+        }
+        .num {
+          flex-basis: 28px;
+          width: 28px;
+          height: 28px;
+        }
+        .sh h2 {
+          font-size: 18px;
+        }
+        .sd {
+          font-size: 12px;
+          margin: 3px 0 12px 38px;
+        }
+        .f {
+          margin-bottom: 10px;
+        }
+        label.l {
+          margin-bottom: 4px;
+          font-size: 13px;
+        }
+        .help {
+          display: none;
+        }
+        textarea {
+          min-height: 54px;
+        }
+        #form > section {
+          padding: 14px;
+        }
+        footer {
+          min-height: 56px;
+        }
+        #btn,
+        #prevBtn {
+          padding: 11px 16px;
+          min-height: 44px;
+        }
+        #btn {
+          min-width: 0;
+          flex: 1;
         }
         .meta {
           gap: 6px;
@@ -889,51 +1007,244 @@
         .summary-value {
           text-align: left;
         }
-      }      @media (prefers-reduced-motion: reduce) {
-        *
-          {
-            animation-duration: 0.01ms !important;
-            transition-duration: 0.01ms !important;
-          }
+      }
+      @media (max-height: 700px) {
+        .sub,
+        .meta,
+        .note {
+          display: none;
+        }
+        .badge {
+          margin-bottom: 6px;
+        }
+        .intro h1 {
+          font-size: 24px;
+        }
+        .prog {
+          padding-top: 8px;
+          padding-bottom: 8px;
+        }
+        .steps-rail {
+          margin-bottom: 8px;
+        }
+        .prog-bottom {
+          margin-top: 6px;
+        }
+        .sd {
+          margin-bottom: 12px;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation-duration: 0.01ms !important;
+          transition-duration: 0.01ms !important;
+        }
       }
 
       /* ── Category Search ── */
-      #form { position: relative; z-index: 20; }
-      .cat-search-wrap { position: relative; }
-      .cat-search-input { padding-left: 42px !important; font-size: 16px !important; height: 52px !important; }
-      .cat-search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 18px; color: var(--muted); pointer-events: none; }
-      .cat-clear { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); width: 28px; height: 28px; border-radius: 50%; border: none; background: var(--line); color: var(--muted); font-size: 14px; cursor: pointer; display: none; align-items: center; justify-content: center; transition: all 0.15s; }
-      .cat-clear:hover { background: var(--err-soft); color: var(--err); }
-      .cat-clear.show { display: flex; }
-      .cat-dropdown { position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: var(--surface); border: 1.5px solid var(--line); border-radius: var(--radius-sm); box-shadow: var(--shadow-lg); max-height: 380px; overflow-y: auto; z-index: 9999; display: none; }
-      .cat-dropdown.open { display: block; animation: dropIn 0.2s ease; }
-      @keyframes dropIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
-      .cat-group-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); padding: 12px 14px 6px; background: var(--bg); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 1; }
-      .cat-option { display: flex; align-items: center; gap: 12px; padding: 10px 14px; cursor: pointer; transition: all 0.12s; border-bottom: 1px solid #f3f4f6; }
-      .cat-option:last-child { border-bottom: none; }
-      .cat-option:hover { background: var(--accent-soft); }
-      .cat-option.selected { background: var(--accent-soft); border-left: 3px solid var(--accent); }
-      .cat-option-icon { font-size: 22px; flex-shrink: 0; width: 32px; text-align: center; }
-      .cat-option-text { flex: 1; min-width: 0; }
-      .cat-option-name { font-size: 14px; font-weight: 600; color: var(--ink); }
-      .cat-option-desc { font-size: 12px; color: var(--muted); line-height: 1.3; }
-      .cat-option-parent { font-size: 10px; color: var(--accent); font-weight: 600; background: var(--accent-soft); padding: 1px 6px; border-radius: 99px; margin-left: 6px; }
-      .cat-no-results { padding: 20px 14px; text-align: center; color: var(--muted); font-size: 13px; }
-      .cat-no-results b { color: var(--ink); }
-      .cat-custom-hint { padding: 12px 14px; border-top: 1px solid var(--line); background: var(--accent-soft); font-size: 12px; color: var(--accent); cursor: pointer; display: flex; align-items: center; gap: 8px; }
-      .cat-custom-hint:hover { background: #dde5ff; }
-      .cat-selected { display: none; margin-top: 16px; padding: 16px 20px; border: 1.5px solid var(--accent); border-radius: var(--radius-sm); background: var(--accent-soft); animation: stepIn 0.25s ease; }
-      .cat-selected.show { display: flex; align-items: center; gap: 14px; }
-      .cat-selected-icon { font-size: 28px; }
-      .cat-selected-info { flex: 1; }
-      .cat-selected-name { font-size: 15px; font-weight: 700; }
-      .cat-selected-desc { font-size: 12px; color: var(--muted); }
-      .cat-selected-change { padding: 6px 12px; border-radius: 8px; border: 1.5px solid var(--accent); background: transparent; color: var(--accent); font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
-      .cat-selected-change:hover { background: var(--accent); color: #fff; }
+      #form {
+        position: relative;
+        z-index: 20;
+      }
+      .cat-search-wrap {
+        position: relative;
+      }
+      .cat-search-input {
+        padding-left: 42px !important;
+        font-size: 16px !important;
+        height: 52px !important;
+      }
+      .cat-search-icon {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 18px;
+        color: var(--muted);
+        pointer-events: none;
+      }
+      .cat-clear {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        border: none;
+        background: var(--line);
+        color: var(--muted);
+        font-size: 14px;
+        cursor: pointer;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.15s;
+      }
+      .cat-clear:hover {
+        background: var(--err-soft);
+        color: var(--err);
+      }
+      .cat-clear.show {
+        display: flex;
+      }
+      .cat-dropdown {
+        position: fixed;
+        background: var(--surface);
+        border: 1.5px solid var(--line);
+        border-radius: var(--radius-sm);
+        box-shadow: var(--shadow-lg);
+        max-height: 380px;
+        overflow-y: auto;
+        z-index: 9999;
+        display: none;
+      }
+      .cat-dropdown.open {
+        display: block;
+        animation: dropIn 0.2s ease;
+      }
+      @keyframes dropIn {
+        from {
+          opacity: 0;
+          transform: translateY(-6px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .cat-group-label {
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+        padding: 12px 14px 6px;
+        background: var(--bg);
+        border-bottom: 1px solid var(--line);
+        position: sticky;
+        top: 0;
+        z-index: 1;
+      }
+      .cat-option {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 14px;
+        cursor: pointer;
+        transition: all 0.12s;
+        border-bottom: 1px solid #f3f4f6;
+      }
+      .cat-option:last-child {
+        border-bottom: none;
+      }
+      .cat-option:hover {
+        background: var(--accent-soft);
+      }
+      .cat-option.selected {
+        background: var(--accent-soft);
+        border-left: 3px solid var(--accent);
+      }
+      .cat-option-icon {
+        font-size: 22px;
+        flex-shrink: 0;
+        width: 32px;
+        text-align: center;
+      }
+      .cat-option-text {
+        flex: 1;
+        min-width: 0;
+      }
+      .cat-option-name {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--ink);
+      }
+      .cat-option-desc {
+        font-size: 12px;
+        color: var(--muted);
+        line-height: 1.3;
+      }
+      .cat-option-parent {
+        font-size: 10px;
+        color: var(--accent);
+        font-weight: 600;
+        background: var(--accent-soft);
+        padding: 1px 6px;
+        border-radius: 99px;
+        margin-left: 6px;
+      }
+      .cat-no-results {
+        padding: 20px 14px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .cat-no-results b {
+        color: var(--ink);
+      }
+      .cat-custom-hint {
+        padding: 12px 14px;
+        border-top: 1px solid var(--line);
+        background: var(--accent-soft);
+        font-size: 12px;
+        color: var(--accent);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .cat-custom-hint:hover {
+        background: #dde5ff;
+      }
+      .cat-selected {
+        display: none;
+        margin-top: 16px;
+        padding: 16px 20px;
+        border: 1.5px solid var(--accent);
+        border-radius: var(--radius-sm);
+        background: var(--accent-soft);
+        animation: stepIn 0.25s ease;
+      }
+      .cat-selected.show {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .cat-selected-icon {
+        font-size: 28px;
+      }
+      .cat-selected-info {
+        flex: 1;
+      }
+      .cat-selected-name {
+        font-size: 15px;
+        font-weight: 700;
+      }
+      .cat-selected-desc {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .cat-selected-change {
+        padding: 6px 12px;
+        border-radius: 8px;
+        border: 1.5px solid var(--accent);
+        background: transparent;
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .cat-selected-change:hover {
+        background: var(--accent);
+        color: #fff;
+      }
     </style>
     <link rel="stylesheet" href="/page-transition.css?v=2" />
     <link rel="stylesheet" href="/loading-screen.css" />
     <script src="/page-transition.js?v=2"></script>
+    <script src="/analytics.js?v=20260915-f2"></script>
   </head>
   <body>
     <header class="top">
@@ -958,77 +1269,145 @@
     </header>
     <div class="wrap">
       <main>
-      <div class="intro">
-        <span class="badge">Teste grátis · 7 dias</span>
-        <h1>Configure sua <em>secretária virtual</em></h1>
-        <p class="sub">
-          São 2 passos rápidos. Preencha o necessário e sua Recepta AI já
-          começa a atender — o resto dá pra completar depois.
-        </p>
-        <div class="meta">
-          <span class="pill">~2 min</span
-          ><span class="pill">Salva automaticamente</span
-          ><span class="pill">Enviado direto pra equipe</span>
+        <!-- Gate do F6-HARD: sem pedido pago o Onboarding falha fechado no n8n,
+             e quem preenchesse o formulário veria a tela de sucesso sem nada
+             acontecer. Barra antes do formulário, com caminho de volta. -->
+        <div class="intro" id="semPedido" hidden>
+          <span class="badge">Garantia Recepta de 7 dias</span>
+          <h1>Escolha seu plano <em>antes de configurar</em></h1>
+          <p class="sub">
+            Esta é a etapa de configuração, aberta depois da assinatura. Escolha
+            o plano e a Recepta traz você de volta pra cá automaticamente, já com
+            a Garantia Recepta de 7 dias valendo.
+          </p>
+          <div class="meta">
+            <a class="pill" href="/#planos" style="text-decoration: none"
+              >Ver planos e começar</a
+            ><a class="pill" href="/" style="text-decoration: none"
+              >Voltar para o site</a
+            >
+          </div>
         </div>
-      </div>
-
-      <!-- Stepper -->
-      <div class="prog">
-        <div class="steps-rail" id="stepsRail"></div>
-        <div class="bar"><span id="bar"></span></div>
-        <div class="prog-bottom">
-          <span class="step-label" id="stepLabel"></span>
-          <span style="display:flex;align-items:center;gap:10px;">
-            <span class="saveflag" id="saveflag" aria-live="polite">Salvo ✓</span>
-            <span class="ppct" id="ppct">0%</span>
-          </span>
+        <script>
+          /* Gate do F6-HARD. Sem pedido pago o formulário não pode ser enviado:
+             o claim no n8n falha fechado e o cliente veria sucesso falso.
+             Salvamento: se o id do pedido ainda estiver no sessionStorage desta
+             aba (gravado pelo /api/checkout), reescreve a URL com ele. */
+          (function () {
+            var UUID =
+              /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+            var p = new URLSearchParams(window.location.search).get("pedido");
+            if (!p || !UUID.test(p)) {
+              var guardado = null;
+              try {
+                guardado = sessionStorage.getItem("recepta_pedido_id");
+              } catch (e) {}
+              if (guardado && UUID.test(guardado)) {
+                var u = new URL(window.location.href);
+                u.searchParams.set("pedido", guardado);
+                history.replaceState(null, "", u.toString());
+                return;
+              }
+              document.addEventListener("DOMContentLoaded", function () {
+                document
+                  .querySelectorAll(
+                    ".intro:not(#semPedido), .prog, .note, #form, #footerNav",
+                  )
+                  .forEach(function (el) {
+                    el.hidden = true;
+                    el.style.display = "none";
+                  });
+                var gate = document.getElementById("semPedido");
+                if (gate) gate.hidden = false;
+              });
+            }
+          })();
+        </script>
+        <div class="intro">
+          <span class="badge">Garantia Recepta de 7 dias</span>
+          <h1>Configure sua <em>secretária virtual</em></h1>
+          <p class="sub">
+            São passos rápidos, em telas curtas. É só o necessário pra sua
+            Recepta atender certo desde a primeira mensagem. Nada de cadastro
+            longo.
+          </p>
+          <div class="meta">
+            <span class="pill">~2 min</span
+            ><span class="pill">Salva automaticamente</span
+            ><span class="pill">Enviado direto pra equipe</span>
+          </div>
         </div>
-      </div>
 
-      <!-- Aviso -->
-      <div class="note">
-        <svg class="note-icon" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-        </svg>
-        <div>
-          <b>Importante:</b> não cole dados de pacientes reais (nome, CPF,
-          resultado de exame). Se for enviar exemplos de conversa, troque os nomes
-          por "Paciente 1", "Paciente 2".
+        <!-- Stepper -->
+        <div class="prog">
+          <div class="steps-rail" id="stepsRail"></div>
+          <div class="bar"><span id="bar"></span></div>
+          <div class="prog-bottom">
+            <span class="step-label" id="stepLabel"></span>
+            <span style="display: flex; align-items: center; gap: 10px">
+              <span class="saveflag" id="saveflag" aria-live="polite"
+                >Salvo ✓</span
+              >
+              <span class="ppct" id="ppct">0%</span>
+            </span>
+          </div>
         </div>
-      </div>
 
-      <form id="form" novalidate></form>
-
-      <!-- Completion Screen -->
-      <div class="completion" id="completion">
-        <div class="completion-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="20 6 9 17 4 12"/>
+        <!-- Aviso -->
+        <div class="note">
+          <svg class="note-icon" viewBox="0 0 20 20" fill="currentColor">
+            <path
+              fill-rule="evenodd"
+              d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+              clip-rule="evenodd"
+            />
           </svg>
+          <div>
+            <b>Importante:</b> não cole dados de pacientes reais (nome, CPF,
+            resultado de exame). Se for enviar exemplos de conversa, troque os
+            nomes por "Paciente 1", "Paciente 2".
+          </div>
         </div>
-        <h2>Tudo certo!</h2>
-        <p>
-          Sua secretária virtual está sendo configurada. Em alguns minutos
-          você receberá uma mensagem no WhatsApp com um link para definir
-          sua senha de acesso ao painel.
-        </p>
-        <div class="summary-card" id="summaryCard">
-          <h3>Resumo do briefing</h3>
-          <div id="summaryContent"></div>
-        </div>
-      </div>
 
-      <footer id="footerNav">
-        <div class="stepnav">
-          <button id="prevBtn" type="button">← Voltar</button>
-          <button id="btn" type="button">Continuar</button>
+        <form id="form" novalidate></form>
+
+        <!-- Completion Screen -->
+        <div class="completion" id="completion">
+          <div class="completion-icon">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+          </div>
+          <h2>Tudo certo!</h2>
+          <p>
+            Sua secretária virtual está sendo configurada. Em alguns minutos
+            você receberá uma mensagem no WhatsApp com um link para definir sua
+            senha de acesso ao painel.
+          </p>
+          <div class="summary-card" id="summaryCard">
+            <h3>Resumo do briefing</h3>
+            <div id="summaryContent"></div>
+          </div>
         </div>
-        <div class="msg" id="err"></div>
-        <p class="fnote">
-          Ao enviar, você autoriza o uso destas informações apenas para
-          configurar seu atendimento.
-        </p>
-      </footer>
+
+        <footer id="footerNav">
+          <div class="stepnav">
+            <button id="prevBtn" type="button">← Voltar</button>
+            <button id="btn" type="button">Continuar</button>
+          </div>
+          <div class="msg" id="err"></div>
+          <p class="fnote">
+            Ao enviar, você autoriza o uso destas informações apenas para
+            configurar seu atendimento.
+          </p>
+        </footer>
       </main>
     </div>
 
@@ -1052,6 +1431,12 @@
               p: "53 99999-9999",
               h: "WhatsApp do responsável. A Recepta te chama quando precisar de um humano.",
             },
+          ],
+        },
+        {
+          t: "Canais da clínica",
+          d: "Precisamos do número que os pacientes usarão e do CNPJ para identificar sua clínica.",
+          f: [
             {
               i: "numero",
               l: "Número da Recepta (com DDD)",
@@ -1066,8 +1451,14 @@
               r: 1,
               im: "numeric",
               p: "00.000.000/0000-00",
-              h: "Usado apenas para travar teste grátis repetido no mesmo CNPJ.",
+              h: "Identifica sua clínica no cadastro e na contratação.",
             },
+          ],
+        },
+        {
+          t: "Seu atendimento",
+          d: "Conte onde atende e quais serviços sua Recepta pode oferecer.",
+          f: [
             {
               i: "endereco",
               l: "Endereço completo da clínica",
@@ -1083,13 +1474,19 @@
               p: "Ultrassonografia abdominal\nRaio-X de tórax\nMamografia",
               h: "Um por linha. A Recepta só agenda o que estiver nesta lista.",
             },
+          ],
+        },
+        {
+          t: "Horários e convênios",
+          d: "Essas informações ajudam a IA a orientar cada paciente corretamente.",
+          f: [
             {
               i: "convenios",
               l: "Convênios aceitos",
               r: 1,
               ty: "ta",
               p: "Unimed\nIpê Saúde\nParticular",
-              h: 'Um por linha. Se atende particular, escreva "Particular" na lista.'
+              h: 'Um por linha. Se atende particular, escreva "Particular" na lista.',
             },
             {
               i: "horario_func",
@@ -1114,35 +1511,6 @@
           ],
         },
         {
-          t: "Serviços",
-          d: "Quais consultas, exames ou procedimentos a Recepta deve agendar?",
-          f: [
-            {
-              i: "servicos",
-              l: "Exames / consultas / procedimentos oferecidos",
-              r: 1,
-              ty: "ta",
-              p: "Ultrassonografia abdominal\nRaio-X de tórax\nMamografia",
-              h: "Um por linha. A Recepta só agenda o que estiver nesta lista.",
-            },
-            {
-              i: "convenios",
-              l: "Convênios aceitos",
-              r: 1,
-              ty: "ta",
-              p: "Unimed\nIpê Saúde\nParticular",
-              h: 'Um por linha. Se atende particular, escreva "Particular" na lista.',
-            },
-            {
-              i: "horario_func",
-              l: "Horário de funcionamento",
-              r: 1,
-              ty: "ta",
-              p: "Seg a sex 8h-18h, sáb 8h-12h",
-            },
-          ],
-        },
-        {
           t: "Confirmação",
           d: "Marque tudo e envie. Leva 10 segundos.",
           f: [
@@ -1152,75 +1520,409 @@
               r: 1,
               ty: "check",
               o: [
-                "Autorizo o uso destas informações para configurar minha Recepta durante o teste",
-                "Vou desligar respostas automáticas do número durante o teste",
+                "Autorizo o uso destas informações para configurar minha Recepta",
+                "Vou desligar respostas automáticas do número enquanto a Recepta estiver atendendo",
+                {"html":true,"texto":"Li e aceito os <a href=\"/termos/\" target=\"_blank\">Termos de Uso</a> (incluindo a Garantia Recepta de 7 dias) e a <a href=\"/privacidade/\" target=\"_blank\">Política de Privacidade</a>"},
               ],
             },
           ],
         },
       ];
 
+      const PHASES = [
+        { t: "Sua clínica", first: 0, last: 1 },
+        { t: "Atendimento", first: 2, last: 3 },
+        { t: "Confirmação", first: 4, last: 5 },
+      ];
+
       /* ── Categorias (lista completa com herança) ── */
       const CATS = [
-        { id: "estetica", n: "Estética", i: "✨", d: "Clínicas de estética, procedimentos estéticos", p: null },
-        { id: "estetica_facial", n: "Estética Facial", i: "✨", d: "Procedimentos faciais, skincare", p: "estetica" },
-        { id: "estetica_corporal", n: "Estética Corporal", i: "✨", d: "Contorno corporal, celulite, gordura localizada", p: "estetica" },
-        { id: "depilacao", n: "Depilação", i: "✨", d: "Depilação a laser, cera, luz pulsada", p: "estetica" },
-        { id: "maquiagem", n: "Maquiagem / Design de Sobrancelhas", i: "💄", d: "Maquiagem profissional, design, permanente", p: "estetica" },
-        { id: "sobrancelhas", n: "Sobrancelhas / Cílios", i: "👁️", d: "Design, alongamento, lamination", p: "estetica" },
-        { id: "odontologia", n: "Odontologia", i: "🦷", d: "Clínicas dentárias, ortodontia, implantes", p: null },
-        { id: "ortodontia", n: "Ortodontia", i: "🦷", d: "Aparelhos, alinhadores, ortodontia", p: "odontologia" },
-        { id: "implantes", n: "Implantes Dentários", i: "🦷", d: "Implantes, próteses, reabilitação oral", p: "odontologia" },
-        { id: "endodontia", n: "Endodontia", i: "🦷", d: "Tratamento de canal, endodontia", p: "odontologia" },
-        { id: "odontopediatria", n: "Odontopediatria", i: "👶", d: "Dentista, primeira consulta", p: "odontologia" },
-        { id: "estetica_dental", n: "Estética Dental", i: "🦷", d: "Clareamento, facetas, lentes de contato dental", p: "odontologia" },
-        { id: "periodontia", n: "Periodontia", i: "🦷", d: "Gengiva, implante periodontal, raspagem", p: "odontologia" },
-        { id: "psicologia", n: "Psicologia", i: "🧠", d: "Psicólogos, terapeutas, psiquiatria", p: null },
-        { id: "psicanalise", n: "Psicanálise", i: "🧠", d: "Psicanálise, Freud, Lacan", p: "psicologia" },
-        { id: "tcc", n: "Terapia Cognitivo-Comportamental", i: "🧠", d: "TCC, terapia breve, ansiedade, depressão", p: "psicologia" },
-        { id: "terapia_casal", n: "Terapia de Casal / Família", i: "👨‍👩‍👧", d: "Terapia sistêmica, casal, família", p: "psicologia" },
-        { id: "neuropsicologia", n: "Neuropsicologia", i: "🧠", d: "Avaliação neuropsicológica, TDAH, TEA", p: "psicologia" },
-        { id: "psiquiatria", n: "Psiquiatria", i: "💊", d: "Psiquiatria, medicação, transtornos", p: "psicologia" },
-        { id: "terapia_infantil", n: "Psicologia Infantil", i: "🧒", d: "Crianças, adolescentes, brinquedoterapia", p: "psicologia" },
-        { id: "nutricao", n: "Nutrição", i: "🥗", d: "Nutricionistas, dietistas", p: null },
-        { id: "nutri_esportiva", n: "Nutrição Esportiva", i: "💪", d: "Atletas, performance, hipertrofia", p: "nutricao" },
-        { id: "nutri_clinica", n: "Nutrição Clínica", i: "🏥", d: "Doenças crônicas, diabetes, hipertensão", p: "nutricao" },
-        { id: "emagrecimento", n: "Emagrecimento", i: "⚖️", d: "Perda de peso, reeducação alimentar", p: "nutricao" },
-        { id: "nutri_gestante", n: "Nutrição Gestante", i: "🤰", d: "Gestantes, amamentação, pré-natal", p: "nutricao" },
-        { id: "nutri_infantil", n: "Nutrição Infantil", i: "👶", d: "Crianças, pediatria, alimentação complementar", p: "nutricao" },
-        { id: "fisioterapia", n: "Fisioterapia", i: "🏃", d: "Fisioterapeutas, reabilitação", p: null },
-        { id: "fisio_ortopedica", n: "Fisioterapia Ortopédica", i: "🦴", d: "Artroplastia, fratura, coluna", p: "fisioterapia" },
-        { id: "fisio_respiratoria", n: "Fisioterapia Respiratória", i: "🫁", d: "Pulmão, asma, DPOC, COVID", p: "fisioterapia" },
-        { id: "fisio_neurologica", n: "Fisioterapia Neurológica", i: "🧠", d: "AVC, Parkinson, esclerose, neurologia", p: "fisioterapia" },
-        { id: "fisio_pelvica", n: "Fisioterapia Pélvica", i: "🏥", d: "Assoalho pélvico, incontinência, gestante", p: "fisioterapia" },
-        { id: "fisio_esportiva", n: "Fisioterapia Esportiva", i: "⚽", d: "Atletas, lesões esportivas, prevenção", p: "fisioterapia" },
-        { id: "pilates", n: "Pilates", i: "🧘", d: "Pilates terapêutico, reabilitação", p: "fisioterapia" },
-        { id: "acupuntura", n: "Acupuntura", i: "📍", d: "Medicina tradicional chinesa, acupuntura", p: "fisioterapia" },
-        { id: "geral", n: "Medicina Geral", i: "🏥", d: "Clínicas gerais, consultórios médicos", p: null },
-        { id: "clinica_geral", n: "Clínica Geral", i: "🩺", d: "Consultas gerais, check-up, preventivo", p: "geral" },
-        { id: "pediatria", n: "Pediatria", i: "👶", d: "Crianças, vacinas, desenvolvimento", p: "geral" },
-        { id: "cardiologia", n: "Cardiologia", i: "❤️", d: "Coração, hipertensão, arritmia", p: "geral" },
-        { id: "dermatologia", n: "Dermatologia", i: "🩹", d: "Pele, acne, cabelo, unha", p: "geral" },
-        { id: "ginecologia", n: "Ginecologia", i: "♀️", d: "Mulher, pré-natal, contraceptivo", p: "geral" },
-        { id: "oftalmologia", n: "Oftalmologia", i: "👁️", d: "Olhos, visão, lentes, cirurgia", p: "geral" },
-        { id: "otorrino", n: "Otorrinolaringologia", i: "👂", d: "Ouvido, nariz, garganta, sinusite", p: "geral" },
-        { id: "urologia", n: "Urologia", i: "♂️", d: "Homem, próstata, rins, vias urinárias", p: "geral" },
-        { id: "ortopedia", n: "Ortopedia", i: "🦴", d: "Ossos, articulações, coluna, joelho", p: "geral" },
-        { id: "endocrinologia", n: "Endocrinologia", i: "🧪", d: "Hormônios, diabetes, tireoide", p: "geral" },
-        { id: "gastro", n: "Gastroenterologia", i: "🫄", d: "Estômago, intestino, fígado, refluxo", p: "geral" },
-        { id: "veterinaria", n: "Veterinária", i: "🐾", d: "Clínicas veterinárias, pet shop", p: null },
-        { id: "farmacia", n: "Farmácia / Drogaria", i: "💊", d: "Farmácias, drogarias, manipulação", p: null },
-        { id: "salao", n: "Salão de Beleza", i: "💇", d: "Cabelo, unha, estética geral", p: null },
-        { id: "academia", n: "Academia / Personal", i: "🏋️", d: "Personal trainer, musculação, functional", p: null },
-        { id: "escritorio", n: "Escritório / Advocacia", i: "⚖️", d: "Advocacia, consultoria, contabilidade", p: null },
-        { id: "consultoria", n: "Consultoria", i: "💼", d: "Consultoria empresarial, RH, gestão", p: null },
-        { id: "educacao", n: "Educação / Cursos", i: "📚", d: "Escolas, cursinhos, treinamentos", p: null },
+        {
+          id: "estetica",
+          n: "Estética",
+          i: "✨",
+          d: "Clínicas de estética, procedimentos estéticos",
+          p: null,
+        },
+        {
+          id: "estetica_facial",
+          n: "Estética Facial",
+          i: "✨",
+          d: "Procedimentos faciais, skincare",
+          p: "estetica",
+        },
+        {
+          id: "estetica_corporal",
+          n: "Estética Corporal",
+          i: "✨",
+          d: "Contorno corporal, celulite, gordura localizada",
+          p: "estetica",
+        },
+        {
+          id: "depilacao",
+          n: "Depilação",
+          i: "✨",
+          d: "Depilação a laser, cera, luz pulsada",
+          p: "estetica",
+        },
+        {
+          id: "maquiagem",
+          n: "Maquiagem / Design de Sobrancelhas",
+          i: "💄",
+          d: "Maquiagem profissional, design, permanente",
+          p: "estetica",
+        },
+        {
+          id: "sobrancelhas",
+          n: "Sobrancelhas / Cílios",
+          i: "👁️",
+          d: "Design, alongamento, lamination",
+          p: "estetica",
+        },
+        {
+          id: "odontologia",
+          n: "Odontologia",
+          i: "🦷",
+          d: "Clínicas dentárias, ortodontia, implantes",
+          p: null,
+        },
+        {
+          id: "ortodontia",
+          n: "Ortodontia",
+          i: "🦷",
+          d: "Aparelhos, alinhadores, ortodontia",
+          p: "odontologia",
+        },
+        {
+          id: "implantes",
+          n: "Implantes Dentários",
+          i: "🦷",
+          d: "Implantes, próteses, reabilitação oral",
+          p: "odontologia",
+        },
+        {
+          id: "endodontia",
+          n: "Endodontia",
+          i: "🦷",
+          d: "Tratamento de canal, endodontia",
+          p: "odontologia",
+        },
+        {
+          id: "odontopediatria",
+          n: "Odontopediatria",
+          i: "👶",
+          d: "Dentista, primeira consulta",
+          p: "odontologia",
+        },
+        {
+          id: "estetica_dental",
+          n: "Estética Dental",
+          i: "🦷",
+          d: "Clareamento, facetas, lentes de contato dental",
+          p: "odontologia",
+        },
+        {
+          id: "periodontia",
+          n: "Periodontia",
+          i: "🦷",
+          d: "Gengiva, implante periodontal, raspagem",
+          p: "odontologia",
+        },
+        {
+          id: "psicologia",
+          n: "Psicologia",
+          i: "🧠",
+          d: "Psicólogos, terapeutas, psiquiatria",
+          p: null,
+        },
+        {
+          id: "psicanalise",
+          n: "Psicanálise",
+          i: "🧠",
+          d: "Psicanálise, Freud, Lacan",
+          p: "psicologia",
+        },
+        {
+          id: "tcc",
+          n: "Terapia Cognitivo-Comportamental",
+          i: "🧠",
+          d: "TCC, terapia breve, ansiedade, depressão",
+          p: "psicologia",
+        },
+        {
+          id: "terapia_casal",
+          n: "Terapia de Casal / Família",
+          i: "👨‍👩‍👧",
+          d: "Terapia sistêmica, casal, família",
+          p: "psicologia",
+        },
+        {
+          id: "neuropsicologia",
+          n: "Neuropsicologia",
+          i: "🧠",
+          d: "Avaliação neuropsicológica, TDAH, TEA",
+          p: "psicologia",
+        },
+        {
+          id: "psiquiatria",
+          n: "Psiquiatria",
+          i: "💊",
+          d: "Psiquiatria, medicação, transtornos",
+          p: "psicologia",
+        },
+        {
+          id: "terapia_infantil",
+          n: "Psicologia Infantil",
+          i: "🧒",
+          d: "Crianças, adolescentes, brinquedoterapia",
+          p: "psicologia",
+        },
+        {
+          id: "nutricao",
+          n: "Nutrição",
+          i: "🥗",
+          d: "Nutricionistas, dietistas",
+          p: null,
+        },
+        {
+          id: "nutri_esportiva",
+          n: "Nutrição Esportiva",
+          i: "💪",
+          d: "Atletas, performance, hipertrofia",
+          p: "nutricao",
+        },
+        {
+          id: "nutri_clinica",
+          n: "Nutrição Clínica",
+          i: "🏥",
+          d: "Doenças crônicas, diabetes, hipertensão",
+          p: "nutricao",
+        },
+        {
+          id: "emagrecimento",
+          n: "Emagrecimento",
+          i: "⚖️",
+          d: "Perda de peso, reeducação alimentar",
+          p: "nutricao",
+        },
+        {
+          id: "nutri_gestante",
+          n: "Nutrição Gestante",
+          i: "🤰",
+          d: "Gestantes, amamentação, pré-natal",
+          p: "nutricao",
+        },
+        {
+          id: "nutri_infantil",
+          n: "Nutrição Infantil",
+          i: "👶",
+          d: "Crianças, pediatria, alimentação complementar",
+          p: "nutricao",
+        },
+        {
+          id: "fisioterapia",
+          n: "Fisioterapia",
+          i: "🏃",
+          d: "Fisioterapeutas, reabilitação",
+          p: null,
+        },
+        {
+          id: "fisio_ortopedica",
+          n: "Fisioterapia Ortopédica",
+          i: "🦴",
+          d: "Artroplastia, fratura, coluna",
+          p: "fisioterapia",
+        },
+        {
+          id: "fisio_respiratoria",
+          n: "Fisioterapia Respiratória",
+          i: "🫁",
+          d: "Pulmão, asma, DPOC, COVID",
+          p: "fisioterapia",
+        },
+        {
+          id: "fisio_neurologica",
+          n: "Fisioterapia Neurológica",
+          i: "🧠",
+          d: "AVC, Parkinson, esclerose, neurologia",
+          p: "fisioterapia",
+        },
+        {
+          id: "fisio_pelvica",
+          n: "Fisioterapia Pélvica",
+          i: "🏥",
+          d: "Assoalho pélvico, incontinência, gestante",
+          p: "fisioterapia",
+        },
+        {
+          id: "fisio_esportiva",
+          n: "Fisioterapia Esportiva",
+          i: "⚽",
+          d: "Atletas, lesões esportivas, prevenção",
+          p: "fisioterapia",
+        },
+        {
+          id: "pilates",
+          n: "Pilates",
+          i: "🧘",
+          d: "Pilates terapêutico, reabilitação",
+          p: "fisioterapia",
+        },
+        {
+          id: "acupuntura",
+          n: "Acupuntura",
+          i: "📍",
+          d: "Medicina tradicional chinesa, acupuntura",
+          p: "fisioterapia",
+        },
+        {
+          id: "geral",
+          n: "Medicina Geral",
+          i: "🏥",
+          d: "Clínicas gerais, consultórios médicos",
+          p: null,
+        },
+        {
+          id: "clinica_geral",
+          n: "Clínica Geral",
+          i: "🩺",
+          d: "Consultas gerais, check-up, preventivo",
+          p: "geral",
+        },
+        {
+          id: "pediatria",
+          n: "Pediatria",
+          i: "👶",
+          d: "Crianças, vacinas, desenvolvimento",
+          p: "geral",
+        },
+        {
+          id: "cardiologia",
+          n: "Cardiologia",
+          i: "❤️",
+          d: "Coração, hipertensão, arritmia",
+          p: "geral",
+        },
+        {
+          id: "dermatologia",
+          n: "Dermatologia",
+          i: "🩹",
+          d: "Pele, acne, cabelo, unha",
+          p: "geral",
+        },
+        {
+          id: "ginecologia",
+          n: "Ginecologia",
+          i: "♀️",
+          d: "Mulher, pré-natal, contraceptivo",
+          p: "geral",
+        },
+        {
+          id: "oftalmologia",
+          n: "Oftalmologia",
+          i: "👁️",
+          d: "Olhos, visão, lentes, cirurgia",
+          p: "geral",
+        },
+        {
+          id: "otorrino",
+          n: "Otorrinolaringologia",
+          i: "👂",
+          d: "Ouvido, nariz, garganta, sinusite",
+          p: "geral",
+        },
+        {
+          id: "urologia",
+          n: "Urologia",
+          i: "♂️",
+          d: "Homem, próstata, rins, vias urinárias",
+          p: "geral",
+        },
+        {
+          id: "ortopedia",
+          n: "Ortopedia",
+          i: "🦴",
+          d: "Ossos, articulações, coluna, joelho",
+          p: "geral",
+        },
+        {
+          id: "endocrinologia",
+          n: "Endocrinologia",
+          i: "🧪",
+          d: "Hormônios, diabetes, tireoide",
+          p: "geral",
+        },
+        {
+          id: "gastro",
+          n: "Gastroenterologia",
+          i: "🫄",
+          d: "Estômago, intestino, fígado, refluxo",
+          p: "geral",
+        },
+        {
+          id: "veterinaria",
+          n: "Veterinária",
+          i: "🐾",
+          d: "Clínicas veterinárias, pet shop",
+          p: null,
+        },
+        {
+          id: "farmacia",
+          n: "Farmácia / Drogaria",
+          i: "💊",
+          d: "Farmácias, drogarias, manipulação",
+          p: null,
+        },
+        {
+          id: "salao",
+          n: "Salão de Beleza",
+          i: "💇",
+          d: "Cabelo, unha, estética geral",
+          p: null,
+        },
+        {
+          id: "academia",
+          n: "Academia / Personal",
+          i: "🏋️",
+          d: "Personal trainer, musculação, functional",
+          p: null,
+        },
+        {
+          id: "escritorio",
+          n: "Escritório / Advocacia",
+          i: "⚖️",
+          d: "Advocacia, consultoria, contabilidade",
+          p: null,
+        },
+        {
+          id: "consultoria",
+          n: "Consultoria",
+          i: "💼",
+          d: "Consultoria empresarial, RH, gestão",
+          p: null,
+        },
+        {
+          id: "educacao",
+          n: "Educação / Cursos",
+          i: "📚",
+          d: "Escolas, cursinhos, treinamentos",
+          p: null,
+        },
       ];
       const CAT_MAP = {};
-      CATS.forEach(function (c) { CAT_MAP[c.id] = c; });
+      CATS.forEach(function (c) {
+        CAT_MAP[c.id] = c;
+      });
 
       const F = document.getElementById("form"),
         K = "briefing_recepta_v2";
+      function pedidoDaUrl() {
+        const p = new URLSearchParams(window.location.search).get("pedido");
+        return p && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(p) ? p : null;
+      }
+      F.addEventListener("input", function () {
+        if (pedidoDaUrl() && window.receptaAnalytics) window.receptaAnalytics("briefing_iniciado");
+      }, { once: true });
       let saved = {};
       try {
         saved = JSON.parse(localStorage.getItem(K) || "{}");
@@ -1282,7 +1984,11 @@
               f.o
                 .map(
                   (o) =>
-                    "<option" + (v === o ? " selected" : "") + ">" + esc(o) + "</option>",
+                    "<option" +
+                    (v === o ? " selected" : "") +
+                    ">" +
+                    esc(o) +
+                    "</option>",
                 )
                 .join("") +
               "</select>";
@@ -1302,11 +2008,14 @@
                     '" name="' +
                     f.i +
                     '" value="' +
-                    esc(o) +
+                    esc(typeof o === "object" ? o.texto : o) +
                     '"' +
-                    (arr.indexOf(o) > -1 ? " checked" : "") +
+                    (arr.indexOf(typeof o === "object" ? o.texto : o) > -1
+                      ? " checked"
+                      : "") +
                     "><span>" +
-                    esc(o) +
+                    /* Termos/Privacidade viram links clicáveis no aceite (C11). */
+                    (typeof o === "object" ? o.texto : esc(o)) +
                     "</span></label>",
                 )
                 .join("") +
@@ -1318,21 +2027,23 @@
               '<input type="text" id="cat-search" class="cat-search-input" placeholder="Ex: Odontologia, Psicologia, Estética..." autocomplete="off">' +
               '<button type="button" class="cat-clear" id="cat-clear" title="Limpar seleção">✕</button>' +
               '<div class="cat-dropdown" id="cat-dropdown" data-lenis-prevent></div>' +
-              '</div>' +
+              "</div>" +
               '<div class="cat-selected" id="cat-selected">' +
               '<span class="cat-selected-icon" id="cat-selected-icon"></span>' +
               '<div class="cat-selected-info">' +
               '<div class="cat-selected-name" id="cat-selected-name"></div>' +
               '<div class="cat-selected-desc" id="cat-selected-desc"></div>' +
-              '</div>' +
+              "</div>" +
               '<button type="button" class="cat-selected-change" id="cat-change">Trocar</button>' +
-              '</div>' +
-              '<input type="hidden" id="categoria" value="' + esc(v) + '">';
+              "</div>" +
+              '<input type="hidden" id="categoria" value="' +
+              esc(v) +
+              '">';
           } else {
             const ac =
-              (f.ty === 'email'
+              (f.ty === "email"
                 ? ' autocomplete="email"'
-                : f.ty === 'tel'
+                : f.ty === "tel"
                   ? ' autocomplete="tel"'
                   : "") + (f.im ? ' inputmode="' + f.im + '"' : "");
             h +=
@@ -1370,7 +2081,8 @@
       function filled(f) {
         const v = val(f);
         if (Array.isArray(v)) {
-          if (f.i === "aceite" && f.ty === "check") return v.length === f.o.length;
+          if (f.i === "aceite" && f.ty === "check")
+            return v.length === f.o.length;
           return v.length > 0;
         }
         return !!v;
@@ -1379,19 +2091,22 @@
       function validaCNPJ(v) {
         var d = v.replace(/\D/g, "");
         if (d.length !== 14) return "CNPJ deve ter 14 dígitos";
-        if (/^(\d)\1+$/.test(d)) return "CNPJ não pode ser todos os mesmos dígitos";
-        var weights1 = [5,4,3,2,9,8,7,6,5,4,3,2];
-        var weights2 = [6,5,4,3,2,9,8,7,6,5,4,3,2];
+        if (/^(\d)\1+$/.test(d))
+          return "CNPJ não pode ser todos os mesmos dígitos";
+        var weights1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+        var weights2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
         var sum = 0;
         for (var i = 0; i < 12; i++) sum += parseInt(d.charAt(i)) * weights1[i];
         var r = sum % 11;
         var digit1 = r < 2 ? 0 : 11 - r;
-        if (parseInt(d.charAt(12)) !== digit1) return "CNPJ inválido — dígito verificador incorreto";
+        if (parseInt(d.charAt(12)) !== digit1)
+          return "CNPJ inválido: confira os números";
         sum = 0;
         for (var i = 0; i < 13; i++) sum += parseInt(d.charAt(i)) * weights2[i];
         r = sum % 11;
         var digit2 = r < 2 ? 0 : 11 - r;
-        if (parseInt(d.charAt(13)) !== digit2) return "CNPJ inválido — dígito verificador incorreto";
+        if (parseInt(d.charAt(13)) !== digit2)
+          return "CNPJ inválido: confira os números";
         return true;
       }
 
@@ -1400,17 +2115,25 @@
         clinica: (v) => v.length >= 3 || "Nome muito curto (mín. 3 caracteres)",
         whats_resp: (v) => {
           const d = v.replace(/\D/g, "");
-          return d.length >= 10 || "WhatsApp inválido (mín. 10 dígitos, ex: 53 99999-9999)";
+          return (
+            d.length >= 10 ||
+            "WhatsApp inválido (mín. 10 dígitos, ex: 53 99999-9999)"
+          );
         },
         numero: (v) => {
           const d = v.replace(/\D/g, "");
-          return d.length >= 10 || "Número inválido (mín. 10 dígitos, ex: 53 3333-3333)";
+          return (
+            d.length >= 10 ||
+            "Número inválido (mín. 10 dígitos, ex: 53 3333-3333)"
+          );
         },
         cnpj: (v) => validaCNPJ(v),
-        endereco: (v) => v.length >= 10 || "Endereço muito curto (mín. 10 caracteres)",
+        endereco: (v) =>
+          v.length >= 10 || "Endereço muito curto (mín. 10 caracteres)",
         servicos: (v) => v.length >= 3 || "Informe pelo menos um serviço",
         convenios: (v) => v.length >= 3 || "Informe pelo menos um convênio",
-        horario_func: (v) => v.length >= 5 || "Horário muito curto (ex: Seg a sex 8h-18h)",
+        horario_func: (v) =>
+          v.length >= 5 || "Horário muito curto (ex: Seg a sex 8h-18h)",
       };
       function validateField(f) {
         const v = val(f);
@@ -1442,27 +2165,59 @@
         let v = el.value.replace(/\D/g, "");
         if (v.length > 14) v = v.substring(0, 14);
         if (v.length === 14) {
-          v = v.substring(0,2) + "." + v.substring(2,5) + "." + v.substring(5,8) + "/" + v.substring(8,12) + "-" + v.substring(12);
+          v =
+            v.substring(0, 2) +
+            "." +
+            v.substring(2, 5) +
+            "." +
+            v.substring(5, 8) +
+            "/" +
+            v.substring(8, 12) +
+            "-" +
+            v.substring(12);
         }
         el.value = v;
       }
       const cnpjEl = document.getElementById("cnpj");
       if (cnpjEl) {
-        cnpjEl.addEventListener("keydown", function(e) {
-          const allowed = ["Backspace","Delete","Tab","Escape","Enter","ArrowLeft","ArrowRight","ArrowUp","ArrowDown","Home","End"];
+        cnpjEl.addEventListener("keydown", function (e) {
+          const allowed = [
+            "Backspace",
+            "Delete",
+            "Tab",
+            "Escape",
+            "Enter",
+            "ArrowLeft",
+            "ArrowRight",
+            "ArrowUp",
+            "ArrowDown",
+            "Home",
+            "End",
+          ];
           const isSelectAll = e.key === "a" && (e.ctrlKey || e.metaKey);
           const isCopy = e.key === "c" && (e.ctrlKey || e.metaKey);
           const isPaste = e.key === "v" && (e.ctrlKey || e.metaKey);
           const isCut = e.key === "x" && (e.ctrlKey || e.metaKey);
-          if (allowed.includes(e.key) || isSelectAll || isCopy || isPaste || isCut) return;
+          if (
+            allowed.includes(e.key) ||
+            isSelectAll ||
+            isCopy ||
+            isPaste ||
+            isCut
+          )
+            return;
           if (e.key.length === 1 && !/[0-9]/.test(e.key)) {
             e.preventDefault();
           }
         });
-        cnpjEl.addEventListener("input", function() { applyCnpjMask(this); });
-        cnpjEl.addEventListener("paste", function(e) {
+        cnpjEl.addEventListener("input", function () {
+          applyCnpjMask(this);
+        });
+        cnpjEl.addEventListener("paste", function (e) {
           e.preventDefault();
-          const t = (e.clipboardData || window.clipboardData).getData("text").replace(/\D/g, "");
+          const t = (e.clipboardData || window.clipboardData)
+            .getData("text")
+            .replace(/\D/g, "");
           document.execCommand("insertText", false, t.replace(/\D/g, ""));
           applyCnpjMask(this);
         });
@@ -1509,12 +2264,15 @@
         var el = document.getElementById(f.i);
         if (!el) return true;
         var r = validateField(f);
-        if (r === true) { clearFieldError(el); return true; }
+        if (r === true) {
+          clearFieldError(el);
+          return true;
+        }
         showFieldError(el, r);
         return false;
       }
       function allFieldsValid() {
-        return REQ.every(function(f) {
+        return REQ.every(function (f) {
           var el = document.getElementById(f.i);
           return el && validateField(f) === true;
         });
@@ -1527,14 +2285,20 @@
           btn.disabled = false;
         }
       }
-      REQ.forEach(function(f) {
+      REQ.forEach(function (f) {
         var el = document.getElementById(f.i);
         if (!el) return;
         if (f.ty === "check" || f.ty === "radio") {
-          el.addEventListener("change", function() { validateAndShow(f); updateBtnState(); });
+          el.addEventListener("change", function () {
+            validateAndShow(f);
+            updateBtnState();
+          });
         } else {
-          el.addEventListener("blur", function() { validateAndShow(f); updateBtnState(); });
-          el.addEventListener("input", function() {
+          el.addEventListener("blur", function () {
+            validateAndShow(f);
+            updateBtnState();
+          });
+          el.addEventListener("input", function () {
             if (el.classList.contains("inv")) validateAndShow(f);
             updateBtnState();
           });
@@ -1548,9 +2312,6 @@
       const rail = document.getElementById("stepsRail"),
         stepLabel = document.getElementById("stepLabel");
       const prevBtn = document.getElementById("prevBtn");
-      const semMotion = window.matchMedia(
-        "(prefers-reduced-motion: reduce)",
-      ).matches;
       const btn = document.getElementById("btn"),
         errBox = document.getElementById("err");
       updateBtnState();
@@ -1568,27 +2329,36 @@
         return S.length - 1;
       }
 
+      function phaseForStep(i) {
+        return PHASES.findIndex((phase) => i >= phase.first && i <= phase.last);
+      }
+
       function renderRail() {
-        rail.innerHTML = S.map((s, i) => {
-          const cls = i === step ? "active" : i < step ? "done" : "";
-          const locked = i > maxVisited;
-          const checkIcon = i < step
-            ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
-            : (i + 1);
+        const activePhase = phaseForStep(step);
+        rail.innerHTML = PHASES.map((phase, i) => {
+          const cls =
+            i === activePhase ? "active" : i < activePhase ? "done" : "";
+          const locked = phase.first > maxVisited;
+          const checkIcon =
+            i < activePhase
+              ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+              : i + 1;
           return (
             '<button type="button" class="step-dot ' +
             cls +
             '" data-step="' +
-            i +
+            phase.first +
             '"' +
             (locked ? " disabled" : "") +
             '><span class="dot-n">' +
             checkIcon +
             '</span><span class="dot-l">' +
-            esc(s.t) +
+            esc(phase.t) +
             "</span></button>" +
-            (i < S.length - 1
-              ? '<div class="step-connector' + (i < step ? " filled" : "") + '"></div>'
+            (i < PHASES.length - 1
+              ? '<div class="step-connector' +
+                (i < activePhase ? " filled" : "") +
+                '"></div>'
               : "")
           );
         }).join("");
@@ -1605,20 +2375,16 @@
         prevBtn.style.display = i === 0 ? "none" : "";
         btn.textContent =
           i === totalSteps - 1
-            ? "Enviar briefing e liberar meu teste"
+            ? "Enviar briefing e ativar minha Recepta"
             : "Continuar →";
-        stepLabel.textContent = S[i].t;
+        stepLabel.textContent = PHASES[phaseForStep(i)].t;
         renderRail();
         errBox.className = "msg";
-        document.querySelectorAll(".inv").forEach(function(e) { clearFieldError(e); });
+        document.querySelectorAll(".inv").forEach(function (e) {
+          clearFieldError(e);
+        });
         prog();
         updateBtnState();
-        const top =
-          document.querySelector(".prog").getBoundingClientRect().bottom +
-          window.scrollY -
-          16;
-        if (window.scrollY > top)
-          window.scrollTo({ top, behavior: semMotion ? "auto" : "smooth" });
       }
 
       rail.addEventListener("click", (e) => {
@@ -1635,7 +2401,14 @@
         const d = data();
         const fields = [
           { label: "Clínica", key: "clinica" },
-          { label: "Categoria", key: "categoria", format: function (v) { var c = CAT_MAP[v]; return c ? c.i + " " + c.n : v; } },
+          {
+            label: "Categoria",
+            key: "categoria",
+            format: function (v) {
+              var c = CAT_MAP[v];
+              return c ? c.i + " " + c.n : v;
+            },
+          },
           { label: "WhatsApp", key: "whats_resp" },
           { label: "Número", key: "numero" },
           { label: "CNPJ", key: "cnpj" },
@@ -1651,7 +2424,10 @@
               '<div class="summary-row"><span class="summary-label">' +
               f.label +
               '</span><span class="summary-value">' +
-              esc(f.format ? f.format(d[f.key]) : d[f.key]).replace(/\n/g, "<br>") +
+              esc(f.format ? f.format(d[f.key]) : d[f.key]).replace(
+                /\n/g,
+                "<br>",
+              ) +
               "</span></div>",
           )
           .join("");
@@ -1663,9 +2439,7 @@
         document
           .querySelectorAll(".inv")
           .forEach((e) => e.classList.remove("inv"));
-        document
-          .querySelectorAll(".field-err")
-          .forEach((e) => e.remove());
+        document.querySelectorAll(".field-err").forEach((e) => e.remove());
         const missStep = validateStep(step);
         if (missStep.length) {
           missStep.forEach((f) => {
@@ -1675,7 +2449,8 @@
               const msg = validateField(f);
               const errEl = document.createElement("p");
               errEl.className = "field-err show";
-              errEl.textContent = typeof msg === "string" ? msg : "Campo obrigatório";
+              errEl.textContent =
+                typeof msg === "string" ? msg : "Campo obrigatório";
               e.parentNode.insertBefore(errEl, e.nextSibling);
             }
           });
@@ -1685,11 +2460,12 @@
             missStep[0].l +
             ": " +
             (typeof errMsg === "string" ? errMsg : "Campo obrigatório") +
-            (missStep.length > 1 ? " (+" + (missStep.length - 1) + " outros)" : "");
+            (missStep.length > 1
+              ? " (+" + (missStep.length - 1) + " outros)"
+              : "");
           const el = document.querySelector(
             '[data-id="' + missStep[0].i + '"]',
           );
-          if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
           return;
         }
         if (step < totalSteps - 1) {
@@ -1706,9 +2482,10 @@
             missAll[0].l +
             ": " +
             (typeof errMsg2 === "string" ? errMsg2 : "Campo obrigatório") +
-            (missAll.length > 1 ? " (+" + (missAll.length - 1) + " outros)" : "");
+            (missAll.length > 1
+              ? " (+" + (missAll.length - 1) + " outros)"
+              : "");
           const el = document.querySelector('[data-id="' + missAll[0].i + '"]');
-          if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
           return;
         }
         errBox.className = "msg";
@@ -1716,11 +2493,22 @@
         btn.textContent = "Enviando…";
         const payload = {
           enviadoEm: new Date().toISOString(),
+          pedido: pedidoDaUrl(),
           campos: S.map((s) => ({
             secao: s.t,
             itens: s.f.map((f) => ({ label: f.l, valor: val(f) })),
           })),
-          bruto: data(),
+          bruto: Object.assign(data(), {
+            tier:
+              new URLSearchParams(window.location.search).get("tier") ===
+              "essencial"
+                ? "essencial"
+                : "completo",
+            // F6: o pedido pago criado no /api/checkout chega aqui pela URL de
+            // sucesso do Stripe. Só viaja se for um UUID válido (o mesmo valor
+            // que o webhook grava em pedidos.id) — lixo de query não vira dado.
+            pedido: pedidoDaUrl(),
+          }),
         };
         try {
           const r = await fetch("/api/submit", {
@@ -1730,6 +2518,7 @@
           });
           if (!r.ok) throw new Error(await r.text());
           const j = await r.json();
+          if (window.receptaAnalytics) window.receptaAnalytics("briefing_enviado");
           localStorage.removeItem(K);
           /* Show completion screen */
           document.getElementById("footerNav").style.display = "none";
@@ -1740,13 +2529,12 @@
           });
           buildSummary();
           document.getElementById("completion").classList.add("active");
-          window.scrollTo({ top: 0, behavior: "smooth" });
         } catch (e) {
           btn.disabled = false;
-          btn.textContent = "Enviar briefing e liberar meu teste";
+          btn.textContent = "Enviar briefing e ativar minha Recepta";
           errBox.className = "msg err";
           errBox.textContent =
-            "Não conseguimos enviar agora. Seus dados estão salvos neste navegador — tente de novo em instantes.";
+            "Não conseguimos enviar agora. Seus dados estão salvos neste navegador, tente de novo em instantes.";
         }
       });
 
@@ -1759,6 +2547,31 @@
         var hiddenEl = document.getElementById("categoria");
         var wrap = searchEl ? searchEl.closest(".cat-search-wrap") : null;
         if (!searchEl) return;
+        document.body.appendChild(dd);
+
+        var DD_GAP = 6;
+        var DD_MARGIN = 12;
+        var DD_MAX = 380;
+        var DD_MIN = 140;
+        function placeDD() {
+          if (!dd.classList.contains("open")) return;
+          var r = searchEl.getBoundingClientRect();
+          var below = window.innerHeight - r.bottom - DD_GAP - DD_MARGIN;
+          var above = r.top - DD_GAP - DD_MARGIN;
+          var flip = below < DD_MIN && above > below;
+          dd.style.left = r.left + "px";
+          dd.style.width = r.width + "px";
+          dd.style.maxHeight =
+            Math.max(DD_MIN, Math.min(DD_MAX, flip ? above : below)) + "px";
+          if (flip) {
+            dd.style.top = "auto";
+            dd.style.bottom = window.innerHeight - r.top + DD_GAP + "px";
+          } else {
+            dd.style.bottom = "auto";
+            dd.style.top = r.bottom + DD_GAP + "px";
+          }
+        }
+        window.addEventListener("resize", placeDD);
 
         function renderDD(q) {
           q = (q || "").toLowerCase().trim();
@@ -1774,15 +2587,23 @@
           var groups = {};
           filtered.forEach(function (c) {
             var k = c.p || c.id;
-            if (!groups[k]) groups[k] = { pai: c.p ? CAT_MAP[c.p] : null, items: [] };
+            if (!groups[k])
+              groups[k] = { pai: c.p ? CAT_MAP[c.p] : null, items: [] };
             groups[k].items.push(c);
           });
           var html = "";
           Object.keys(groups).forEach(function (k) {
             var g = groups[k];
-            html += '<div class="cat-group-label">' + (g.pai ? g.pai.i + " " + g.pai.n : "📋 Categorias") + "</div>";
+            html +=
+              '<div class="cat-group-label">' +
+              (g.pai ? g.pai.i + " " + g.pai.n : "📋 Categorias") +
+              "</div>";
             g.items.forEach(function (c) {
-              var parentTag = c.p ? '<span class="cat-option-parent">' + (CAT_MAP[c.p] ? CAT_MAP[c.p].n : c.p) + "</span>" : "";
+              var parentTag = c.p
+                ? '<span class="cat-option-parent">' +
+                  (CAT_MAP[c.p] ? CAT_MAP[c.p].n : c.p) +
+                  "</span>"
+                : "";
               html +=
                 '<div class="cat-option" data-id="' +
                 c.id +
@@ -1807,6 +2628,7 @@
           }
           dd.innerHTML = html;
           dd.classList.add("open");
+          placeDD();
           dd.querySelectorAll(".cat-option").forEach(function (opt) {
             opt.addEventListener("click", function () {
               selectCat(opt.dataset.id);
@@ -1841,7 +2663,8 @@
           clearBtn.classList.add("show");
           document.getElementById("cat-selected-icon").textContent = "📌";
           document.getElementById("cat-selected-name").textContent = txt;
-          document.getElementById("cat-selected-desc").textContent = "Categoria personalizada";
+          document.getElementById("cat-selected-desc").textContent =
+            "Categoria personalizada";
           selEl.classList.add("show");
           wrap.style.display = "none";
           prog();
@@ -1863,7 +2686,10 @@
           renderDD(searchEl.value);
         });
         document.addEventListener("click", function (e) {
-          if (!e.target.closest(".cat-search-wrap") && !e.target.closest(".cat-dropdown"))
+          if (
+            !e.target.closest(".cat-search-wrap") &&
+            !e.target.closest(".cat-dropdown")
+          )
             dd.classList.remove("open");
         });
         clearBtn.addEventListener("click", clearCat);
@@ -1881,7 +2707,5 @@
 
       showStep(firstIncompleteStep());
     </script>
-    <script src="https://unpkg.com/lenis@latest/dist/lenis.min.js"></script>
-    <script src="/smooth-scroll.js"></script>
   </body>
 </html>

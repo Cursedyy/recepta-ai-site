@@ -3,16 +3,34 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>IA para Consultórios de Ortopedia | Recepta AI</title>
-  <meta name="description" content="Atenda pacientes de ortopedia 24h no WhatsApp: agende consultas, responda sobre convênios e preparo. IA para ortopedistas.">
+  <title>Secretária virtual para consultórios de ortopedia | Recepta AI</title>
+  <meta name="description" content="Seu consultório de ortopedia responde no WhatsApp a qualquer hora: agenda consulta e retorno, confere convênio e orienta o pós-cirúrgico. Garantia Recepta de 7 dias: se não servir, devolvemos 100%.">
   <meta name="robots" content="index,follow">
   <link rel="canonical" href="https://www.receptaai.com.br/ortopedia/">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Secretária virtual para consultórios de ortopedia | Recepta AI">
+  <meta property="og:description" content="Seu consultório de ortopedia responde no WhatsApp a qualquer hora: agenda consulta e retorno, confere convênio e orienta o pós-cirúrgico. Garantia Recepta de 7 dias: se não servir, devolvemos 100%.">
+  <meta property="og:url" content="https://www.receptaai.com.br/ortopedia/">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:site_name" content="Recepta AI">
+  <meta property="og:image" content="https://www.receptaai.com.br/img/og-recepta.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:type" content="image/jpeg">
+  <meta property="og:image:alt" content="Recepta AI: secretária virtual com IA para clínicas e consultórios">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Secretária virtual para consultórios de ortopedia | Recepta AI">
+  <meta name="twitter:description" content="Seu consultório de ortopedia responde no WhatsApp a qualquer hora: agenda consulta e retorno, confere convênio e orienta o pós-cirúrgico. Garantia Recepta de 7 dias: se não servir, devolvemos 100%.">
+  <meta name="twitter:image" content="https://www.receptaai.com.br/img/og-recepta.jpg">
   <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/img/favicon-512.png">
+  <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+  <meta name="theme-color" content="#151749">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    :root { --bg: #f8fafc; --surface: #fff; --ink: #0f172a; --muted: #64748b; --border: #e2e8f0; --primary: #0891b2; --primary-hover: #0e7490; --primary-soft: #ecfeff; }
+    :root { --bg: #f8fafc; --surface: #fff; --ink: #0f172a; --muted: #64748b; --border: #e2e8f0; --primary: #0e7490; --primary-hover: #155e75; --primary-soft: #ecfeff; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: "Inter", -apple-system, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.6; }
     a { color: var(--primary); text-decoration: none; }
@@ -36,7 +54,7 @@
     .section-title { font-size: 28px; font-weight: 700; text-align: center; margin-bottom: 12px; letter-spacing: -0.02em; }
     .section-sub { color: var(--muted); text-align: center; max-width: 500px; margin: 0 auto 40px; }
 
-    .benefits { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+    .benefits { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 24px; }
     .benefit { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 28px; }
     .benefit-icon { font-size: 32px; margin-bottom: 12px; }
     .benefit h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
@@ -54,21 +72,32 @@
     .cta-section a:hover { background: var(--primary-hover); }
 
     footer { text-align: center; padding: 24px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--border); }
+    .header .logo, .nav a { display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; }
+    .nav { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px 16px; }
+    .nav a { margin-left: 0; }
+    a:focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
+    .related { padding: 48px 24px 8px; text-align: center; }
+    .related h2 { font-size: 22px; margin-bottom: 6px; }
+    .related p { color: var(--muted); margin-bottom: 18px; }
+    .related-links { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; max-width: 720px; margin: 0 auto; }
+    .related-links a { display: inline-block; padding: 9px 18px; border: 1px solid var(--border); border-radius: 99px; background: var(--surface); font-weight: 500; font-size: 14px; color: var(--primary); transition: all 0.15s; }
+    .related-links a:hover { border-color: var(--primary); background: var(--primary-soft); }
   </style>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "FAQPage",
+    "dateModified": "2026-09-18",
     "mainEntity": [
       {
         "@type": "Question",
         "name": "A IA pode agendar consultas ortopédicas?",
-        "acceptedAnswer": { "@type": "Answer", "text": "Sim. A IA agenda consultas, retorno e pré-operatorios, verificando disponibilidade e convênios." }
+        "acceptedAnswer": { "@type": "Answer", "text": "Sim. Consulta, retorno e pré-operatório, sempre conferindo a agenda e o convênio antes de confirmar." }
       },
       {
         "@type": "Question",
         "name": "Como funciona o atendimento pós-cirúrgico?",
-        "acceptedAnswer": { "@type": "Answer", "text": "A IA envia lembretes de retorno, orienta sobre cuidados e escala para humano quando há complicação." }
+        "acceptedAnswer": { "@type": "Answer", "text": "Ela manda o lembrete de retorno e as orientações que você cadastrou. Sinal de complicação não é assunto dela: passa para a sua equipe na hora." }
       }
     ]
   }
@@ -81,53 +110,54 @@
       <nav class="nav">
         <a href="/">Home</a>
         <a href="/blog/">Blog</a>
-        <a href="/briefing/">Teste grátis</a>
+        <a href="/#planos">Assinar</a>
       </nav>
     </div>
   </header>
 
+  <main>
   <section class="hero">
     <span class="hero-badge">Especialidade: Ortopedia</span>
-    <h1>IA para <em>consultórios de ortopedia</em> que atende 24h</h1>
-    <p>Agende consultas, retorno e pré-operatorios. Responda sobre convênios e cuidados pós-cirúrgicos.</p>
-    <a href="/briefing/" class="hero-cta">Testar grátis por 7 dias</a>
-    <p class="hero-sub">Sem cartão de crédito · Configuração em 10 minutos</p>
+    <h1>Você opera. <em>Quem responde o WhatsApp?</em></h1>
+    <p>Consulta, retorno e pré-operatório marcados sozinhos. Convênio conferido antes. Paciente operado recebendo orientação sem ligar para o consultório.</p>
+    <a href="/#planos" class="hero-cta">Assinar com garantia de 7 dias</a>
+    <p class="hero-sub">Garantia Recepta de 7 dias · Configuração em 10 minutos</p>
   </section>
 
   <section class="section">
-    <h2 class="section-title">Ortopedia com atendimento inteligente</h2>
-    <p class="section-sub">Ortopedistas recebem muitas ligações sobre agendamento e convênios.</p>
+    <h2 class="section-title">O celular toca enquanto você está em cirurgia</h2>
+    <p class="section-sub">São sempre as mesmas perguntas: aceita meu convênio, quando tem vaga, o que levo no dia. Nenhuma delas precisa de você.</p>
     
     <div class="benefits">
       <div class="benefit">
         <div class="benefit-icon">🦴</div>
-        <h3>Agendamento completo</h3>
-        <p>Consultas, retornos e pré-operatorios agendados automaticamente.</p>
+        <h3>Consulta, retorno e pré-operatório</h3>
+        <p>Da primeira consulta ao retorno pós-cirúrgico, o paciente marca sozinho pelo WhatsApp e o horário já entra na sua agenda.</p>
       </div>
       <div class="benefit">
         <div class="benefit-icon">🏥</div>
         <h3>Convênios verificados</h3>
-        <p>IA confere se o convênio do paciente é aceito antes de agendar.</p>
+        <p>O convênio é conferido antes de marcar. Ninguém descobre no dia da consulta que o plano não é aceito.</p>
       </div>
       <div class="benefit">
         <div class="benefit-icon">🩹</div>
-        <h3>Cuidados pós-cirúrgicos</h3>
-        <p>Lembretes de retorno e orientações de cuidados enviados automaticamente.</p>
+        <h3>Paciente operado não fica sem resposta</h3>
+        <p>Orientação de cuidado e lembrete de retorno saem no tempo certo. Se a dúvida for clínica, ela chama você na hora.</p>
       </div>
       <div class="benefit">
         <div class="benefit-icon">📋</div>
-        <h3>Documentos necessários</h3>
-        <p>IA informa exames e documentos que o paciente deve trazer.</p>
+        <h3>Ninguém chega sem o exame</h3>
+        <p>O paciente é avisado do que levar: raio-x, ressonância, pedido médico, carteirinha. Consulta remarcada por falta de exame vira exceção.</p>
       </div>
       <div class="benefit">
         <div class="benefit-icon">⏰</div>
-        <h3>Atendimento 24/7</h3>
-        <p>Pacientes com dor ou urgência recebem orientação imediata.</p>
+        <h3>Resposta na madrugada e no domingo</h3>
+        <p>Quem está com dor manda mensagem a qualquer hora. Ela responde na hora e encaminha para você o que for urgente.</p>
       </div>
       <div class="benefit">
         <div class="benefit-icon">💬</div>
-        <h3>Escalação para humano</h3>
-        <p>Casos complexos são transferidos para o médico automaticamente.</p>
+        <h3>Ela sabe quando calar e chamar você</h3>
+        <p>Dúvida clínica, queixa ou caso fora do padrão não são respondidos por ela. Vão direto para a sua equipe.</p>
       </div>
     </div>
   </section>
@@ -137,27 +167,42 @@
     <div class="faq">
       <div class="faq-item">
         <h3>A IA pode agendar consultas ortopédicas?</h3>
-        <p>Sim. A IA agenda consultas, retorno e pré-operatorios, verificando disponibilidade e convênios.</p>
+        <p>Sim. Consulta, retorno e pré-operatório, sempre conferindo a agenda e o convênio antes de confirmar.</p>
       </div>
       <div class="faq-item">
         <h3>Como funciona o atendimento pós-cirúrgico?</h3>
-        <p>A IA envia lembretes de retorno, orienta sobre cuidados e escala para humano quando há complicação.</p>
+        <p>Ela manda o lembrete de retorno e as orientações que você cadastrou. Sinal de complicação não é assunto dela: passa para a sua equipe na hora.</p>
       </div>
       <div class="faq-item">
         <h3>Funciona com convênios de ortopedia?</h3>
-        <p>Sim. A IA consulta a lista de convênios aceitos pelo consultório.</p>
+        <p>Sim. Ela responde com a lista de convênios que o seu consultório aceita.</p>
       </div>
     </div>
   </section>
 
-  <section class="cta-section">
-    <h2>Teste grátis por 7 dias</h2>
-    <p>Sem cartão de crédito · Cancele quando quiser</p>
-    <a href="/briefing/">Começar agora</a>
+  <section class="related">
+    <h2>A Recepta também atende</h2>
+    <p>Secretária virtual com IA para outras especialidades:</p>
+    <nav class="related-links" aria-label="Especialidades">
+      <a href="/dermatologia/">Dermatologia</a>
+      <a href="/radiologia/">Radiologia</a>
+      <a href="/estetica/">Estética</a>
+      <a href="/psicologia/">Psicologia</a>
+      <a href="/fisioterapia/">Fisioterapia</a>
+      <a href="/blog/">Blog</a>
+    </nav>
   </section>
 
+  <section class="cta-section">
+    <h2>Garantia Recepta de 7 dias</h2>
+    <p>Devolvemos 100% se não servir · Cancele quando quiser</p>
+    <a href="/#planos">Começar agora</a>
+  </section>
+
+  </main>
+
   <footer>
-    <p>© 2026 Recepta AI — Secretária virtual com IA para clínicas</p>
+    <p>© 2026 Recepta AI | Secretária virtual com IA para clínicas</p>
   </footer>
 </body>
 </html>
