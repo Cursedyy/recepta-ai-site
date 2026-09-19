@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Confirmação de consulta automática pelo WhatsApp: como funciona | Recepta AI</title>
+  <meta name="description" content="Como funciona a confirmação automática de consulta no WhatsApp: mensagem no dia seguinte, resposta do paciente, lembrete 24h e 3h antes e lista de risco para a equipe. Veja o fluxo completo.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://www.receptaai.com.br/blog/confirmacao-consulta-whatsapp/">
+  <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/img/favicon-512.png">
+  <link rel="apple-touch-icon" href="/img/apple-touch-icon.png">
+  <meta name="theme-color" content="#151749">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg: #f8fafc; --surface: #fff; --ink: #0f172a; --muted: #64748b; --border: #e2e8f0; --primary: #4f46e5; --primary-soft: #eef2ff; --red: #dc2626; --green: #047857; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: "Inter", -apple-system, sans-serif; background: var(--bg); color: var(--ink); line-height: 1.7; }
+    a { color: var(--primary); }
+    .header { background: var(--ink); color: #fff; padding: 16px 24px; }
+    .header-inner { max-width: 720px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-weight: 700; font-size: 16px; text-decoration: none; color: #fff; }
+    .logo span { color: #818cf8; }
+    .back { color: rgba(255,255,255,0.7); font-size: 14px; text-decoration: none; }
+    .back:hover { color: #fff; }
+    article { max-width: 720px; margin: 0 auto; padding: 48px 24px 80px; }
+    .tag { display: inline-block; font-size: 11px; font-weight: 600; color: var(--primary); background: var(--primary-soft); padding: 4px 12px; border-radius: 99px; margin-bottom: 16px; text-transform: uppercase; }
+    h1 { font-size: clamp(28px, 5vw, 38px); font-weight: 700; letter-spacing: -0.03em; line-height: 1.15; margin-bottom: 16px; }
+    .meta { color: var(--muted); font-size: 14px; margin-bottom: 32px; }
+    h2 { font-size: 22px; font-weight: 700; margin: 32px 0 12px; letter-spacing: -0.02em; }
+    p { margin-bottom: 16px; font-size: 16px; }
+    .step-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin: 24px 0; }
+    .step-card .step { display: inline-block; font-size: 11px; font-weight: 700; color: #fff; background: var(--primary); padding: 2px 10px; border-radius: 99px; margin-bottom: 10px; }
+    .step-card h2 { font-size: 18px; font-weight: 700; margin: 0 0 8px; }
+    .step-card p { font-size: 15px; margin-bottom: 8px; }
+    .chat { background: #e7f3e8; border-radius: 10px; padding: 14px 16px; font-size: 14px; margin: 12px 0; }
+    .chat b { color: #047857; }
+    .cta-box { background: var(--ink); color: #fff; padding: 32px; border-radius: 12px; text-align: center; margin: 40px 0; }
+    .cta-box h3 { color: #fff; margin: 0 0 8px; font-size: 20px; }
+    .cta-box p { color: rgba(255,255,255,0.7); margin: 0 0 20px; }
+    .cta-box a { display: inline-block; background: var(--primary); color: #fff; padding: 12px 28px; border-radius: 8px; font-weight: 600; text-decoration: none; }
+    .cta-box a:hover { background: #4338ca; }
+    footer { text-align: center; padding: 24px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--border); }
+    header .logo, header .back { display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; }
+    a:focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
+  </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": "Confirmação de consulta automática pelo WhatsApp: como funciona",
+    "description": "O fluxo completo da confirmação automática de consulta no WhatsApp: mensagem pós-agendamento, resposta do paciente, lembrete 24h e 3h antes e lista de risco para a equipe.",
+    "author": { "@type": "Organization", "name": "Recepta AI" },
+    "publisher": { "@type": "Organization", "name": "Recepta AI" },
+    "datePublished": "2026-09-18",
+    "dateModified": "2026-09-18",
+    "mainEntityOfPage": "https://www.receptaai.com.br/blog/confirmacao-consulta-whatsapp/"
+  }
+  </script>
+</head>
+<body>
+  <header class="header">
+    <div class="header-inner">
+      <a class="logo" href="/">Recepta <span>AI</span></a>
+      <a class="back" href="/blog/">← Voltar ao blog</a>
+    </div>
+  </header>
+
+  <main>
+  <article>
+    <span class="tag">Atendimento</span>
+    <h1>Confirmação de consulta automática pelo WhatsApp: como funciona</h1>
+    <div class="meta">18/09/2026 · 6 min de leitura</div>
+
+    <p>Se você já leu sobre como <a href="/blog/reduzir-no-show-consultas/">reduzir o no-show na clínica</a>, sabe que a confirmação é a estratégia número 1. Mas como ela funciona <em>na prática</em>, sem a recepção passar o dia ligando para a lista do dia? É o que este post mostra: o fluxo completo, mensagem por mensagem.</p>
+
+    <div class="step-card">
+      <span class="step">Passo 1</span>
+      <h2>No dia seguinte ao agendamento, a confirmação sai sozinha</h2>
+      <p>Marcou na terça, a mensagem de confirmação chega na quarta — sem ninguém disparar nada. Ela trava a data na memória do paciente logo depois do agendamento, quando o compromisso ainda está fresco.</p>
+      <div class="chat"><b>Recepta:</b> Olá, Maria! Confirmando sua consulta com Dr. Carlos na sexta, 14h, na Clínica Vida. Pode confirmar? 🙂</div>
+    </div>
+
+    <div class="step-card">
+      <span class="step">Passo 2</span>
+      <h2>A resposta do paciente abre (ou fecha) o próximo movimento</h2>
+      <p><b>"Pode confirmar!"</b> — horário garantido, paciente anotado na lista de confirmados. <b>"Preciso remarcar"</b> — e aqui está a diferença: ela abre a remarcação ali mesmo, na conversa, oferecendo os horários livres. O que seria uma falta silenciosa vira um horário recuperado antes de virar prejuízo.</p>
+      <div class="chat"><b>Maria:</b> Vou viajar, preciso mudar.<br><b>Recepta:</b> Sem problemas! Tenho quinta 9h ou terça 15h com o Dr. Carlos. Qual prefere?</div>
+    </div>
+
+    <div class="step-card">
+      <span class="step">Passo 3</span>
+      <h2>24h e 3h antes: o lembrete elimina o esquecimento de véspera</h2>
+      <p>Confirmou há duas semanas, mas a vida corre: o lembrete de 24h dá tempo de reagendar se algo mudou, e o de 3h pega o clássico "me esqueci totalmente". Se a consulta tem preparo — jejum, colírio, levar exames — o lembrete já traz a instrução junto, no mesmo lugar.</p>
+    </div>
+
+    <div class="step-card">
+      <span class="step">Passo 4</span>
+      <h2>Quem não respondeu nada vira lista de risco — para o toque humano</h2>
+      <p>O pequeno grupo que não respondeu nem a confirmação nem os lembretes é onde a falta realmente mora. Em vez de ligar para todos os pacientes do dia, a recepção liga só para essa lista curta: o esforço humano vai exatamente onde faz diferença.</p>
+    </div>
+
+    <h2>Por que WhatsApp e não ligação ou SMS</h2>
+    <p>A ligação interrompe — e paciente em reunião não atende número desconhecido. O SMS é lido por poucos e não permite responder "preciso remarcar" em dois toques. O WhatsApp reúne o melhor dos dois: é lido quase na hora e responde no mesmo lugar, sem formulário, sem link externo, sem "ligue para confirmar".</p>
+
+    <h2>O que toda mensagem de confirmação precisa ter</h2>
+    <p>Nome do paciente, especialidade e profissional, dia e hora com o dia da semana por extenso ("sexta, 14h"), nome da clínica e a pergunta direta que permite responder com um toque. Preparo de exame, se houver. E nada de disparar às 7h de um domingo — mensagens fora de hora incomodam tanto quanto a falta.</p>
+
+    <h2>Quem faz isso no automático</h2>
+    <p>Todo esse fluxo é exatamente o trabalho da <a href="/">Recepta AI</a> no WhatsApp da clínica: confirma no dia seguinte, resolve a remarcação na conversa, lembra em 24h e 3h com preparo incluído e deixa a lista de risco pronta para a equipe. Em consultório de <a href="/fisioterapia/">fisioterapia</a>, o mesmo fluxo ainda mantém a sequência de sessões do pacote em dia.</p>
+    <p>Para colocar isso rodando, a <a href="/quanto-custa-secretaria-virtual-clinica/">tabela de preços</a> está pública — a partir de R$ 347/mês no anual, com Garantia Recepta de 7 dias.</p>
+
+    <div class="cta-box">
+      <h3>Deixe a confirmação trabalhar sozinha</h3>
+      <p>Confirmação, lembrete 24h/3h e remarcação na conversa, sem ninguém da equipe discar. Garantia de 7 dias: devolvemos 100% se não servir.</p>
+      <a href="/#planos">Começar agora</a>
+    </div>
+  </article>
+  </main>
+
+  <footer>
+    <p>© 2026 Recepta AI | Secretária virtual com IA para clínicas</p>
+  </footer>
+</body>
+</html>

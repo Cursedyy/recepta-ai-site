@@ -61,11 +61,18 @@
     .nav { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px 16px; }
     .nav a { margin-left: 0; }
     a:focus-visible { outline: 3px solid currentColor; outline-offset: 3px; }
+    .related { padding: 48px 24px 8px; text-align: center; }
+    .related h2 { font-size: 22px; margin-bottom: 6px; }
+    .related p { color: var(--muted); margin-bottom: 18px; }
+    .related-links { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; max-width: 720px; margin: 0 auto; }
+    .related-links a { display: inline-block; padding: 9px 18px; border: 1px solid var(--border); border-radius: 99px; background: var(--surface); font-weight: 500; font-size: 14px; color: var(--primary); transition: all 0.15s; }
+    .related-links a:hover { border-color: var(--primary); background: var(--primary-soft); }
   </style>
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "FAQPage",
+    "dateModified": "2026-09-18",
     "mainEntity": [
       {
         "@type": "Question",
@@ -156,6 +163,19 @@
         <p>Sim. Ela responde com a lista de convênios que o seu consultório aceita.</p>
       </div>
     </div>
+  </section>
+
+  <section class="related">
+    <h2>A Recepta também atende</h2>
+    <p>Secretária virtual com IA para outras especialidades:</p>
+    <nav class="related-links" aria-label="Especialidades">
+      <a href="/dermatologia/">Dermatologia</a>
+      <a href="/radiologia/">Radiologia</a>
+      <a href="/estetica/">Estética</a>
+      <a href="/psicologia/">Psicologia</a>
+      <a href="/fisioterapia/">Fisioterapia</a>
+      <a href="/blog/">Blog</a>
+    </nav>
   </section>
 
   <section class="cta-section">

@@ -6,7 +6,7 @@
       document.documentElement.classList.add("js");
     </script>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Secretária Virtual com IA para Clínicas | Recepta AI</title>
+    <title>Recepta AI Brasil — Secretária Virtual com IA para Clínicas</title>
     <meta
       name="description"
       content="Secretária virtual com IA que atende o WhatsApp da sua clínica 24h: tira dúvidas de preço e preparo, agenda e remarca consultas. Pagamento antecipado com Garantia Recepta de 7 dias: se não servir, devolvemos 100%."
@@ -80,7 +80,11 @@
             "@type": "Organization",
             "@id": "https://www.receptaai.com.br/#organization",
             "name": "Recepta AI",
-            "alternateName": "Recepta",
+            "alternateName": [
+              "Recepta",
+              "Recepta AI Brasil",
+              "Recepta Brasil"
+            ],
             "url": "https://www.receptaai.com.br/",
             "logo": {
               "@type": "ImageObject",
@@ -1724,7 +1728,7 @@
       }
       @media (min-width: 960px) {
         .foot-grid {
-          grid-template-columns: 1.6fr 1fr 1fr 1.3fr;
+          grid-template-columns: 1.6fr 1fr 1fr 1fr 1.3fr;
           gap: 40px;
           padding: 64px 0 44px;
         }
@@ -2974,6 +2978,24 @@
         background: var(--accent-soft);
         color: var(--accent);
         font-weight: 600;
+      }
+      .spec-chips a {
+        padding: 7px 14px;
+        border-radius: 999px;
+        border: 1px solid var(--accent);
+        background: var(--accent-soft);
+        font-size: 13.5px;
+        font-weight: 600;
+        color: var(--accent);
+        text-decoration: none;
+        transition: filter 0.15s ease;
+      }
+      .spec-chips a:hover {
+        filter: brightness(1.12);
+      }
+      .spec-chips a:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
       }
 
       /* ===== garantia ===== */
@@ -4347,18 +4369,18 @@
               class="spec-chips"
               style="justify-content: center; margin-bottom: 48px"
             >
-              <span>Dermatologia</span>
-              <span>Odontologia</span>
-              <span>Ginecologia</span>
-              <span>Ortopedia</span>
-              <span>Oftalmologia</span>
-              <span>Pediatria</span>
-              <span>Psiquiatria</span>
-              <span>Fisioterapia</span>
-              <span>Nutrição</span>
-              <span>Cardiologia</span>
-              <span>Diagnóstico por imagem</span>
-              <span>Estética</span>
+              <a href="/dermatologia/">Dermatologia</a>
+              <a href="/odontologia/">Odontologia</a>
+              <a href="/ginecologia/">Ginecologia</a>
+              <a href="/ortopedia/">Ortopedia</a>
+              <a href="/oftalmologia/">Oftalmologia</a>
+              <a href="/pediatria/">Pediatria</a>
+              <a href="/psicologia/">Psicologia</a>
+              <a href="/fisioterapia/">Fisioterapia</a>
+              <a href="/nutricao/">Nutrição</a>
+              <a href="/cardiologia/">Cardiologia</a>
+              <a href="/radiologia/">Diagnóstico por imagem</a>
+              <a href="/estetica/">Estética</a>
               <span class="is-more">e qualquer outra</span>
             </div>
 
@@ -5536,6 +5558,26 @@
           <a href="/clinica/login">Entrar</a>
           <a href="#planos">Assinar agora</a>
           <a href="#faq">Dúvidas</a>
+        </nav>
+        <nav class="foot-col" aria-label="Especialidades">
+          <h3>Especialidades</h3>
+          <a href="/radiologia/">Radiologia</a>
+          <a href="/estetica/">Estética</a>
+          <a href="/ortopedia/">Ortopedia</a>
+          <a href="/psicologia/">Psicologia</a>
+          <a href="/dermatologia/">Dermatologia</a>
+          <a href="/odontologia/">Odontologia</a>
+          <a href="/pediatria/">Pediatria</a>
+          <a href="/ginecologia/">Ginecologia</a>
+          <a href="/cardiologia/">Cardiologia</a>
+          <a href="/fisioterapia/">Fisioterapia</a>
+          <a href="/nutricao/">Nutrição</a>
+          <a href="/oftalmologia/">Oftalmologia</a>
+          <a href="/blog/">Blog</a>
+          <a href="/quanto-custa-secretaria-virtual-clinica/">Preços</a>
+          <a href="/recepta-vs-concorrentes/">Comparar</a>
+          <a href="/blog/ia-vs-secretaria-clt/">IA × secretária CLT</a>
+          <a href="/blog/reduzir-no-show-consultas/">Reduzir no-show</a>
         </nav>
         <div class="foot-col">
           <h3>Contato</h3>
